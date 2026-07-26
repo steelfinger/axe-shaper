@@ -501,8 +501,8 @@ export const REFERENCE_TEMPLATES: Record<string, ReferenceTemplate> = {
     bridgePresetId: 'tune_o_matic',
     defaultAnchors: SG_STYLE_ANCHORS,
     defaultPickups: [
-      { id: 'p_neck', type: 'humbucker', offsetYMm: 55, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
-      { id: 'p_bridge', type: 'humbucker', offsetYMm: 150, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
+      { id: 'p_neck', type: 'humbucker', offsetYMm: 90, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
+      { id: 'p_bridge', type: 'humbucker', offsetYMm: 198, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
     ],
   },
   s_style: {

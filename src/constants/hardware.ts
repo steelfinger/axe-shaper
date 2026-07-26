@@ -39,13 +39,13 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
   },
   gibson_sg_22: {
     id: 'gibson_sg_22',
-    name: 'Double-Cut SG Vintage (24.75" Scale, 22 Frets, Extended Heel)',
+    name: 'Double-Cut SG Vintage (24.75" Scale, 22 Frets, Fret 16 Joint Line)',
     scaleLengthMm: 628.65,    // 24.75 inches
-    nutToBodyEdgeMm: 442.2,   // Nut to Fret 22 (body entrance edge Y=0)
-    nutToJointMm: 442.2,
+    nutToBodyEdgeMm: 379.2,   // Nut to Fret 16 (body entrance edge Y=0)
+    nutToJointMm: 414.27,
     frets: 22,
     jointWidthMm: 38.1,       // 1.5 inches mortise
-    jointDepthMm: 50.0,       // SG shallow pocket depth inside body
+    jointDepthMm: 76.2,       // SG pocket depth inside body
     jointCornerRadiusMm: 6.35,
     style: 'gibson_style',
   },
