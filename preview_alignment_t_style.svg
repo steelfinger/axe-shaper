@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="-450 -250 650 500">
+  <rect width="100%" height="100%" fill="#1e2230" />
+  <g transform="rotate(90)">
+    <path d="M -27.78 0.00 C -31.63 0.20, -24.92 17.05, -38.37 17.11 C -47.41 17.15, -63.58 -2.50, -95.27 -3.28 C -121.78 -3.92, -142.81 9.80, -143.56 40.10 C -145.05 100.43, -116.06 113.78, -118.34 154.17 C -120.62 194.56, -165.68 245.60, -166.60 311.21 C -167.11 347.21, -146.98 380.20, -117.19 395.80 C -87.40 411.40, -37.98 412.01, -0.80 410.81 C 36.38 409.61, 85.40 413.01, 116.39 395.00 C 147.38 376.99, 162.00 345.97, 164.20 312.82 C 168.79 243.75, 116.85 194.36, 116.52 154.10 C 116.23 119.79, 141.16 88.82, 141.45 54.65 C 141.58 38.94, 138.94 3.50, 116.36 3.36 C 82.71 3.15, 100.33 72.62, 53.04 72.62 C 29.41 72.62, 29.21 51.94, 29.16 46.28 C 29.08 36.22, 28.23 4.70, 27.78 0.00 C 12.78 0.00, -23.93 -0.20, -27.78 0.00 Z" fill="rgba(180,83,9,0.4)" stroke="#f0f4f8" stroke-width="3" />
+    
+    <!-- Neck pocket cavity -->
+    <rect x="-27.78" y="0" width="55.56" height="76.2" fill="rgba(239,68,68,0.2)" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,3" />
+    
+    <!-- Pickups -->
+    <g transform="translate(0, 60) rotate(0)">
+      <rect x="-32.5" y="-7.5" width="65" height="15" fill="rgba(16,185,129,0.3)" stroke="#10b981" stroke-width="2" rx="7.5" />
+    </g><g transform="translate(0, 156) rotate(-11)">
+      <rect x="-36.5" y="-10" width="73" height="20" fill="rgba(16,185,129,0.3)" stroke="#10b981" stroke-width="2" rx="6" />
+    </g>
+
+    <!-- Bridge plate -->
+    <g transform="translate(0, 191.50000000000006)">
+      <rect x="-38.25" y="-52" width="76.5" height="86" fill="rgba(59,130,246,0.3)" stroke="#3b82f6" stroke-width="2" rx="3" />
+      <line x1="-33.25" y1="0" x2="33.25" y2="0" stroke="#ef4444" stroke-width="3" />
+    </g>
+  </g>
+  <text x="-400" y="-200" fill="#ffffff" font-size="24" font-family="sans-serif" font-weight="bold">T-Style Standard Physical Alignment Check</text>
+</svg>

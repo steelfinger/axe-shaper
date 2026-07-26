@@ -64,6 +64,7 @@ export interface BridgePreset {
   mountingPoints: Vector2D[]; // Relative to bridge origin mm
   widthMm: LengthMm;
   lengthMm: LengthMm;
+  saddleOffsetYMm?: LengthMm; // Distance from top edge of plate to saddle line
 }
 
 export type PickupType = 'humbucker' | 'single_coil' | 'p90' | 'tele_neck' | 'tele_bridge';

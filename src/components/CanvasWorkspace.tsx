@@ -471,16 +471,23 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 );
               })}
 
-              {/* Bridge Hardware Plate */}
+              {/* Bridge Hardware Plate & Saddles */}
               <Group x={0} y={bridgeY}>
                 <Rect
                   x={-bridge.widthMm / 2}
-                  y={-10}
+                  y={-(bridge.saddleOffsetYMm ?? 15)}
                   width={bridge.widthMm}
                   height={bridge.lengthMm}
                   fill="rgba(59, 130, 246, 0.15)"
                   stroke="#3b82f6"
                   strokeWidth={1.5 / zoom}
+                  cornerRadius={3 / zoom}
+                />
+                {/* Saddle Line Indicator */}
+                <Line
+                  points={[-bridge.widthMm / 2 + 5, 0, bridge.widthMm / 2 - 5, 0]}
+                  stroke="#ef4444"
+                  strokeWidth={2.0 / zoom}
                 />
                 {bridge.mountingPoints.map((pt, idx) => (
                   <Circle key={idx} x={pt.x} y={pt.y} radius={3 / zoom} fill="#3b82f6" />

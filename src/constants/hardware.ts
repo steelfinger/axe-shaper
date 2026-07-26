@@ -53,9 +53,10 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
     name: 'Hardtail 6-Saddle Plate',
     scaleReference: 'saddle_line',
     compensationMm: {
-      treble: 1.5, // 1.5mm back from theoretical saddle line
-      bass: 4.5,   // 4.5mm back for intonation
+      treble: 1.5,
+      bass: 4.5,
     },
+    saddleOffsetYMm: 24.0,
     mountingPoints: [
       { x: -21, y: 15 },
       { x: 0, y: 15 },
@@ -72,6 +73,7 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
       treble: 2.0,
       bass: 5.0,
     },
+    saddleOffsetYMm: 22.0,
     mountingPoints: [
       { x: -28, y: -8 },
       { x: -16.8, y: -8 },
@@ -91,11 +93,12 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
       treble: 3.0,
       bass: 6.0,
     },
+    saddleOffsetYMm: 7.0,
     mountingPoints: [
       { x: -37.0, y: 0 },
-      { x: 37.0, y: 2.0 }, // Slanted post line
-      { x: -41.0, y: 38.0 }, // Tailpiece post left
-      { x: 41.0, y: 38.0 },  // Tailpiece post right
+      { x: 37.0, y: 2.0 },
+      { x: -41.0, y: 45.0 },
+      { x: 41.0, y: 45.0 },
     ],
     widthMm: 84.0,
     lengthMm: 14.0,
@@ -108,10 +111,11 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
       treble: 2.5,
       bass: 5.5,
     },
+    saddleOffsetYMm: 52.0,
     mountingPoints: [
-      { x: -32.5, y: 48 },
-      { x: 0, y: 48 },
-      { x: 32.5, y: 48 },
+      { x: -32.5, y: 24 },
+      { x: 0, y: 24 },
+      { x: 32.5, y: 24 },
     ],
     widthMm: 76.5,
     lengthMm: 86.0,
