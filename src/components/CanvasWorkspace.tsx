@@ -193,6 +193,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
     });
   };
 
+  const isPanMode = isPanToolActive || isSpacePressed;
+
   return (
     <div className="app-canvas-container" ref={containerRef}>
       {/* Floating Canvas Toolbar */}
@@ -237,7 +239,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         width={dimensions.width}
         height={dimensions.height}
         onWheel={handleWheel}
-        draggable={isPanToolActive || isSpacePressed}
+        draggable={isPanMode}
         onDragStart={(e) => {
           if (e.target === e.target.getStage()) {
             setIsDraggingStage(true);
@@ -255,10 +257,10 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           }
         }}
         style={{
-          cursor: isPanToolActive || isSpacePressed ? (isDraggingStage ? 'grabbing' : 'grab') : 'default',
+          cursor: isPanMode ? (isDraggingStage ? 'grabbing' : 'grab') : 'default',
         }}
         onClick={(e) => {
-          if (e.target === e.target.getStage()) {
+          if (!isPanMode && e.target === e.target.getStage()) {
             onSelectAnchor(null);
           }
         }}
@@ -347,7 +349,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
         {/* LAYER 1.5: GUIDE BACKGROUND IMAGE */}
         {guideImage.visible && guideImage.element && (
-          <Layer>
+          <Layer listening={!isPanMode}>
             <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               <KonvaImage
                 image={guideImage.element}
@@ -359,7 +361,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 scaleY={guideImage.scale}
                 rotation={guideImage.rotationDegrees}
                 opacity={guideImage.opacity}
-                draggable={!guideImage.locked}
+                draggable={!isPanMode && !guideImage.locked}
                 onDragEnd={(e) => {
                   onUpdateGuideImage((prev) => ({
                     ...prev,
@@ -373,7 +375,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         )}
 
         {/* LAYER 2: LIVE BODY SHAPE */}
-        <Layer>
+        <Layer listening={!isPanMode}>
           <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
             <Path
               data={bodySVGPath}
@@ -391,6 +393,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               shadowBlur={20}
               shadowOpacity={0.5}
               onDblClick={(e) => {
+                if (isPanMode) return;
                 e.cancelBubble = true;
                 const stage = e.target.getStage();
                 const pointer = stage?.getPointerPosition();
@@ -431,7 +434,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
         {/* LAYER 3: HARDWARE & ROUTS */}
         {settings.showHardwareCavities && (
-          <Layer>
+          <Layer listening={!isPanMode}>
             <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               {/* Neck Pocket Cavity */}
               <Rect
@@ -458,7 +461,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                       y={-h / 2}
                       width={w}
                       height={h}
-                      fill="rgba(16, 185, 129, 0.15)"
+                      fill="rgba(10, 185, 129, 0.15)"
                       stroke="#10b981"
                       strokeWidth={1.2 / zoom}
                       cornerRadius={spec.cornerRadiusMm}
@@ -488,7 +491,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         )}
 
         {/* LAYER 4: INTERACTIVE BEZIER NODE CONTROLS */}
-        <Layer>
+        <Layer listening={!isPanMode}>
           {contour.anchors.map((anchor, index) => {
             const isSelected = anchor.id === selectedAnchorId;
             const aPos = toScreen(anchor.position);
@@ -551,8 +554,10 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   fill={anchor.locked ? '#f59e0b' : isSelected ? '#38bdf8' : '#2563eb'}
                   stroke="#ffffff"
                   strokeWidth={2}
-                  draggable={!anchor.locked}
-                  onClick={() => onSelectAnchor(anchor.id)}
+                  draggable={!isPanMode && !anchor.locked}
+                  onClick={() => {
+                    if (!isPanMode) onSelectAnchor(anchor.id);
+                  }}
                   onDragStart={onDragStartHistory}
                   onDragMove={(e) => handleAnchorDragMove(index, e)}
                 />
