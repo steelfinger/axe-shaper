@@ -1,43 +1,155 @@
 import { BRIDGE_PRESETS, NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
-import type { GuitarProject } from '../types/guitar';
+import type { GuitarProject, LengthMm } from '../types/guitar';
 import { anchorsToSVGPath } from './bezier';
+import { getBridgePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from './scaleMath';
+
+/** Namespace for the <project:*> metadata elements. Must be declared or the file is not well-formed XML. */
+const PROJECT_NS = 'https://axe-shaper.app/ns/project/1';
+
+/** Page padding around the drawn geometry, in mm. */
+const PAGE_PADDING_MM = 15;
+/** Extra room on the right of the geometry for the axis line labels, in mm. */
+const LABEL_MARGIN_MM = 80;
+/** Height of the title + calibration band appended below the geometry, in mm. */
+const INFO_BAND_MM = 165;
+/** Minimum page width so the 100mm calibration box always fits, in mm. */
+const MIN_PAGE_WIDTH_MM = 220;
+
+interface BoundsMm {
+  minX: LengthMm;
+  minY: LengthMm;
+  maxX: LengthMm;
+  maxY: LengthMm;
+}
+
+/** Escape a string for safe interpolation into XML text or attribute values. */
+function escapeXml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+/**
+ * Bounding box of everything drawn in model space (mm), so the page always
+ * contains the whole design no matter how far the contour has been edited.
+ * Bezier control points are included, which bounds the curve conservatively.
+ */
+function getContentBoundsMm(project: GuitarProject): BoundsMm {
+  const { contour, neckPresetId, bridgePresetId, pickups } = project;
+  const neck = NECK_PRESETS[neckPresetId] || NECK_PRESETS.fender_strat_21;
+  const bridge = BRIDGE_PRESETS[bridgePresetId] || BRIDGE_PRESETS.tremolo_strat;
+
+  const bounds: BoundsMm = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
+  const add = (x: LengthMm, y: LengthMm) => {
+    bounds.minX = Math.min(bounds.minX, x);
+    bounds.minY = Math.min(bounds.minY, y);
+    bounds.maxX = Math.max(bounds.maxX, x);
+    bounds.maxY = Math.max(bounds.maxY, y);
+  };
+
+  // Body contour: anchors plus their handle control points
+  for (const anchor of contour.anchors) {
+    add(anchor.position.x, anchor.position.y);
+    if (anchor.handleIn) add(anchor.position.x + anchor.handleIn.x, anchor.position.y + anchor.handleIn.y);
+    if (anchor.handleOut) add(anchor.position.x + anchor.handleOut.x, anchor.position.y + anchor.handleOut.y);
+  }
+
+  // Centerline and joint line markers
+  add(0, 0);
+  add(-neck.jointWidthMm / 2, 0);
+  add(neck.jointWidthMm / 2, neck.jointDepthMm);
+
+  // Bridge plate, saddle line and mounting holes
+  const saddleY = getSaddleYMm(neck, bridge);
+  const plateTopY = getBridgePlateTopYMm(neck, bridge);
+  add(-bridge.widthMm / 2, plateTopY);
+  add(bridge.widthMm / 2, plateTopY + bridge.lengthMm);
+  add(0, getTheoreticalSaddleYMm(neck));
+  for (const pt of bridge.mountingPoints) {
+    add(pt.x, saddleY + pt.y);
+  }
+
+  // Pickup routs (use the diagonal so any rotation angle stays inside)
+  for (const p of pickups) {
+    const spec = PICKUP_SPECIFICATIONS[p.type] || PICKUP_SPECIFICATIONS.single_coil;
+    const reach = Math.hypot(spec.widthMm, spec.heightMm) / 2;
+    add(p.offsetXMm - reach, p.offsetYMm - reach);
+    add(p.offsetXMm + reach, p.offsetYMm + reach);
+  }
+
+  // Degenerate project (no geometry at all): fall back to a sane sheet
+  if (!Number.isFinite(bounds.minX)) {
+    return { minX: -200, minY: -50, maxX: 200, maxY: 500 };
+  }
+
+  return bounds;
+}
 
 export function exportProjectToSVG(project: GuitarProject): string {
   const { contour, neckPresetId, bridgePresetId, pickups, settings } = project;
   const neck = NECK_PRESETS[neckPresetId] || NECK_PRESETS.fender_strat_21;
   const bridge = BRIDGE_PRESETS[bridgePresetId] || BRIDGE_PRESETS.tremolo_strat;
 
-  // Compute bounding box mm
   const bodyPath = anchorsToSVGPath(contour.anchors, contour.closed);
-  
-  // Calculate theoretical saddle Y mm
-  const theoreticalSaddleY = neck.scaleLengthMm - neck.nutToJointMm;
-  const bridgeY = theoreticalSaddleY + bridge.compensationMm.treble;
+
+  // Scale-length geometry - identical to what the canvas draws
+  const theoreticalSaddleY = getTheoreticalSaddleYMm(neck);
+  const saddleY = getSaddleYMm(neck, bridge);
+  const bridgePlateTopY = getBridgePlateTopYMm(neck, bridge);
 
   const isHorizontal = settings.canvasOrientation === 'horizontal';
-  
-  // ViewBox bounds (mm): Vertical (400x550mm) vs Horizontal (550x400mm)
-  const viewWidthMm = isHorizontal ? 550 : 400;
-  const viewHeightMm = isHorizontal ? 400 : 550;
-  const minX = isHorizontal ? -450 : -200;
-  const minY = isHorizontal ? -200 : -50;
 
-  const groupTransform = isHorizontal
-    ? `transform="translate(0, 0) rotate(90)"`
-    : `transform="translate(0, 0)"`;
+  // Model-space page bounds (before any orientation rotation)
+  const content = getContentBoundsMm(project);
+  const model: BoundsMm = {
+    minX: content.minX - PAGE_PADDING_MM,
+    minY: content.minY - PAGE_PADDING_MM,
+    maxX: content.maxX + LABEL_MARGIN_MM,
+    maxY: content.maxY + PAGE_PADDING_MM,
+  };
+
+  // Horizontal orientation rotates the geometry by 90deg: (x, y) -> (-y, x)
+  const geometry = isHorizontal
+    ? {
+        minX: -model.maxY,
+        minY: model.minX,
+        width: model.maxY - model.minY,
+        height: model.maxX - model.minX,
+      }
+    : {
+        minX: model.minX,
+        minY: model.minY,
+        width: model.maxX - model.minX,
+        height: model.maxY - model.minY,
+      };
+
+  // The title + calibration band is appended below the geometry in page space,
+  // so it lands inside the viewBox in both orientations.
+  const viewMinX = geometry.minX;
+  const viewMinY = geometry.minY;
+  const viewWidthMm = Math.max(geometry.width, MIN_PAGE_WIDTH_MM);
+  const viewHeightMm = geometry.height + INFO_BAND_MM;
+  const bandTopY = geometry.minY + geometry.height;
+  const bandLeftX = viewMinX + 12;
+
+  const groupTransform = isHorizontal ? ' transform="rotate(90)"' : '';
 
   const svgContent = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg 
-  xmlns="http://www.w3.org/2000/svg" 
-  width="${viewWidthMm}mm" 
-  height="${viewHeightMm}mm" 
-  viewBox="${minX} ${minY} ${viewWidthMm} ${viewHeightMm}"
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:project="${PROJECT_NS}"
+  width="${viewWidthMm.toFixed(2)}mm"
+  height="${viewHeightMm.toFixed(2)}mm"
+  viewBox="${viewMinX.toFixed(2)} ${viewMinY.toFixed(2)} ${viewWidthMm.toFixed(2)} ${viewHeightMm.toFixed(2)}"
 >
   <metadata>
-    <project:name>${settings.name}</project:name>
+    <project:name>${escapeXml(settings.name)}</project:name>
     <project:units>millimeters</project:units>
     <project:schemaVersion>${project.schemaVersion}</project:schemaVersion>
-    <project:appVersion>${project.appVersion}</project:appVersion>
+    <project:appVersion>${escapeXml(project.appVersion)}</project:appVersion>
   </metadata>
 
   <style>
@@ -47,49 +159,37 @@ export function exportProjectToSVG(project: GuitarProject): string {
     .bridge-rout { fill: none; stroke: #007bff; stroke-width: 1.2; }
     .center-axis { fill: none; stroke: #6c757d; stroke-width: 0.5; stroke-dasharray: 6,4; opacity: 0.7; }
     .calibration-box { fill: none; stroke: #d9534f; stroke-width: 0.8; stroke-dasharray: 3,3; }
-    .text-label { font-family: monospace, sans-serif; font-size: 6px; fill: #d9534f; }
+    .band-rule { fill: none; stroke: #adb5bd; stroke-width: 0.5; }
+    .text-label { font-family: monospace, sans-serif; font-size: 5px; fill: #d9534f; }
+    .axis-label { font-family: monospace, sans-serif; font-size: 5px; fill: #6c757d; }
     .title-label { font-family: sans-serif; font-size: 10px; font-weight: bold; fill: #222222; }
   </style>
 
-  <!-- Title & Info Metadata Block -->
-  <text x="${minX + 15}" y="${minY + 25}" class="title-label">${settings.name} - 1:1 Scale Print Template</text>
-  <text x="${minX + 15}" y="${minY + 38}" class="text-label">Scale: ${neck.scaleLengthMm.toFixed(1)}mm (${(neck.scaleLengthMm / 25.4).toFixed(2)}") | Joint: ${neck.jointWidthMm}mm W x ${neck.jointDepthMm}mm D</text>
-  <text x="${minX + 15}" y="${minY + 48}" class="text-label">Date: ${new Date().toISOString().split('T')[0]} | Printable 100% True Scale (Do Not Scale Page)</text>
-
-  <!-- 100mm x 100mm Ruler Calibration Box -->
-  <g transform="translate(${minX + 15}, 380)">
-    <rect x="0" y="0" width="100" height="100" class="calibration-box" />
-    <text x="5" y="15" class="text-label" font-weight="bold">CALIBRATION BOX</text>
-    <text x="5" y="30" class="text-label">100 mm x 100 mm</text>
-    <text x="5" y="45" class="text-label">Measure with ruler</text>
-    <text x="5" y="60" class="text-label">to verify 100% print</text>
-  </g>
-
   <!-- Guitar Geometry Group -->
-  <g ${groupTransform}>
+  <g${groupTransform}>
     <!-- Centerline Alignment Axis (X = 0) -->
-    <line x1="0" y1="-50" x2="0" y2="500" class="center-axis" />
+    <line x1="0" y1="${model.minY.toFixed(2)}" x2="0" y2="${model.maxY.toFixed(2)}" class="center-axis" />
 
     <!-- Joint Line Marker (Y = 0) -->
-    <line x1="-150" y1="0" x2="150" y2="0" class="center-axis" />
-    <text x="155" y="3" class="text-label" fill="#6c757d">Y=0 (Joint Line)</text>
+    <line x1="${model.minX.toFixed(2)}" y1="0" x2="${content.maxX.toFixed(2)}" y2="0" class="center-axis" />
+    <text x="${(content.maxX + 4).toFixed(2)}" y="3" class="axis-label">Y=0 (Joint Line)</text>
 
     <!-- Theoretical Saddle Line Marker -->
-    <line x1="-100" y1="${theoreticalSaddleY}" x2="100" y2="${theoreticalSaddleY}" class="center-axis" stroke="#007bff" />
-    <text x="105" y="${theoreticalSaddleY + 3}" class="text-label" fill="#007bff">Scale Line (${theoreticalSaddleY.toFixed(1)}mm)</text>
+    <line x1="${model.minX.toFixed(2)}" y1="${theoreticalSaddleY.toFixed(2)}" x2="${content.maxX.toFixed(2)}" y2="${theoreticalSaddleY.toFixed(2)}" class="center-axis" stroke="#007bff" />
+    <text x="${(content.maxX + 4).toFixed(2)}" y="${(theoreticalSaddleY + 3).toFixed(2)}" class="axis-label" fill="#007bff">Scale Line (${theoreticalSaddleY.toFixed(1)}mm)</text>
 
     <!-- Outer Custom Body Profile -->
     <path d="${bodyPath}" class="body-line" />
 
     <!-- Immutable Neck Pocket Cavity -->
-    <rect 
-      x="-${neck.jointWidthMm / 2}" 
-      y="0" 
-      width="${neck.jointWidthMm}" 
-      height="${neck.jointDepthMm}" 
-      rx="${neck.jointCornerRadiusMm}" 
-      ry="${neck.jointCornerRadiusMm}" 
-      class="neck-pocket" 
+    <rect
+      x="${(-neck.jointWidthMm / 2).toFixed(2)}"
+      y="0"
+      width="${neck.jointWidthMm}"
+      height="${neck.jointDepthMm}"
+      rx="${neck.jointCornerRadiusMm}"
+      ry="${neck.jointCornerRadiusMm}"
+      class="neck-pocket"
     />
 
     <!-- Pickup Routing Cavities -->
@@ -101,21 +201,37 @@ export function exportProjectToSVG(project: GuitarProject): string {
         const rx = spec.cornerRadiusMm;
         return `
           <g transform="translate(${p.offsetXMm}, ${p.offsetYMm}) rotate(${p.angleDegrees})">
-            <rect x="-${w / 2}" y="-${h / 2}" width="${w}" height="${h}" rx="${rx}" ry="${rx}" class="pickup-rout" />
+            <rect x="${(-w / 2).toFixed(2)}" y="${(-h / 2).toFixed(2)}" width="${w}" height="${h}" rx="${rx}" ry="${rx}" class="pickup-rout" />
             <circle cx="0" cy="0" r="1.5" fill="#28a745" />
           </g>
         `;
       })
       .join('')}
 
-    <!-- Bridge Hardware Plate & Mounting Holes -->
-    <g transform="translate(0, ${bridgeY})">
-      <rect x="-${bridge.widthMm / 2}" y="-10" width="${bridge.widthMm}" height="${bridge.lengthMm}" class="bridge-rout" />
+    <!-- Bridge Hardware Plate, Saddle Line & Mounting Holes -->
+    <g transform="translate(0, ${saddleY.toFixed(2)})">
+      <rect x="${(-bridge.widthMm / 2).toFixed(2)}" y="${(bridgePlateTopY - saddleY).toFixed(2)}" width="${bridge.widthMm}" height="${bridge.lengthMm}" class="bridge-rout" />
+      <line x1="${(-bridge.widthMm / 2 + 5).toFixed(2)}" y1="0" x2="${(bridge.widthMm / 2 - 5).toFixed(2)}" y2="0" stroke="#dc3545" stroke-width="1.2" />
       ${bridge.mountingPoints
-        .map(
-          (pt) => `<circle cx="${pt.x}" cy="${pt.y}" r="2" fill="#007bff" />`
-        )
+        .map((pt) => `<circle cx="${pt.x}" cy="${pt.y}" r="2" fill="#007bff" />`)
         .join('')}
+    </g>
+  </g>
+
+  <!-- Title, Specs & Calibration Band (page space - never rotated) -->
+  <g>
+    <line x1="${viewMinX.toFixed(2)}" y1="${bandTopY.toFixed(2)}" x2="${(viewMinX + viewWidthMm).toFixed(2)}" y2="${bandTopY.toFixed(2)}" class="band-rule" />
+    <text x="${bandLeftX.toFixed(2)}" y="${(bandTopY + 20).toFixed(2)}" class="title-label">${escapeXml(settings.name)} - 1:1 Scale Print Template</text>
+    <text x="${bandLeftX.toFixed(2)}" y="${(bandTopY + 33).toFixed(2)}" class="text-label">Scale: ${neck.scaleLengthMm.toFixed(1)}mm (${(neck.scaleLengthMm / 25.4).toFixed(2)}") | Joint: ${neck.jointWidthMm}mm W x ${neck.jointDepthMm}mm D | Saddle Y: ${saddleY.toFixed(1)}mm</text>
+    <text x="${bandLeftX.toFixed(2)}" y="${(bandTopY + 43).toFixed(2)}" class="text-label">Date: ${new Date().toISOString().split('T')[0]} | Printable 100% True Scale (Do Not Scale Page)</text>
+
+    <!-- 100mm x 100mm Ruler Calibration Box -->
+    <g transform="translate(${bandLeftX.toFixed(2)}, ${(bandTopY + 52).toFixed(2)})">
+      <rect x="0" y="0" width="100" height="100" class="calibration-box" />
+      <text x="5" y="15" class="text-label" font-weight="bold">CALIBRATION BOX</text>
+      <text x="5" y="30" class="text-label">100 mm x 100 mm</text>
+      <text x="5" y="45" class="text-label">Measure with ruler</text>
+      <text x="5" y="60" class="text-label">to verify 100% print</text>
     </g>
   </g>
 </svg>`;
