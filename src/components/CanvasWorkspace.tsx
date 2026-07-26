@@ -4,7 +4,7 @@ import Konva from 'konva';
 import { BRIDGE_PRESETS, NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import type { GuitarProject, Vector2D } from '../types/guitar';
-import { anchorsToSVGPath } from '../utils/bezier';
+import { anchorsToSVGPath, insertAnchorOnSegment } from '../utils/bezier';
 import { applyLiveSymmetry } from '../utils/symmetry';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 
@@ -298,6 +298,41 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               shadowColor="#000"
               shadowBlur={20}
               shadowOpacity={0.5}
+              onDblClick={(e) => {
+                e.cancelBubble = true;
+                const stage = e.target.getStage();
+                const pointer = stage?.getPointerPosition();
+                if (!pointer) return;
+                const clickModelPt = toModel(pointer);
+                let minDistance = Infinity;
+                let closestIdx = 0;
+                contour.anchors.forEach((anchor, i) => {
+                  const dx = anchor.position.x - clickModelPt.x;
+                  const dy = anchor.position.y - clickModelPt.y;
+                  const dist = Math.sqrt(dx * dx + dy * dy);
+                  if (dist < minDistance) {
+                    minDistance = dist;
+                    closestIdx = i;
+                  }
+                });
+
+                onDragStartHistory();
+                let insertedId = '';
+                onUpdateProject((prev) => {
+                  const updated = insertAnchorOnSegment(prev.contour.anchors, closestIdx, 0.5);
+                  insertedId = updated[closestIdx + 1]?.id || '';
+                  return {
+                    ...prev,
+                    contour: {
+                      ...prev.contour,
+                      anchors: updated,
+                    },
+                  };
+                });
+                if (insertedId) {
+                  onSelectAnchor(insertedId);
+                }
+              }}
             />
           </Group>
         </Layer>

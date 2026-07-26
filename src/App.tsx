@@ -8,6 +8,7 @@ import type { GuitarProject } from './types/guitar';
 import { insertAnchorOnSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
 import { downloadSVGFile, exportProjectToSVG } from './utils/svgExporter';
+import { TemplateCodeModal } from './components/TemplateCodeModal';
 
 const INITIAL_PROJECT: GuitarProject = {
   schemaVersion: 1,
@@ -50,6 +51,7 @@ const INITIAL_PROJECT: GuitarProject = {
 export function App(): React.JSX.Element {
   const [project, setProject] = useState<GuitarProject>(INITIAL_PROJECT);
   const [selectedAnchorId, setSelectedAnchorId] = useState<string | null>(null);
+  const [isTemplateCodeModalOpen, setIsTemplateCodeModalOpen] = useState(false);
 
   const historyRef = useRef(new HistoryManager());
   const [canUndo, setCanUndo] = useState(false);
@@ -228,6 +230,7 @@ export function App(): React.JSX.Element {
         onExportSVG={handleExportSVG}
         onExportJSON={handleExportJSON}
         onImportJSON={handleImportJSON}
+        onOpenTemplateCodeModal={() => setIsTemplateCodeModalOpen(true)}
       />
 
       <Sidebar
@@ -250,6 +253,12 @@ export function App(): React.JSX.Element {
         onUpdateProject={handleUpdateProject}
         onDeleteSelectedAnchor={handleDeleteSelectedAnchor}
         onAddAnchorOnSegment={handleAddAnchorOnSegment}
+      />
+
+      <TemplateCodeModal
+        project={project}
+        isOpen={isTemplateCodeModalOpen}
+        onClose={() => setIsTemplateCodeModalOpen(false)}
       />
     </div>
   );

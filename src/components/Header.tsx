@@ -13,6 +13,7 @@ interface HeaderProps {
   onExportSVG: () => void;
   onExportJSON: () => void;
   onImportJSON: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onOpenTemplateCodeModal: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -26,6 +27,7 @@ export const Header: React.FC<HeaderProps> = ({
   onExportSVG,
   onExportJSON,
   onImportJSON,
+  onOpenTemplateCodeModal,
 }) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -117,6 +119,10 @@ export const Header: React.FC<HeaderProps> = ({
           <RotateCcw size={15} /> Reset
         </button>
 
+        <button className="btn btn-sm" onClick={onOpenTemplateCodeModal} title="Export TypeScript code for this design as a baseline template">
+          <FileCode size={15} /> Export Template TS
+        </button>
+
         <button className="btn btn-sm" onClick={onExportJSON} title="Save project as JSON file">
           <Download size={15} /> Save JSON
         </button>
@@ -133,7 +139,7 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         <button className="btn btn-accent" onClick={onExportSVG} title="Export 1:1 True-Scale Printable SVG">
-          <FileCode size={16} /> Export 1:1 SVG
+          <Download size={16} /> Export 1:1 SVG
         </button>
       </div>
     </header>
