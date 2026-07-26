@@ -5,10 +5,11 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     id: 'fender_strat_21',
     name: 'S-Style Standard (25.5" Scale, 21 Frets)',
     scaleLengthMm: 647.7,     // 25.5 inches
-    nutToJointMm: 458.7,      // Nut to 16th fret joint line
+    nutToBodyEdgeMm: 390.7,   // Nut to Fret 16 (body entrance edge Y=0)
+    nutToJointMm: 458.7,      // Nut to end of fingerboard overhang
     frets: 21,
     jointWidthMm: 55.56,      // 2-3/16 inches
-    jointDepthMm: 76.2,       // 3.0 inches
+    jointDepthMm: 76.2,       // 3.0 inches pocket depth inside body
     jointCornerRadiusMm: 12.7,
     style: 'fender_style',
   },
@@ -16,6 +17,7 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     id: 'fender_tele_22',
     name: 'T-Style Standard (25.5" Scale, 22 Frets)',
     scaleLengthMm: 647.7,     // 25.5 inches
+    nutToBodyEdgeMm: 390.7,   // Nut to Fret 16 (body entrance edge Y=0)
     nutToJointMm: 458.7,
     frets: 22,
     jointWidthMm: 55.56,
@@ -27,10 +29,11 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     id: 'gibson_lp_22',
     name: 'Single-Cut Vintage (24.75" Scale, 22 Frets)',
     scaleLengthMm: 628.65,    // 24.75 inches
-    nutToJointMm: 414.27,     // Nut to joint line
+    nutToBodyEdgeMm: 379.2,   // Nut to Fret 16 (body entrance edge Y=0)
+    nutToJointMm: 414.27,
     frets: 22,
     jointWidthMm: 38.1,       // 1.5 inches mortise
-    jointDepthMm: 88.9,       // 3.5 inches
+    jointDepthMm: 88.9,       // 3.5 inches pocket depth inside body
     jointCornerRadiusMm: 6.35,
     style: 'gibson_style',
   },
@@ -38,6 +41,7 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     id: 'baritone_27',
     name: 'Baritone Extended (27.0" Scale, 24 Frets)',
     scaleLengthMm: 685.8,     // 27.0 inches
+    nutToBodyEdgeMm: 415.8,   // Nut to body entrance edge Y=0
     nutToJointMm: 485.8,
     frets: 24,
     jointWidthMm: 57.0,

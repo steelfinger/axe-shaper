@@ -111,8 +111,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   // Live body path data
   const bodySVGPath = anchorsToSVGPath(contour.anchors, contour.closed);
 
-  // Theoretical saddle & bridge Y mm
-  const theoreticalSaddleY = neck.scaleLengthMm - neck.nutToJointMm;
+  // Theoretical saddle & bridge Y mm (measured from body pocket entrance edge Y=0)
+  const theoreticalSaddleY = neck.scaleLengthMm - (neck.nutToBodyEdgeMm ?? 390.7);
   const bridgeY = theoreticalSaddleY + bridge.compensationMm.treble;
 
   // Wheel Zoom handler

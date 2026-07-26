@@ -45,6 +45,7 @@ export interface NeckPreset {
   id: string;
   name: string;
   scaleLengthMm: LengthMm;
+  nutToBodyEdgeMm: LengthMm; // Distance from nut to body entrance edge Y=0 (Fret 16 line)
   nutToJointMm: LengthMm;
   frets: number;
   jointWidthMm: LengthMm;
