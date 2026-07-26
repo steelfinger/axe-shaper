@@ -497,12 +497,12 @@ export const REFERENCE_TEMPLATES: Record<string, ReferenceTemplate> = {
     name: 'Double-Cut SG Vintage',
     description: 'Symmetric double-cutaway Vintage SG body (Gibson/Yamaha style) with bevel contours.',
     category: 'Single-Cut',
-    neckPresetId: 'gibson_lp_22',
+    neckPresetId: 'gibson_sg_22',
     bridgePresetId: 'tune_o_matic',
     defaultAnchors: SG_STYLE_ANCHORS,
     defaultPickups: [
-      { id: 'p_neck', type: 'humbucker', offsetYMm: 45, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
-      { id: 'p_bridge', type: 'humbucker', offsetYMm: 152, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
+      { id: 'p_neck', type: 'humbucker', offsetYMm: 25, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
+      { id: 'p_bridge', type: 'humbucker', offsetYMm: 132, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
     ],
   },
   s_style: {
