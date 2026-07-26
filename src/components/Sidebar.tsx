@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload } from 'lucide-react';
+import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock } from 'lucide-react';
 import { BRIDGE_PRESETS, NECK_PRESETS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import type { GuitarProject, GuideImageState, SymmetryMode } from '../types/guitar';
@@ -159,17 +159,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   style={{ flex: 1 }}
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <Upload size={15} /> Upload Guide Image
+                  <Upload size={15} /> Upload Image
                 </button>
                 {guideImage.imageUrl && (
-                  <button
-                    className="btn btn-sm"
-                    style={{ borderColor: 'var(--accent-red)', color: 'var(--accent-red)' }}
-                    onClick={onClearGuideImage}
-                    title="Remove guide image"
-                  >
-                    <Trash2 size={15} />
-                  </button>
+                  <>
+                    <button
+                      className={`btn btn-sm ${guideImage.locked ? 'btn-primary' : ''}`}
+                      style={{
+                        borderColor: guideImage.locked ? 'var(--accent-amber)' : 'var(--panel-border)',
+                        color: guideImage.locked ? 'var(--accent-amber)' : 'var(--text-secondary)',
+                      }}
+                      onClick={() =>
+                        onUpdateGuideImage((prev) => ({ ...prev, locked: !prev.locked }))
+                      }
+                      title={guideImage.locked ? 'Unlock Guide Image dragging' : 'Lock Guide Image dragging'}
+                    >
+                      {guideImage.locked ? <Lock size={15} /> : <Unlock size={15} />}
+                    </button>
+                    <button
+                      className="btn btn-sm"
+                      style={{ borderColor: 'var(--accent-red)', color: 'var(--accent-red)' }}
+                      onClick={onClearGuideImage}
+                      title="Remove guide image"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </>
                 )}
               </div>
 
