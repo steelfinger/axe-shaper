@@ -516,7 +516,7 @@ export const REFERENCE_TEMPLATES: Record<string, ReferenceTemplate> = {
     defaultPickups: [
       { id: 'p_neck', type: 'single_coil', offsetYMm: 85, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 18 },
       { id: 'p_middle', type: 'single_coil', offsetYMm: 145, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 18 },
-      { id: 'p_bridge', type: 'single_coil', offsetYMm: 205, offsetXMm: 0, angleDegrees: -10, widthMm: 70, heightMm: 18 },
+      { id: 'p_bridge', type: 'single_coil', offsetYMm: 205, offsetXMm: 0, angleDegrees: 10, widthMm: 70, heightMm: 18 },
     ],
   },
   t_style: {
@@ -529,7 +529,7 @@ export const REFERENCE_TEMPLATES: Record<string, ReferenceTemplate> = {
     defaultAnchors: T_STYLE_ANCHORS,
     defaultPickups: [
       { id: 'p_neck', type: 'tele_neck', offsetYMm: 95, offsetXMm: 0, angleDegrees: 0, widthMm: 65, heightMm: 15 },
-      { id: 'p_bridge', type: 'tele_bridge', offsetYMm: 222, offsetXMm: 0, angleDegrees: -11, widthMm: 73, heightMm: 20 },
+      { id: 'p_bridge', type: 'tele_bridge', offsetYMm: 222, offsetXMm: 0, angleDegrees: 11, widthMm: 73, heightMm: 20 },
     ],
   },
 };
