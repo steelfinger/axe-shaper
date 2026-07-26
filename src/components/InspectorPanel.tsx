@@ -1,6 +1,7 @@
 import React from 'react';
 import { MousePointer, Trash2, PlusCircle, Ruler } from 'lucide-react';
 import type { GuitarProject, HandleMode } from '../types/guitar';
+import { updateAnchorHandle } from '../utils/bezier';
 
 interface InspectorPanelProps {
   project: GuitarProject;
@@ -62,9 +63,14 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
       ...prev,
       contour: {
         ...prev.contour,
-        anchors: prev.contour.anchors.map((a) =>
-          a.id === selectedAnchorId ? { ...a, handleMode: mode } : a
-        ),
+        anchors: prev.contour.anchors.map((a) => {
+          if (a.id !== selectedAnchorId) return a;
+          const updated = { ...a, handleMode: mode };
+          if (mode !== 'corner' && a.handleOut) {
+            return updateAnchorHandle(updated, 'out', a.handleOut);
+          }
+          return updated;
+        }),
       },
     }));
   };

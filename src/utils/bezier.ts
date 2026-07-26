@@ -62,6 +62,66 @@ export function distanceVector(a: Vector2D, b: Vector2D): number {
 }
 
 /**
+ * Update handleIn or handleOut on a PathAnchor while strictly enforcing handleMode constraints:
+ * - 'symmetric': handleIn and handleOut are antiparallel AND equal in length (handleIn = -handleOut).
+ * - 'smooth': handleIn and handleOut are antiparallel (angle locked 180 deg opposite) BUT keep independent lengths.
+ * - 'corner': handleIn and handleOut have independent angles and lengths.
+ */
+export function updateAnchorHandle(
+  anchor: PathAnchor,
+  handleType: 'in' | 'out',
+  newOffset: Vector2D
+): PathAnchor {
+  const mode = anchor.handleMode || 'smooth';
+  const updated = { ...anchor };
+
+  if (mode === 'corner') {
+    if (handleType === 'out') {
+      updated.handleOut = newOffset;
+    } else {
+      updated.handleIn = newOffset;
+    }
+    return updated;
+  }
+
+  const newLen = Math.sqrt(newOffset.x * newOffset.x + newOffset.y * newOffset.y);
+  if (newLen < 0.0001) {
+    if (handleType === 'out') {
+      updated.handleOut = newOffset;
+    } else {
+      updated.handleIn = newOffset;
+    }
+    return updated;
+  }
+
+  // Normalized direction vector of dragged handle
+  const dirX = newOffset.x / newLen;
+  const dirY = newOffset.y / newLen;
+
+  if (handleType === 'out') {
+    updated.handleOut = newOffset;
+    if (mode === 'symmetric') {
+      updated.handleIn = { x: -newOffset.x, y: -newOffset.y };
+    } else if (mode === 'smooth') {
+      const existingIn = anchor.handleIn || { x: 0, y: 0 };
+      const inLen = Math.sqrt(existingIn.x * existingIn.x + existingIn.y * existingIn.y) || newLen;
+      updated.handleIn = { x: -dirX * inLen, y: -dirY * inLen };
+    }
+  } else {
+    updated.handleIn = newOffset;
+    if (mode === 'symmetric') {
+      updated.handleOut = { x: -newOffset.x, y: -newOffset.y };
+    } else if (mode === 'smooth') {
+      const existingOut = anchor.handleOut || { x: 0, y: 0 };
+      const outLen = Math.sqrt(existingOut.x * existingOut.x + existingOut.y * existingOut.y) || newLen;
+      updated.handleOut = { x: -dirX * outLen, y: -dirY * outLen };
+    }
+  }
+
+  return updated;
+}
+
+/**
  * Generate an SVG path data string (`d="..."`) from an array of PathAnchors.
  * Each anchor's handleOut and next anchor's handleIn form a cubic Bezier segment.
  */

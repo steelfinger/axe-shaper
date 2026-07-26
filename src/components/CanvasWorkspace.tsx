@@ -4,7 +4,7 @@ import Konva from 'konva';
 import { BRIDGE_PRESETS, NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import type { GuitarProject, GuideImageState, Vector2D } from '../types/guitar';
-import { anchorsToSVGPath, insertAnchorOnSegment } from '../utils/bezier';
+import { anchorsToSVGPath, insertAnchorOnSegment, updateAnchorHandle } from '../utils/bezier';
 import { applyLiveSymmetry } from '../utils/symmetry';
 import { ZoomIn, ZoomOut, Maximize2, Hand, MousePointer } from 'lucide-react';
 
@@ -181,19 +181,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
     onUpdateProject((prev) => {
       const updatedAnchors = [...prev.contour.anchors];
-      const target = { ...anchor };
-
-      if (handleType === 'out') {
-        target.handleOut = { x: offsetX, y: offsetY };
-        if (target.handleMode === 'symmetric') {
-          target.handleIn = { x: -offsetX, y: -offsetY };
-        }
-      } else {
-        target.handleIn = { x: offsetX, y: offsetY };
-        if (target.handleMode === 'symmetric') {
-          target.handleOut = { x: -offsetX, y: -offsetY };
-        }
-      }
+      const target = updateAnchorHandle(anchor, handleType, { x: offsetX, y: offsetY });
 
       updatedAnchors[index] = target;
       const finalAnchors = applyLiveSymmetry(updatedAnchors, anchor.id, prev.settings.symmetry);
