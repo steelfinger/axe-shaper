@@ -116,11 +116,10 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
                 value={selectedAnchor.handleMode}
                 onChange={(e) => handleModeChange(e.target.value as HandleMode)}
                 className="form-select"
-                disabled={selectedAnchor.locked}
               >
-                <option value="smooth">Smooth Handle</option>
-                <option value="symmetric">Symmetric Handle</option>
-                <option value="corner">Sharp Corner</option>
+                <option value="smooth">Smooth Handle (Independent Lengths)</option>
+                <option value="symmetric">Symmetric Handle (Equal Lengths)</option>
+                <option value="corner">Sharp Corner (Disconnected Handles)</option>
               </select>
             </div>
 
