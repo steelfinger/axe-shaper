@@ -6,7 +6,7 @@ import { REFERENCE_TEMPLATES } from '../constants/templates';
 import type { GuitarProject, GuideImageState, Vector2D } from '../types/guitar';
 import { anchorsToSVGPath, insertAnchorOnSegment } from '../utils/bezier';
 import { applyLiveSymmetry } from '../utils/symmetry';
-import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, Hand, MousePointer } from 'lucide-react';
 
 interface CanvasWorkspaceProps {
   project: GuitarProject;
@@ -30,6 +30,10 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [zoom, setZoom] = useState(1.2); // 1.2 px per mm base scale
+  const [panOffset, setPanOffset] = useState<Vector2D>({ x: 0, y: 0 });
+  const [isPanToolActive, setIsPanToolActive] = useState(false);
+  const [isSpacePressed, setIsSpacePressed] = useState(false);
+  const [isDraggingStage, setIsDraggingStage] = useState(false);
 
   const { contour, settings, neckPresetId, bridgePresetId, pickups, activeTemplateId } = project;
   const neck = NECK_PRESETS[neckPresetId] || NECK_PRESETS.fender_strat_21;
@@ -40,8 +44,32 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   const rotation = isHorizontal ? 90 : 0;
 
   // Origin offset: Vertical -> top centered; Horizontal -> right side centered (neck joint points right)
-  const originX = isHorizontal ? dimensions.width - 150 : dimensions.width / 2;
-  const originY = isHorizontal ? dimensions.height / 2 : 120;
+  const baseOriginX = isHorizontal ? dimensions.width - 150 : dimensions.width / 2;
+  const baseOriginY = isHorizontal ? dimensions.height / 2 : 120;
+
+  const originX = baseOriginX + panOffset.x;
+  const originY = baseOriginY + panOffset.y;
+
+  // Listen to Spacebar key to toggle pan mode temporarily while held down
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space' && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement)) {
+        e.preventDefault();
+        setIsSpacePressed(true);
+      }
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        setIsSpacePressed(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -181,6 +209,23 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
     <div className="app-canvas-container" ref={containerRef}>
       {/* Floating Canvas Toolbar */}
       <div className="canvas-toolbar">
+        <button
+          className={`btn btn-sm ${!isPanToolActive ? 'btn-primary' : ''}`}
+          onClick={() => setIsPanToolActive(false)}
+          title="Select / Edit Nodes Tool"
+        >
+          <MousePointer size={14} /> Select
+        </button>
+        <button
+          className={`btn btn-sm ${isPanToolActive ? 'btn-primary' : ''}`}
+          onClick={() => setIsPanToolActive((p) => !p)}
+          title="Pan / Move Canvas (Hold Spacebar or Drag Empty Area)"
+        >
+          <Hand size={14} /> Pan
+        </button>
+
+        <div style={{ width: '1px', height: '16px', background: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />
+
         <button className="btn btn-sm" onClick={() => setZoom((z) => Math.max(0.4, z / 1.15))} title="Zoom Out">
           <ZoomOut size={14} />
         </button>
@@ -188,8 +233,15 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         <button className="btn btn-sm" onClick={() => setZoom((z) => Math.min(3.5, z * 1.15))} title="Zoom In">
           <ZoomIn size={14} />
         </button>
-        <button className="btn btn-sm" onClick={() => setZoom(1.2)} title="Reset Zoom">
-          <Maximize2 size={14} /> Reset
+        <button
+          className="btn btn-sm"
+          onClick={() => {
+            setZoom(1.2);
+            setPanOffset({ x: 0, y: 0 });
+          }}
+          title="Recenter Canvas & Reset Zoom"
+        >
+          <Maximize2 size={14} /> Recenter
         </button>
       </div>
 
@@ -197,6 +249,26 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         width={dimensions.width}
         height={dimensions.height}
         onWheel={handleWheel}
+        draggable={isPanToolActive || isSpacePressed}
+        onDragStart={(e) => {
+          if (e.target === e.target.getStage()) {
+            setIsDraggingStage(true);
+          }
+        }}
+        onDragEnd={(e) => {
+          if (e.target === e.target.getStage()) {
+            setIsDraggingStage(false);
+            const pos = e.target.position();
+            setPanOffset((prev) => ({
+              x: prev.x + pos.x,
+              y: prev.y + pos.y,
+            }));
+            e.target.position({ x: 0, y: 0 });
+          }
+        }}
+        style={{
+          cursor: isPanToolActive || isSpacePressed ? (isDraggingStage ? 'grabbing' : 'grab') : 'default',
+        }}
         onClick={(e) => {
           if (e.target === e.target.getStage()) {
             onSelectAnchor(null);
