@@ -3,6 +3,7 @@ import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, L
 import { BRIDGE_PRESETS, NECK_PRESETS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import type { GuitarProject, GuideImageState, SymmetryMode } from '../types/guitar';
+import { getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 
 interface SidebarProps {
   project: GuitarProject;
@@ -380,9 +381,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
 
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '8px' }}>
-                <div>• Theoretical Saddle Y: <strong>{(currentNeck.scaleLengthMm - currentNeck.nutToJointMm).toFixed(1)} mm</strong></div>
+                <div>• Theoretical Saddle Y: <strong>{getTheoreticalSaddleYMm(currentNeck).toFixed(1)} mm</strong></div>
                 <div>• Treble Compensation: <strong>+{currentBridge.compensationMm.treble} mm</strong></div>
                 <div>• Bass Compensation: <strong>+{currentBridge.compensationMm.bass} mm</strong></div>
+                <div>• Compensated Saddle Y: <strong>{getSaddleYMm(currentNeck, currentBridge).toFixed(1)} mm</strong></div>
               </div>
             </div>
           </div>

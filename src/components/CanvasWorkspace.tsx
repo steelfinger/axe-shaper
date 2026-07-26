@@ -6,6 +6,7 @@ import { REFERENCE_TEMPLATES } from '../constants/templates';
 import type { GuitarProject, GuideImageState, Vector2D } from '../types/guitar';
 import { anchorsToSVGPath, insertAnchorOnSegment, updateAnchorHandle } from '../utils/bezier';
 import { applyLiveSymmetry } from '../utils/symmetry';
+import { getBridgePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 import { ZoomIn, ZoomOut, Maximize2, Hand, MousePointer } from 'lucide-react';
 
 interface CanvasWorkspaceProps {
@@ -112,8 +113,9 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   const bodySVGPath = anchorsToSVGPath(contour.anchors, contour.closed);
 
   // Theoretical saddle & bridge Y mm (measured from body pocket entrance edge Y=0)
-  const theoreticalSaddleY = neck.scaleLengthMm - (neck.nutToBodyEdgeMm ?? 390.7);
-  const bridgeY = theoreticalSaddleY + bridge.compensationMm.treble;
+  const theoreticalSaddleY = getTheoreticalSaddleYMm(neck);
+  const bridgeY = getSaddleYMm(neck, bridge);
+  const bridgePlateTopY = getBridgePlateTopYMm(neck, bridge);
 
   // Wheel Zoom handler
   const handleWheel = (e: Konva.KonvaEventObject<WheelEvent>) => {
@@ -475,7 +477,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               <Group x={0} y={bridgeY}>
                 <Rect
                   x={-bridge.widthMm / 2}
-                  y={-(bridge.saddleOffsetYMm ?? 15)}
+                  y={bridgePlateTopY - bridgeY}
                   width={bridge.widthMm}
                   height={bridge.lengthMm}
                   fill="rgba(59, 130, 246, 0.15)"
