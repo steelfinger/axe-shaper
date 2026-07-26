@@ -308,7 +308,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
           </div>
-        )}`,StartLine:128,TargetContent:
+        )}
 
         {/* HARDWARE TAB */}
         {activeTab === 'hardware' && (
