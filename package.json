@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:zip": "npm run build && cd dist && zip -r ../axe-shaper-dist.zip . && cd ..",
+    "build:zip": "rm -f axe-shaper-dist.zip && npm run build && cd dist && zip -r ../axe-shaper-dist.zip . && cd ..",
     "package": "npm run build:zip",
     "lint": "oxlint",
     "preview": "vite preview"
