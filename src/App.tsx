@@ -4,7 +4,7 @@ import { Sidebar } from './components/Sidebar';
 import { InspectorPanel } from './components/InspectorPanel';
 import { CanvasWorkspace } from './components/CanvasWorkspace';
 import { REFERENCE_TEMPLATES } from './constants/templates';
-import type { GuitarProject } from './types/guitar';
+import type { GuitarProject, GuideImageState } from './types/guitar';
 import { insertAnchorOnSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
 import { downloadSVGFile, exportProjectToSVG } from './utils/svgExporter';
@@ -35,6 +35,7 @@ const INITIAL_PROJECT: GuitarProject = {
     finishStyle: 'sunburst',
     bodyColor: '#3b82f6',
     secondaryColor: '#f59e0b',
+    bodyFillOpacity: 0.35,
     pickguardEnabled: true,
     pickguardColor: '#ffffff',
   },
@@ -48,10 +49,44 @@ const INITIAL_PROJECT: GuitarProject = {
   pickups: REFERENCE_TEMPLATES.s_style.defaultPickups,
 };
 
+const INITIAL_GUIDE_IMAGE: GuideImageState = {
+  imageUrl: null,
+  element: null,
+  offsetXMm: 0,
+  offsetYMm: 180,
+  scale: 1.0,
+  rotationDegrees: 0,
+  opacity: 0.6,
+  visible: true,
+  locked: false,
+};
+
 export function App(): React.JSX.Element {
   const [project, setProject] = useState<GuitarProject>(INITIAL_PROJECT);
   const [selectedAnchorId, setSelectedAnchorId] = useState<string | null>(null);
   const [isTemplateCodeModalOpen, setIsTemplateCodeModalOpen] = useState(false);
+  const [guideImage, setGuideImage] = useState<GuideImageState>(INITIAL_GUIDE_IMAGE);
+
+  const handleUploadGuideImage = (file: File) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      setGuideImage((prev) => ({
+        ...prev,
+        imageUrl: url,
+        element: img,
+        visible: true,
+      }));
+    };
+    img.src = url;
+  };
+
+  const handleClearGuideImage = () => {
+    if (guideImage.imageUrl) {
+      URL.revokeObjectURL(guideImage.imageUrl);
+    }
+    setGuideImage(INITIAL_GUIDE_IMAGE);
+  };
 
   const historyRef = useRef(new HistoryManager());
   const [canUndo, setCanUndo] = useState(false);
@@ -237,6 +272,10 @@ export function App(): React.JSX.Element {
         project={project}
         onUpdateProject={handleUpdateProject}
         onSelectTemplate={handleSelectTemplate}
+        guideImage={guideImage}
+        onUploadGuideImage={handleUploadGuideImage}
+        onUpdateGuideImage={setGuideImage}
+        onClearGuideImage={handleClearGuideImage}
       />
 
       <CanvasWorkspace
@@ -245,6 +284,8 @@ export function App(): React.JSX.Element {
         onSelectAnchor={setSelectedAnchorId}
         onUpdateProject={handleUpdateProject}
         onDragStartHistory={handleDragStartHistory}
+        guideImage={guideImage}
+        onUpdateGuideImage={setGuideImage}
       />
 
       <InspectorPanel

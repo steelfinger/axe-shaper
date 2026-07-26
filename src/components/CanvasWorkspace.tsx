@@ -1,9 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Stage, Layer, Line, Circle, Rect, Path, Text, Group } from 'react-konva';
+import { Stage, Layer, Line, Circle, Rect, Path, Text, Group, Image as KonvaImage } from 'react-konva';
 import Konva from 'konva';
 import { BRIDGE_PRESETS, NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
-import type { GuitarProject, Vector2D } from '../types/guitar';
+import type { GuitarProject, GuideImageState, Vector2D } from '../types/guitar';
 import { anchorsToSVGPath, insertAnchorOnSegment } from '../utils/bezier';
 import { applyLiveSymmetry } from '../utils/symmetry';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
@@ -14,6 +14,8 @@ interface CanvasWorkspaceProps {
   onSelectAnchor: (id: string | null) => void;
   onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject) => void;
   onDragStartHistory: () => void;
+  guideImage: GuideImageState;
+  onUpdateGuideImage: (updater: (prev: GuideImageState) => GuideImageState) => void;
 }
 
 export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
@@ -22,6 +24,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   onSelectAnchor,
   onUpdateProject,
   onDragStartHistory,
+  guideImage,
+  onUpdateGuideImage,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
@@ -281,6 +285,33 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           </Layer>
         )}
 
+        {/* LAYER 1.5: GUIDE BACKGROUND IMAGE */}
+        {guideImage.visible && guideImage.element && (
+          <Layer>
+            <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
+              <KonvaImage
+                image={guideImage.element}
+                x={guideImage.offsetXMm}
+                y={guideImage.offsetYMm}
+                offsetX={guideImage.element.width / 2}
+                offsetY={guideImage.element.height / 2}
+                scaleX={guideImage.scale}
+                scaleY={guideImage.scale}
+                rotation={guideImage.rotationDegrees}
+                opacity={guideImage.opacity}
+                draggable={!guideImage.locked}
+                onDragEnd={(e) => {
+                  onUpdateGuideImage((prev) => ({
+                    ...prev,
+                    offsetXMm: e.target.x(),
+                    offsetYMm: e.target.y(),
+                  }));
+                }}
+              />
+            </Group>
+          </Layer>
+        )}
+
         {/* LAYER 2: LIVE BODY SHAPE */}
         <Layer>
           <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
@@ -293,6 +324,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   ? '#b45309'
                   : '#d97706'
               }
+              opacity={settings.bodyFillOpacity ?? 0.35}
               stroke="#f0f4f8"
               strokeWidth={2.5 / zoom}
               shadowColor="#000"

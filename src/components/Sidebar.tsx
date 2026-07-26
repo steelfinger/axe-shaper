@@ -1,17 +1,30 @@
 import React, { useState } from 'react';
-import { Layers, Sliders, Palette, Shield } from 'lucide-react';
+import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload } from 'lucide-react';
 import { BRIDGE_PRESETS, NECK_PRESETS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
-import type { GuitarProject, SymmetryMode } from '../types/guitar';
+import type { GuitarProject, GuideImageState, SymmetryMode } from '../types/guitar';
 
 interface SidebarProps {
   project: GuitarProject;
   onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject) => void;
   onSelectTemplate: (templateId: string) => void;
+  guideImage: GuideImageState;
+  onUploadGuideImage: (file: File) => void;
+  onUpdateGuideImage: (updater: (prev: GuideImageState) => GuideImageState) => void;
+  onClearGuideImage: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ project, onUpdateProject, onSelectTemplate }) => {
-  const [activeTab, setActiveTab] = useState<'templates' | 'hardware' | 'finishes' | 'layers'>('templates');
+export const Sidebar: React.FC<SidebarProps> = ({
+  project,
+  onUpdateProject,
+  onSelectTemplate,
+  guideImage,
+  onUploadGuideImage,
+  onUpdateGuideImage,
+  onClearGuideImage,
+}) => {
+  const [activeTab, setActiveTab] = useState<'templates' | 'hardware' | 'guide' | 'finishes' | 'layers'>('templates');
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const { settings, neckPresetId, bridgePresetId } = project;
   const currentNeck = NECK_PRESETS[neckPresetId] || NECK_PRESETS.fender_strat_21;
@@ -25,6 +38,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ project, onUpdateProject, onSe
           onClick={() => setActiveTab('templates')}
         >
           Templates
+        </div>
+        <div
+          className={`sidebar-tab ${activeTab === 'guide' ? 'active' : ''}`}
+          onClick={() => setActiveTab('guide')}
+          title="Upload & transform background guide image"
+        >
+          Guide
         </div>
         <div
           className={`sidebar-tab ${activeTab === 'hardware' ? 'active' : ''}`}
@@ -109,6 +129,171 @@ export const Sidebar: React.FC<SidebarProps> = ({ project, onUpdateProject, onSe
             </div>
           </div>
         )}
+
+        {/* GUIDE TAB */}
+        {activeTab === 'guide' && (
+          <div>
+            <div className="panel-section">
+              <div className="section-title">
+                <ImageIcon size={16} /> Background Reference Image
+              </div>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
+                Upload a blueprint photo or SVG design to trace over. Adjust position, scale, rotation, and opacity.
+              </p>
+
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) onUploadGuideImage(file);
+                  e.target.value = '';
+                }}
+              />
+
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                <button
+                  className="btn btn-primary"
+                  style={{ flex: 1 }}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload size={15} /> Upload Guide Image
+                </button>
+                {guideImage.imageUrl && (
+                  <button
+                    className="btn btn-sm"
+                    style={{ borderColor: 'var(--accent-red)', color: 'var(--accent-red)' }}
+                    onClick={onClearGuideImage}
+                    title="Remove guide image"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                )}
+              </div>
+
+              {guideImage.imageUrl ? (
+                <div>
+                  <div className="form-group" style={{ marginBottom: '12px' }}>
+                    <label className="form-label">
+                      Scale Factor: <strong>{guideImage.scale.toFixed(2)}x</strong>
+                    </label>
+                    <input
+                      type="range"
+                      min="0.1"
+                      max="3.0"
+                      step="0.02"
+                      value={guideImage.scale}
+                      onChange={(e) =>
+                        onUpdateGuideImage((prev) => ({ ...prev, scale: parseFloat(e.target.value) }))
+                      }
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '12px' }}>
+                    <label className="form-label">
+                      Position Offset X (mm): <strong>{guideImage.offsetXMm.toFixed(0)} mm</strong>
+                    </label>
+                    <input
+                      type="range"
+                      min="-300"
+                      max="300"
+                      step="1"
+                      value={guideImage.offsetXMm}
+                      onChange={(e) =>
+                        onUpdateGuideImage((prev) => ({ ...prev, offsetXMm: parseFloat(e.target.value) }))
+                      }
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '12px' }}>
+                    <label className="form-label">
+                      Position Offset Y (mm): <strong>{guideImage.offsetYMm.toFixed(0)} mm</strong>
+                    </label>
+                    <input
+                      type="range"
+                      min="-200"
+                      max="600"
+                      step="1"
+                      value={guideImage.offsetYMm}
+                      onChange={(e) =>
+                        onUpdateGuideImage((prev) => ({ ...prev, offsetYMm: parseFloat(e.target.value) }))
+                      }
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '12px' }}>
+                    <label className="form-label">
+                      Rotation Angle: <strong>{guideImage.rotationDegrees.toFixed(0)}°</strong>
+                    </label>
+                    <input
+                      type="range"
+                      min="-180"
+                      max="180"
+                      step="1"
+                      value={guideImage.rotationDegrees}
+                      onChange={(e) =>
+                        onUpdateGuideImage((prev) => ({ ...prev, rotationDegrees: parseFloat(e.target.value) }))
+                      }
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '12px' }}>
+                    <label className="form-label">
+                      Image Opacity: <strong>{(guideImage.opacity * 100).toFixed(0)}%</strong>
+                    </label>
+                    <input
+                      type="range"
+                      min="0.05"
+                      max="1.0"
+                      step="0.05"
+                      value={guideImage.opacity}
+                      onChange={(e) =>
+                        onUpdateGuideImage((prev) => ({ ...prev, opacity: parseFloat(e.target.value) }))
+                      }
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  No guide image loaded. Click upload above to load any guitar template photo or PNG.
+                </p>
+              )}
+            </div>
+
+            <div className="panel-section">
+              <div className="section-title">Design Fill Opacity</div>
+              <div className="form-group">
+                <label className="form-label">
+                  Body Fill Opacity: <strong>{(settings.bodyFillOpacity * 100).toFixed(0)}%</strong>
+                </label>
+                <input
+                  type="range"
+                  min="0.0"
+                  max="1.0"
+                  step="0.05"
+                  value={settings.bodyFillOpacity}
+                  onChange={(e) =>
+                    onUpdateProject((prev) => ({
+                      ...prev,
+                      settings: { ...prev.settings, bodyFillOpacity: parseFloat(e.target.value) },
+                    }))
+                  }
+                  style={{ width: '100%' }}
+                />
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                  Lowering fill opacity allows underlying guide images and blueprints to be seen clearly while tracing anchor nodes.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}`,StartLine:128,TargetContent:
 
         {/* HARDWARE TAB */}
         {activeTab === 'hardware' && (

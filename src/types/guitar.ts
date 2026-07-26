@@ -88,6 +88,18 @@ export interface HardwareCavity {
   cornerRadiusMm?: LengthMm;
 }
 
+export interface GuideImageState {
+  imageUrl: string | null;
+  element: HTMLImageElement | null;
+  offsetXMm: LengthMm;
+  offsetYMm: LengthMm;
+  scale: number;
+  rotationDegrees: number;
+  opacity: number;
+  visible: boolean;
+  locked: boolean;
+}
+
 export interface ProjectSettings {
   name: string;
   unitDisplay: 'mm' | 'inches';
@@ -102,6 +114,7 @@ export interface ProjectSettings {
   finishStyle: 'solid' | 'sunburst' | 'flame_maple' | 'natural_wood';
   bodyColor: string;
   secondaryColor: string;
+  bodyFillOpacity: number; // 0.0 (transparent) to 1.0 (opaque)
   pickguardEnabled: boolean;
   pickguardColor: string;
 }
