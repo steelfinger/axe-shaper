@@ -15,6 +15,7 @@ dist-ssr
 preview_*
 
 # Editor directories and files
+.claude/
 .vscode/*
 !.vscode/extensions.json
 .idea
