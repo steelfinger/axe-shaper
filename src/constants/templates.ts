@@ -478,12 +478,198 @@ export const SG_STYLE_ANCHORS: PathAnchor[] = [
   }
 ];
 
+// 5. Gibson Firebird Blueprint Anchors (drawn from the Single-Cut template)
+//
+// NOTE: bridge and pickup positions are NOT derived from this outline - see
+// getSaddleYMm/getBridgePlateTopYMm in scaleMath.ts and the absolute
+// `y={p.offsetYMm}` / `y={bridgeY}` placement in CanvasWorkspace.tsx. They come
+// entirely from neckPresetId + bridgePresetId + defaultPickups below, so
+// dragging this outline up or down does not move hardware and does not fix
+// misalignment - only correcting those fields does.
+//
+// This models a Firebird-style body with a normal glued/bolted pocket joint
+// and standard-size humbuckers - not the real Firebird's neck-through
+// construction or mini-humbuckers, which this app doesn't have a distinct
+// concept for and would be misleading to claim here.
+//
+// neckPresetId is 'gibson_firebird_19' (see hardware.ts) because the real
+// Firebird's neck joins around fret 19, not fret 16 like the Les Paul/SG
+// templates - this outline's horn tip extends above Y=0, so it's safe to use
+// that deeper join. nutToBodyEdgeMm there and the tailpiece offset on
+// 'tune_o_matic_firebird' are both calibrated to a measured routing template
+// rather than left as theoretical fret math, so the TOM post line and
+// tailpiece land exactly on the measured 207.5mm/247mm marks.
+// defaultPickups.offsetYMm below are likewise measured directly off that
+// template (65mm/171mm from the joint line).
+export const GIBSON_FIREBIRD_ANCHORS: PathAnchor[] = [
+  {
+    id: 'sc_pocket_left',
+    position: { x: -19.05, y: 0 },
+    handleOut: { x: -4.648928571428559, y: 0.5094357142857147 },
+    handleMode: 'corner',
+    locked: true,
+    semanticRole: 'neck_pocket_left',
+  },
+  {
+    id: 'anchor_1785150198769_73vv7',
+    position: { x: -28.02765714285715, y: -0.016158928571428532 },
+    handleIn: { x: 5.885185714285706, y: 0.2357125000000004 },
+    handleOut: { x: -1.9149337541426965, y: 31.76876056150709 },
+    handleMode: 'corner',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'sc_upper_shoulder',
+    position: { x: -72.70374285714287, y: 42.35405714285714 },
+    handleIn: { x: 20.473999999999997, y: -7.982578571428576 },
+    handleOut: { x: -18.4516035303294, y: 7.194069304957671 },
+    handleMode: 'smooth',
+  },
+  {
+    id: 'anchor_1785150194644_a3ifc',
+    position: { x: -128.12331785714287, y: 97.24492321428572 },
+    handleIn: { x: 2.122118259281466, y: -38.45013044906603 },
+    handleOut: { x: -0.9939925805548943, y: 18.00990318073988 },
+    handleMode: 'smooth',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'anchor_1785150339995_gfwa3',
+    position: { x: -108.37760068541617, y: 164.42400863555488 },
+    handleIn: { x: -12.649860939463204, y: -25.319075997189927 },
+    handleOut: { x: 12.205267787995856, y: 24.429209472672255 },
+    handleMode: 'smooth',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'sc_upper_bout',
+    position: { x: -91.74978571428572, y: 234.8813714285714 },
+    handleIn: { x: 0.04920262374600481, y: -18.205126675888454 },
+    handleOut: { x: -0.03788584977046737, y: 14.017884449730023 },
+    handleMode: 'smooth',
+    semanticRole: 'upper_horn_left',
+  },
+  {
+    id: 'anchor_1785150335918_z6bkx',
+    position: { x: -115.68248403018501, y: 315.9218829801547 },
+    handleIn: { x: 12.848255099347398, y: -25.554232001874976 },
+    handleOut: { x: -9.907943501048862, y: 19.7061690423731 },
+    handleMode: 'smooth',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'sc_lower_bout_left',
+    position: { x: -157.26247142857142, y: 422.22461428571427 },
+    handleIn: { x: 0.9136254009138481, y: -24.23058403713003 },
+    handleOut: { x: -0.5502004663469506, y: 14.592062155619544 },
+    handleMode: 'smooth',
+    semanticRole: 'lower_bout_left',
+  },
+  {
+    id: 'anchor_1785150459628_f8ln7',
+    position: { x: -125.27947534976019, y: 468.26020018814324 },
+    handleIn: { x: -27.422378002360222, y: -8.696163276060497 },
+    handleOut: { x: 31.442935830872443, y: 9.97115946109508 },
+    handleMode: 'smooth',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'sc_tail_center',
+    position: { x: -0.32328571428570285, y: 449.8599857142857 },
+    handleIn: { x: -45.43192857142857, y: 13.127042857142897 },
+    handleOut: { x: 45.43192857142857, y: -13.127042857142897 },
+    handleMode: 'symmetric',
+    semanticRole: 'tail_center',
+  },
+  {
+    id: 'anchor_1785150454968_l105k',
+    position: { x: 108.49678214285713, y: 410.22781964285707 },
+    handleIn: { x: -34.731967243382314, y: 14.192155459653973 },
+    handleOut: { x: 52.35281785714288, y: -21.392376785714273 },
+    handleMode: 'smooth',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'sc_lower_bout_right',
+    position: { x: 175.22182857142857, y: 350.6321571428571 },
+    handleIn: { x: 1.959578622297858, y: 24.144613365412418 },
+    handleOut: { x: -1.634529000641383, y: -20.13956995956726 },
+    handleMode: 'smooth',
+    semanticRole: 'lower_bout_right',
+  },
+  {
+    id: 'anchor_1785150540415_k3wo9',
+    position: { x: 150.85374450346646, y: 286.1146993913961 },
+    handleIn: { x: 7.845216062749524, y: 20.773759895972557 },
+    handleOut: { x: -10.805708906199666, y: -28.613004476576766 },
+    handleMode: 'smooth',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'sc_waist_right',
+    position: { x: 131.6479, y: 203.96864285714287 },
+    handleIn: { x: 0.525588367820535, y: 41.880736012171965 },
+    handleOut: { x: -0.3121875278548032, y: -24.876203966606813 },
+    handleMode: 'smooth',
+    semanticRole: 'waist_right',
+  },
+  {
+    id: 'anchor_1785150536261_k9hlq',
+    position: { x: 158.42539285714287, y: 100.04563035714285 },
+    handleIn: { x: -9.009695529319973, y: 27.07300046420081 },
+    handleOut: { x: 15.204735714285723, y: -45.68831607142858 },
+    handleMode: 'smooth',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'anchor_1785072642913_kdp70',
+    position: { x: 176.8251285714286, y: 9.5394 },
+    handleIn: { x: 2.4239829857785904, y: 25.099033977901197 },
+    handleOut: { x: -2.1890491428239978, y: -22.666420984546285 },
+    handleMode: 'smooth',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'sc_cutaway_horn_tip',
+    position: { x: 141.59838571428574, y: -18.986771428571437 },
+    handleIn: { x: 12.327433318836164, y: -0.9177714286027879 },
+    handleOut: { x: -35.298642753670656, y: 2.627966824065067 },
+    handleMode: 'smooth',
+    semanticRole: 'upper_horn_right',
+  },
+  {
+    id: 'anchor_1785072576588_chpj8',
+    position: { x: 65.30254285714285, y: 41.09858571428572 },
+    handleIn: { x: 29.76976869439527, y: -0.3391110060880747 },
+    handleOut: { x: -25.176981738191834, y: 0.28679401896416884 },
+    handleMode: 'smooth',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'anchor_1785072512647_iico5',
+    position: { x: 27.90131428571429, y: 0.90964285714285 },
+    handleIn: { x: 0.4269857142857063, y: 22.361714285714292 },
+    handleOut: { x: -1.9154205729166698, y: -0.010454427083333329 },
+    handleMode: 'corner',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'sc_pocket_right',
+    position: { x: 19.05, y: 0 },
+    handleIn: { x: 1.1258583333333334, y: 0 },
+    handleMode: 'smooth',
+    locked: true,
+    semanticRole: 'neck_pocket_right',
+  },
+];
+
 export const REFERENCE_TEMPLATES: Record<string, ReferenceTemplate> = {
   single_cut: {
     id: 'single_cut',
     name: 'Single-Cut Vintage',
     description: 'Classic single-cut Mahogany body with dual humbuckers and Tune-O-Matic bridge.',
     category: 'Single-Cut',
+    tier: 'reference',
     neckPresetId: 'gibson_lp_22',
     bridgePresetId: 'tune_o_matic',
     defaultAnchors: SINGLE_CUT_ANCHORS,
@@ -498,6 +684,7 @@ export const REFERENCE_TEMPLATES: Record<string, ReferenceTemplate> = {
     name: 'Double-Cut SG Vintage',
     description: 'Symmetric double-cutaway Vintage SG body (Gibson/Yamaha style) with bevel contours.',
     category: 'Double-Cut',
+    tier: 'reference',
     neckPresetId: 'gibson_sg_22',
     bridgePresetId: 'tune_o_matic',
     defaultAnchors: SG_STYLE_ANCHORS,
@@ -512,6 +699,7 @@ export const REFERENCE_TEMPLATES: Record<string, ReferenceTemplate> = {
     name: 'S-Style Standard',
     description: 'Double cutaway body with contoured waist and upper horns.',
     category: 'S-Style',
+    tier: 'reference',
     neckPresetId: 'fender_strat_21',
     bridgePresetId: 'tremolo_strat',
     defaultAnchors: S_STYLE_ANCHORS,
@@ -527,12 +715,28 @@ export const REFERENCE_TEMPLATES: Record<string, ReferenceTemplate> = {
     name: 'T-Style Standard',
     description: 'Single cutaway solid body with flat edge profile and classic bridge plate.',
     category: 'T-Style',
+    tier: 'reference',
     neckPresetId: 'fender_tele_22',
     bridgePresetId: 'tele_bridge_plate',
     defaultAnchors: T_STYLE_ANCHORS,
     defaultPickups: [
       { id: 'p_neck', type: 'tele_neck', offsetYMm: 95, offsetXMm: 0, angleDegrees: 0, widthMm: 65, heightMm: 15 },
       { id: 'p_bridge', type: 'tele_bridge', offsetYMm: 222, offsetXMm: 0, angleDegrees: 11, widthMm: 73, heightMm: 20 },
+    ],
+  },
+  gibson_firebird: {
+    id: 'gibson_firebird',
+    name: 'Firebird-Style',
+    description: 'Firebird-style body with a fret-19 pocket joint, Tune-O-Matic bridge, and standard humbuckers, positioned from a real routing template.',
+    category: 'Firebird',
+    tier: 'extra',
+    neckPresetId: 'gibson_firebird_19',
+    bridgePresetId: 'tune_o_matic_firebird',
+    defaultAnchors: GIBSON_FIREBIRD_ANCHORS,
+    defaultPickups: [
+      // Measured from the joint line (Y=0) on a real routing template
+      { id: 'p_neck', type: 'humbucker', offsetYMm: 65, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
+      { id: 'p_bridge', type: 'humbucker', offsetYMm: 171, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
     ],
   },
 };

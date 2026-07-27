@@ -52,6 +52,29 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     jointCornerRadiusMm: 6.35,
     style: 'gibson_style',
   },
+  gibson_firebird_19: {
+    id: 'gibson_firebird_19',
+    name: 'Firebird-Style (24.75" Scale, 22 Frets, Fret 19 Joint Line)',
+    scaleLengthMm: 628.65,    // 24.75 inches
+    // Unlike sg_style, GIBSON_FIREBIRD_ANCHORS' horn tip sits above Y=0
+    // (~-19mm), so - per the warning on sg_style below - it's safe to use a
+    // deeper join than fret 16 here. The real Firebird joins around fret 19
+    // (theoretical fret-19 distance is ~418.9mm), but this preset models a
+    // normal glued/bolted pocket joint rather than the real guitar's
+    // neck-through construction (this app has no distinct neck-through
+    // concept), so the value is calibrated instead to the measured TOM post
+    // line on a real routing template (206-209mm from the joint line,
+    // average 207.5mm via getSaddleYMm with tune_o_matic_firebird's 3.0mm
+    // treble compensation), which is more precise than the theoretical fret
+    // math alone.
+    nutToBodyEdgeMm: 424.15,  // Nut to body entrance edge Y=0, back-solved from the measured bridge position
+    nutToJointMm: 459.2,
+    frets: 22,
+    jointWidthMm: 38.1,       // 1.5 inches - same pocket width as the other Gibson-style presets, matches the routing template's 3.80cm reference dimension
+    jointDepthMm: 82.0,       // Pocket depth, measured off the routing template
+    jointCornerRadiusMm: 6.35,
+    style: 'gibson_style',
+  },
   baritone_27: {
     id: 'baritone_27',
     name: 'Baritone Extended (27.0" Scale, 24 Frets)',
@@ -118,6 +141,27 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
       { x: 37.0, y: 0 },
       { x: -41.0, y: 45.0 },
       { x: 41.0, y: 45.0 },
+    ],
+    widthMm: 84.0,
+    lengthMm: 14.0,
+  },
+  tune_o_matic_firebird: {
+    id: 'tune_o_matic_firebird',
+    name: 'Tune-O-Matic + Stopbar Tailpiece (Firebird spacing)',
+    scaleReference: 'post_line',
+    // Same plate/compensation as tune_o_matic, but the tailpiece sits 39.5mm
+    // behind the post line here (not 45mm) - measured off the real routing
+    // template (bridge posts ~207.5mm, tailpiece 247mm from the joint line).
+    compensationMm: {
+      treble: 3.0,
+      bass: 6.0,
+    },
+    saddleOffsetYMm: 7.0,
+    mountingPoints: [
+      { x: -37.0, y: 0 },
+      { x: 37.0, y: 0 },
+      { x: -41.0, y: 39.5 },
+      { x: 41.0, y: 39.5 },
     ],
     widthMm: 84.0,
     lengthMm: 14.0,

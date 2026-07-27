@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Ruler } from 'lucide-react';
+import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Ruler, ChevronDown, ChevronRight } from 'lucide-react';
 import { BRIDGE_PRESETS, NECK_PRESETS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import type { GuitarProject, GuideImageState, SymmetryMode, CalibrationState } from '../types/guitar';
@@ -39,6 +39,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'templates' | 'hardware' | 'guide' | 'finishes' | 'layers'>('templates');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // The "Extra Blueprints" panel starts closed unless the active template
+  // already lives there, so a long tail of extra templates doesn't bury the
+  // curated reference list by default.
+  const [extraOpen, setExtraOpen] = useState<boolean>(
+    () => REFERENCE_TEMPLATES[project.activeTemplateId]?.tier === 'extra'
+  );
+  const referenceTemplates = Object.values(REFERENCE_TEMPLATES).filter((t) => t.tier === 'reference');
+  const extraTemplates = Object.values(REFERENCE_TEMPLATES).filter((t) => t.tier === 'extra');
 
   const { settings, neckPresetId, bridgePresetId } = project;
   const currentNeck = NECK_PRESETS[neckPresetId] || NECK_PRESETS.fender_strat_21;
@@ -92,7 +101,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 Select a baseline guitar blueprint to initialize editable Bezier nodes and hardware alignment.
               </p>
 
-              {Object.values(REFERENCE_TEMPLATES).map((tmpl) => (
+              {referenceTemplates.map((tmpl) => (
                 <div
                   key={tmpl.id}
                   onClick={() => onSelectTemplate(tmpl.id)}
@@ -116,6 +125,63 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               ))}
             </div>
+
+            {extraTemplates.length > 0 && (
+              <div className="panel-section">
+                <div
+                  onClick={() => setExtraOpen((prev) => !prev)}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '8px 10px',
+                    borderRadius: 'var(--radius-sm)',
+                    background: 'var(--bg-tertiary)',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                    marginBottom: extraOpen ? '10px' : 0,
+                  }}
+                >
+                  <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>
+                    Extra Blueprints <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>({extraTemplates.length})</span>
+                  </span>
+                  {extraOpen ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+                </div>
+
+                {extraOpen && (
+                  <>
+                    <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
+                      Additional community/experimental blueprints - hardware placement may still need verifying.
+                    </p>
+                    <div style={{ maxHeight: '340px', overflowY: 'auto', paddingRight: '4px' }}>
+                      {extraTemplates.map((tmpl) => (
+                        <div
+                          key={tmpl.id}
+                          onClick={() => onSelectTemplate(tmpl.id)}
+                          style={{
+                            padding: '12px',
+                            borderRadius: 'var(--radius-sm)',
+                            background: project.activeTemplateId === tmpl.id ? 'rgba(245, 158, 11, 0.12)' : 'var(--bg-primary)',
+                            border: project.activeTemplateId === tmpl.id ? '1px solid var(--accent-amber)' : '1px solid var(--panel-border)',
+                            marginBottom: '10px',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease',
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                            <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{tmpl.name}</span>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', background: 'var(--bg-tertiary)', padding: '2px 6px', borderRadius: '4px' }}>
+                              {tmpl.category}
+                            </span>
+                          </div>
+                          <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{tmpl.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
 
             <div className="panel-section">
               <div className="section-title">
