@@ -8,6 +8,7 @@ import type { GuitarProject, GuideImageState, CalibrationState, Vector2D } from 
 import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
 import { downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
+import { getUserTemplate } from './utils/userTemplates';
 import { TemplateCodeModal } from './components/TemplateCodeModal';
 import { SaveInfoModal } from './components/SaveInfoModal';
 
@@ -210,9 +211,10 @@ export function App(): React.JSX.Element {
     if (next) applyDoc(next);
   };
 
-  // Template switching
+  // Template switching - checks built-in blueprints first, then falls back
+  // to a user-saved template, since both are applied the same way.
   const handleSelectTemplate = (templateId: string) => {
-    const template = REFERENCE_TEMPLATES[templateId];
+    const template = REFERENCE_TEMPLATES[templateId] ?? getUserTemplate(templateId);
     if (!template) return;
 
     handleUpdateProject((prev) => ({

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Ruler, ChevronDown, ChevronRight } from 'lucide-react';
+import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Ruler, ChevronDown, ChevronRight, Bookmark, Plus } from 'lucide-react';
 import { BRIDGE_PRESETS, NECK_PRESETS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import type { GuitarProject, GuideImageState, SymmetryMode, CalibrationState } from '../types/guitar';
 import { getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 import { GRID_PRESETS, formatLength, gridMinorDivisor, toMm, unitLabel } from '../utils/units';
+import { deleteUserTemplate, loadUserTemplates, saveUserTemplate, type UserTemplate } from '../utils/userTemplates';
 
 interface SidebarProps {
   project: GuitarProject;
@@ -48,6 +49,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
   );
   const referenceTemplates = Object.values(REFERENCE_TEMPLATES).filter((t) => t.tier === 'reference');
   const extraTemplates = Object.values(REFERENCE_TEMPLATES).filter((t) => t.tier === 'extra');
+
+  const [userTemplates, setUserTemplates] = useState<UserTemplate[]>(loadUserTemplates);
+
+  const handleSaveAsTemplate = () => {
+    const name = window.prompt('Name this template:', project.settings.name)?.trim();
+    if (!name) return;
+    const template: UserTemplate = {
+      id: `user_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      name,
+      neckPresetId: project.neckPresetId,
+      bridgePresetId: project.bridgePresetId,
+      defaultAnchors: JSON.parse(JSON.stringify(project.contour.anchors)),
+      defaultPickups: JSON.parse(JSON.stringify(project.pickups)),
+      createdAt: new Date().toISOString(),
+    };
+    setUserTemplates(saveUserTemplate(template));
+  };
+
+  const handleDeleteUserTemplate = (id: string) => {
+    setUserTemplates(deleteUserTemplate(id));
+  };
 
   const { settings, neckPresetId, bridgePresetId } = project;
   const currentNeck = NECK_PRESETS[neckPresetId] || NECK_PRESETS.fender_strat_21;
@@ -182,6 +204,61 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 )}
               </div>
             )}
+
+            <div className="panel-section">
+              <div className="section-title">
+                <Bookmark size={16} /> My Templates
+              </div>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
+                Save the current design as a reusable starting point. Stored in this browser only.
+              </p>
+
+              <button
+                className="btn btn-sm"
+                style={{ width: '100%', justifyContent: 'center', marginBottom: '12px' }}
+                onClick={handleSaveAsTemplate}
+              >
+                <Plus size={15} /> Save Current Design as Template
+              </button>
+
+              {userTemplates.length === 0 ? (
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>No saved templates yet.</p>
+              ) : (
+                userTemplates.map((tmpl) => (
+                  <div
+                    key={tmpl.id}
+                    onClick={() => onSelectTemplate(tmpl.id)}
+                    style={{
+                      padding: '12px',
+                      borderRadius: 'var(--radius-sm)',
+                      background: project.activeTemplateId === tmpl.id ? 'rgba(245, 158, 11, 0.12)' : 'var(--bg-primary)',
+                      border: project.activeTemplateId === tmpl.id ? '1px solid var(--accent-amber)' : '1px solid var(--panel-border)',
+                      marginBottom: '10px',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{tmpl.name}</span>
+                      <button
+                        className="btn btn-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteUserTemplate(tmpl.id);
+                        }}
+                        style={{ padding: '4px 6px', border: 'none', background: 'transparent', color: 'var(--accent-red)' }}
+                        title="Delete template"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                    <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                      Saved {new Date(tmpl.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
 
             <div className="panel-section">
               <div className="section-title">
