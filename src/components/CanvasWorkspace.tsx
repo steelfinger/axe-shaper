@@ -4,10 +4,16 @@ import Konva from 'konva';
 import { BRIDGE_PRESETS, NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import type { GuitarProject, GuideImageState, Vector2D, CalibrationState } from '../types/guitar';
-import { anchorsToSVGPath, insertAnchorOnSegment, updateAnchorHandle } from '../utils/bezier';
+import {
+  anchorsToSVGPath,
+  findClosestSegment,
+  getSegmentControlPoints,
+  insertAnchorOnSegment,
+  updateAnchorHandle,
+} from '../utils/bezier';
 import { applyLiveSymmetry } from '../utils/symmetry';
 import { getBridgePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
-import { ZoomIn, ZoomOut, Maximize2, Hand, MousePointer } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, Hand, MousePointer, Spline } from 'lucide-react';
 import {
   SCALE_BAR_STEPS,
   formatLength,
@@ -16,10 +22,22 @@ import {
   unitLabel,
 } from '../utils/units';
 
+/**
+ * The body Path's hit area is its fill, so a click a few pixels *outside* the
+ * outline misses it entirely. Segment picking therefore runs on the Stage and
+ * uses this name to tell "clicked the body" apart from "clicked a node handle".
+ */
+const BODY_OUTLINE_NAME = 'body-outline';
+
+/** How close to the outline a click has to land to select or split a segment. */
+const PICK_TOLERANCE_PX = 12;
+
 interface CanvasWorkspaceProps {
   project: GuitarProject;
   selectedAnchorId: string | null;
   onSelectAnchor: (id: string | null) => void;
+  selectedSegmentIndex: number | null;
+  onSelectSegment: (index: number | null) => void;
   onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject) => void;
   onDragStartHistory: () => void;
   guideImage: GuideImageState;
@@ -35,6 +53,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   project,
   selectedAnchorId,
   onSelectAnchor,
+  selectedSegmentIndex,
+  onSelectSegment,
   onUpdateProject,
   onDragStartHistory,
   guideImage,
@@ -46,12 +66,15 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 }) => {
   const [knownDistanceInput, setKnownDistanceInput] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
-  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [zoom, setZoom] = useState(1.2); // 1.2 px per mm base scale
   const [panOffset, setPanOffset] = useState<Vector2D>({ x: 0, y: 0 });
   const [isPanToolActive, setIsPanToolActive] = useState(false);
   const [isSpacePressed, setIsSpacePressed] = useState(false);
+  const [isModifierPanning, setIsModifierPanning] = useState(false);
   const [isDraggingStage, setIsDraggingStage] = useState(false);
+  // Show every anchor's bezier handles at once, instead of only the selected one's
+  const [showAllHandles, setShowAllHandles] = useState(false);
 
   const { contour, settings, neckPresetId, bridgePresetId, pickups, activeTemplateId } = project;
   const neck = NECK_PRESETS[neckPresetId] || NECK_PRESETS.fender_strat_21;
@@ -68,39 +91,63 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   const originX = baseOriginX + panOffset.x;
   const originY = baseOriginY + panOffset.y;
 
-  // Listen to Spacebar key to toggle pan mode temporarily while held down
+  // Spacebar or Alt/Option held down = temporary pan mode. Alt is the spare
+  // modifier here: Ctrl-drag is a right-click on macOS, and Shift is reserved
+  // for constrained drags.
   useEffect(() => {
+    const isTypingTarget = (target: EventTarget | null) =>
+      target instanceof HTMLInputElement || target instanceof HTMLSelectElement;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement)) {
+      if (isTypingTarget(e.target)) return;
+
+      if (e.code === 'Space') {
         e.preventDefault();
         setIsSpacePressed(true);
       }
-    };
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.code === 'Space') {
-        setIsSpacePressed(false);
+      // Bare Alt focuses the menu bar on Windows; suppress that so it can pan
+      if (e.key === 'Alt') e.preventDefault();
+      if (e.key.toLowerCase() === 'h' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault();
+        setShowAllHandles((p) => !p);
       }
+      setIsModifierPanning(e.altKey);
     };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') setIsSpacePressed(false);
+      setIsModifierPanning(e.altKey);
+    };
+
+    // Alt-Tab and friends swallow the keyup, which would leave pan mode stuck on
+    const releaseAll = () => {
+      setIsSpacePressed(false);
+      setIsModifierPanning(false);
+    };
+
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', releaseAll);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', releaseAll);
     };
   }, []);
 
+  // A ResizeObserver rather than a window resize listener: the container can be
+  // 0x0 at mount (hidden tab, late layout) and a 0-sized Konva stage throws when
+  // it builds its buffer canvas. The observer fires again once it has a real size.
   useEffect(() => {
-    const handleResize = () => {
-      if (containerRef.current) {
-        setDimensions({
-          width: containerRef.current.offsetWidth,
-          height: containerRef.current.offsetHeight,
-        });
-      }
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const node = containerRef.current;
+    if (!node) return;
+
+    const measure = () => setDimensions({ width: node.offsetWidth, height: node.offsetHeight });
+    measure();
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
   }, []);
 
   // Conversions using rotation
@@ -212,7 +259,19 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
     });
   };
 
-  const isPanMode = isPanToolActive || isSpacePressed;
+  const isPanMode = isPanToolActive || isSpacePressed || isModifierPanning;
+
+  /** Nearest contour segment to a stage pointer position, if the click was close enough. */
+  const pickSegment = (pointer: Vector2D): number | null => {
+    const hit = findClosestSegment(contour.anchors, contour.closed, toModel(pointer));
+    if (!hit) return null;
+    // Tolerance in screen px, so it stays the same size as you zoom
+    return hit.distance * zoom <= PICK_TOLERANCE_PX ? hit.index : null;
+  };
+
+  /** Only empty canvas and the body itself pick segments - never a node or handle. */
+  const isOutlinePickTarget = (target: Konva.Node): boolean =>
+    target === target.getStage() || target.name() === BODY_OUTLINE_NAME;
 
   return (
     <div className="app-canvas-container" ref={containerRef}>
@@ -228,9 +287,17 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         <button
           className={`btn btn-sm ${isPanToolActive ? 'btn-primary' : ''}`}
           onClick={() => setIsPanToolActive((p) => !p)}
-          title="Pan / Move Canvas (Hold Spacebar or Drag Empty Area)"
+          title="Pan / Move Canvas (or hold Spacebar / Alt-Option)"
         >
           <Hand size={14} /> Pan
+        </button>
+
+        <button
+          className={`btn btn-sm ${showAllHandles ? 'btn-primary' : ''}`}
+          onClick={() => setShowAllHandles((p) => !p)}
+          title="Show bezier handles for every node, not just the selected one (H)"
+        >
+          <Spline size={14} /> All Handles
         </button>
 
         <div style={{ width: '1px', height: '16px', background: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />
@@ -255,8 +322,10 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
       </div>
 
       <Stage
-        width={dimensions.width}
-        height={dimensions.height}
+        // Never 0: Konva throws building its buffer canvas at zero size, and the
+        // container really can measure 0x0 for a frame before layout settles.
+        width={Math.max(1, dimensions.width)}
+        height={Math.max(1, dimensions.height)}
         onWheel={handleWheel}
         draggable={isPanMode}
         onDragStart={(e) => {
@@ -284,9 +353,31 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
             if (pointer) onCalibrationPick(toModel(pointer));
             return;
           }
-          if (!isPanMode && e.target === e.target.getStage()) {
-            onSelectAnchor(null);
-          }
+          if (isPanMode || !isOutlinePickTarget(e.target)) return;
+
+          const pointer = e.target.getStage()?.getPointerPosition();
+          if (!pointer) return;
+          const index = pickSegment(pointer);
+          onSelectSegment(index);
+          // A click out in open space, or well inside the body, clears everything
+          if (index === null) onSelectAnchor(null);
+        }}
+        onDblClick={(e) => {
+          if (isPanMode || calibration.active || !isOutlinePickTarget(e.target)) return;
+
+          const pointer = e.target.getStage()?.getPointerPosition();
+          if (!pointer) return;
+          const hit = findClosestSegment(contour.anchors, contour.closed, toModel(pointer));
+          if (!hit || hit.distance * zoom > PICK_TOLERANCE_PX) return;
+
+          // Split up front rather than inside the updater: React runs the updater
+          // after the handler returns, so an id read from in there is always empty
+          const updated = insertAnchorOnSegment(contour.anchors, hit.index, hit.t);
+          const insertedId = updated[hit.index + 1]?.id;
+
+          onDragStartHistory();
+          onUpdateProject((prev) => ({ ...prev, contour: { ...prev.contour, anchors: updated } }));
+          if (insertedId) onSelectAnchor(insertedId);
         }}
       >
         {/* LAYER 0: GRID & CENTERLINE AXIS */}
@@ -428,7 +519,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
         {/* LAYER 1: GHOST REFERENCE GUIDE */}
         {settings.showGhostGuide && (
-          <Layer>
+          <Layer listening={false}>
             <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               <Path data={ghostSVGPath} stroke="#64748b" strokeWidth={1.5 / zoom} dash={[5, 5]} opacity={0.35} />
             </Group>
@@ -480,49 +571,14 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               shadowColor="#000"
               shadowBlur={20}
               shadowOpacity={0.5}
-              onDblClick={(e) => {
-                if (isPanMode) return;
-                e.cancelBubble = true;
-                const stage = e.target.getStage();
-                const pointer = stage?.getPointerPosition();
-                if (!pointer) return;
-                const clickModelPt = toModel(pointer);
-                let minDistance = Infinity;
-                let closestIdx = 0;
-                contour.anchors.forEach((anchor, i) => {
-                  const dx = anchor.position.x - clickModelPt.x;
-                  const dy = anchor.position.y - clickModelPt.y;
-                  const dist = Math.sqrt(dx * dx + dy * dy);
-                  if (dist < minDistance) {
-                    minDistance = dist;
-                    closestIdx = i;
-                  }
-                });
-
-                onDragStartHistory();
-                let insertedId = '';
-                onUpdateProject((prev) => {
-                  const updated = insertAnchorOnSegment(prev.contour.anchors, closestIdx, 0.5);
-                  insertedId = updated[closestIdx + 1]?.id || '';
-                  return {
-                    ...prev,
-                    contour: {
-                      ...prev.contour,
-                      anchors: updated,
-                    },
-                  };
-                });
-                if (insertedId) {
-                  onSelectAnchor(insertedId);
-                }
-              }}
+              name={BODY_OUTLINE_NAME}
             />
           </Group>
         </Layer>
 
-        {/* LAYER 3: HARDWARE & ROUTS */}
+        {/* LAYER 3: HARDWARE & ROUTS - display only, so it never eats a canvas click */}
         {settings.showHardwareCavities && (
-          <Layer listening={!isPanMode && !calibration.active}>
+          <Layer listening={false}>
             <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               {/* Neck Pocket Cavity */}
               <Rect
@@ -587,8 +643,30 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
         {/* LAYER 4: INTERACTIVE BEZIER NODE CONTROLS */}
         <Layer listening={!isPanMode && !calibration.active}>
+          {/* Selected segment highlight */}
+          {selectedSegmentIndex !== null && (
+            <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation} listening={false}>
+              {(() => {
+                const cps = getSegmentControlPoints(contour.anchors, selectedSegmentIndex, contour.closed);
+                if (!cps) return null;
+                const [p0, p1, p2, p3] = cps;
+                return (
+                  <Path
+                    data={`M ${p0.x} ${p0.y} C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${p3.x} ${p3.y}`}
+                    stroke="#38bdf8"
+                    strokeWidth={5 / zoom}
+                    lineCap="round"
+                    opacity={0.85}
+                  />
+                );
+              })()}
+            </Group>
+          )}
+
           {contour.anchors.map((anchor, index) => {
             const isSelected = anchor.id === selectedAnchorId;
+            const showHandles = isSelected || showAllHandles;
+            const handleOpacity = isSelected ? 1 : 0.55;
             const aPos = toScreen(anchor.position);
             const ax = aPos.x;
             const ay = aPos.y;
@@ -603,40 +681,60 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
             return (
               <Group key={anchor.id}>
-                {/* Lines to handles if selected */}
-                {isSelected && hInPos && (
-                  <Line points={[ax, ay, hInPos.x, hInPos.y]} stroke="#ef4444" strokeWidth={1.2} dash={[2, 2]} />
+                {/* Lines to handles */}
+                {showHandles && hInPos && (
+                  <Line
+                    points={[ax, ay, hInPos.x, hInPos.y]}
+                    stroke="#ef4444"
+                    strokeWidth={1.2}
+                    dash={[2, 2]}
+                    opacity={handleOpacity}
+                  />
                 )}
-                {isSelected && hOutPos && (
-                  <Line points={[ax, ay, hOutPos.x, hOutPos.y]} stroke="#ef4444" strokeWidth={1.2} dash={[2, 2]} />
+                {showHandles && hOutPos && (
+                  <Line
+                    points={[ax, ay, hOutPos.x, hOutPos.y]}
+                    stroke="#ef4444"
+                    strokeWidth={1.2}
+                    dash={[2, 2]}
+                    opacity={handleOpacity}
+                  />
                 )}
 
                 {/* Handle In Circle */}
-                {isSelected && hInPos && (
+                {showHandles && hInPos && (
                   <Circle
                     x={hInPos.x}
                     y={hInPos.y}
-                    radius={5}
+                    radius={isSelected ? 5 : 4}
                     fill="#ef4444"
                     stroke="#fff"
                     strokeWidth={1.5}
+                    opacity={handleOpacity}
                     draggable
-                    onDragStart={onDragStartHistory}
+                    onDragStart={() => {
+                      onSelectAnchor(anchor.id);
+                      onDragStartHistory();
+                    }}
                     onDragMove={(e) => handleHandleDragMove(index, 'in', e)}
                   />
                 )}
 
                 {/* Handle Out Circle */}
-                {isSelected && hOutPos && (
+                {showHandles && hOutPos && (
                   <Circle
                     x={hOutPos.x}
                     y={hOutPos.y}
-                    radius={5}
+                    radius={isSelected ? 5 : 4}
                     fill="#ef4444"
                     stroke="#fff"
                     strokeWidth={1.5}
+                    opacity={handleOpacity}
                     draggable
-                    onDragStart={onDragStartHistory}
+                    onDragStart={() => {
+                      onSelectAnchor(anchor.id);
+                      onDragStartHistory();
+                    }}
                     onDragMove={(e) => handleHandleDragMove(index, 'out', e)}
                   />
                 )}

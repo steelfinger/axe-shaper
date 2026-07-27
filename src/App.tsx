@@ -5,7 +5,7 @@ import { InspectorPanel } from './components/InspectorPanel';
 import { CanvasWorkspace } from './components/CanvasWorkspace';
 import { REFERENCE_TEMPLATES } from './constants/templates';
 import type { GuitarProject, GuideImageState, CalibrationState, Vector2D } from './types/guitar';
-import { insertAnchorOnSegment } from './utils/bezier';
+import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
 import { downloadSVGFile, exportProjectToSVG } from './utils/svgExporter';
 import { TemplateCodeModal } from './components/TemplateCodeModal';
@@ -64,6 +64,7 @@ const INITIAL_GUIDE_IMAGE: GuideImageState = {
 export function App(): React.JSX.Element {
   const [project, setProject] = useState<GuitarProject>(INITIAL_PROJECT);
   const [selectedAnchorId, setSelectedAnchorId] = useState<string | null>(null);
+  const [selectedSegmentIndex, setSelectedSegmentIndex] = useState<number | null>(null);
   const [isTemplateCodeModalOpen, setIsTemplateCodeModalOpen] = useState(false);
   const [guideImage, setGuideImage] = useState<GuideImageState>(INITIAL_GUIDE_IMAGE);
 
@@ -186,25 +187,56 @@ export function App(): React.JSX.Element {
       },
     }));
     setSelectedAnchorId(null);
+    setSelectedSegmentIndex(null);
   };
 
   const handleResetTemplate = () => {
     handleSelectTemplate(project.activeTemplateId);
   };
 
+  // Anchor and segment selection are mutually exclusive - the Inspector shows one
+  // set of controls, and it should never be ambiguous which one an action applies to.
+  const handleSelectAnchor = (id: string | null) => {
+    setSelectedAnchorId(id);
+    if (id) setSelectedSegmentIndex(null);
+  };
+
+  const handleSelectSegment = (index: number | null) => {
+    setSelectedSegmentIndex(index);
+    if (index !== null) setSelectedAnchorId(null);
+  };
+
+  const handleToggleSegmentStraight = () => {
+    if (selectedSegmentIndex === null) return;
+    handleUpdateProject((prev) => {
+      const { anchors, closed } = prev.contour;
+      const straight = isSegmentStraight(anchors, selectedSegmentIndex, closed);
+      return {
+        ...prev,
+        contour: {
+          ...prev.contour,
+          anchors: straight
+            ? curveSegment(anchors, selectedSegmentIndex, closed)
+            : straightenSegment(anchors, selectedSegmentIndex, closed),
+        },
+      };
+    });
+  };
+
   // De Casteljau Bezier Curve Splitting (Add Node on Segment)
   const handleAddAnchorOnSegment = () => {
-    if (!selectedAnchorId) return;
-    const idx = project.contour.anchors.findIndex((a) => a.id === selectedAnchorId);
-    if (idx === -1) return;
+    const idx =
+      selectedSegmentIndex ??
+      project.contour.anchors.findIndex((a) => a.id === selectedAnchorId);
+    if (idx === undefined || idx < 0) return;
 
-    handleUpdateProject((prev) => ({
-      ...prev,
-      contour: {
-        ...prev.contour,
-        anchors: insertAnchorOnSegment(prev.contour.anchors, idx, 0.5),
-      },
-    }));
+    // Split up front: React runs the updater after this handler returns, so an id
+    // read from inside it would still be empty when we go to select the new node.
+    const anchors = insertAnchorOnSegment(project.contour.anchors, idx, 0.5);
+    const insertedId = anchors[idx + 1]?.id;
+
+    handleUpdateProject((prev) => ({ ...prev, contour: { ...prev.contour, anchors } }));
+    if (insertedId) handleSelectAnchor(insertedId);
   };
 
   // Delete Anchor
@@ -252,6 +284,7 @@ export function App(): React.JSX.Element {
         if (imported && imported.contour && imported.settings) {
           handleUpdateProject(() => imported);
           setSelectedAnchorId(null);
+          setSelectedSegmentIndex(null);
         } else {
           alert('Invalid .guitar project file format.');
         }
@@ -319,7 +352,9 @@ export function App(): React.JSX.Element {
       <CanvasWorkspace
         project={project}
         selectedAnchorId={selectedAnchorId}
-        onSelectAnchor={setSelectedAnchorId}
+        onSelectAnchor={handleSelectAnchor}
+        selectedSegmentIndex={selectedSegmentIndex}
+        onSelectSegment={handleSelectSegment}
         onUpdateProject={handleUpdateProject}
         onDragStartHistory={handleDragStartHistory}
         guideImage={guideImage}
@@ -333,9 +368,11 @@ export function App(): React.JSX.Element {
       <InspectorPanel
         project={project}
         selectedAnchorId={selectedAnchorId}
+        selectedSegmentIndex={selectedSegmentIndex}
         onUpdateProject={handleUpdateProject}
         onDeleteSelectedAnchor={handleDeleteSelectedAnchor}
         onAddAnchorOnSegment={handleAddAnchorOnSegment}
+        onToggleSegmentStraight={handleToggleSegmentStraight}
       />
 
       <TemplateCodeModal

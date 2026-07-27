@@ -1,22 +1,26 @@
 import React from 'react';
-import { MousePointer, Trash2, PlusCircle, Ruler } from 'lucide-react';
+import { MousePointer, Trash2, PlusCircle, Ruler, Spline, Slash } from 'lucide-react';
 import type { GuitarProject, HandleMode } from '../types/guitar';
-import { updateAnchorHandle } from '../utils/bezier';
+import { distanceVector, isSegmentStraight, updateAnchorHandle } from '../utils/bezier';
 
 interface InspectorPanelProps {
   project: GuitarProject;
   selectedAnchorId: string | null;
+  selectedSegmentIndex: number | null;
   onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject) => void;
   onDeleteSelectedAnchor: () => void;
   onAddAnchorOnSegment: () => void;
+  onToggleSegmentStraight: () => void;
 }
 
 export const InspectorPanel: React.FC<InspectorPanelProps> = ({
   project,
   selectedAnchorId,
+  selectedSegmentIndex,
   onUpdateProject,
   onDeleteSelectedAnchor,
   onAddAnchorOnSegment,
+  onToggleSegmentStraight,
 }) => {
   const { contour, settings } = project;
   const isMm = settings.unitDisplay === 'mm';
@@ -24,6 +28,15 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
   const factor = isMm ? 1 : 1 / 25.4;
 
   const selectedAnchor = contour.anchors.find((a) => a.id === selectedAnchorId);
+
+  const segment =
+    selectedSegmentIndex !== null && selectedSegmentIndex < contour.anchors.length
+      ? {
+          from: contour.anchors[selectedSegmentIndex],
+          to: contour.anchors[(selectedSegmentIndex + 1) % contour.anchors.length],
+          straight: isSegmentStraight(contour.anchors, selectedSegmentIndex, contour.closed),
+        }
+      : null;
 
   // Compute live body measurements
   const xPositions = contour.anchors.map((a) => Math.abs(a.position.x));
@@ -80,7 +93,15 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
       {/* NODE EDITOR SECTION */}
       <div className="panel-section">
         <div className="section-title">
-          <MousePointer size={16} /> Node Inspector
+          {segment && !selectedAnchor ? (
+            <>
+              <Slash size={16} /> Segment Inspector
+            </>
+          ) : (
+            <>
+              <MousePointer size={16} /> Node Inspector
+            </>
+          )}
         </div>
 
         {selectedAnchor ? (
@@ -148,9 +169,56 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               </button>
             </div>
           </div>
+        ) : segment ? (
+          <div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
+              Edge{' '}
+              <strong style={{ color: 'var(--text-primary)' }}>
+                {segment.from.semanticRole || 'custom'} &rarr; {segment.to.semanticRole || 'custom'}
+              </strong>
+              <br />
+              End-to-end span: {(distanceVector(segment.from.position, segment.to.position) * factor).toFixed(1)}{' '}
+              {unitLabel}
+            </div>
+
+            <div className="form-group" style={{ marginBottom: '10px' }}>
+              <label className="form-label">Edge Shape</label>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button
+                  className={`btn btn-sm ${!segment.straight ? 'btn-primary' : ''}`}
+                  onClick={() => segment.straight && onToggleSegmentStraight()}
+                  title="Give this edge bezier handles to curve it"
+                >
+                  <Spline size={14} /> Curved
+                </button>
+                <button
+                  className={`btn btn-sm ${segment.straight ? 'btn-primary' : ''}`}
+                  onClick={() => !segment.straight && onToggleSegmentStraight()}
+                  title="Retract the handles so this edge is a straight line"
+                >
+                  <Slash size={14} /> Straight
+                </button>
+              </div>
+            </div>
+
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '12px', lineHeight: 1.5 }}>
+              Straightening retracts the two handles that shape this edge and sets both ends to Sharp
+              Corner, so curving a neighbouring edge cannot pull it back out.
+            </p>
+
+            <button
+              className="btn btn-sm"
+              onClick={onAddAnchorOnSegment}
+              title="Split this edge: add a new anchor point at its midpoint"
+            >
+              <PlusCircle size={14} /> Add Node Here
+            </button>
+          </div>
         ) : (
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            Click any blue anchor circle on the canvas to inspect coordinates and edit Bezier handles.
+            Click any blue anchor circle to inspect coordinates and edit Bezier handles, or click the
+            body outline between two anchors to select that edge and make it straight or curved.
+            Double-click the outline to add a node where you clicked.
           </p>
         )}
       </div>

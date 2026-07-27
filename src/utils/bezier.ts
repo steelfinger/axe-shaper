@@ -161,6 +161,145 @@ export function anchorsToSVGPath(anchors: PathAnchor[], closed: boolean = true):
   return parts.join(' ');
 }
 
+/** Number of segments in an anchor list: one per gap, plus the closing gap. */
+export function segmentCount(anchors: PathAnchor[], closed: boolean): number {
+  if (anchors.length < 2) return 0;
+  return closed ? anchors.length : anchors.length - 1;
+}
+
+/**
+ * The four cubic control points of segment `index` (from anchor `index` to the next one).
+ * A missing handle collapses onto its anchor, which is exactly how a straight
+ * segment is expressed: a cubic whose controls sit on its own endpoints.
+ */
+export function getSegmentControlPoints(
+  anchors: PathAnchor[],
+  index: number,
+  closed: boolean
+): [Vector2D, Vector2D, Vector2D, Vector2D] | null {
+  if (index < 0 || index >= segmentCount(anchors, closed)) return null;
+
+  const a1 = anchors[index];
+  const a2 = anchors[(index + 1) % anchors.length];
+
+  return [
+    a1.position,
+    a1.handleOut
+      ? { x: a1.position.x + a1.handleOut.x, y: a1.position.y + a1.handleOut.y }
+      : a1.position,
+    a2.handleIn
+      ? { x: a2.position.x + a2.handleIn.x, y: a2.position.y + a2.handleIn.y }
+      : a2.position,
+    a2.position,
+  ];
+}
+
+/**
+ * Nearest point on the contour to `point`, by sampling each segment and then
+ * refining around the best sample. Distances are in model mm.
+ */
+export function findClosestSegment(
+  anchors: PathAnchor[],
+  closed: boolean,
+  point: Vector2D,
+  samplesPerSegment: number = 24
+): { index: number; t: number; point: Vector2D; distance: number } | null {
+  const count = segmentCount(anchors, closed);
+  if (count === 0) return null;
+
+  let best = { index: 0, t: 0, point: anchors[0].position, distance: Infinity };
+
+  for (let i = 0; i < count; i++) {
+    const cps = getSegmentControlPoints(anchors, i, closed);
+    if (!cps) continue;
+    for (let s = 0; s <= samplesPerSegment; s++) {
+      const t = s / samplesPerSegment;
+      const p = evaluateCubicBezier(cps[0], cps[1], cps[2], cps[3], t);
+      const d = distanceVector(p, point);
+      if (d < best.distance) best = { index: i, t, point: p, distance: d };
+    }
+  }
+
+  // Refine within one sample step of the winner for a usable insertion point
+  const cps = getSegmentControlPoints(anchors, best.index, closed);
+  if (cps) {
+    const span = 1 / samplesPerSegment;
+    for (let s = -16; s <= 16; s++) {
+      const t = Math.min(1, Math.max(0, best.t + (span * s) / 16));
+      const p = evaluateCubicBezier(cps[0], cps[1], cps[2], cps[3], t);
+      const d = distanceVector(p, point);
+      if (d < best.distance) best = { index: best.index, t, point: p, distance: d };
+    }
+  }
+
+  return best;
+}
+
+/** A handle shorter than this is treated as retracted onto its anchor. */
+const RETRACTED_HANDLE_MM = 0.05;
+
+export function isHandleRetracted(handle?: Vector2D): boolean {
+  return !handle || Math.hypot(handle.x, handle.y) < RETRACTED_HANDLE_MM;
+}
+
+/** True when the segment renders as a plain straight line. */
+export function isSegmentStraight(anchors: PathAnchor[], index: number, closed: boolean): boolean {
+  if (index < 0 || index >= segmentCount(anchors, closed)) return false;
+  const a1 = anchors[index];
+  const a2 = anchors[(index + 1) % anchors.length];
+  return isHandleRetracted(a1.handleOut) && isHandleRetracted(a2.handleIn);
+}
+
+/**
+ * Make a segment a straight line by retracting the two handles that shape it.
+ * Both endpoints are forced to 'corner' mode: in 'smooth' or 'symmetric' mode
+ * dragging the *other* handle would immediately pull the retracted one back out
+ * and re-curve the segment behind the user's back.
+ */
+export function straightenSegment(
+  anchors: PathAnchor[],
+  index: number,
+  closed: boolean
+): PathAnchor[] {
+  if (index < 0 || index >= segmentCount(anchors, closed)) return anchors;
+
+  const nextIndex = (index + 1) % anchors.length;
+  const result = [...anchors];
+
+  const a1 = { ...result[index], handleMode: 'corner' as const };
+  delete a1.handleOut;
+  result[index] = a1;
+
+  const a2 = { ...result[nextIndex], handleMode: 'corner' as const };
+  delete a2.handleIn;
+  result[nextIndex] = a2;
+
+  return result;
+}
+
+/**
+ * Give a straight segment its handles back, placed a third of the way along the
+ * chord. The rendered shape is unchanged - the segment is still a straight line -
+ * but there is now something to grab and pull into a curve.
+ */
+export function curveSegment(
+  anchors: PathAnchor[],
+  index: number,
+  closed: boolean
+): PathAnchor[] {
+  if (index < 0 || index >= segmentCount(anchors, closed)) return anchors;
+
+  const nextIndex = (index + 1) % anchors.length;
+  const p0 = anchors[index].position;
+  const p3 = anchors[nextIndex].position;
+  const third: Vector2D = { x: (p3.x - p0.x) / 3, y: (p3.y - p0.y) / 3 };
+
+  const result = [...anchors];
+  result[index] = { ...result[index], handleOut: third };
+  result[nextIndex] = { ...result[nextIndex], handleIn: { x: -third.x, y: -third.y } };
+  return result;
+}
+
 /**
  * Split a curve segment between anchor at `anchorIndex` and `anchorIndex + 1` at parameter t.
  * Inserts a new PathAnchor into the array without distorting the existing curve geometry.
