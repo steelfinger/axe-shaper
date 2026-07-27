@@ -39,9 +39,12 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
   },
   gibson_sg_22: {
     id: 'gibson_sg_22',
-    name: 'Double-Cut SG Vintage (24.75" Scale, 22 Frets, Fret 19 Joint Line)',
+    name: 'Double-Cut SG Vintage (24.75" Scale, 22 Frets, Fret 16 Joint Line)',
     scaleLengthMm: 628.65,    // 24.75 inches
-    nutToBodyEdgeMm: 418.8,   // Nut to Fret 19 - the SG joins the body 3 frets deeper than a Les Paul
+    // A real SG joins at fret 19, but Y=0 here is the top of the *outline*, and the SG
+    // template's horn tips sit at Y=0 rather than reaching up past the joint. Dialling in
+    // fret 19 without redrawing those horns drags the whole body ~40mm up the neck.
+    nutToBodyEdgeMm: 379.2,   // Nut to Fret 16 (body entrance edge Y=0)
     nutToJointMm: 414.27,
     frets: 22,
     jointWidthMm: 38.1,       // 1.5 inches mortise

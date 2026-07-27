@@ -502,9 +502,9 @@ export const REFERENCE_TEMPLATES: Record<string, ReferenceTemplate> = {
     bridgePresetId: 'tune_o_matic',
     defaultAnchors: SG_STYLE_ANCHORS,
     defaultPickups: [
-      // Same absolute positions as the Single-Cut, rebased onto the SG's fret-19 joint line
-      { id: 'p_neck', type: 'humbucker', offsetYMm: 50.4, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
-      { id: 'p_bridge', type: 'humbucker', offsetYMm: 165.4, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
+      // Same positions as the Single-Cut - both are 24.75" Gibsons on a fret-16 joint line
+      { id: 'p_neck', type: 'humbucker', offsetYMm: 90, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
+      { id: 'p_bridge', type: 'humbucker', offsetYMm: 205, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
     ],
   },
   s_style: {
