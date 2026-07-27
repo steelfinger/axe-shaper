@@ -75,6 +75,22 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     jointCornerRadiusMm: 6.35,
     style: 'gibson_style',
   },
+  gretsch_thunderbird_22: {
+    id: 'gretsch_thunderbird_22',
+    name: 'Thunderbird-Style (24.75" Scale, 22 Frets)',
+    scaleLengthMm: 628.65,    // 24.75 inches - same as gibson_sg_22, unchanged from the SG template this was built from
+    // Started from gibson_sg_22's nutToBodyEdgeMm (379.2mm, giving a 252.45mm
+    // saddle line with tune_o_matic), then shifted 5mm toward the neck per
+    // spec for this body, i.e. saddle line at 247.45mm -> theoreticalSaddleY
+    // 244.45mm -> nutToBodyEdgeMm = 628.65 - 244.45 = 384.2mm.
+    nutToBodyEdgeMm: 384.2,
+    nutToJointMm: 419.3,
+    frets: 22,
+    jointWidthMm: 38.1,       // Matches THUNDERBIRD_ANCHORS' pocket anchors (x=+-19.05)
+    jointDepthMm: 76.2,       // Carried over from gibson_sg_22 - not separately measured for this template
+    jointCornerRadiusMm: 6.35,
+    style: 'gibson_style',
+  },
   baritone_27: {
     id: 'baritone_27',
     name: 'Baritone Extended (27.0" Scale, 24 Frets)',

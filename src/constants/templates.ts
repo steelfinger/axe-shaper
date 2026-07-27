@@ -663,6 +663,176 @@ export const GIBSON_FIREBIRD_ANCHORS: PathAnchor[] = [
   },
 ];
 
+// 6. Thunderbird Blueprint Anchors (drawn from the Double-Cut SG template;
+// inspired by the Gretsch Billy-Bo Jupiter Thunderbird body shape)
+//
+// See the note on GIBSON_FIREBIRD_ANCHORS above - hardware here is likewise
+// independent of this outline. neckPresetId 'gretsch_thunderbird_22' and
+// defaultPickups.offsetYMm below apply the deltas specified for this
+// template on top of the sg_style/single_cut baseline (neck pickup 90mm,
+// bridge pickup 205mm, saddle line 252.45mm): neck pickup +17mm toward the
+// tail, bridge pickup -14mm toward the neck, bridge -5mm toward the neck.
+export const THUNDERBIRD_ANCHORS: PathAnchor[] = [
+  {
+    id: 'sg_pocket_left',
+    position: { x: -19.05, y: 0 },
+    handleMode: 'corner',
+    locked: true,
+    semanticRole: 'neck_pocket_left',
+    handleIn: { x: 20.2742, y: 0.0424 },
+  },
+  {
+    id: 'anchor_1785159099149_9137v',
+    position: { x: -23.74853977599407, y: 0.04823309043648494 },
+    handleOut: { x: 0.6595344817638339, y: 20.41577263766362 },
+    handleMode: 'corner',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'sg_horn_scoop_left',
+    position: { x: -49.184523923747186, y: 37.29084082465402 },
+    handleIn: { x: 17.701699267385234, y: 0.3536295571217764 },
+    handleOut: { x: -26.802009977410567, y: -0.5354278578073003 },
+    handleMode: 'smooth',
+  },
+  {
+    id: 'sg_upper_horn_tip_left',
+    position: { x: -113.28807814515434, y: 0.925849327090744 },
+    handleIn: { x: 18.850107856693562, y: 0.11206823074333475 },
+    handleOut: { x: -18.15483224258522, y: -0.10793465715614495 },
+    handleMode: 'smooth',
+    semanticRole: 'upper_horn_left',
+  },
+  {
+    id: 'sg_upper_bout_outer_left',
+    position: { x: -137.24211733205152, y: 72.81577940596034 },
+    handleIn: { x: -0.3298554871018146, y: -36.25287063459073 },
+    handleOut: { x: 0.5790424014799912, y: 63.63983651518705 },
+    handleMode: 'smooth',
+  },
+  {
+    id: 'sg_waist_left',
+    position: { x: -112.6394035610075, y: 232.6444728475294 },
+    handleIn: { x: 0.9383067041035642, y: -35.34288585456822 },
+    handleOut: { x: -0.8571428571428409, y: 32.285714285714256 },
+    handleMode: 'smooth',
+    semanticRole: 'waist_left',
+  },
+  {
+    id: 'sg_lower_bout_left',
+    position: { x: -135.48664285714287, y: 360.75201428571427 },
+    handleIn: { x: 11.53068571428571, y: -48.69082857142855 },
+    handleOut: { x: -12.646361739236875, y: 53.40201326748243 },
+    handleMode: 'smooth',
+    semanticRole: 'lower_bout_left',
+  },
+  {
+    id: 'sg_lower_bout_bottom_left',
+    position: { x: -143.17532857142857, y: 506.12067142857137 },
+    handleIn: { x: -5.089395190615148, y: -40.9562139682148 },
+    handleOut: { x: 2.974665388225527, y: 23.938214180864556 },
+    handleMode: 'smooth',
+  },
+  {
+    id: 'anchor_1785159562141_5exmr',
+    position: { x: -118.77811018397225, y: 522.5853967884229 },
+    handleIn: { x: -5.962660729820933, y: 5.548652744948803 },
+    handleMode: 'corner',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'anchor_1785159546339_vbj57',
+    position: { x: -38.74881423507772, y: 454.3276331793568 },
+    handleMode: 'corner',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'sg_tail_center',
+    position: { x: -31.080299999999998, y: 462.21758571428575 },
+    handleMode: 'corner',
+    semanticRole: 'tail_center',
+  },
+  {
+    id: 'anchor_1785159484895_o4sfm',
+    position: { x: 31.30419752686922, y: 461.1684811046613 },
+    handleOut: { x: 5.9744614355931684, y: -14.995097216209226 },
+    handleMode: 'corner',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'sg_lower_bout_bottom_right',
+    position: { x: 64.10474285714288, y: 436.0747857142857 },
+    handleIn: { x: -13.043003069967654, y: 0.03636744379634495 },
+    handleOut: { x: 17.95077833833603, y: -0.05005165749161331 },
+    handleMode: 'smooth',
+  },
+  {
+    id: 'anchor_1785159458378_219yx',
+    position: { x: 125.60802571808871, y: 461.99531746075763 },
+    handleIn: { x: -17.42831707887615, y: 0.6076334016817078 },
+    handleOut: { x: 23.2698853066972, y: -0.8112980445363454 },
+    handleMode: 'smooth',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'sg_lower_bout_right',
+    position: { x: 150.44368571428572, y: 408.71962857142853 },
+    handleIn: { x: 1.2258874889306688, y: 35.20242052891126 },
+    handleOut: { x: -1.8176434114086961, y: -52.19520414212543 },
+    handleMode: 'smooth',
+    semanticRole: 'lower_bout_right',
+  },
+  {
+    id: 'sg_waist_right',
+    position: { x: 104.10645714285712, y: 246.39785714285713 },
+    handleIn: { x: 0.3210753002862085, y: 39.873603044178644 },
+    handleOut: { x: -0.28579789891254986, y: -35.492583708373175 },
+    handleMode: 'smooth',
+    semanticRole: 'waist_right',
+  },
+  {
+    id: 'sg_upper_bout_outer_right',
+    position: { x: 121.17125714285716, y: 143.50204285714287 },
+    handleIn: { x: -0.755996659482402, y: 51.59518749160907 },
+    handleOut: { x: 0.3585551337719433, y: -24.47063637253151 },
+    handleMode: 'smooth',
+  },
+  {
+    id: 'sg_upper_horn_tip_right',
+    position: { x: 108.90784285714287, y: 113.97634285714285 },
+    handleIn: { x: 6.689571428571428, y: 6.603757142857148 },
+    handleMode: 'corner',
+    semanticRole: 'upper_horn_right',
+  },
+  {
+    id: 'sg_horn_scoop_right',
+    position: { x: 34.18535714285713, y: 63.98407142857143 },
+    handleOut: { x: -6.1350581101190595, y: -4.570495758928579 },
+    handleMode: 'corner',
+  },
+  {
+    id: 'anchor_1785159351159_m5dfw',
+    position: { x: 25.292452455121747, y: 48.421535551458746 },
+    handleIn: { x: 0.8507857048160723, y: 6.567922123416075 },
+    handleMode: 'corner',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'anchor_1785159199674_5bk98',
+    position: { x: 25.542530127170597, y: 0.5336235975857393 },
+    handleMode: 'corner',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'sg_pocket_right',
+    position: { x: 19.05, y: 0 },
+    handleMode: 'corner',
+    locked: true,
+    semanticRole: 'neck_pocket_right',
+    handleOut: { x: -20.2697, y: -0.431 },
+  },
+];
+
 export const REFERENCE_TEMPLATES: Record<string, ReferenceTemplate> = {
   single_cut: {
     id: 'single_cut',
@@ -737,6 +907,21 @@ export const REFERENCE_TEMPLATES: Record<string, ReferenceTemplate> = {
       // Measured from the joint line (Y=0) on a real routing template
       { id: 'p_neck', type: 'humbucker', offsetYMm: 65, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
       { id: 'p_bridge', type: 'humbucker', offsetYMm: 171, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
+    ],
+  },
+  gretsch_thunderbird: {
+    id: 'gretsch_thunderbird',
+    name: 'Thunderbird',
+    description: 'Single-cutaway body inspired by the Gretsch Billy-Bo Jupiter Thunderbird, with a Tune-O-Matic bridge and standard humbuckers.',
+    category: 'Thunderbird',
+    tier: 'extra',
+    neckPresetId: 'gretsch_thunderbird_22',
+    bridgePresetId: 'tune_o_matic',
+    defaultAnchors: THUNDERBIRD_ANCHORS,
+    defaultPickups: [
+      // sg_style baseline (90mm/205mm) shifted per spec: neck +17mm toward the tail, bridge -14mm toward the neck
+      { id: 'p_neck', type: 'humbucker', offsetYMm: 107, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
+      { id: 'p_bridge', type: 'humbucker', offsetYMm: 191, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
     ],
   },
 };
