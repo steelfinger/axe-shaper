@@ -8,6 +8,13 @@ import { anchorsToSVGPath, insertAnchorOnSegment, updateAnchorHandle } from '../
 import { applyLiveSymmetry } from '../utils/symmetry';
 import { getBridgePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 import { ZoomIn, ZoomOut, Maximize2, Hand, MousePointer } from 'lucide-react';
+import {
+  SCALE_BAR_STEPS,
+  formatLength,
+  gridMinorDivisor,
+  toMm,
+  unitLabel,
+} from '../utils/units';
 
 interface CanvasWorkspaceProps {
   project: GuitarProject;
@@ -23,8 +30,6 @@ interface CanvasWorkspaceProps {
   onCancelCalibration: () => void;
 }
 
-/** Pick a scale-bar length that renders between roughly 60 and 170 screen px. */
-const SCALE_BAR_STEPS_MM = [5, 10, 20, 25, 50, 100, 200, 250, 500, 1000];
 
 export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   project,
@@ -303,7 +308,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 const maxY = Math.max(...corners.map((c) => c.y));
 
                 const majorMm = settings.gridSizeMm > 0 ? settings.gridSizeMm : 50;
-                const minorMm = majorMm / 5;
+                const minorMm = majorMm / gridMinorDivisor(settings.unitDisplay);
                 // Drop the minor lines once they crowd together on screen
                 const stepMm = minorMm * zoom >= 5 ? minorMm : majorMm;
 
@@ -329,7 +334,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                         key={`grid_xl_${i}`}
                         x={a.x + (isHorizontal ? -46 : 4)}
                         y={a.y + (isHorizontal ? 4 : 6)}
-                        text={`${Math.round(x)}`}
+                        text={formatLength(x, settings.unitDisplay, 0)}
                         fill="rgba(255,255,255,0.38)"
                         fontSize={10}
                       />
@@ -356,7 +361,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                         key={`grid_yl_${i}`}
                         x={a.x + (isHorizontal ? 4 : 6)}
                         y={a.y + (isHorizontal ? 6 : 4)}
-                        text={`${Math.round(y)}`}
+                        text={formatLength(y, settings.unitDisplay, 0)}
                         fill="rgba(255,255,255,0.38)"
                         fontSize={10}
                       />
@@ -684,12 +689,12 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
       {/* Scale bar - lets you sanity-check the workspace scale at a glance */}
       {(() => {
         // Largest round length that still fits the bar's budget
-        const barMm =
-          [...SCALE_BAR_STEPS_MM].reverse().find((mm) => mm * zoom <= 170) ?? SCALE_BAR_STEPS_MM[0];
+        const steps = SCALE_BAR_STEPS[settings.unitDisplay];
+        const bar = [...steps].reverse().find((s) => s.mm * zoom <= 170) ?? steps[0];
         return (
           <div className="canvas-scalebar">
-            <div className="scalebar-track" style={{ width: `${barMm * zoom}px` }} />
-            <span>{barMm} mm</span>
+            <div className="scalebar-track" style={{ width: `${bar.mm * zoom}px` }} />
+            <span>{bar.label}</span>
           </div>
         );
       })()}
@@ -708,11 +713,14 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               <p className="calibration-hint">
                 Picked span measures{' '}
                 <strong>
-                  {Math.hypot(
-                    calibration.points[1].x - calibration.points[0].x,
-                    calibration.points[1].y - calibration.points[0].y
-                  ).toFixed(1)}{' '}
-                  mm
+                  {formatLength(
+                    Math.hypot(
+                      calibration.points[1].x - calibration.points[0].x,
+                      calibration.points[1].y - calibration.points[0].y
+                    ),
+                    settings.unitDisplay
+                  )}{' '}
+                  {unitLabel(settings.unitDisplay)}
                 </strong>{' '}
                 right now. What should it be?
               </p>
@@ -721,24 +729,24 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   type="number"
                   className="form-input"
                   autoFocus
-                  min="0.1"
-                  step="0.1"
-                  placeholder="e.g. 324"
+                  min="0.01"
+                  step={settings.unitDisplay === 'mm' ? '0.1' : '0.01'}
+                  placeholder={settings.unitDisplay === 'mm' ? 'e.g. 324' : 'e.g. 12.75'}
                   value={knownDistanceInput}
                   onChange={(e) => setKnownDistanceInput(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                      onApplyCalibration(parseFloat(knownDistanceInput));
+                      onApplyCalibration(toMm(parseFloat(knownDistanceInput), settings.unitDisplay));
                       setKnownDistanceInput('');
                     }
                   }}
                 />
-                <span className="calibration-unit">mm</span>
+                <span className="calibration-unit">{unitLabel(settings.unitDisplay)}</span>
                 <button
                   className="btn btn-primary btn-sm"
                   disabled={!(parseFloat(knownDistanceInput) > 0)}
                   onClick={() => {
-                    onApplyCalibration(parseFloat(knownDistanceInput));
+                    onApplyCalibration(toMm(parseFloat(knownDistanceInput), settings.unitDisplay));
                     setKnownDistanceInput('');
                   }}
                 >

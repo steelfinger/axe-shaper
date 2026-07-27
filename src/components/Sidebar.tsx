@@ -4,6 +4,7 @@ import { BRIDGE_PRESETS, NECK_PRESETS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import type { GuitarProject, GuideImageState, SymmetryMode, CalibrationState } from '../types/guitar';
 import { getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
+import { GRID_PRESETS, formatLength, gridMinorDivisor, toMm, unitLabel } from '../utils/units';
 
 interface SidebarProps {
   project: GuitarProject;
@@ -213,20 +214,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                       <div style={{ flex: 1 }}>
                         <label className="form-label" style={{ fontSize: '0.75rem' }}>
-                          Image width (mm)
+                          Image width ({unitLabel(settings.unitDisplay)})
                         </label>
                         <input
                           type="number"
                           className="form-input"
-                          min="1"
-                          step="0.5"
+                          min="0.1"
+                          step={settings.unitDisplay === 'mm' ? '0.5' : '0.05'}
                           value={
                             guideImage.element
-                              ? (guideImage.element.width * guideImage.scale).toFixed(1)
+                              ? formatLength(
+                                  guideImage.element.width * guideImage.scale,
+                                  settings.unitDisplay,
+                                  1
+                                )
                               : ''
                           }
                           onChange={(e) => {
-                            const widthMm = parseFloat(e.target.value);
+                            const widthMm = toMm(parseFloat(e.target.value), settings.unitDisplay);
                             const natural = guideImage.element?.width;
                             if (!natural || !(widthMm > 0)) return;
                             onUpdateGuideImage((prev) => ({ ...prev, scale: widthMm / natural }));
@@ -252,14 +257,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       </div>
                     </div>
                     <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '6px' }}>
-                      Check your work against the grid: minor lines are {settings.gridSizeMm / 5} mm, major lines{' '}
-                      {settings.gridSizeMm} mm.
+                      Check your work against the grid: minor lines are{' '}
+                      {formatLength(settings.gridSizeMm / gridMinorDivisor(settings.unitDisplay), settings.unitDisplay, 1)}{' '}
+                      {unitLabel(settings.unitDisplay)}, major lines{' '}
+                      {formatLength(settings.gridSizeMm, settings.unitDisplay, 1)}{' '}
+                      {unitLabel(settings.unitDisplay)}.
                     </p>
                   </div>
 
                   <div className="form-group" style={{ marginBottom: '12px' }}>
                     <label className="form-label">
-                      Position Offset X (mm): <strong>{guideImage.offsetXMm.toFixed(0)} mm</strong>
+                      Position Offset X:{' '}
+                      <strong>
+                        {formatLength(guideImage.offsetXMm, settings.unitDisplay, 0)}{' '}
+                        {unitLabel(settings.unitDisplay)}
+                      </strong>
                     </label>
                     <input
                       type="range"
@@ -276,7 +288,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                   <div className="form-group" style={{ marginBottom: '12px' }}>
                     <label className="form-label">
-                      Position Offset Y (mm): <strong>{guideImage.offsetYMm.toFixed(0)} mm</strong>
+                      Position Offset Y:{' '}
+                      <strong>
+                        {formatLength(guideImage.offsetYMm, settings.unitDisplay, 0)}{' '}
+                        {unitLabel(settings.unitDisplay)}
+                      </strong>
                     </label>
                     <input
                       type="range"
@@ -577,9 +593,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     }
                     className="form-select"
                   >
-                    <option value={25}>25 mm major / 5 mm minor</option>
-                    <option value={50}>50 mm major / 10 mm minor</option>
-                    <option value={100}>100 mm major / 20 mm minor</option>
+                    {GRID_PRESETS[settings.unitDisplay].map((preset) => (
+                      <option key={preset.majorMm} value={preset.majorMm}>
+                        {preset.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
               )}

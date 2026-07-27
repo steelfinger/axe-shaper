@@ -1,6 +1,7 @@
 import React from 'react';
 import { Download, Upload, Undo2, Redo2, RotateCcw, FileCode, Disc } from 'lucide-react';
 import type { GuitarProject } from '../types/guitar';
+import { snapGridToUnit } from '../utils/units';
 
 interface HeaderProps {
   project: GuitarProject;
@@ -60,7 +61,11 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() =>
               onUpdateProject((prev) => ({
                 ...prev,
-                settings: { ...prev.settings, unitDisplay: 'mm' },
+                settings: {
+                  ...prev.settings,
+                  unitDisplay: 'mm',
+                  gridSizeMm: snapGridToUnit(prev.settings.gridSizeMm, 'mm'),
+                },
               }))
             }
           >
@@ -71,7 +76,11 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() =>
               onUpdateProject((prev) => ({
                 ...prev,
-                settings: { ...prev.settings, unitDisplay: 'inches' },
+                settings: {
+                  ...prev.settings,
+                  unitDisplay: 'inches',
+                  gridSizeMm: snapGridToUnit(prev.settings.gridSizeMm, 'inches'),
+                },
               }))
             }
           >
