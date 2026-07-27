@@ -91,6 +91,22 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     jointCornerRadiusMm: 6.35,
     style: 'gibson_style',
   },
+  gibson_flying_v_22: {
+    id: 'gibson_flying_v_22',
+    name: 'V-Style Vintage (24.75" Scale, 22 Frets)',
+    scaleLengthMm: 628.65,    // 24.75 inches - same as gibson_sg_22, unchanged from the SG template this was built from
+    // Measured from the joint line: bridge at 7-3/4" to 7-27/32" (tilted;
+    // averaged to 198.04mm) -> theoreticalSaddleY 195.04mm (less
+    // tune_o_matic's 3.0mm treble compensation) -> nutToBodyEdgeMm =
+    // 628.65 - 195.04 = 433.61mm.
+    nutToBodyEdgeMm: 433.61,
+    nutToJointMm: 468.68,
+    frets: 22,
+    jointWidthMm: 38.1,       // Matches V_STYLE_ANCHORS' pocket anchors (x=+-19.05)
+    jointDepthMm: 67.0,       // Given directly for this template
+    jointCornerRadiusMm: 6.35,
+    style: 'gibson_style',
+  },
   baritone_27: {
     id: 'baritone_27',
     name: 'Baritone Extended (27.0" Scale, 24 Frets)',

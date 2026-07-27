@@ -833,6 +833,100 @@ export const THUNDERBIRD_ANCHORS: PathAnchor[] = [
   },
 ];
 
+// 7. V-Style Vintage Blueprint Anchors (drawn from the Double-Cut SG
+// template; inspired by the Gibson Flying V body shape)
+//
+// See the note on GIBSON_FIREBIRD_ANCHORS above - hardware here is likewise
+// independent of this outline. neckPresetId 'gibson_flying_v_22' and
+// defaultPickups.offsetYMm below are both measured directly from the joint
+// line (see the inch-to-mm conversions on each field), not derived from the
+// sg_style/single_cut baseline.
+export const V_STYLE_ANCHORS: PathAnchor[] = [
+  {
+    id: 'sg_pocket_left',
+    position: { x: -19.05, y: 0 },
+    handleMode: 'corner',
+    locked: true,
+    semanticRole: 'neck_pocket_left',
+    handleIn: { x: 20.2742, y: 0.0424 },
+  },
+  {
+    id: 'sg_horn_scoop_left',
+    position: { x: -29.682300000000005, y: -0.015928571428568312 },
+    handleOut: { x: -6.390000000000002, y: 10.104285714285718 },
+    handleMode: 'corner',
+  },
+  {
+    id: 'sg_upper_horn_tip_left',
+    position: { x: -60.2559142857143, y: 18.976914285714283 },
+    handleIn: { x: 13.487771428571412, y: -3.202371428571431 },
+    handleMode: 'corner',
+    semanticRole: 'upper_horn_left',
+  },
+  {
+    id: 'sg_lower_bout_left',
+    position: { x: -211.77235714285715, y: 437.89487142857143 },
+    handleOut: { x: -9.811928571428552, y: 23.301528571428662 },
+    handleMode: 'corner',
+    semanticRole: 'lower_bout_left',
+  },
+  {
+    id: 'sg_lower_bout_bottom_left',
+    position: { x: -174.8896142857143, y: 463.5492428571428 },
+    handleIn: { x: -16.98644285714285, y: 17.77352857142861 },
+    handleMode: 'corner',
+  },
+  {
+    id: 'sg_tail_center',
+    position: { x: -29.080300000000015, y: 299.07472857142864 },
+    handleOut: { x: 16.857142857142858, y: -17.428571428571363 },
+    handleMode: 'corner',
+    semanticRole: 'tail_center',
+  },
+  {
+    id: 'sg_lower_bout_bottom_right',
+    position: { x: 26.96188571428573, y: 299.2176428571429 },
+    handleIn: { x: -17.053914285714296, y: -18.034242857142935 },
+    handleMode: 'corner',
+  },
+  {
+    id: 'sg_lower_bout_right',
+    position: { x: 173.58654285714286, y: 465.2910571428571 },
+    handleOut: { x: 16.988380357142855, y: 14.068768861607102 },
+    handleMode: 'corner',
+    semanticRole: 'lower_bout_right',
+  },
+  {
+    id: 'anchor_1785173528642_gy52t',
+    position: { x: 209.8864908689567, y: 441.8563887221268 },
+    handleIn: { x: 8.13032692627907, y: 22.01848208562985 },
+    handleMode: 'corner',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'sg_waist_right',
+    position: { x: 58.96359999999998, y: 20.397857142857124 },
+    handleOut: { x: -13.461085714285705, y: -2.632500000000001 },
+    handleMode: 'corner',
+    semanticRole: 'waist_right',
+  },
+  {
+    id: 'anchor_1785173261959_txmw4',
+    position: { x: 26.67713112873704, y: 0.800702200995553 },
+    handleIn: { x: 10.25567514606457, y: 10.99810540534125 },
+    handleMode: 'corner',
+    semanticRole: 'custom',
+  },
+  {
+    id: 'sg_pocket_right',
+    position: { x: 19.05, y: 0 },
+    handleMode: 'corner',
+    locked: true,
+    semanticRole: 'neck_pocket_right',
+    handleOut: { x: -20.2697, y: -0.431 },
+  },
+];
+
 export const REFERENCE_TEMPLATES: Record<string, ReferenceTemplate> = {
   single_cut: {
     id: 'single_cut',
@@ -922,6 +1016,21 @@ export const REFERENCE_TEMPLATES: Record<string, ReferenceTemplate> = {
       // sg_style baseline (90mm/205mm) shifted per spec: neck +17mm toward the tail, bridge -14mm toward the neck
       { id: 'p_neck', type: 'humbucker', offsetYMm: 107, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
       { id: 'p_bridge', type: 'humbucker', offsetYMm: 191, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
+    ],
+  },
+  gibson_flying_v: {
+    id: 'gibson_flying_v',
+    name: 'V-Style Vintage',
+    description: 'Body inspired by the Gibson Flying V, with a deep-set neck joint, Tune-O-Matic bridge, and standard humbuckers.',
+    category: 'V-Style',
+    tier: 'extra',
+    neckPresetId: 'gibson_flying_v_22',
+    bridgePresetId: 'tune_o_matic',
+    defaultAnchors: V_STYLE_ANCHORS,
+    defaultPickups: [
+      // Measured from the joint line: neck 1-13/16" = 46.04mm, bridge 5-31/32" = 151.61mm
+      { id: 'p_neck', type: 'humbucker', offsetYMm: 46.04, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
+      { id: 'p_bridge', type: 'humbucker', offsetYMm: 151.61, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
     ],
   },
 };
