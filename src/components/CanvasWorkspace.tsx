@@ -32,16 +32,28 @@ const BODY_OUTLINE_NAME = 'body-outline';
 /** How close to the outline a click has to land to select or split a segment. */
 const PICK_TOLERANCE_PX = 12;
 
+// One undo step per drag, not per mousemove: every update in a gesture carries
+// the same key, so history records only the first.
+const anchorDragKey = (id: string) => `anchor:${id}`;
+const handleDragKey = (id: string, type: 'in' | 'out') => `handle:${id}:${type}`;
+const GUIDE_DRAG_KEY = 'guide:move';
+
 interface CanvasWorkspaceProps {
   project: GuitarProject;
   selectedAnchorId: string | null;
   onSelectAnchor: (id: string | null) => void;
   selectedSegmentIndex: number | null;
   onSelectSegment: (index: number | null) => void;
-  onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject) => void;
-  onDragStartHistory: () => void;
+  onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject, coalesceKey?: string) => void;
+  /** Snapshot before an edit; pass the same key the following updates use. */
+  onBeginEdit: (coalesceKey?: string) => void;
+  /** Close the current gesture so the next drag is its own undo step. */
+  onEndEdit: () => void;
   guideImage: GuideImageState;
-  onUpdateGuideImage: (updater: (prev: GuideImageState) => GuideImageState) => void;
+  onUpdateGuideImage: (
+    updater: (prev: GuideImageState) => GuideImageState,
+    coalesceKey?: string
+  ) => void;
   calibration: CalibrationState;
   onCalibrationPick: (point: Vector2D) => void;
   onApplyCalibration: (knownDistanceMm: number) => void;
@@ -56,7 +68,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   selectedSegmentIndex,
   onSelectSegment,
   onUpdateProject,
-  onDragStartHistory,
+  onBeginEdit,
+  onEndEdit,
   guideImage,
   onUpdateGuideImage,
   calibration,
@@ -227,7 +240,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         ...prev,
         contour: { ...prev.contour, anchors: finalAnchors },
       };
-    });
+    }, anchorDragKey(anchor.id));
   };
 
   // Handle Drag Move (Bezier handleIn or handleOut)
@@ -262,7 +275,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         ...prev,
         contour: { ...prev.contour, anchors: finalAnchors },
       };
-    });
+    }, handleDragKey(anchor.id, handleType));
   };
 
   const isPanMode = isPanToolActive || isSpacePressed || isModifierPanning;
@@ -374,7 +387,6 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           const updated = insertAnchorOnSegment(contour.anchors, hit.index, hit.t);
           const insertedId = updated[hit.index + 1]?.id;
 
-          onDragStartHistory();
           onUpdateProject((prev) => ({ ...prev, contour: { ...prev.contour, anchors: updated } }));
           if (insertedId) onSelectAnchor(insertedId);
         }}
@@ -540,12 +552,13 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 rotation={guideImage.rotationDegrees}
                 opacity={guideImage.opacity}
                 draggable={!isPanMode && !guideImage.locked}
+                onDragStart={() => onBeginEdit(GUIDE_DRAG_KEY)}
                 onDragEnd={(e) => {
-                  onUpdateGuideImage((prev) => ({
-                    ...prev,
-                    offsetXMm: e.target.x(),
-                    offsetYMm: e.target.y(),
-                  }));
+                  onUpdateGuideImage(
+                    (prev) => ({ ...prev, offsetXMm: e.target.x(), offsetYMm: e.target.y() }),
+                    GUIDE_DRAG_KEY
+                  );
+                  onEndEdit();
                 }}
               />
             </Group>
@@ -713,9 +726,10 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                     draggable
                     onDragStart={() => {
                       onSelectAnchor(anchor.id);
-                      onDragStartHistory();
+                      onBeginEdit(handleDragKey(anchor.id, 'in'));
                     }}
                     onDragMove={(e) => handleHandleDragMove(index, 'in', e)}
+                    onDragEnd={onEndEdit}
                   />
                 )}
 
@@ -732,9 +746,10 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                     draggable
                     onDragStart={() => {
                       onSelectAnchor(anchor.id);
-                      onDragStartHistory();
+                      onBeginEdit(handleDragKey(anchor.id, 'out'));
                     }}
                     onDragMove={(e) => handleHandleDragMove(index, 'out', e)}
+                    onDragEnd={onEndEdit}
                   />
                 )}
 
@@ -750,8 +765,9 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   onClick={() => {
                     if (!isPanMode) onSelectAnchor(anchor.id);
                   }}
-                  onDragStart={onDragStartHistory}
+                  onDragStart={() => onBeginEdit(anchorDragKey(anchor.id))}
                   onDragMove={(e) => handleAnchorDragMove(index, e)}
+                  onDragEnd={onEndEdit}
                 />
               </Group>
             );

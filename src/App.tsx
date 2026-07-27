@@ -61,6 +61,25 @@ const INITIAL_GUIDE_IMAGE: GuideImageState = {
   locked: false,
 };
 
+/**
+ * Everything undo/redo restores. The guide image belongs here too - lining a
+ * photo up is real work, and losing it to an undo of something else is the kind
+ * of thing that makes people stop trusting undo.
+ */
+interface EditorDoc {
+  project: GuitarProject;
+  guideImage: GuideImageState;
+}
+
+const cloneDoc = (doc: EditorDoc): EditorDoc => ({
+  project: JSON.parse(JSON.stringify(doc.project)) as GuitarProject,
+  // Shallow: every field is a primitive except `element`, a decoded image that
+  // is never mutated and cannot be cloned by JSON or structuredClone anyway.
+  guideImage: { ...doc.guideImage },
+});
+
+const UNDO_STEPS = 50;
+
 export function App(): React.JSX.Element {
   const [project, setProject] = useState<GuitarProject>(INITIAL_PROJECT);
   const [selectedAnchorId, setSelectedAnchorId] = useState<string | null>(null);
@@ -68,11 +87,56 @@ export function App(): React.JSX.Element {
   const [isTemplateCodeModalOpen, setIsTemplateCodeModalOpen] = useState(false);
   const [guideImage, setGuideImage] = useState<GuideImageState>(INITIAL_GUIDE_IMAGE);
 
+  const historyRef = useRef(new HistoryManager<EditorDoc>(cloneDoc, UNDO_STEPS));
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  // Always the live document, so history never reads a stale render's closure
+  const docRef = useRef<EditorDoc>({ project, guideImage });
+  docRef.current = { project, guideImage };
+
+  const updateHistoryState = () => {
+    setCanUndo(historyRef.current.canUndo());
+    setCanRedo(historyRef.current.canRedo());
+  };
+
+  /**
+   * Snapshot the document before an edit. Pass a `coalesceKey` for continuous
+   * edits (dragging, typing, sliders) so the whole gesture is one undo step;
+   * omit it for discrete ones.
+   */
+  const beginEdit = (coalesceKey?: string) => {
+    historyRef.current.push(docRef.current, coalesceKey);
+    updateHistoryState();
+  };
+
+  /** Close the current gesture - call on drag end / input blur. */
+  const endEdit = () => historyRef.current.endGesture();
+
+  const handleUpdateProject = (
+    updater: (prev: GuitarProject) => GuitarProject,
+    coalesceKey?: string
+  ) => {
+    beginEdit(coalesceKey);
+    setProject((prev) => {
+      const next = updater(prev);
+      return { ...next, metadata: { ...next.metadata, modified: new Date().toISOString() } };
+    });
+  };
+
+  const handleUpdateGuideImage = (
+    updater: (prev: GuideImageState) => GuideImageState,
+    coalesceKey?: string
+  ) => {
+    beginEdit(coalesceKey);
+    setGuideImage(updater);
+  };
+
   const handleUploadGuideImage = (file: File) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
-      setGuideImage((prev) => ({
+      handleUpdateGuideImage((prev) => ({
         ...prev,
         imageUrl: url,
         element: img,
@@ -83,10 +147,9 @@ export function App(): React.JSX.Element {
   };
 
   const handleClearGuideImage = () => {
-    if (guideImage.imageUrl) {
-      URL.revokeObjectURL(guideImage.imageUrl);
-    }
-    setGuideImage(INITIAL_GUIDE_IMAGE);
+    // The blob URL stays alive: an undo has to be able to show the image again,
+    // and the browser reclaims it when the document unloads.
+    handleUpdateGuideImage(() => INITIAL_GUIDE_IMAGE);
     setCalibration({ active: false, points: [] });
   };
 
@@ -113,7 +176,7 @@ export function App(): React.JSX.Element {
     if (measuredMm < 0.01) return;
 
     const factor = knownDistanceMm / measuredMm;
-    setGuideImage((prev) => ({
+    handleUpdateGuideImage((prev) => ({
       ...prev,
       scale: prev.scale * factor,
       // Scaling happens about the image centre, so shift the image to keep the
@@ -124,46 +187,23 @@ export function App(): React.JSX.Element {
     setCalibration({ active: false, points: [] });
   };
 
-  const historyRef = useRef(new HistoryManager());
-  const [canUndo, setCanUndo] = useState(false);
-  const [canRedo, setCanRedo] = useState(false);
-
-  const updateHistoryState = () => {
-    setCanUndo(historyRef.current.canUndo());
-    setCanRedo(historyRef.current.canRedo());
-  };
-
-  // Helper to update project state and push to history stack
-  const handleUpdateProject = (updater: (prev: GuitarProject) => GuitarProject) => {
-    setProject((prev) => {
-      historyRef.current.push(prev);
-      const next = updater(prev);
-      next.metadata.modified = new Date().toISOString();
-      updateHistoryState();
-      return next;
-    });
-  };
-
-  // Snapshot before drag operations
-  const handleDragStartHistory = () => {
-    historyRef.current.push(project);
+  const applyDoc = (doc: EditorDoc) => {
+    setProject(doc.project);
+    setGuideImage(doc.guideImage);
+    // Ids and segment indices may not survive a structural change
+    setSelectedAnchorId(null);
+    setSelectedSegmentIndex(null);
     updateHistoryState();
   };
 
   const handleUndo = () => {
-    const prev = historyRef.current.undo(project);
-    if (prev) {
-      setProject(prev);
-      updateHistoryState();
-    }
+    const prev = historyRef.current.undo(docRef.current);
+    if (prev) applyDoc(prev);
   };
 
   const handleRedo = () => {
-    const next = historyRef.current.redo(project);
-    if (next) {
-      setProject(next);
-      updateHistoryState();
-    }
+    const next = historyRef.current.redo(docRef.current);
+    if (next) applyDoc(next);
   };
 
   // Template switching
@@ -325,6 +365,7 @@ export function App(): React.JSX.Element {
       <Header
         project={project}
         onUpdateProject={handleUpdateProject}
+        onEndEdit={endEdit}
         canUndo={canUndo}
         canRedo={canRedo}
         onUndo={handleUndo}
@@ -342,7 +383,8 @@ export function App(): React.JSX.Element {
         onSelectTemplate={handleSelectTemplate}
         guideImage={guideImage}
         onUploadGuideImage={handleUploadGuideImage}
-        onUpdateGuideImage={setGuideImage}
+        onUpdateGuideImage={handleUpdateGuideImage}
+        onEndEdit={endEdit}
         onClearGuideImage={handleClearGuideImage}
         calibration={calibration}
         onStartCalibration={handleStartCalibration}
@@ -356,9 +398,10 @@ export function App(): React.JSX.Element {
         selectedSegmentIndex={selectedSegmentIndex}
         onSelectSegment={handleSelectSegment}
         onUpdateProject={handleUpdateProject}
-        onDragStartHistory={handleDragStartHistory}
+        onBeginEdit={beginEdit}
+        onEndEdit={endEdit}
         guideImage={guideImage}
-        onUpdateGuideImage={setGuideImage}
+        onUpdateGuideImage={handleUpdateGuideImage}
         calibration={calibration}
         onCalibrationPick={handleCalibrationPick}
         onApplyCalibration={handleApplyCalibration}
@@ -370,6 +413,7 @@ export function App(): React.JSX.Element {
         selectedAnchorId={selectedAnchorId}
         selectedSegmentIndex={selectedSegmentIndex}
         onUpdateProject={handleUpdateProject}
+        onEndEdit={endEdit}
         onDeleteSelectedAnchor={handleDeleteSelectedAnchor}
         onAddAnchorOnSegment={handleAddAnchorOnSegment}
         onToggleSegmentStraight={handleToggleSegmentStraight}

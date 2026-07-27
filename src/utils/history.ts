@@ -1,18 +1,43 @@
-import type { GuitarProject } from '../types/guitar';
+/**
+ * Undo/redo over whole-document snapshots.
+ *
+ * The important part is coalescing. A node drag fires an update on every
+ * mousemove and typing fires one per keystroke; recorded naively that is one
+ * undo step per pixel, and fifty of them evict every real edit from the stack.
+ * Continuous edits therefore pass a `coalesceKey`: the first update of a
+ * gesture records a snapshot, the rest of that gesture record nothing, and
+ * `endGesture` closes it so the next drag of the same thing starts a new step.
+ */
+export class HistoryManager<T> {
+  private past: T[] = [];
+  private future: T[] = [];
+  /** Key of the gesture currently in progress, if any. */
+  private openKey: string | null = null;
 
-export class HistoryManager {
-  private past: GuitarProject[] = [];
-  private future: GuitarProject[] = [];
-  private maxHistory: number = 50;
+  private readonly clone: (state: T) => T;
+  private readonly limit: number;
 
-  public push(state: GuitarProject): void {
-    // Clone state deep to prevent unintended mutations
-    const snapshot = JSON.parse(JSON.stringify(state));
-    this.past.push(snapshot);
-    if (this.past.length > this.maxHistory) {
-      this.past.shift();
-    }
-    this.future = []; // Clear redo stack on new user mutation
+  constructor(clone: (state: T) => T, limit: number = 50) {
+    this.clone = clone;
+    this.limit = limit;
+  }
+
+  /**
+   * Record the state an undo should return to, i.e. call this with the current
+   * document *before* applying the edit.
+   */
+  public push(state: T, coalesceKey?: string): void {
+    if (coalesceKey && coalesceKey === this.openKey) return;
+
+    this.past.push(this.clone(state));
+    if (this.past.length > this.limit) this.past.shift();
+    this.future = [];
+    this.openKey = coalesceKey ?? null;
+  }
+
+  /** Close the current gesture so the next edit starts a fresh undo step. */
+  public endGesture(): void {
+    this.openKey = null;
   }
 
   public canUndo(): boolean {
@@ -23,17 +48,22 @@ export class HistoryManager {
     return this.future.length > 0;
   }
 
-  public undo(currentState: GuitarProject): GuitarProject | null {
+  public undo(currentState: T): T | null {
     if (!this.canUndo()) return null;
-    const previous = this.past.pop()!;
-    this.future.push(JSON.parse(JSON.stringify(currentState)));
-    return previous;
+    this.openKey = null;
+    this.future.push(this.clone(currentState));
+    return this.past.pop()!;
   }
 
-  public redo(currentState: GuitarProject): GuitarProject | null {
+  public redo(currentState: T): T | null {
     if (!this.canRedo()) return null;
-    const next = this.future.pop()!;
-    this.past.push(JSON.parse(JSON.stringify(currentState)));
-    return next;
+    this.openKey = null;
+    this.past.push(this.clone(currentState));
+    return this.future.pop()!;
+  }
+
+  /** How many undo steps are available - handy for tests and debugging. */
+  public depth(): number {
+    return this.past.length;
   }
 }

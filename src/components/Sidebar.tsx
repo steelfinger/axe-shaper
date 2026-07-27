@@ -8,11 +8,16 @@ import { GRID_PRESETS, formatLength, gridMinorDivisor, toMm, unitLabel } from '.
 
 interface SidebarProps {
   project: GuitarProject;
-  onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject) => void;
+  onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject, coalesceKey?: string) => void;
   onSelectTemplate: (templateId: string) => void;
   guideImage: GuideImageState;
   onUploadGuideImage: (file: File) => void;
-  onUpdateGuideImage: (updater: (prev: GuideImageState) => GuideImageState) => void;
+  onUpdateGuideImage: (
+    updater: (prev: GuideImageState) => GuideImageState,
+    coalesceKey?: string
+  ) => void;
+  /** Close a slider/typing gesture so the next one is its own undo step. */
+  onEndEdit: () => void;
   onClearGuideImage: () => void;
   calibration: CalibrationState;
   onStartCalibration: () => void;
@@ -26,6 +31,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   guideImage,
   onUploadGuideImage,
   onUpdateGuideImage,
+  onEndEdit,
   onClearGuideImage,
   calibration,
   onStartCalibration,
@@ -234,8 +240,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             const widthMm = toMm(parseFloat(e.target.value), settings.unitDisplay);
                             const natural = guideImage.element?.width;
                             if (!natural || !(widthMm > 0)) return;
-                            onUpdateGuideImage((prev) => ({ ...prev, scale: widthMm / natural }));
+                            onUpdateGuideImage((prev) => ({ ...prev, scale: widthMm / natural }), 'guide:scale');
                           }}
+                          onBlur={onEndEdit}
                         />
                       </div>
                       <div style={{ flex: 1 }}>
@@ -251,8 +258,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           onChange={(e) => {
                             const v = parseFloat(e.target.value);
                             if (!(v > 0)) return;
-                            onUpdateGuideImage((prev) => ({ ...prev, scale: v }));
+                            onUpdateGuideImage((prev) => ({ ...prev, scale: v }), 'guide:scale');
                           }}
+                          onBlur={onEndEdit}
                         />
                       </div>
                     </div>
@@ -280,8 +288,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       step="1"
                       value={guideImage.offsetXMm}
                       onChange={(e) =>
-                        onUpdateGuideImage((prev) => ({ ...prev, offsetXMm: parseFloat(e.target.value) }))
+                        onUpdateGuideImage(
+                          (prev) => ({ ...prev, offsetXMm: parseFloat(e.target.value) }),
+                          'guide:offsetX'
+                        )
                       }
+                      onPointerUp={onEndEdit}
+                      onBlur={onEndEdit}
                       style={{ width: '100%' }}
                     />
                   </div>
@@ -301,8 +314,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       step="1"
                       value={guideImage.offsetYMm}
                       onChange={(e) =>
-                        onUpdateGuideImage((prev) => ({ ...prev, offsetYMm: parseFloat(e.target.value) }))
+                        onUpdateGuideImage(
+                          (prev) => ({ ...prev, offsetYMm: parseFloat(e.target.value) }),
+                          'guide:offsetY'
+                        )
                       }
+                      onPointerUp={onEndEdit}
+                      onBlur={onEndEdit}
                       style={{ width: '100%' }}
                     />
                   </div>
@@ -318,8 +336,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       step="1"
                       value={guideImage.rotationDegrees}
                       onChange={(e) =>
-                        onUpdateGuideImage((prev) => ({ ...prev, rotationDegrees: parseFloat(e.target.value) }))
+                        onUpdateGuideImage(
+                          (prev) => ({ ...prev, rotationDegrees: parseFloat(e.target.value) }),
+                          'guide:rotation'
+                        )
                       }
+                      onPointerUp={onEndEdit}
+                      onBlur={onEndEdit}
                       style={{ width: '100%' }}
                     />
                   </div>
@@ -335,8 +358,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       step="0.05"
                       value={guideImage.opacity}
                       onChange={(e) =>
-                        onUpdateGuideImage((prev) => ({ ...prev, opacity: parseFloat(e.target.value) }))
+                        onUpdateGuideImage(
+                          (prev) => ({ ...prev, opacity: parseFloat(e.target.value) }),
+                          'guide:opacity'
+                        )
                       }
+                      onPointerUp={onEndEdit}
+                      onBlur={onEndEdit}
                       style={{ width: '100%' }}
                     />
                   </div>
@@ -361,11 +389,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   step="0.05"
                   value={settings.bodyFillOpacity}
                   onChange={(e) =>
-                    onUpdateProject((prev) => ({
-                      ...prev,
-                      settings: { ...prev.settings, bodyFillOpacity: parseFloat(e.target.value) },
-                    }))
+                    onUpdateProject(
+                      (prev) => ({
+                        ...prev,
+                        settings: { ...prev.settings, bodyFillOpacity: parseFloat(e.target.value) },
+                      }),
+                      'settings.bodyFillOpacity'
+                    )
                   }
+                  onPointerUp={onEndEdit}
+                  onBlur={onEndEdit}
                   style={{ width: '100%' }}
                 />
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
@@ -489,11 +522,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     type="color"
                     value={settings.bodyColor}
                     onChange={(e) =>
-                      onUpdateProject((prev) => ({
-                        ...prev,
-                        settings: { ...prev.settings, bodyColor: e.target.value },
-                      }))
+                      onUpdateProject(
+                        (prev) => ({
+                          ...prev,
+                          settings: { ...prev.settings, bodyColor: e.target.value },
+                        }),
+                        // Colour pickers stream a change per pixel of the gradient
+                        'settings.bodyColor'
+                      )
                     }
+                    onBlur={onEndEdit}
                     style={{ width: '100%', height: '36px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                   />
                 </div>

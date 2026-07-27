@@ -7,7 +7,9 @@ interface InspectorPanelProps {
   project: GuitarProject;
   selectedAnchorId: string | null;
   selectedSegmentIndex: number | null;
-  onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject) => void;
+  onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject, coalesceKey?: string) => void;
+  /** Close a typing gesture so the next edit is its own undo step. */
+  onEndEdit: () => void;
   onDeleteSelectedAnchor: () => void;
   onAddAnchorOnSegment: () => void;
   onToggleSegmentStraight: () => void;
@@ -18,6 +20,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
   selectedAnchorId,
   selectedSegmentIndex,
   onUpdateProject,
+  onEndEdit,
   onDeleteSelectedAnchor,
   onAddAnchorOnSegment,
   onToggleSegmentStraight,
@@ -52,22 +55,26 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
     if (!selectedAnchorId) return;
     const mmVal = isMm ? val : val * 25.4;
 
-    onUpdateProject((prev) => ({
-      ...prev,
-      contour: {
-        ...prev.contour,
-        anchors: prev.contour.anchors.map((a) => {
-          if (a.id !== selectedAnchorId) return a;
-          return {
-            ...a,
-            position: {
-              ...a.position,
-              [axis]: mmVal,
-            },
-          };
-        }),
-      },
-    }));
+    onUpdateProject(
+      (prev) => ({
+        ...prev,
+        contour: {
+          ...prev.contour,
+          anchors: prev.contour.anchors.map((a) => {
+            if (a.id !== selectedAnchorId) return a;
+            return {
+              ...a,
+              position: {
+                ...a.position,
+                [axis]: mmVal,
+              },
+            };
+          }),
+        },
+      }),
+      // One step for the whole number you type, not one per digit
+      `anchor.position:${selectedAnchorId}:${axis}`
+    );
   };
 
   const handleModeChange = (mode: HandleMode) => {
@@ -120,6 +127,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
                   disabled={selectedAnchor.locked}
                   value={(selectedAnchor.position.x * factor).toFixed(2)}
                   onChange={(e) => handlePositionChange('x', parseFloat(e.target.value) || 0)}
+                  onBlur={onEndEdit}
                   className="form-input"
                 />
               </div>
@@ -132,6 +140,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
                   disabled={selectedAnchor.locked}
                   value={(selectedAnchor.position.y * factor).toFixed(2)}
                   onChange={(e) => handlePositionChange('y', parseFloat(e.target.value) || 0)}
+                  onBlur={onEndEdit}
                   className="form-input"
                 />
               </div>

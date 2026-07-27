@@ -5,7 +5,8 @@ import { snapGridToUnit } from '../utils/units';
 
 interface HeaderProps {
   project: GuitarProject;
-  onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject) => void;
+  onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject, coalesceKey?: string) => void;
+  onEndEdit: () => void;
   canUndo: boolean;
   canRedo: boolean;
   onUndo: () => void;
@@ -20,6 +21,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   project,
   onUpdateProject,
+  onEndEdit,
   canUndo,
   canRedo,
   onUndo,
@@ -45,11 +47,13 @@ export const Header: React.FC<HeaderProps> = ({
           type="text"
           value={project.settings.name}
           onChange={(e) =>
-            onUpdateProject((prev) => ({
-              ...prev,
-              settings: { ...prev.settings, name: e.target.value },
-            }))
+            onUpdateProject(
+              (prev) => ({ ...prev, settings: { ...prev.settings, name: e.target.value } }),
+              // One undo step for the whole name, not one per keystroke
+              'settings.name'
+            )
           }
+          onBlur={onEndEdit}
           className="form-input"
           style={{ width: '220px', fontWeight: 600 }}
           placeholder="Project Name..."
