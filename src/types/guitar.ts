@@ -125,7 +125,7 @@ export interface ReferenceTemplate {
   id: string;
   name: string;
   description: string;
-  category: 'S-Style' | 'T-Style' | 'Single-Cut' | 'Offset';
+  category: 'S-Style' | 'T-Style' | 'Single-Cut' | 'Double-Cut' | 'Offset';
   neckPresetId: string;
   bridgePresetId: string;
   defaultAnchors: PathAnchor[];
