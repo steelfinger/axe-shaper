@@ -13,7 +13,7 @@ import {
 } from '../utils/bezier';
 import { applyLiveSymmetry } from '../utils/symmetry';
 import { getBridgePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
-import { ZoomIn, ZoomOut, Maximize2, Hand, MousePointer, Spline } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, Hand, Spline } from 'lucide-react';
 import {
   SCALE_BAR_STEPS,
   formatLength,
@@ -107,9 +107,15 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
       }
       // Bare Alt focuses the menu bar on Windows; suppress that so it can pan
       if (e.key === 'Alt') e.preventDefault();
-      if (e.key.toLowerCase() === 'h' && !e.metaKey && !e.ctrlKey && !e.altKey) {
-        e.preventDefault();
-        setShowAllHandles((p) => !p);
+      if (!e.metaKey && !e.ctrlKey && !e.altKey) {
+        const key = e.key.toLowerCase();
+        if (key === 'h') {
+          e.preventDefault();
+          setShowAllHandles((p) => !p);
+        } else if (key === 'p') {
+          e.preventDefault();
+          setIsPanToolActive((p) => !p);
+        }
       }
       setIsModifierPanning(e.altKey);
     };
@@ -278,26 +284,19 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
       {/* Floating Canvas Toolbar */}
       <div className="canvas-toolbar">
         <button
-          className={`btn btn-sm ${!isPanToolActive ? 'btn-primary' : ''}`}
-          onClick={() => setIsPanToolActive(false)}
-          title="Select / Edit Nodes Tool"
-        >
-          <MousePointer size={14} /> Select
-        </button>
-        <button
           className={`btn btn-sm ${isPanToolActive ? 'btn-primary' : ''}`}
           onClick={() => setIsPanToolActive((p) => !p)}
-          title="Pan / Move Canvas (or hold Spacebar / Alt-Option)"
+          title="Pan / Move Canvas. Press P to keep it on, or hold Spacebar / Alt-Option"
         >
-          <Hand size={14} /> Pan
+          <Hand size={14} /> Pan (P)
         </button>
 
         <button
           className={`btn btn-sm ${showAllHandles ? 'btn-primary' : ''}`}
           onClick={() => setShowAllHandles((p) => !p)}
-          title="Show bezier handles for every node, not just the selected one (H)"
+          title="Show bezier handles for every node, not just the selected one"
         >
-          <Spline size={14} /> All Handles
+          <Spline size={14} /> Handles (H)
         </button>
 
         <div style={{ width: '1px', height: '16px', background: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />

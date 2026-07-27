@@ -357,6 +357,11 @@ body, html, #root {
   z-index: 15;
 }
 
+/* Labels here carry their shortcut key, so they must never wrap to two lines */
+.canvas-toolbar .btn {
+  white-space: nowrap;
+}
+
 .zoom-text {
   font-family: var(--font-mono);
   font-size: 0.8rem;
