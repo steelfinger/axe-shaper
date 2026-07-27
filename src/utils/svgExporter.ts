@@ -33,6 +33,42 @@ function escapeXml(value: string): string {
 }
 
 /**
+ * Round-trip project data is base64-encoded rather than placed in a CDATA
+ * section - CDATA has no escape mechanism for a literal "]]>" and a project
+ * name/author string could theoretically contain one.
+ */
+function encodeProjectData(project: GuitarProject): string {
+  const bytes = new TextEncoder().encode(JSON.stringify(project));
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary);
+}
+
+function decodeProjectData(base64: string): GuitarProject {
+  const binary = atob(base64);
+  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+  return JSON.parse(new TextDecoder().decode(bytes)) as GuitarProject;
+}
+
+/**
+ * Pulls the embedded project data back out of a previously exported SVG.
+ * Returns null if the file has no Axe Shaper metadata (foreign SVG, or the
+ * metadata was stripped by another editor's re-save) rather than throwing -
+ * callers should treat that as "not an Axe Shaper file", not a parse error.
+ */
+export function extractProjectFromSVG(svgText: string): GuitarProject | null {
+  try {
+    const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+    if (doc.querySelector('parsererror')) return null;
+    const dataEl = doc.getElementsByTagNameNS(PROJECT_NS, 'data')[0];
+    if (!dataEl?.textContent) return null;
+    return decodeProjectData(dataEl.textContent.trim());
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Bounding box of everything drawn in model space (mm), so the page always
  * contains the whole design no matter how far the contour has been edited.
  * Bezier control points are included, which bounds the curve conservatively.
@@ -150,6 +186,7 @@ export function exportProjectToSVG(project: GuitarProject): string {
     <project:units>millimeters</project:units>
     <project:schemaVersion>${project.schemaVersion}</project:schemaVersion>
     <project:appVersion>${escapeXml(project.appVersion)}</project:appVersion>
+    <project:data>${encodeProjectData(project)}</project:data>
   </metadata>
 
   <style>

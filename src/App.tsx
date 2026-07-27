@@ -7,7 +7,7 @@ import { REFERENCE_TEMPLATES } from './constants/templates';
 import type { GuitarProject, GuideImageState, CalibrationState, Vector2D } from './types/guitar';
 import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
-import { downloadSVGFile, exportProjectToSVG } from './utils/svgExporter';
+import { downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
 import { TemplateCodeModal } from './components/TemplateCodeModal';
 
 const INITIAL_PROJECT: GuitarProject = {
@@ -292,41 +292,32 @@ export function App(): React.JSX.Element {
     setSelectedAnchorId(null);
   };
 
-  // Export 1:1 SVG
+  // Export 1:1 SVG - also the project save file, since it embeds the full
+  // project data. The .axe.svg double extension marks it as such while
+  // staying a plain, openable .svg for any other viewer.
   const handleExportSVG = () => {
     const svgString = exportProjectToSVG(project);
-    downloadSVGFile(`${project.settings.name.toLowerCase().replace(/\s+/g, '-')}-1to1-scale.svg`, svgString);
+    downloadSVGFile(`${project.settings.name.toLowerCase().replace(/\s+/g, '-')}.axe.svg`, svgString);
   };
 
-  // Export JSON
-  const handleExportJSON = () => {
-    const jsonString = JSON.stringify(project, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${project.settings.name.toLowerCase().replace(/\s+/g, '-')}.guitar`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  // Import JSON
-  const handleImportJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Open a project file - either the legacy .guitar/.json format, or an
+  // exported SVG carrying embedded project data.
+  const handleOpenFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (event) => {
+      const text = event.target?.result as string;
+      const isSVG = file.name.toLowerCase().endsWith('.svg') || text.trimStart().startsWith('<');
       try {
-        const imported = JSON.parse(event.target?.result as string) as GuitarProject;
+        const imported = isSVG ? extractProjectFromSVG(text) : (JSON.parse(text) as GuitarProject);
         if (imported && imported.contour && imported.settings) {
           handleUpdateProject(() => imported);
           setSelectedAnchorId(null);
           setSelectedSegmentIndex(null);
         } else {
-          alert('Invalid .guitar project file format.');
+          alert(isSVG ? 'This SVG does not contain Axe Shaper project data.' : 'Invalid .guitar project file format.');
         }
       } catch (err) {
         alert('Failed to parse project file.');
@@ -372,8 +363,7 @@ export function App(): React.JSX.Element {
         onRedo={handleRedo}
         onResetTemplate={handleResetTemplate}
         onExportSVG={handleExportSVG}
-        onExportJSON={handleExportJSON}
-        onImportJSON={handleImportJSON}
+        onOpenFile={handleOpenFile}
         onOpenTemplateCodeModal={() => setIsTemplateCodeModalOpen(true)}
       />
 

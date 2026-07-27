@@ -13,8 +13,7 @@ interface HeaderProps {
   onRedo: () => void;
   onResetTemplate: () => void;
   onExportSVG: () => void;
-  onExportJSON: () => void;
-  onImportJSON: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onOpenFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onOpenTemplateCodeModal: () => void;
 }
 
@@ -28,8 +27,7 @@ export const Header: React.FC<HeaderProps> = ({
   onRedo,
   onResetTemplate,
   onExportSVG,
-  onExportJSON,
-  onImportJSON,
+  onOpenFile,
   onOpenTemplateCodeModal,
 }) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -136,19 +134,15 @@ export const Header: React.FC<HeaderProps> = ({
           <FileCode size={15} /> Export Template TS
         </button>
 
-        <button className="btn btn-sm" onClick={onExportJSON} title="Save project as JSON file">
-          <Download size={15} /> Save JSON
-        </button>
-
         <input
           type="file"
           ref={fileInputRef}
           style={{ display: 'none' }}
-          accept=".guitar,.json"
-          onChange={onImportJSON}
+          accept=".axe.svg,.svg,.guitar,.json"
+          onChange={onOpenFile}
         />
-        <button className="btn btn-sm" onClick={() => fileInputRef.current?.click()} title="Open JSON project file">
-          <Upload size={15} /> Open JSON
+        <button className="btn btn-sm" onClick={() => fileInputRef.current?.click()} title="Open a project file (.axe.svg or legacy .guitar/.json)">
+          <Upload size={15} /> Open
         </button>
 
         <button className="btn btn-accent" onClick={onExportSVG} title="Export 1:1 True-Scale Printable SVG">
