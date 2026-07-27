@@ -3,7 +3,7 @@ import { Stage, Layer, Line, Circle, Rect, Path, Text, Group, Image as KonvaImag
 import Konva from 'konva';
 import { BRIDGE_PRESETS, NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
-import type { GuitarProject, GuideImageState, Vector2D } from '../types/guitar';
+import type { GuitarProject, GuideImageState, Vector2D, CalibrationState } from '../types/guitar';
 import { anchorsToSVGPath, insertAnchorOnSegment, updateAnchorHandle } from '../utils/bezier';
 import { applyLiveSymmetry } from '../utils/symmetry';
 import { getBridgePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
@@ -17,7 +17,14 @@ interface CanvasWorkspaceProps {
   onDragStartHistory: () => void;
   guideImage: GuideImageState;
   onUpdateGuideImage: (updater: (prev: GuideImageState) => GuideImageState) => void;
+  calibration: CalibrationState;
+  onCalibrationPick: (point: Vector2D) => void;
+  onApplyCalibration: (knownDistanceMm: number) => void;
+  onCancelCalibration: () => void;
 }
+
+/** Pick a scale-bar length that renders between roughly 60 and 170 screen px. */
+const SCALE_BAR_STEPS_MM = [5, 10, 20, 25, 50, 100, 200, 250, 500, 1000];
 
 export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   project,
@@ -27,7 +34,12 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   onDragStartHistory,
   guideImage,
   onUpdateGuideImage,
+  calibration,
+  onCalibrationPick,
+  onApplyCalibration,
+  onCancelCalibration,
 }) => {
+  const [knownDistanceInput, setKnownDistanceInput] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [zoom, setZoom] = useState(1.2); // 1.2 px per mm base scale
@@ -262,29 +274,98 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           cursor: isPanMode ? (isDraggingStage ? 'grabbing' : 'grab') : 'default',
         }}
         onClick={(e) => {
+          if (calibration.active) {
+            const pointer = e.target.getStage()?.getPointerPosition();
+            if (pointer) onCalibrationPick(toModel(pointer));
+            return;
+          }
           if (!isPanMode && e.target === e.target.getStage()) {
             onSelectAnchor(null);
           }
         }}
       >
         {/* LAYER 0: GRID & CENTERLINE AXIS */}
-        <Layer>
+        <Layer listening={false}>
           {settings.showGrid && (
             <Group>
-              {/* Background grid lines */}
-              {Array.from({ length: 20 }).map((_, i) => {
-                const step = (i - 10) * 50;
-                const p1 = toScreen({ x: step, y: -200 });
-                const p2 = toScreen({ x: step, y: 600 });
-                return (
-                  <Line
-                    key={`grid_x_${i}`}
-                    points={[p1.x, p1.y, p2.x, p2.y]}
-                    stroke="rgba(255,255,255,0.03)"
-                    strokeWidth={1}
-                  />
-                );
-              })}
+              {(() => {
+                // Model-space bounds of the visible viewport. Rotation is only ever
+                // 0 or 90 degrees, so the corner bounding box is the visible area.
+                const corners = [
+                  toModel({ x: 0, y: 0 }),
+                  toModel({ x: dimensions.width, y: 0 }),
+                  toModel({ x: 0, y: dimensions.height }),
+                  toModel({ x: dimensions.width, y: dimensions.height }),
+                ];
+                const minX = Math.min(...corners.map((c) => c.x));
+                const maxX = Math.max(...corners.map((c) => c.x));
+                const minY = Math.min(...corners.map((c) => c.y));
+                const maxY = Math.max(...corners.map((c) => c.y));
+
+                const majorMm = settings.gridSizeMm > 0 ? settings.gridSizeMm : 50;
+                const minorMm = majorMm / 5;
+                // Drop the minor lines once they crowd together on screen
+                const stepMm = minorMm * zoom >= 5 ? minorMm : majorMm;
+
+                const isMajor = (v: number) => Math.abs(v / majorMm - Math.round(v / majorMm)) < 1e-6;
+                const nodes: React.JSX.Element[] = [];
+
+                for (let i = Math.floor(minX / stepMm); i <= Math.ceil(maxX / stepMm); i++) {
+                  const x = i * stepMm;
+                  const major = isMajor(x);
+                  const a = toScreen({ x, y: minY });
+                  const b = toScreen({ x, y: maxY });
+                  nodes.push(
+                    <Line
+                      key={`grid_x_${i}`}
+                      points={[a.x, a.y, b.x, b.y]}
+                      stroke={major ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.06)'}
+                      strokeWidth={1}
+                    />
+                  );
+                  if (major && x !== 0) {
+                    nodes.push(
+                      <Text
+                        key={`grid_xl_${i}`}
+                        x={a.x + (isHorizontal ? -46 : 4)}
+                        y={a.y + (isHorizontal ? 4 : 6)}
+                        text={`${Math.round(x)}`}
+                        fill="rgba(255,255,255,0.38)"
+                        fontSize={10}
+                      />
+                    );
+                  }
+                }
+
+                for (let i = Math.floor(minY / stepMm); i <= Math.ceil(maxY / stepMm); i++) {
+                  const y = i * stepMm;
+                  const major = isMajor(y);
+                  const a = toScreen({ x: minX, y });
+                  const b = toScreen({ x: maxX, y });
+                  nodes.push(
+                    <Line
+                      key={`grid_y_${i}`}
+                      points={[a.x, a.y, b.x, b.y]}
+                      stroke={major ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.06)'}
+                      strokeWidth={1}
+                    />
+                  );
+                  if (major && y !== 0) {
+                    nodes.push(
+                      <Text
+                        key={`grid_yl_${i}`}
+                        x={a.x + (isHorizontal ? 4 : 6)}
+                        y={a.y + (isHorizontal ? 6 : 4)}
+                        text={`${Math.round(y)}`}
+                        fill="rgba(255,255,255,0.38)"
+                        fontSize={10}
+                      />
+                    );
+                  }
+                }
+
+                return nodes;
+              })()}
             </Group>
           )}
 
@@ -351,7 +432,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
         {/* LAYER 1.5: GUIDE BACKGROUND IMAGE */}
         {guideImage.visible && guideImage.element && (
-          <Layer listening={!isPanMode}>
+          <Layer listening={!isPanMode && !calibration.active}>
             <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               <KonvaImage
                 image={guideImage.element}
@@ -377,7 +458,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         )}
 
         {/* LAYER 2: LIVE BODY SHAPE */}
-        <Layer listening={!isPanMode}>
+        <Layer listening={!isPanMode && !calibration.active}>
           <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
             <Path
               data={bodySVGPath}
@@ -436,7 +517,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
         {/* LAYER 3: HARDWARE & ROUTS */}
         {settings.showHardwareCavities && (
-          <Layer listening={!isPanMode}>
+          <Layer listening={!isPanMode && !calibration.active}>
             <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               {/* Neck Pocket Cavity */}
               <Rect
@@ -500,7 +581,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         )}
 
         {/* LAYER 4: INTERACTIVE BEZIER NODE CONTROLS */}
-        <Layer listening={!isPanMode}>
+        <Layer listening={!isPanMode && !calibration.active}>
           {contour.anchors.map((anchor, index) => {
             const isSelected = anchor.id === selectedAnchorId;
             const aPos = toScreen(anchor.position);
@@ -574,7 +655,109 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
             );
           })}
         </Layer>
+
+        {/* LAYER 5: CALIBRATION PICKS */}
+        {calibration.active && (
+          <Layer listening={false}>
+            {calibration.points.length === 2 &&
+              (() => {
+                const a = toScreen(calibration.points[0]);
+                const b = toScreen(calibration.points[1]);
+                return (
+                  <Line points={[a.x, a.y, b.x, b.y]} stroke="#f59e0b" strokeWidth={1.5} dash={[6, 4]} />
+                );
+              })()}
+            {calibration.points.map((pt, i) => {
+              const s = toScreen(pt);
+              return (
+                <Group key={`cal_${i}`}>
+                  <Line points={[s.x - 9, s.y, s.x + 9, s.y]} stroke="#f59e0b" strokeWidth={1.5} />
+                  <Line points={[s.x, s.y - 9, s.x, s.y + 9]} stroke="#f59e0b" strokeWidth={1.5} />
+                  <Circle x={s.x} y={s.y} radius={4} stroke="#f59e0b" strokeWidth={1.5} />
+                </Group>
+              );
+            })}
+          </Layer>
+        )}
       </Stage>
+
+      {/* Scale bar - lets you sanity-check the workspace scale at a glance */}
+      {(() => {
+        // Largest round length that still fits the bar's budget
+        const barMm =
+          [...SCALE_BAR_STEPS_MM].reverse().find((mm) => mm * zoom <= 170) ?? SCALE_BAR_STEPS_MM[0];
+        return (
+          <div className="canvas-scalebar">
+            <div className="scalebar-track" style={{ width: `${barMm * zoom}px` }} />
+            <span>{barMm} mm</span>
+          </div>
+        );
+      })()}
+
+      {/* Two-point guide image calibration */}
+      {calibration.active && (
+        <div className="calibration-card">
+          <div className="calibration-title">Calibrate guide image</div>
+          {calibration.points.length < 2 ? (
+            <p className="calibration-hint">
+              Click {calibration.points.length === 0 ? 'the first' : 'the second'} point on the guide image.
+              Pick two points whose real distance you know &mdash; body width, scale length, or a ruler in the photo.
+            </p>
+          ) : (
+            <>
+              <p className="calibration-hint">
+                Picked span measures{' '}
+                <strong>
+                  {Math.hypot(
+                    calibration.points[1].x - calibration.points[0].x,
+                    calibration.points[1].y - calibration.points[0].y
+                  ).toFixed(1)}{' '}
+                  mm
+                </strong>{' '}
+                right now. What should it be?
+              </p>
+              <div className="calibration-row">
+                <input
+                  type="number"
+                  className="form-input"
+                  autoFocus
+                  min="0.1"
+                  step="0.1"
+                  placeholder="e.g. 324"
+                  value={knownDistanceInput}
+                  onChange={(e) => setKnownDistanceInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      onApplyCalibration(parseFloat(knownDistanceInput));
+                      setKnownDistanceInput('');
+                    }
+                  }}
+                />
+                <span className="calibration-unit">mm</span>
+                <button
+                  className="btn btn-primary btn-sm"
+                  disabled={!(parseFloat(knownDistanceInput) > 0)}
+                  onClick={() => {
+                    onApplyCalibration(parseFloat(knownDistanceInput));
+                    setKnownDistanceInput('');
+                  }}
+                >
+                  Apply
+                </button>
+              </div>
+            </>
+          )}
+          <button
+            className="btn btn-sm"
+            onClick={() => {
+              setKnownDistanceInput('');
+              onCancelCalibration();
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock } from 'lucide-react';
+import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Ruler } from 'lucide-react';
 import { BRIDGE_PRESETS, NECK_PRESETS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
-import type { GuitarProject, GuideImageState, SymmetryMode } from '../types/guitar';
+import type { GuitarProject, GuideImageState, SymmetryMode, CalibrationState } from '../types/guitar';
 import { getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 
 interface SidebarProps {
@@ -13,6 +13,9 @@ interface SidebarProps {
   onUploadGuideImage: (file: File) => void;
   onUpdateGuideImage: (updater: (prev: GuideImageState) => GuideImageState) => void;
   onClearGuideImage: () => void;
+  calibration: CalibrationState;
+  onStartCalibration: () => void;
+  onCancelCalibration: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -23,6 +26,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onUploadGuideImage,
   onUpdateGuideImage,
   onClearGuideImage,
+  calibration,
+  onStartCalibration,
+  onCancelCalibration,
 }) => {
   const [activeTab, setActiveTab] = useState<'templates' | 'hardware' | 'guide' | 'finishes' | 'layers'>('templates');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -191,21 +197,64 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
               {guideImage.imageUrl ? (
                 <div>
-                  <div className="form-group" style={{ marginBottom: '12px' }}>
-                    <label className="form-label">
-                      Scale Factor: <strong>{guideImage.scale.toFixed(2)}x</strong>
-                    </label>
-                    <input
-                      type="range"
-                      min="0.1"
-                      max="3.0"
-                      step="0.02"
-                      value={guideImage.scale}
-                      onChange={(e) =>
-                        onUpdateGuideImage((prev) => ({ ...prev, scale: parseFloat(e.target.value) }))
-                      }
-                      style={{ width: '100%' }}
-                    />
+                  {/* SCALE - calibration first, since it is the only exact method */}
+                  <div className="form-group" style={{ marginBottom: '14px' }}>
+                    <label className="form-label">Image Scale</label>
+                    <button
+                      className={`btn btn-sm ${calibration.active ? '' : 'btn-primary'}`}
+                      style={{ width: '100%', justifyContent: 'center', marginBottom: '8px' }}
+                      onClick={calibration.active ? onCancelCalibration : onStartCalibration}
+                      title="Click two points of known real-world distance to set the scale exactly"
+                    >
+                      <Ruler size={15} />
+                      {calibration.active ? 'Cancel calibration' : 'Set scale by known distance'}
+                    </button>
+
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <div style={{ flex: 1 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem' }}>
+                          Image width (mm)
+                        </label>
+                        <input
+                          type="number"
+                          className="form-input"
+                          min="1"
+                          step="0.5"
+                          value={
+                            guideImage.element
+                              ? (guideImage.element.width * guideImage.scale).toFixed(1)
+                              : ''
+                          }
+                          onChange={(e) => {
+                            const widthMm = parseFloat(e.target.value);
+                            const natural = guideImage.element?.width;
+                            if (!natural || !(widthMm > 0)) return;
+                            onUpdateGuideImage((prev) => ({ ...prev, scale: widthMm / natural }));
+                          }}
+                        />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem' }}>
+                          Scale factor
+                        </label>
+                        <input
+                          type="number"
+                          className="form-input"
+                          min="0.001"
+                          step="0.005"
+                          value={guideImage.scale.toFixed(4)}
+                          onChange={(e) => {
+                            const v = parseFloat(e.target.value);
+                            if (!(v > 0)) return;
+                            onUpdateGuideImage((prev) => ({ ...prev, scale: v }));
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '6px' }}>
+                      Check your work against the grid: minor lines are {settings.gridSizeMm / 5} mm, major lines{' '}
+                      {settings.gridSizeMm} mm.
+                    </p>
                   </div>
 
                   <div className="form-group" style={{ marginBottom: '12px' }}>
@@ -514,6 +563,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }
                 />
               </div>
+
+              {settings.showGrid && (
+                <div className="form-group" style={{ marginTop: '12px' }}>
+                  <label className="form-label">Major Grid Spacing</label>
+                  <select
+                    value={settings.gridSizeMm}
+                    onChange={(e) =>
+                      onUpdateProject((prev) => ({
+                        ...prev,
+                        settings: { ...prev.settings, gridSizeMm: parseFloat(e.target.value) },
+                      }))
+                    }
+                    className="form-select"
+                  >
+                    <option value={25}>25 mm major / 5 mm minor</option>
+                    <option value={50}>50 mm major / 10 mm minor</option>
+                    <option value={100}>100 mm major / 20 mm minor</option>
+                  </select>
+                </div>
+              )}
             </div>
           </div>
         )}

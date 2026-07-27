@@ -271,11 +271,73 @@ body, html, #root {
   position: relative;
   width: 100%;
   height: 100%;
+  /* No CSS background pattern here: it would not scale with zoom, so it reads as
+     a grid while lying about millimetres. The real grid is drawn on the canvas. */
   background-color: #0b0c10;
-  background-image: 
-    radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 20px 20px;
   overflow: hidden;
+}
+
+/* Scale Bar */
+.canvas-scalebar {
+  position: absolute;
+  bottom: 22px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  pointer-events: none;
+  z-index: 14;
+}
+
+.scalebar-track {
+  height: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-top: none;
+}
+
+/* Guide Image Calibration Card */
+.calibration-card {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 340px;
+  padding: 14px 16px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--accent-amber);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 20;
+}
+
+.calibration-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+  color: var(--accent-amber);
+}
+
+.calibration-hint {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  line-height: 1.45;
+}
+
+.calibration-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.calibration-unit {
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 .canvas-toolbar {

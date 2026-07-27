@@ -4,7 +4,7 @@ import { Sidebar } from './components/Sidebar';
 import { InspectorPanel } from './components/InspectorPanel';
 import { CanvasWorkspace } from './components/CanvasWorkspace';
 import { REFERENCE_TEMPLATES } from './constants/templates';
-import type { GuitarProject, GuideImageState } from './types/guitar';
+import type { GuitarProject, GuideImageState, CalibrationState, Vector2D } from './types/guitar';
 import { insertAnchorOnSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
 import { downloadSVGFile, exportProjectToSVG } from './utils/svgExporter';
@@ -86,6 +86,41 @@ export function App(): React.JSX.Element {
       URL.revokeObjectURL(guideImage.imageUrl);
     }
     setGuideImage(INITIAL_GUIDE_IMAGE);
+    setCalibration({ active: false, points: [] });
+  };
+
+  // --- Guide image two-point scale calibration ---
+  const [calibration, setCalibration] = useState<CalibrationState>({ active: false, points: [] });
+
+  const handleStartCalibration = () => setCalibration({ active: true, points: [] });
+  const handleCancelCalibration = () => setCalibration({ active: false, points: [] });
+
+  const handleCalibrationPick = (point: Vector2D) => {
+    setCalibration((prev) => {
+      if (!prev.active) return prev;
+      // A third click starts a fresh pair rather than being ignored
+      const points = prev.points.length >= 2 ? [point] : [...prev.points, point];
+      return { ...prev, points };
+    });
+  };
+
+  const handleApplyCalibration = (knownDistanceMm: number) => {
+    const [p1, p2] = calibration.points;
+    if (!p1 || !p2 || !(knownDistanceMm > 0)) return;
+
+    const measuredMm = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+    if (measuredMm < 0.01) return;
+
+    const factor = knownDistanceMm / measuredMm;
+    setGuideImage((prev) => ({
+      ...prev,
+      scale: prev.scale * factor,
+      // Scaling happens about the image centre, so shift the image to keep the
+      // first picked point where the user put it.
+      offsetXMm: prev.offsetXMm + (p1.x - prev.offsetXMm) * (1 - factor),
+      offsetYMm: prev.offsetYMm + (p1.y - prev.offsetYMm) * (1 - factor),
+    }));
+    setCalibration({ active: false, points: [] });
   };
 
   const historyRef = useRef(new HistoryManager());
@@ -276,6 +311,9 @@ export function App(): React.JSX.Element {
         onUploadGuideImage={handleUploadGuideImage}
         onUpdateGuideImage={setGuideImage}
         onClearGuideImage={handleClearGuideImage}
+        calibration={calibration}
+        onStartCalibration={handleStartCalibration}
+        onCancelCalibration={handleCancelCalibration}
       />
 
       <CanvasWorkspace
@@ -286,6 +324,10 @@ export function App(): React.JSX.Element {
         onDragStartHistory={handleDragStartHistory}
         guideImage={guideImage}
         onUpdateGuideImage={setGuideImage}
+        calibration={calibration}
+        onCalibrationPick={handleCalibrationPick}
+        onApplyCalibration={handleApplyCalibration}
+        onCancelCalibration={handleCancelCalibration}
       />
 
       <InspectorPanel

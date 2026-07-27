@@ -102,6 +102,15 @@ export interface GuideImageState {
   locked: boolean;
 }
 
+/**
+ * Two-point scale calibration for the guide image: the user picks two points
+ * whose real-world distance they know, and the image is scaled to match.
+ */
+export interface CalibrationState {
+  active: boolean;
+  points: Vector2D[]; // model-space mm, 0-2 entries
+}
+
 export interface ProjectSettings {
   name: string;
   unitDisplay: 'mm' | 'inches';
