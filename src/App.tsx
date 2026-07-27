@@ -292,16 +292,14 @@ export function App(): React.JSX.Element {
     setSelectedAnchorId(null);
   };
 
-  // Export 1:1 SVG - also the project save file, since it embeds the full
-  // project data. The .axe.svg double extension marks it as such while
-  // staying a plain, openable .svg for any other viewer.
-  const handleExportSVG = () => {
+  // Save the project as a .axe.svg - a printable 1:1 true-scale SVG that
+  // also embeds the full project data, so it doubles as the save file.
+  const handleSaveProject = () => {
     const svgString = exportProjectToSVG(project);
     downloadSVGFile(`${project.settings.name.toLowerCase().replace(/\s+/g, '-')}.axe.svg`, svgString);
   };
 
-  // Open a project file - either the legacy .guitar/.json format, or an
-  // exported SVG carrying embedded project data.
+  // Open a .axe.svg project file.
   const handleOpenFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -309,18 +307,13 @@ export function App(): React.JSX.Element {
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target?.result as string;
-      const isSVG = file.name.toLowerCase().endsWith('.svg') || text.trimStart().startsWith('<');
-      try {
-        const imported = isSVG ? extractProjectFromSVG(text) : (JSON.parse(text) as GuitarProject);
-        if (imported && imported.contour && imported.settings) {
-          handleUpdateProject(() => imported);
-          setSelectedAnchorId(null);
-          setSelectedSegmentIndex(null);
-        } else {
-          alert(isSVG ? 'This SVG does not contain Axe Shaper project data.' : 'Invalid .guitar project file format.');
-        }
-      } catch (err) {
-        alert('Failed to parse project file.');
+      const imported = extractProjectFromSVG(text);
+      if (imported && imported.contour && imported.settings) {
+        handleUpdateProject(() => imported);
+        setSelectedAnchorId(null);
+        setSelectedSegmentIndex(null);
+      } else {
+        alert('This SVG does not contain Axe Shaper project data.');
       }
     };
     reader.readAsText(file);
@@ -362,7 +355,7 @@ export function App(): React.JSX.Element {
         onUndo={handleUndo}
         onRedo={handleRedo}
         onResetTemplate={handleResetTemplate}
-        onExportSVG={handleExportSVG}
+        onSave={handleSaveProject}
         onOpenFile={handleOpenFile}
         onOpenTemplateCodeModal={() => setIsTemplateCodeModalOpen(true)}
       />

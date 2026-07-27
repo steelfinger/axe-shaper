@@ -1,5 +1,5 @@
 import React from 'react';
-import { Download, Upload, Undo2, Redo2, RotateCcw, FileCode, Disc } from 'lucide-react';
+import { Save, Upload, Undo2, Redo2, RotateCcw, FileCode, Disc } from 'lucide-react';
 import type { GuitarProject } from '../types/guitar';
 import { snapGridToUnit } from '../utils/units';
 
@@ -12,7 +12,7 @@ interface HeaderProps {
   onUndo: () => void;
   onRedo: () => void;
   onResetTemplate: () => void;
-  onExportSVG: () => void;
+  onSave: () => void;
   onOpenFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onOpenTemplateCodeModal: () => void;
 }
@@ -26,7 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
   onUndo,
   onRedo,
   onResetTemplate,
-  onExportSVG,
+  onSave,
   onOpenFile,
   onOpenTemplateCodeModal,
 }) => {
@@ -138,15 +138,15 @@ export const Header: React.FC<HeaderProps> = ({
           type="file"
           ref={fileInputRef}
           style={{ display: 'none' }}
-          accept=".axe.svg,.svg,.guitar,.json"
+          accept=".axe.svg,.svg"
           onChange={onOpenFile}
         />
-        <button className="btn btn-sm" onClick={() => fileInputRef.current?.click()} title="Open a project file (.axe.svg or legacy .guitar/.json)">
+        <button className="btn btn-sm" onClick={() => fileInputRef.current?.click()} title="Open a .axe.svg project file">
           <Upload size={15} /> Open
         </button>
 
-        <button className="btn btn-accent" onClick={onExportSVG} title="Export 1:1 True-Scale Printable SVG">
-          <Download size={16} /> Export 1:1 SVG
+        <button className="btn btn-accent" onClick={onSave} title="Save as a 1:1 true-scale .axe.svg project file">
+          <Save size={16} /> Save
         </button>
       </div>
     </header>
