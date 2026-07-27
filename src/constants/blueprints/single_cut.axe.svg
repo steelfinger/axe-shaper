@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:project="https://axe-shaper.app/ns/project/1"
+  width="427.56mm"
+  height="633.69mm"
+  viewBox="-182.09 -15.00 427.56 633.69"
+>
+  <metadata>
+    <project:name>Single-Cut Vintage</project:name>
+    <project:units>millimeters</project:units>
+    <project:schemaVersion>1</project:schemaVersion>
+    <project:appVersion>1.0.0</project:appVersion>
+    <project:data>eyJzY2hlbWFWZXJzaW9uIjoxLCJhcHBWZXJzaW9uIjoiMS4wLjAiLCJtZXRhZGF0YSI6eyJjcmVhdGVkIjoiMjAyNi0wNy0yN1QyMzowNjo1NS40MjVaIiwibW9kaWZpZWQiOiIyMDI2LTA3LTI3VDIzOjA2OjU1LjQyNVoiLCJhdXRob3IiOiJBeGUgU2hhcGVyIEx1dGhpZXIifSwic2V0dGluZ3MiOnsibmFtZSI6IlNpbmdsZS1DdXQgVmludGFnZSIsInVuaXREaXNwbGF5IjoibW0iLCJjYW52YXNPcmllbnRhdGlvbiI6InZlcnRpY2FsIiwic3ltbWV0cnkiOnsibW9kZSI6Im5vbmUiLCJzb3VyY2VTaWRlIjoibGVmdCJ9LCJzaG93Q2VudGVyQXhpcyI6dHJ1ZSwic2hvd0dob3N0R3VpZGUiOnRydWUsInNob3dIYXJkd2FyZUNhdml0aWVzIjp0cnVlLCJzaG93RGltZW5zaW9ucyI6dHJ1ZSwic2hvd0dyaWQiOnRydWUsImdyaWRTaXplTW0iOjUwLCJmaW5pc2hTdHlsZSI6InN1bmJ1cnN0IiwiYm9keUNvbG9yIjoiIzNiODJmNiIsInNlY29uZGFyeUNvbG9yIjoiI2Y1OWUwYiIsImJvZHlGaWxsT3BhY2l0eSI6MC4zNSwicGlja2d1YXJkRW5hYmxlZCI6dHJ1ZSwicGlja2d1YXJkQ29sb3IiOiIjZmZmZmZmIn0sImFjdGl2ZVRlbXBsYXRlSWQiOiJzaW5nbGVfY3V0IiwiY29udG91ciI6eyJhbmNob3JzIjpbeyJpZCI6InNjX3BvY2tldF9sZWZ0IiwicG9zaXRpb24iOnsieCI6LTE5LjA1LCJ5IjowfSwiaGFuZGxlT3V0Ijp7IngiOi01OS43MDQsInkiOjAuMTQ5OH0sImhhbmRsZU1vZGUiOiJjb3JuZXIiLCJsb2NrZWQiOnRydWUsInNlbWFudGljUm9sZSI6Im5lY2tfcG9ja2V0X2xlZnQifSx7ImlkIjoic2NfdXBwZXJfc2hvdWxkZXIiLCJwb3NpdGlvbiI6eyJ4IjotMTE5Ljg0NjYsInkiOjY3LjIxMTJ9LCJoYW5kbGVJbiI6eyJ4IjowLjk0OCwieSI6LTM4LjgyMjN9LCJoYW5kbGVPdXQiOnsieCI6LTAuOTY2OSwieSI6MzkuNTk3MX0sImhhbmRsZU1vZGUiOiJzbW9vdGgifSx7ImlkIjoic2NfdXBwZXJfYm91dCIsInBvc2l0aW9uIjp7IngiOi05NC4wMzU1LCJ5IjoxNTMuNDUyOH0sImhhbmRsZUluIjp7IngiOjAuMDk5OSwieSI6LTMxLjA2NzR9LCJoYW5kbGVPdXQiOnsieCI6LTAuMTE5NywieSI6MzcuMTk4NH0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJ1cHBlcl9ob3JuX2xlZnQifSx7ImlkIjoic2NfbG93ZXJfYm91dF9sZWZ0IiwicG9zaXRpb24iOnsieCI6LTE2NS44MzM5LCJ5IjoyOTcuOTM4OX0sImhhbmRsZUluIjp7IngiOjEuMTI5MywieSI6LTgxLjE0NzN9LCJoYW5kbGVPdXQiOnsieCI6LTEuMjUyNywieSI6OTAuMDE3OX0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJsb3dlcl9ib3V0X2xlZnQifSx7ImlkIjoic2NfdGFpbF9jZW50ZXIiLCJwb3NpdGlvbiI6eyJ4IjotMC42MDksInkiOjQzOC4xNDU3fSwiaGFuZGxlSW4iOnsieCI6LTk1LjcyMSwieSI6MC41Mzk4fSwiaGFuZGxlT3V0Ijp7IngiOjk1LjcyMSwieSI6LTAuNTM5OH0sImhhbmRsZU1vZGUiOiJzeW1tZXRyaWMiLCJzZW1hbnRpY1JvbGUiOiJ0YWlsX2NlbnRlciJ9LHsiaWQiOiJzY19sb3dlcl9ib3V0X3JpZ2h0IiwicG9zaXRpb24iOnsieCI6MTY0LjY1MDQsInkiOjMwMS40ODkzfSwiaGFuZGxlSW4iOnsieCI6LTAuODMyNCwieSI6ODcuOTE5N30sImhhbmRsZU91dCI6eyJ4IjowLjgxOTIsInkiOi04Ni41Mzc2fSwiaGFuZGxlTW9kZSI6InNtb290aCIsInNlbWFudGljUm9sZSI6Imxvd2VyX2JvdXRfcmlnaHQifSx7ImlkIjoic2Nfd2Fpc3RfcmlnaHQiLCJwb3NpdGlvbiI6eyJ4Ijo4OS42NDc5LCJ5IjoxNTMuMTExNX0sImhhbmRsZUluIjp7IngiOjEuNjI4NCwieSI6MzMuNDI3OH0sImhhbmRsZU91dCI6eyJ4IjotMS4xOTk0LCJ5IjotMjQuNjIwNX0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJ3YWlzdF9yaWdodCJ9LHsiaWQiOiJhbmNob3JfMTc4NTA3MjY0MjkxM19rZHA3MCIsInBvc2l0aW9uIjp7IngiOjExNi4yNTM3LCJ5Ijo3MS41Mzk0fSwiaGFuZGxlSW4iOnsieCI6LTAuNDg3NCwieSI6MjkuNTg4Nn0sImhhbmRsZU91dCI6eyJ4IjowLjI1NzEsInkiOi0xNS42MDU1fSwiaGFuZGxlTW9kZSI6InNtb290aCIsInNlbWFudGljUm9sZSI6ImN1c3RvbSJ9LHsiaWQiOiJzY19jdXRhd2F5X2hvcm5fdGlwIiwicG9zaXRpb24iOnsieCI6MTAzLjg4NDEsInkiOjQ0LjQ0MTh9LCJoYW5kbGVJbiI6eyJ4Ijo3Ljc2NjQsInkiOjAuMDkxN30sImhhbmRsZU91dCI6eyJ4IjotMTQuNzU0NSwieSI6LTAuMTc0M30sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJ1cHBlcl9ob3JuX3JpZ2h0In0seyJpZCI6ImFuY2hvcl8xNzg1MDcyNTc2NTg4X2NocGo4IiwicG9zaXRpb24iOnsieCI6NjIuNDQ1NCwieSI6NzEuMzg0M30sImhhbmRsZUluIjp7IngiOjI5Ljc3MTcsInkiOi0wLjU3MzN9LCJoYW5kbGVPdXQiOnsieCI6LTE3LjE3MzgsInkiOjAuMzMwNn0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImlkIjoic2NfY3V0YXdheV9pbm5lcl9zY29vcCIsInBvc2l0aW9uIjp7IngiOjI4LjEwNzUsInkiOjQxLjAwNDl9LCJoYW5kbGVJbiI6eyJ4Ijo0LjY1OTksInkiOjIzLjUyMTV9LCJoYW5kbGVPdXQiOnsieCI6LTAuMjIxOSwieSI6LTEyLjk0NDJ9LCJoYW5kbGVNb2RlIjoiY29ybmVyIn0seyJpZCI6ImFuY2hvcl8xNzg1MDcyNTEyNjQ3X2lpY281IiwicG9zaXRpb24iOnsieCI6MjcuNjE1NiwieSI6Mi4wNTI1fSwiaGFuZGxlSW4iOnsieCI6MC43MTI3LCJ5IjoxOC4wNzZ9LCJoYW5kbGVPdXQiOnsieCI6LTMuMzg5NSwieSI6LTAuMDE4NX0sImhhbmRsZU1vZGUiOiJjb3JuZXIiLCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImlkIjoic2NfcG9ja2V0X3JpZ2h0IiwicG9zaXRpb24iOnsieCI6MTkuMDUsInkiOjB9LCJoYW5kbGVJbiI6eyJ4IjoyLjU4ODgsInkiOjB9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwibG9ja2VkIjp0cnVlLCJzZW1hbnRpY1JvbGUiOiJuZWNrX3BvY2tldF9yaWdodCJ9XSwiY2xvc2VkIjp0cnVlfSwibmVja1ByZXNldElkIjoiZ2lic29uX2xwXzIyIiwiYnJpZGdlUHJlc2V0SWQiOiJ0dW5lX29fbWF0aWMiLCJwaWNrdXBzIjpbeyJpZCI6InBfbmVjayIsInR5cGUiOiJodW1idWNrZXIiLCJvZmZzZXRZTW0iOjkwLCJvZmZzZXRYTW0iOjAsImFuZ2xlRGVncmVlcyI6MCwid2lkdGhNbSI6NzAsImhlaWdodE1tIjozOH0seyJpZCI6InBfYnJpZGdlIiwidHlwZSI6Imh1bWJ1Y2tlciIsIm9mZnNldFlNbSI6MjA1LCJvZmZzZXRYTW0iOjAsImFuZ2xlRGVncmVlcyI6MCwid2lkdGhNbSI6NzAsImhlaWdodE1tIjozOH1dfQ==</project:data>
+  </metadata>
+
+  <style>
+    .body-line { fill: none; stroke: #111111; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .neck-pocket { fill: none; stroke: #dc3545; stroke-width: 1.2; stroke-dasharray: 4,4; }
+    .pickup-rout { fill: none; stroke: #28a745; stroke-width: 1.0; }
+    .bridge-rout { fill: none; stroke: #007bff; stroke-width: 1.2; }
+    .center-axis { fill: none; stroke: #6c757d; stroke-width: 0.5; stroke-dasharray: 6,4; opacity: 0.7; }
+    .calibration-box { fill: none; stroke: #d9534f; stroke-width: 0.8; stroke-dasharray: 3,3; }
+    .band-rule { fill: none; stroke: #adb5bd; stroke-width: 0.5; }
+    .text-label { font-family: monospace, sans-serif; font-size: 5px; fill: #d9534f; }
+    .axis-label { font-family: monospace, sans-serif; font-size: 5px; fill: #6c757d; }
+    .title-label { font-family: sans-serif; font-size: 10px; font-weight: bold; fill: #222222; }
+  </style>
+
+  <!-- Guitar Geometry Group -->
+  <g>
+    <!-- Centerline Alignment Axis (X = 0) -->
+    <line x1="0" y1="-15.00" x2="0" y2="453.69" class="center-axis" />
+
+    <!-- Joint Line Marker (Y = 0) -->
+    <line x1="-182.09" y1="0" x2="165.47" y2="0" class="center-axis" />
+    <text x="169.47" y="3" class="axis-label">Y=0 (Joint Line)</text>
+
+    <!-- Theoretical Saddle Line Marker -->
+    <line x1="-182.09" y1="249.45" x2="165.47" y2="249.45" class="center-axis" stroke="#007bff" />
+    <text x="169.47" y="252.45" class="axis-label" fill="#007bff">Scale Line (249.4mm)</text>
+
+    <!-- Outer Custom Body Profile -->
+    <path d="M -19.05 0.00 C -78.75 0.15, -118.90 28.39, -119.85 67.21 C -120.81 106.81, -93.94 122.39, -94.04 153.45 C -94.16 190.65, -164.70 216.79, -165.83 297.94 C -167.09 387.96, -96.33 438.69, -0.61 438.15 C 95.11 437.61, 163.82 389.41, 164.65 301.49 C 165.47 214.95, 91.28 186.54, 89.65 153.11 C 88.45 128.49, 115.77 101.13, 116.25 71.54 C 116.51 55.93, 111.65 44.53, 103.88 44.44 C 89.13 44.27, 92.22 70.81, 62.45 71.38 C 45.27 71.71, 32.77 64.53, 28.11 41.00 C 27.89 28.06, 28.33 20.13, 27.62 2.05 C 24.23 2.03, 21.64 0.00, 19.05 0.00 C 19.05 0.00, -19.05 0.00, -19.05 0.00 Z" class="body-line" />
+
+    <!-- Immutable Neck Pocket Cavity -->
+    <rect
+      x="-19.05"
+      y="0"
+      width="38.1"
+      height="101.6"
+      rx="6.35"
+      ry="6.35"
+      class="neck-pocket"
+    />
+
+    <!-- Pickup Routing Cavities -->
+    
+          <g transform="translate(0, 90) rotate(0)">
+            <rect x="-35.00" y="-19.00" width="70" height="38" rx="4" ry="4" class="pickup-rout" />
+            <circle cx="0" cy="0" r="1.5" fill="#28a745" />
+          </g>
+        
+          <g transform="translate(0, 205) rotate(0)">
+            <rect x="-35.00" y="-19.00" width="70" height="38" rx="4" ry="4" class="pickup-rout" />
+            <circle cx="0" cy="0" r="1.5" fill="#28a745" />
+          </g>
+        
+
+    <!-- Bridge Hardware Plate, Saddle Line & Mounting Holes -->
+    <g transform="translate(0, 252.45)">
+      <rect x="-42.00" y="-7.00" width="84" height="14" class="bridge-rout" />
+      <line x1="-37.00" y1="0" x2="37.00" y2="0" stroke="#dc3545" stroke-width="1.2" />
+      <circle cx="-37" cy="0" r="2" fill="#007bff" /><circle cx="37" cy="0" r="2" fill="#007bff" /><circle cx="-41" cy="45" r="2" fill="#007bff" /><circle cx="41" cy="45" r="2" fill="#007bff" />
+    </g>
+  </g>
+
+  <!-- Title, Specs & Calibration Band (page space - never rotated) -->
+  <g>
+    <line x1="-182.09" y1="453.69" x2="245.47" y2="453.69" class="band-rule" />
+    <text x="-170.09" y="473.69" class="title-label">Single-Cut Vintage - 1:1 Scale Print Template</text>
+    <text x="-170.09" y="486.69" class="text-label">Scale: 628.6mm (24.75") | Joint: 38.1mm W x 101.6mm D | Saddle Y: 252.4mm</text>
+    <text x="-170.09" y="496.69" class="text-label">Date: 2026-07-27 | Printable 100% True Scale (Do Not Scale Page)</text>
+
+    <!-- 100mm x 100mm Ruler Calibration Box -->
+    <g transform="translate(-170.09, 505.69)">
+      <rect x="0" y="0" width="100" height="100" class="calibration-box" />
+      <text x="5" y="15" class="text-label" font-weight="bold">CALIBRATION BOX</text>
+      <text x="5" y="30" class="text-label">100 mm x 100 mm</text>
+      <text x="5" y="45" class="text-label">Measure with ruler</text>
+      <text x="5" y="60" class="text-label">to verify 100% print</text>
+    </g>
+  </g>
+</svg>

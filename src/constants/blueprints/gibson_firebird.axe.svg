@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:project="https://axe-shaper.app/ns/project/1"
+  width="432.06mm"
+  height="693.14mm"
+  viewBox="-172.81 -34.90 432.06 693.14"
+>
+  <metadata>
+    <project:name>Firebird-Style</project:name>
+    <project:units>millimeters</project:units>
+    <project:schemaVersion>1</project:schemaVersion>
+    <project:appVersion>1.0.0</project:appVersion>
+    <project:data>eyJzY2hlbWFWZXJzaW9uIjoxLCJhcHBWZXJzaW9uIjoiMS4wLjAiLCJtZXRhZGF0YSI6eyJjcmVhdGVkIjoiMjAyNi0wNy0yN1QyMzowNjo1NS40MjdaIiwibW9kaWZpZWQiOiIyMDI2LTA3LTI3VDIzOjA2OjU1LjQyN1oiLCJhdXRob3IiOiJBeGUgU2hhcGVyIEx1dGhpZXIifSwic2V0dGluZ3MiOnsibmFtZSI6IkZpcmViaXJkLVN0eWxlIiwidW5pdERpc3BsYXkiOiJtbSIsImNhbnZhc09yaWVudGF0aW9uIjoidmVydGljYWwiLCJzeW1tZXRyeSI6eyJtb2RlIjoibm9uZSIsInNvdXJjZVNpZGUiOiJsZWZ0In0sInNob3dDZW50ZXJBeGlzIjp0cnVlLCJzaG93R2hvc3RHdWlkZSI6dHJ1ZSwic2hvd0hhcmR3YXJlQ2F2aXRpZXMiOnRydWUsInNob3dEaW1lbnNpb25zIjp0cnVlLCJzaG93R3JpZCI6dHJ1ZSwiZ3JpZFNpemVNbSI6NTAsImZpbmlzaFN0eWxlIjoic3VuYnVyc3QiLCJib2R5Q29sb3IiOiIjM2I4MmY2Iiwic2Vjb25kYXJ5Q29sb3IiOiIjZjU5ZTBiIiwiYm9keUZpbGxPcGFjaXR5IjowLjM1LCJwaWNrZ3VhcmRFbmFibGVkIjp0cnVlLCJwaWNrZ3VhcmRDb2xvciI6IiNmZmZmZmYifSwiYWN0aXZlVGVtcGxhdGVJZCI6ImdpYnNvbl9maXJlYmlyZCIsImNvbnRvdXIiOnsiYW5jaG9ycyI6W3siaWQiOiJzY19wb2NrZXRfbGVmdCIsInBvc2l0aW9uIjp7IngiOi0xOS4wNSwieSI6MH0sImhhbmRsZU91dCI6eyJ4IjotNC42NDg5Mjg1NzE0Mjg1NTksInkiOjAuNTA5NDM1NzE0Mjg1NzE0N30sImhhbmRsZU1vZGUiOiJjb3JuZXIiLCJsb2NrZWQiOnRydWUsInNlbWFudGljUm9sZSI6Im5lY2tfcG9ja2V0X2xlZnQifSx7ImlkIjoiYW5jaG9yXzE3ODUxNTAxOTg3NjlfNzN2djciLCJwb3NpdGlvbiI6eyJ4IjotMjguMDI3NjU3MTQyODU3MTUsInkiOi0wLjAxNjE1ODkyODU3MTQyODUzMn0sImhhbmRsZUluIjp7IngiOjUuODg1MTg1NzE0Mjg1NzA2LCJ5IjowLjIzNTcxMjUwMDAwMDAwMDR9LCJoYW5kbGVPdXQiOnsieCI6LTEuOTE0OTMzNzU0MTQyNjk2NSwieSI6MzEuNzY4NzYwNTYxNTA3MDl9LCJoYW5kbGVNb2RlIjoiY29ybmVyIiwic2VtYW50aWNSb2xlIjoiY3VzdG9tIn0seyJpZCI6InNjX3VwcGVyX3Nob3VsZGVyIiwicG9zaXRpb24iOnsieCI6LTcyLjcwMzc0Mjg1NzE0Mjg3LCJ5Ijo0Mi4zNTQwNTcxNDI4NTcxNH0sImhhbmRsZUluIjp7IngiOjIwLjQ3Mzk5OTk5OTk5OTk5NywieSI6LTcuOTgyNTc4NTcxNDI4NTc2fSwiaGFuZGxlT3V0Ijp7IngiOi0xOC40NTE2MDM1MzAzMjk0LCJ5Ijo3LjE5NDA2OTMwNDk1NzY3MX0sImhhbmRsZU1vZGUiOiJzbW9vdGgifSx7ImlkIjoiYW5jaG9yXzE3ODUxNTAxOTQ2NDRfYTNpZmMiLCJwb3NpdGlvbiI6eyJ4IjotMTI4LjEyMzMxNzg1NzE0Mjg3LCJ5Ijo5Ny4yNDQ5MjMyMTQyODU3Mn0sImhhbmRsZUluIjp7IngiOjIuMTIyMTE4MjU5MjgxNDY2LCJ5IjotMzguNDUwMTMwNDQ5MDY2MDN9LCJoYW5kbGVPdXQiOnsieCI6LTAuOTkzOTkyNTgwNTU0ODk0MywieSI6MTguMDA5OTAzMTgwNzM5ODh9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwic2VtYW50aWNSb2xlIjoiY3VzdG9tIn0seyJpZCI6ImFuY2hvcl8xNzg1MTUwMzM5OTk1X2dmd2EzIiwicG9zaXRpb24iOnsieCI6LTEwOC4zNzc2MDA2ODU0MTYxNywieSI6MTY0LjQyNDAwODYzNTU1NDg4fSwiaGFuZGxlSW4iOnsieCI6LTEyLjY0OTg2MDkzOTQ2MzIwNCwieSI6LTI1LjMxOTA3NTk5NzE4OTkyN30sImhhbmRsZU91dCI6eyJ4IjoxMi4yMDUyNjc3ODc5OTU4NTYsInkiOjI0LjQyOTIwOTQ3MjY3MjI1NX0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImlkIjoic2NfdXBwZXJfYm91dCIsInBvc2l0aW9uIjp7IngiOi05MS43NDk3ODU3MTQyODU3MiwieSI6MjM0Ljg4MTM3MTQyODU3MTR9LCJoYW5kbGVJbiI6eyJ4IjowLjA0OTIwMjYyMzc0NjAwNDgxLCJ5IjotMTguMjA1MTI2Njc1ODg4NDU0fSwiaGFuZGxlT3V0Ijp7IngiOi0wLjAzNzg4NTg0OTc3MDQ2NzM3LCJ5IjoxNC4wMTc4ODQ0NDk3MzAwMjN9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwic2VtYW50aWNSb2xlIjoidXBwZXJfaG9ybl9sZWZ0In0seyJpZCI6ImFuY2hvcl8xNzg1MTUwMzM1OTE4X3o2Ymt4IiwicG9zaXRpb24iOnsieCI6LTExNS42ODI0ODQwMzAxODUwMSwieSI6MzE1LjkyMTg4Mjk4MDE1NDd9LCJoYW5kbGVJbiI6eyJ4IjoxMi44NDgyNTUwOTkzNDczOTgsInkiOi0yNS41NTQyMzIwMDE4NzQ5NzZ9LCJoYW5kbGVPdXQiOnsieCI6LTkuOTA3OTQzNTAxMDQ4ODYyLCJ5IjoxOS43MDYxNjkwNDIzNzMxfSwiaGFuZGxlTW9kZSI6InNtb290aCIsInNlbWFudGljUm9sZSI6ImN1c3RvbSJ9LHsiaWQiOiJzY19sb3dlcl9ib3V0X2xlZnQiLCJwb3NpdGlvbiI6eyJ4IjotMTU3LjI2MjQ3MTQyODU3MTQyLCJ5Ijo0MjIuMjI0NjE0Mjg1NzE0Mjd9LCJoYW5kbGVJbiI6eyJ4IjowLjkxMzYyNTQwMDkxMzg0ODEsInkiOi0yNC4yMzA1ODQwMzcxMzAwM30sImhhbmRsZU91dCI6eyJ4IjotMC41NTAyMDA0NjYzNDY5NTA2LCJ5IjoxNC41OTIwNjIxNTU2MTk1NDR9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwic2VtYW50aWNSb2xlIjoibG93ZXJfYm91dF9sZWZ0In0seyJpZCI6ImFuY2hvcl8xNzg1MTUwNDU5NjI4X2Y4bG43IiwicG9zaXRpb24iOnsieCI6LTEyNS4yNzk0NzUzNDk3NjAxOSwieSI6NDY4LjI2MDIwMDE4ODE0MzI0fSwiaGFuZGxlSW4iOnsieCI6LTI3LjQyMjM3ODAwMjM2MDIyMiwieSI6LTguNjk2MTYzMjc2MDYwNDk3fSwiaGFuZGxlT3V0Ijp7IngiOjMxLjQ0MjkzNTgzMDg3MjQ0MywieSI6OS45NzExNTk0NjEwOTUwOH0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImlkIjoic2NfdGFpbF9jZW50ZXIiLCJwb3NpdGlvbiI6eyJ4IjotMC4zMjMyODU3MTQyODU3MDI4NSwieSI6NDQ5Ljg1OTk4NTcxNDI4NTd9LCJoYW5kbGVJbiI6eyJ4IjotNDUuNDMxOTI4NTcxNDI4NTcsInkiOjEzLjEyNzA0Mjg1NzE0Mjg5N30sImhhbmRsZU91dCI6eyJ4Ijo0NS40MzE5Mjg1NzE0Mjg1NywieSI6LTEzLjEyNzA0Mjg1NzE0Mjg5N30sImhhbmRsZU1vZGUiOiJzeW1tZXRyaWMiLCJzZW1hbnRpY1JvbGUiOiJ0YWlsX2NlbnRlciJ9LHsiaWQiOiJhbmNob3JfMTc4NTE1MDQ1NDk2OF9sMTA1ayIsInBvc2l0aW9uIjp7IngiOjEwOC40OTY3ODIxNDI4NTcxMywieSI6NDEwLjIyNzgxOTY0Mjg1NzA3fSwiaGFuZGxlSW4iOnsieCI6LTM0LjczMTk2NzI0MzM4MjMxNCwieSI6MTQuMTkyMTU1NDU5NjUzOTczfSwiaGFuZGxlT3V0Ijp7IngiOjUyLjM1MjgxNzg1NzE0Mjg4LCJ5IjotMjEuMzkyMzc2Nzg1NzE0MjczfSwiaGFuZGxlTW9kZSI6InNtb290aCIsInNlbWFudGljUm9sZSI6ImN1c3RvbSJ9LHsiaWQiOiJzY19sb3dlcl9ib3V0X3JpZ2h0IiwicG9zaXRpb24iOnsieCI6MTc1LjIyMTgyODU3MTQyODU3LCJ5IjozNTAuNjMyMTU3MTQyODU3MX0sImhhbmRsZUluIjp7IngiOjEuOTU5NTc4NjIyMjk3ODU4LCJ5IjoyNC4xNDQ2MTMzNjU0MTI0MTh9LCJoYW5kbGVPdXQiOnsieCI6LTEuNjM0NTI5MDAwNjQxMzgzLCJ5IjotMjAuMTM5NTY5OTU5NTY3MjZ9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwic2VtYW50aWNSb2xlIjoibG93ZXJfYm91dF9yaWdodCJ9LHsiaWQiOiJhbmNob3JfMTc4NTE1MDU0MDQxNV9rM3dvOSIsInBvc2l0aW9uIjp7IngiOjE1MC44NTM3NDQ1MDM0NjY0NiwieSI6Mjg2LjExNDY5OTM5MTM5NjF9LCJoYW5kbGVJbiI6eyJ4Ijo3Ljg0NTIxNjA2Mjc0OTUyNCwieSI6MjAuNzczNzU5ODk1OTcyNTU3fSwiaGFuZGxlT3V0Ijp7IngiOi0xMC44MDU3MDg5MDYxOTk2NjYsInkiOi0yOC42MTMwMDQ0NzY1NzY3NjZ9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwic2VtYW50aWNSb2xlIjoiY3VzdG9tIn0seyJpZCI6InNjX3dhaXN0X3JpZ2h0IiwicG9zaXRpb24iOnsieCI6MTMxLjY0NzksInkiOjIwMy45Njg2NDI4NTcxNDI4N30sImhhbmRsZUluIjp7IngiOjAuNTI1NTg4MzY3ODIwNTM1LCJ5Ijo0MS44ODA3MzYwMTIxNzE5NjV9LCJoYW5kbGVPdXQiOnsieCI6LTAuMzEyMTg3NTI3ODU0ODAzMiwieSI6LTI0Ljg3NjIwMzk2NjYwNjgxM30sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJ3YWlzdF9yaWdodCJ9LHsiaWQiOiJhbmNob3JfMTc4NTE1MDUzNjI2MV9rOWhscSIsInBvc2l0aW9uIjp7IngiOjE1OC40MjUzOTI4NTcxNDI4NywieSI6MTAwLjA0NTYzMDM1NzE0Mjg1fSwiaGFuZGxlSW4iOnsieCI6LTkuMDA5Njk1NTI5MzE5OTczLCJ5IjoyNy4wNzMwMDA0NjQyMDA4MX0sImhhbmRsZU91dCI6eyJ4IjoxNS4yMDQ3MzU3MTQyODU3MjMsInkiOi00NS42ODgzMTYwNzE0Mjg1OH0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImlkIjoiYW5jaG9yXzE3ODUwNzI2NDI5MTNfa2RwNzAiLCJwb3NpdGlvbiI6eyJ4IjoxNzYuODI1MTI4NTcxNDI4NiwieSI6OS41Mzk0fSwiaGFuZGxlSW4iOnsieCI6Mi40MjM5ODI5ODU3Nzg1OTA0LCJ5IjoyNS4wOTkwMzM5Nzc5MDExOTd9LCJoYW5kbGVPdXQiOnsieCI6LTIuMTg5MDQ5MTQyODIzOTk3OCwieSI6LTIyLjY2NjQyMDk4NDU0NjI4NX0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImlkIjoic2NfY3V0YXdheV9ob3JuX3RpcCIsInBvc2l0aW9uIjp7IngiOjE0MS41OTgzODU3MTQyODU3NCwieSI6LTE4Ljk4Njc3MTQyODU3MTQzN30sImhhbmRsZUluIjp7IngiOjEyLjMyNzQzMzMxODgzNjE2NCwieSI6LTAuOTE3NzcxNDI4NjAyNzg3OX0sImhhbmRsZU91dCI6eyJ4IjotMzUuMjk4NjQyNzUzNjcwNjU2LCJ5IjoyLjYyNzk2NjgyNDA2NTA2N30sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJ1cHBlcl9ob3JuX3JpZ2h0In0seyJpZCI6ImFuY2hvcl8xNzg1MDcyNTc2NTg4X2NocGo4IiwicG9zaXRpb24iOnsieCI6NjUuMzAyNTQyODU3MTQyODUsInkiOjQxLjA5ODU4NTcxNDI4NTcyfSwiaGFuZGxlSW4iOnsieCI6MjkuNzY5NzY4Njk0Mzk1MjcsInkiOi0wLjMzOTExMTAwNjA4ODA3NDd9LCJoYW5kbGVPdXQiOnsieCI6LTI1LjE3Njk4MTczODE5MTgzNCwieSI6MC4yODY3OTQwMTg5NjQxNjg4NH0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImlkIjoiYW5jaG9yXzE3ODUwNzI1MTI2NDdfaWljbzUiLCJwb3NpdGlvbiI6eyJ4IjoyNy45MDEzMTQyODU3MTQyOSwieSI6MC45MDk2NDI4NTcxNDI4NX0sImhhbmRsZUluIjp7IngiOjAuNDI2OTg1NzE0Mjg1NzA2MywieSI6MjIuMzYxNzE0Mjg1NzE0MjkyfSwiaGFuZGxlT3V0Ijp7IngiOi0xLjkxNTQyMDU3MjkxNjY2OTgsInkiOi0wLjAxMDQ1NDQyNzA4MzMzMzMyOX0sImhhbmRsZU1vZGUiOiJjb3JuZXIiLCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImlkIjoic2NfcG9ja2V0X3JpZ2h0IiwicG9zaXRpb24iOnsieCI6MTkuMDUsInkiOjB9LCJoYW5kbGVJbiI6eyJ4IjoxLjEyNTg1ODMzMzMzMzMzMzQsInkiOjB9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwibG9ja2VkIjp0cnVlLCJzZW1hbnRpY1JvbGUiOiJuZWNrX3BvY2tldF9yaWdodCJ9XSwiY2xvc2VkIjp0cnVlfSwibmVja1ByZXNldElkIjoiZ2lic29uX2ZpcmViaXJkXzE5IiwiYnJpZGdlUHJlc2V0SWQiOiJ0dW5lX29fbWF0aWNfZmlyZWJpcmQiLCJwaWNrdXBzIjpbeyJpZCI6InBfbmVjayIsInR5cGUiOiJodW1idWNrZXIiLCJvZmZzZXRZTW0iOjY1LCJvZmZzZXRYTW0iOjAsImFuZ2xlRGVncmVlcyI6MCwid2lkdGhNbSI6NzAsImhlaWdodE1tIjozOH0seyJpZCI6InBfYnJpZGdlIiwidHlwZSI6Imh1bWJ1Y2tlciIsIm9mZnNldFlNbSI6MTcxLCJvZmZzZXRYTW0iOjAsImFuZ2xlRGVncmVlcyI6MCwid2lkdGhNbSI6NzAsImhlaWdodE1tIjozOH1dfQ==</project:data>
+  </metadata>
+
+  <style>
+    .body-line { fill: none; stroke: #111111; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .neck-pocket { fill: none; stroke: #dc3545; stroke-width: 1.2; stroke-dasharray: 4,4; }
+    .pickup-rout { fill: none; stroke: #28a745; stroke-width: 1.0; }
+    .bridge-rout { fill: none; stroke: #007bff; stroke-width: 1.2; }
+    .center-axis { fill: none; stroke: #6c757d; stroke-width: 0.5; stroke-dasharray: 6,4; opacity: 0.7; }
+    .calibration-box { fill: none; stroke: #d9534f; stroke-width: 0.8; stroke-dasharray: 3,3; }
+    .band-rule { fill: none; stroke: #adb5bd; stroke-width: 0.5; }
+    .text-label { font-family: monospace, sans-serif; font-size: 5px; fill: #d9534f; }
+    .axis-label { font-family: monospace, sans-serif; font-size: 5px; fill: #6c757d; }
+    .title-label { font-family: sans-serif; font-size: 10px; font-weight: bold; fill: #222222; }
+  </style>
+
+  <!-- Guitar Geometry Group -->
+  <g>
+    <!-- Centerline Alignment Axis (X = 0) -->
+    <line x1="0" y1="-34.90" x2="0" y2="493.23" class="center-axis" />
+
+    <!-- Joint Line Marker (Y = 0) -->
+    <line x1="-172.81" y1="0" x2="179.25" y2="0" class="center-axis" />
+    <text x="183.25" y="3" class="axis-label">Y=0 (Joint Line)</text>
+
+    <!-- Theoretical Saddle Line Marker -->
+    <line x1="-172.81" y1="204.50" x2="179.25" y2="204.50" class="center-axis" stroke="#007bff" />
+    <text x="183.25" y="207.50" class="axis-label" fill="#007bff">Scale Line (204.5mm)</text>
+
+    <!-- Outer Custom Body Profile -->
+    <path d="M -19.05 0.00 C -23.70 0.51, -22.14 0.22, -28.03 -0.02 C -29.94 31.75, -52.23 34.37, -72.70 42.35 C -91.16 49.55, -126.00 58.79, -128.12 97.24 C -129.12 115.25, -121.03 139.10, -108.38 164.42 C -96.17 188.85, -91.70 216.68, -91.75 234.88 C -91.79 248.90, -102.83 290.37, -115.68 315.92 C -125.59 335.63, -156.35 397.99, -157.26 422.22 C -157.81 436.82, -152.70 459.56, -125.28 468.26 C -93.84 478.23, -45.76 462.99, -0.32 449.86 C 45.11 436.73, 73.76 424.42, 108.50 410.23 C 160.85 388.84, 177.18 374.78, 175.22 350.63 C 173.59 330.49, 158.70 306.89, 150.85 286.11 C 140.05 257.50, 132.17 245.85, 131.65 203.97 C 131.34 179.09, 149.42 127.12, 158.43 100.05 C 173.63 54.36, 179.25 34.64, 176.83 9.54 C 174.64 -13.13, 153.93 -19.90, 141.60 -18.99 C 106.30 -16.36, 95.07 40.76, 65.30 41.10 C 40.13 41.39, 28.33 23.27, 27.90 0.91 C 25.99 0.90, 20.18 0.00, 19.05 0.00 C 19.05 0.00, -19.05 0.00, -19.05 0.00 Z" class="body-line" />
+
+    <!-- Immutable Neck Pocket Cavity -->
+    <rect
+      x="-19.05"
+      y="0"
+      width="38.1"
+      height="82"
+      rx="6.35"
+      ry="6.35"
+      class="neck-pocket"
+    />
+
+    <!-- Pickup Routing Cavities -->
+    
+          <g transform="translate(0, 65) rotate(0)">
+            <rect x="-35.00" y="-19.00" width="70" height="38" rx="4" ry="4" class="pickup-rout" />
+            <circle cx="0" cy="0" r="1.5" fill="#28a745" />
+          </g>
+        
+          <g transform="translate(0, 171) rotate(0)">
+            <rect x="-35.00" y="-19.00" width="70" height="38" rx="4" ry="4" class="pickup-rout" />
+            <circle cx="0" cy="0" r="1.5" fill="#28a745" />
+          </g>
+        
+
+    <!-- Bridge Hardware Plate, Saddle Line & Mounting Holes -->
+    <g transform="translate(0, 207.50)">
+      <rect x="-42.00" y="-7.00" width="84" height="14" class="bridge-rout" />
+      <line x1="-37.00" y1="0" x2="37.00" y2="0" stroke="#dc3545" stroke-width="1.2" />
+      <circle cx="-37" cy="0" r="2" fill="#007bff" /><circle cx="37" cy="0" r="2" fill="#007bff" /><circle cx="-41" cy="39.5" r="2" fill="#007bff" /><circle cx="41" cy="39.5" r="2" fill="#007bff" />
+    </g>
+  </g>
+
+  <!-- Title, Specs & Calibration Band (page space - never rotated) -->
+  <g>
+    <line x1="-172.81" y1="493.23" x2="259.25" y2="493.23" class="band-rule" />
+    <text x="-160.81" y="513.23" class="title-label">Firebird-Style - 1:1 Scale Print Template</text>
+    <text x="-160.81" y="526.23" class="text-label">Scale: 628.6mm (24.75") | Joint: 38.1mm W x 82mm D | Saddle Y: 207.5mm</text>
+    <text x="-160.81" y="536.23" class="text-label">Date: 2026-07-27 | Printable 100% True Scale (Do Not Scale Page)</text>
+
+    <!-- 100mm x 100mm Ruler Calibration Box -->
+    <g transform="translate(-160.81, 545.23)">
+      <rect x="0" y="0" width="100" height="100" class="calibration-box" />
+      <text x="5" y="15" class="text-label" font-weight="bold">CALIBRATION BOX</text>
+      <text x="5" y="30" class="text-label">100 mm x 100 mm</text>
+      <text x="5" y="45" class="text-label">Measure with ruler</text>
+      <text x="5" y="60" class="text-label">to verify 100% print</text>
+    </g>
+  </g>
+</svg>

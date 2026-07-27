@@ -1,5 +1,5 @@
 import React from 'react';
-import { Save, Upload, Undo2, Redo2, RotateCcw, FileCode, Disc } from 'lucide-react';
+import { Save, Upload, Undo2, Redo2, RotateCcw, Disc } from 'lucide-react';
 import type { GuitarProject } from '../types/guitar';
 import { snapGridToUnit } from '../utils/units';
 
@@ -14,7 +14,6 @@ interface HeaderProps {
   onResetTemplate: () => void;
   onSave: () => void;
   onOpenFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onOpenTemplateCodeModal: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -28,7 +27,6 @@ export const Header: React.FC<HeaderProps> = ({
   onResetTemplate,
   onSave,
   onOpenFile,
-  onOpenTemplateCodeModal,
 }) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -128,10 +126,6 @@ export const Header: React.FC<HeaderProps> = ({
 
         <button className="btn btn-sm" onClick={onResetTemplate} title="Reset to baseline blueprint">
           <RotateCcw size={15} /> Reset
-        </button>
-
-        <button className="btn btn-sm" onClick={onOpenTemplateCodeModal} title="Export TypeScript code for this design as a baseline template">
-          <FileCode size={15} /> Export Template TS
         </button>
 
         <input

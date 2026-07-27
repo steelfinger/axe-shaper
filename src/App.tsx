@@ -9,7 +9,6 @@ import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegme
 import { HistoryManager } from './utils/history';
 import { downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
 import { getUserTemplate } from './utils/userTemplates';
-import { TemplateCodeModal } from './components/TemplateCodeModal';
 import { SaveInfoModal } from './components/SaveInfoModal';
 
 const INITIAL_PROJECT: GuitarProject = {
@@ -86,7 +85,6 @@ export function App(): React.JSX.Element {
   const [project, setProject] = useState<GuitarProject>(INITIAL_PROJECT);
   const [selectedAnchorId, setSelectedAnchorId] = useState<string | null>(null);
   const [selectedSegmentIndex, setSelectedSegmentIndex] = useState<number | null>(null);
-  const [isTemplateCodeModalOpen, setIsTemplateCodeModalOpen] = useState(false);
   const [isSaveInfoModalOpen, setIsSaveInfoModalOpen] = useState(false);
   // In-memory only - reappears on reload, deliberately not persisted to localStorage.
   const hasSeenSaveInfoRef = useRef(false);
@@ -377,7 +375,6 @@ export function App(): React.JSX.Element {
         onResetTemplate={handleResetTemplate}
         onSave={handleSaveProject}
         onOpenFile={handleOpenFile}
-        onOpenTemplateCodeModal={() => setIsTemplateCodeModalOpen(true)}
       />
 
       <Sidebar
@@ -420,12 +417,6 @@ export function App(): React.JSX.Element {
         onDeleteSelectedAnchor={handleDeleteSelectedAnchor}
         onAddAnchorOnSegment={handleAddAnchorOnSegment}
         onToggleSegmentStraight={handleToggleSegmentStraight}
-      />
-
-      <TemplateCodeModal
-        project={project}
-        isOpen={isTemplateCodeModalOpen}
-        onClose={() => setIsTemplateCodeModalOpen(false)}
       />
 
       <SaveInfoModal

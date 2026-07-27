@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:project="https://axe-shaper.app/ns/project/1"
+  width="424.66mm"
+  height="670.15mm"
+  viewBox="-178.73 -80.24 424.66 670.15"
+>
+  <metadata>
+    <project:name>S-Style Standard</project:name>
+    <project:units>millimeters</project:units>
+    <project:schemaVersion>1</project:schemaVersion>
+    <project:appVersion>1.0.0</project:appVersion>
+    <project:data>eyJzY2hlbWFWZXJzaW9uIjoxLCJhcHBWZXJzaW9uIjoiMS4wLjAiLCJtZXRhZGF0YSI6eyJjcmVhdGVkIjoiMjAyNi0wNy0yN1QyMzowNjo1NS40MjdaIiwibW9kaWZpZWQiOiIyMDI2LTA3LTI3VDIzOjA2OjU1LjQyN1oiLCJhdXRob3IiOiJBeGUgU2hhcGVyIEx1dGhpZXIifSwic2V0dGluZ3MiOnsibmFtZSI6IlMtU3R5bGUgU3RhbmRhcmQiLCJ1bml0RGlzcGxheSI6Im1tIiwiY2FudmFzT3JpZW50YXRpb24iOiJ2ZXJ0aWNhbCIsInN5bW1ldHJ5Ijp7Im1vZGUiOiJub25lIiwic291cmNlU2lkZSI6ImxlZnQifSwic2hvd0NlbnRlckF4aXMiOnRydWUsInNob3dHaG9zdEd1aWRlIjp0cnVlLCJzaG93SGFyZHdhcmVDYXZpdGllcyI6dHJ1ZSwic2hvd0RpbWVuc2lvbnMiOnRydWUsInNob3dHcmlkIjp0cnVlLCJncmlkU2l6ZU1tIjo1MCwiZmluaXNoU3R5bGUiOiJzdW5idXJzdCIsImJvZHlDb2xvciI6IiMzYjgyZjYiLCJzZWNvbmRhcnlDb2xvciI6IiNmNTllMGIiLCJib2R5RmlsbE9wYWNpdHkiOjAuMzUsInBpY2tndWFyZEVuYWJsZWQiOnRydWUsInBpY2tndWFyZENvbG9yIjoiI2ZmZmZmZiJ9LCJhY3RpdmVUZW1wbGF0ZUlkIjoic19zdHlsZSIsImNvbnRvdXIiOnsiYW5jaG9ycyI6W3siaWQiOiJzX3BvY2tldF9sZWZ0IiwicG9zaXRpb24iOnsieCI6LTI3Ljc4LCJ5IjowfSwiaGFuZGxlT3V0Ijp7IngiOjAuMjg1NywieSI6MTAuMjg1N30sImhhbmRsZU1vZGUiOiJjb3JuZXIiLCJsb2NrZWQiOnRydWUsInNlbWFudGljUm9sZSI6Im5lY2tfcG9ja2V0X2xlZnQiLCJoYW5kbGVJbiI6eyJ4IjoyNS40NjYxLCJ5IjotMC4yNDE1fX0seyJpZCI6InNfaG9ybl9zY29vcF9sZWZ0IiwicG9zaXRpb24iOnsieCI6LTUxLjkzMzksInkiOjE5Ljc4ODZ9LCJoYW5kbGVJbiI6eyJ4IjoxOC4yNzkyLCJ5IjowLjg2NDl9LCJoYW5kbGVPdXQiOnsieCI6LTE0Ljg3MTIsInkiOi0wLjcwMzd9LCJoYW5kbGVNb2RlIjoic21vb3RoIn0seyJpZCI6ImFuY2hvcl8xNzg1MDc2MDc4MDU3X3NmMWo3IiwicG9zaXRpb24iOnsieCI6LTkwLjUzMTEsInkiOi0xMy4yNjM2fSwiaGFuZGxlSW4iOnsieCI6Ny4wNDE5LCJ5IjoyMC4wNDA1fSwiaGFuZGxlT3V0Ijp7IngiOi04LjAzLCJ5IjotMjIuODUyNX0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImlkIjoic191cHBlcl9ob3JuX3RpcCIsInBvc2l0aW9uIjp7IngiOi0xMDcuMTMyMywieSI6LTYxLjg4MzJ9LCJoYW5kbGVJbiI6eyJ4IjoxOS4wNjQyLCJ5IjoyLjQxNTN9LCJoYW5kbGVPdXQiOnsieCI6LTI2LjUxNzYsInkiOi0zLjM1OTZ9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwic2VtYW50aWNSb2xlIjoidXBwZXJfaG9ybl9sZWZ0In0seyJpZCI6InNfdXBwZXJfYm91dF9vdXRlcl9sZWZ0IiwicG9zaXRpb24iOnsieCI6LTE0MS43MTQzLCJ5IjoxNS43MTQzfSwiaGFuZGxlSW4iOnsieCI6LTMuMDk1MSwieSI6LTM1LjIxOTZ9LCJoYW5kbGVPdXQiOnsieCI6NC4xNDI5LCJ5Ijo0Ny4xNDI5fSwiaGFuZGxlTW9kZSI6InNtb290aCJ9LHsiaWQiOiJzX3dhaXN0X2xlZnQiLCJwb3NpdGlvbiI6eyJ4IjotMTE1LjQyODYsInkiOjEzNC44NTcxfSwiaGFuZGxlSW4iOnsieCI6MC40ODQ3LCJ5IjotMzcuODkyOH0sImhhbmRsZU91dCI6eyJ4IjotMC40OTYsInkiOjM4Ljc3NjF9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwic2VtYW50aWNSb2xlIjoid2Fpc3RfbGVmdCJ9LHsiaWQiOiJzX2xvd2VyX2JvdXRfbGVmdCIsInBvc2l0aW9uIjp7IngiOi0xNjMuNzI1LCJ5IjozMDMuNzIyOX0sImhhbmRsZUluIjp7IngiOi0wLjAwOTEsInkiOi03MC4wMDF9LCJoYW5kbGVPdXQiOnsieCI6MC4wMDg5LCJ5Ijo2OC42NzUxfSwiaGFuZGxlTW9kZSI6InNtb290aCIsInNlbWFudGljUm9sZSI6Imxvd2VyX2JvdXRfbGVmdCJ9LHsiaWQiOiJzX3RhaWxfY2VudGVyIiwicG9zaXRpb24iOnsieCI6Mi4yNjcxLCJ5Ijo0MDkuMTU2NH0sImhhbmRsZUluIjp7IngiOi0xMzQuNDM3OSwieSI6LTAuNzU1N30sImhhbmRsZU91dCI6eyJ4IjoxMzQuNDM3OSwieSI6MC43NTU3fSwiaGFuZGxlTW9kZSI6InN5bW1ldHJpYyIsInNlbWFudGljUm9sZSI6InRhaWxfY2VudGVyIn0seyJpZCI6InNfbG93ZXJfYm91dF9yaWdodCIsInBvc2l0aW9uIjp7IngiOjE2NS4xNTQzLCJ5IjozMDUuNzc2NH0sImhhbmRsZUluIjp7IngiOi0wLjc0ODYsInkiOjYzLjgwNDN9LCJoYW5kbGVPdXQiOnsieCI6MC43NzA2LCJ5IjotNjUuNjc2OH0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJsb3dlcl9ib3V0X3JpZ2h0In0seyJpZCI6InNfd2Fpc3RfcmlnaHQiLCJwb3NpdGlvbiI6eyJ4IjoxMTcuMTQyOSwieSI6MTQ5LjE0Mjl9LCJoYW5kbGVJbiI6eyJ4IjotMC42NTI1LCJ5IjozMy4yMDE3fSwiaGFuZGxlT3V0Ijp7IngiOjAuNjY1MywieSI6LTMzLjg1MTh9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwic2VtYW50aWNSb2xlIjoid2Fpc3RfcmlnaHQifSx7ImlkIjoic191cHBlcl9ib3V0X291dGVyX3JpZ2h0IiwicG9zaXRpb24iOnsieCI6MTQyLjcxNDMsInkiOjUwLjI4NTd9LCJoYW5kbGVJbiI6eyJ4IjotMS4xMzMyLCJ5Ijo0NC44NzJ9LCJoYW5kbGVPdXQiOnsieCI6MC41NDU5LCJ5IjotMjEuNjE1Nn0sImhhbmRsZU1vZGUiOiJzbW9vdGgifSx7ImlkIjoic190cmVibGVfaG9ybl90aXAiLCJwb3NpdGlvbiI6eyJ4IjoxMTYuNzE0MywieSI6NC4xNDI5fSwiaGFuZGxlSW4iOnsieCI6MjEuNTM2MiwieSI6LTAuNTc5MX0sImhhbmRsZU91dCI6eyJ4IjotMjIuOTQ1MywieSI6MC42MTd9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwic2VtYW50aWNSb2xlIjoidXBwZXJfaG9ybl9yaWdodCJ9LHsiaWQiOiJhbmNob3JfMTc4NTA3NTk3MTUwMV82bmE1eiIsInBvc2l0aW9uIjp7IngiOjgwLjE3ODEsInkiOjYwLjQyOTJ9LCJoYW5kbGVJbiI6eyJ4IjoyOS43OTU0LCJ5IjotMjAuODIxMX0sImhhbmRsZU91dCI6eyJ4IjotMTcuNzQ3MiwieSI6MTIuNDAxOH0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImlkIjoic19ob3JuX3Njb29wX3JpZ2h0IiwicG9zaXRpb24iOnsieCI6MzAuMDI4MywieSI6NTIuNDIyNX0sImhhbmRsZUluIjp7IngiOjkuNDMyOSwieSI6MTIuMDc2M30sImhhbmRsZU91dCI6eyJ4IjowLjMxOTksInkiOi0zMi41MjE5fSwiaGFuZGxlTW9kZSI6ImNvcm5lciJ9LHsiaWQiOiJzX3BvY2tldF9yaWdodCIsInBvc2l0aW9uIjp7IngiOjI3Ljc4LCJ5IjowfSwiaGFuZGxlSW4iOnsieCI6MC41ODE5LCJ5IjoxMy40NTkyfSwiaGFuZGxlTW9kZSI6ImNvcm5lciIsImxvY2tlZCI6dHJ1ZSwic2VtYW50aWNSb2xlIjoibmVja19wb2NrZXRfcmlnaHQiLCJoYW5kbGVPdXQiOnsieCI6LTIxLjE1MzMsInkiOjAuMjU1MX19XSwiY2xvc2VkIjp0cnVlfSwibmVja1ByZXNldElkIjoiZmVuZGVyX3N0cmF0XzIxIiwiYnJpZGdlUHJlc2V0SWQiOiJ0cmVtb2xvX3N0cmF0IiwicGlja3VwcyI6W3siaWQiOiJwX25lY2siLCJ0eXBlIjoic2luZ2xlX2NvaWwiLCJvZmZzZXRZTW0iOjk1LCJvZmZzZXRYTW0iOjAsImFuZ2xlRGVncmVlcyI6MCwid2lkdGhNbSI6NzAsImhlaWdodE1tIjoxOH0seyJpZCI6InBfbWlkZGxlIiwidHlwZSI6InNpbmdsZV9jb2lsIiwib2Zmc2V0WU1tIjoxNTksIm9mZnNldFhNbSI6MCwiYW5nbGVEZWdyZWVzIjowLCJ3aWR0aE1tIjo3MCwiaGVpZ2h0TW0iOjE4fSx7ImlkIjoicF9icmlkZ2UiLCJ0eXBlIjoic2luZ2xlX2NvaWwiLCJvZmZzZXRZTW0iOjIxNiwib2Zmc2V0WE1tIjowLCJhbmdsZURlZ3JlZXMiOjEwLCJ3aWR0aE1tIjo3MCwiaGVpZ2h0TW0iOjE4fV19</project:data>
+  </metadata>
+
+  <style>
+    .body-line { fill: none; stroke: #111111; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .neck-pocket { fill: none; stroke: #dc3545; stroke-width: 1.2; stroke-dasharray: 4,4; }
+    .pickup-rout { fill: none; stroke: #28a745; stroke-width: 1.0; }
+    .bridge-rout { fill: none; stroke: #007bff; stroke-width: 1.2; }
+    .center-axis { fill: none; stroke: #6c757d; stroke-width: 0.5; stroke-dasharray: 6,4; opacity: 0.7; }
+    .calibration-box { fill: none; stroke: #d9534f; stroke-width: 0.8; stroke-dasharray: 3,3; }
+    .band-rule { fill: none; stroke: #adb5bd; stroke-width: 0.5; }
+    .text-label { font-family: monospace, sans-serif; font-size: 5px; fill: #d9534f; }
+    .axis-label { font-family: monospace, sans-serif; font-size: 5px; fill: #6c757d; }
+    .title-label { font-family: sans-serif; font-size: 10px; font-weight: bold; fill: #222222; }
+  </style>
+
+  <!-- Guitar Geometry Group -->
+  <g>
+    <!-- Centerline Alignment Axis (X = 0) -->
+    <line x1="0" y1="-80.24" x2="0" y2="424.91" class="center-axis" />
+
+    <!-- Joint Line Marker (Y = 0) -->
+    <line x1="-178.73" y1="0" x2="165.92" y2="0" class="center-axis" />
+    <text x="169.92" y="3" class="axis-label">Y=0 (Joint Line)</text>
+
+    <!-- Theoretical Saddle Line Marker -->
+    <line x1="-178.73" y1="257.00" x2="165.92" y2="257.00" class="center-axis" stroke="#007bff" />
+    <text x="169.92" y="260.00" class="axis-label" fill="#007bff">Scale Line (257.0mm)</text>
+
+    <!-- Outer Custom Body Profile -->
+    <path d="M -27.78 0.00 C -27.49 10.29, -33.65 20.65, -51.93 19.79 C -66.81 19.08, -83.49 6.78, -90.53 -13.26 C -98.56 -36.12, -88.07 -59.47, -107.13 -61.88 C -133.65 -65.24, -144.81 -19.51, -141.71 15.71 C -137.57 62.86, -114.94 96.96, -115.43 134.86 C -115.92 173.63, -163.73 233.72, -163.72 303.72 C -163.72 372.40, -132.17 408.40, 2.27 409.16 C 136.71 409.91, 164.41 369.58, 165.15 305.78 C 165.92 240.10, 116.49 182.34, 117.14 149.14 C 117.81 115.29, 141.58 95.16, 142.71 50.29 C 143.26 28.67, 138.25 3.56, 116.71 4.14 C 93.77 4.76, 109.97 39.61, 80.18 60.43 C 62.43 72.83, 39.46 64.50, 30.03 52.42 C 30.35 19.90, 28.36 13.46, 27.78 0.00 C 6.63 0.26, -2.31 -0.24, -27.78 0.00 Z" class="body-line" />
+
+    <!-- Immutable Neck Pocket Cavity -->
+    <rect
+      x="-27.78"
+      y="0"
+      width="55.56"
+      height="76.2"
+      rx="6.35"
+      ry="6.35"
+      class="neck-pocket"
+    />
+
+    <!-- Pickup Routing Cavities -->
+    
+          <g transform="translate(0, 95) rotate(0)">
+            <rect x="-35.00" y="-9.00" width="70" height="18" rx="9" ry="9" class="pickup-rout" />
+            <circle cx="0" cy="0" r="1.5" fill="#28a745" />
+          </g>
+        
+          <g transform="translate(0, 159) rotate(0)">
+            <rect x="-35.00" y="-9.00" width="70" height="18" rx="9" ry="9" class="pickup-rout" />
+            <circle cx="0" cy="0" r="1.5" fill="#28a745" />
+          </g>
+        
+          <g transform="translate(0, 216) rotate(10)">
+            <rect x="-35.00" y="-9.00" width="70" height="18" rx="9" ry="9" class="pickup-rout" />
+            <circle cx="0" cy="0" r="1.5" fill="#28a745" />
+          </g>
+        
+
+    <!-- Bridge Hardware Plate, Saddle Line & Mounting Holes -->
+    <g transform="translate(0, 259.00)">
+      <rect x="-41.75" y="-22.00" width="83.5" height="40" class="bridge-rout" />
+      <line x1="-36.75" y1="0" x2="36.75" y2="0" stroke="#dc3545" stroke-width="1.2" />
+      <circle cx="-28" cy="-8" r="2" fill="#007bff" /><circle cx="-16.8" cy="-8" r="2" fill="#007bff" /><circle cx="-5.6" cy="-8" r="2" fill="#007bff" /><circle cx="5.6" cy="-8" r="2" fill="#007bff" /><circle cx="16.8" cy="-8" r="2" fill="#007bff" /><circle cx="28" cy="-8" r="2" fill="#007bff" />
+    </g>
+  </g>
+
+  <!-- Title, Specs & Calibration Band (page space - never rotated) -->
+  <g>
+    <line x1="-178.73" y1="424.91" x2="245.92" y2="424.91" class="band-rule" />
+    <text x="-166.73" y="444.91" class="title-label">S-Style Standard - 1:1 Scale Print Template</text>
+    <text x="-166.73" y="457.91" class="text-label">Scale: 647.7mm (25.50") | Joint: 55.56mm W x 76.2mm D | Saddle Y: 259.0mm</text>
+    <text x="-166.73" y="467.91" class="text-label">Date: 2026-07-27 | Printable 100% True Scale (Do Not Scale Page)</text>
+
+    <!-- 100mm x 100mm Ruler Calibration Box -->
+    <g transform="translate(-166.73, 476.91)">
+      <rect x="0" y="0" width="100" height="100" class="calibration-box" />
+      <text x="5" y="15" class="text-label" font-weight="bold">CALIBRATION BOX</text>
+      <text x="5" y="30" class="text-label">100 mm x 100 mm</text>
+      <text x="5" y="45" class="text-label">Measure with ruler</text>
+      <text x="5" y="60" class="text-label">to verify 100% print</text>
+    </g>
+  </g>
+</svg>

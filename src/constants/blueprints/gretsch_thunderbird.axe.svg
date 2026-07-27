@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:project="https://axe-shaper.app/ns/project/1"
+  width="394.93mm"
+  height="725.49mm"
+  viewBox="-163.26 -15.43 394.93 725.49"
+>
+  <metadata>
+    <project:name>Thunderbird</project:name>
+    <project:units>millimeters</project:units>
+    <project:schemaVersion>1</project:schemaVersion>
+    <project:appVersion>1.0.0</project:appVersion>
+    <project:data>eyJzY2hlbWFWZXJzaW9uIjoxLCJhcHBWZXJzaW9uIjoiMS4wLjAiLCJtZXRhZGF0YSI6eyJjcmVhdGVkIjoiMjAyNi0wNy0yN1QyMzowNjo1NS40MjdaIiwibW9kaWZpZWQiOiIyMDI2LTA3LTI3VDIzOjA2OjU1LjQyN1oiLCJhdXRob3IiOiJBeGUgU2hhcGVyIEx1dGhpZXIifSwic2V0dGluZ3MiOnsibmFtZSI6IlRodW5kZXJiaXJkIiwidW5pdERpc3BsYXkiOiJtbSIsImNhbnZhc09yaWVudGF0aW9uIjoidmVydGljYWwiLCJzeW1tZXRyeSI6eyJtb2RlIjoibm9uZSIsInNvdXJjZVNpZGUiOiJsZWZ0In0sInNob3dDZW50ZXJBeGlzIjp0cnVlLCJzaG93R2hvc3RHdWlkZSI6dHJ1ZSwic2hvd0hhcmR3YXJlQ2F2aXRpZXMiOnRydWUsInNob3dEaW1lbnNpb25zIjp0cnVlLCJzaG93R3JpZCI6dHJ1ZSwiZ3JpZFNpemVNbSI6NTAsImZpbmlzaFN0eWxlIjoic3VuYnVyc3QiLCJib2R5Q29sb3IiOiIjM2I4MmY2Iiwic2Vjb25kYXJ5Q29sb3IiOiIjZjU5ZTBiIiwiYm9keUZpbGxPcGFjaXR5IjowLjM1LCJwaWNrZ3VhcmRFbmFibGVkIjp0cnVlLCJwaWNrZ3VhcmRDb2xvciI6IiNmZmZmZmYifSwiYWN0aXZlVGVtcGxhdGVJZCI6ImdyZXRzY2hfdGh1bmRlcmJpcmQiLCJjb250b3VyIjp7ImFuY2hvcnMiOlt7ImlkIjoic2dfcG9ja2V0X2xlZnQiLCJwb3NpdGlvbiI6eyJ4IjotMTkuMDUsInkiOjB9LCJoYW5kbGVNb2RlIjoiY29ybmVyIiwibG9ja2VkIjp0cnVlLCJzZW1hbnRpY1JvbGUiOiJuZWNrX3BvY2tldF9sZWZ0IiwiaGFuZGxlSW4iOnsieCI6MjAuMjc0MiwieSI6MC4wNDI0fX0seyJpZCI6ImFuY2hvcl8xNzg1MTU5MDk5MTQ5XzkxMzd2IiwicG9zaXRpb24iOnsieCI6LTIzLjc0ODUzOTc3NTk5NDA3LCJ5IjowLjA0ODIzMzA5MDQzNjQ4NDk0fSwiaGFuZGxlT3V0Ijp7IngiOjAuNjU5NTM0NDgxNzYzODMzOSwieSI6MjAuNDE1NzcyNjM3NjYzNjJ9LCJoYW5kbGVNb2RlIjoiY29ybmVyIiwic2VtYW50aWNSb2xlIjoiY3VzdG9tIn0seyJpZCI6InNnX2hvcm5fc2Nvb3BfbGVmdCIsInBvc2l0aW9uIjp7IngiOi00OS4xODQ1MjM5MjM3NDcxODYsInkiOjM3LjI5MDg0MDgyNDY1NDAyfSwiaGFuZGxlSW4iOnsieCI6MTcuNzAxNjk5MjY3Mzg1MjM0LCJ5IjowLjM1MzYyOTU1NzEyMTc3NjR9LCJoYW5kbGVPdXQiOnsieCI6LTI2LjgwMjAwOTk3NzQxMDU2NywieSI6LTAuNTM1NDI3ODU3ODA3MzAwM30sImhhbmRsZU1vZGUiOiJzbW9vdGgifSx7ImlkIjoic2dfdXBwZXJfaG9ybl90aXBfbGVmdCIsInBvc2l0aW9uIjp7IngiOi0xMTMuMjg4MDc4MTQ1MTU0MzQsInkiOjAuOTI1ODQ5MzI3MDkwNzQ0fSwiaGFuZGxlSW4iOnsieCI6MTguODUwMTA3ODU2NjkzNTYyLCJ5IjowLjExMjA2ODIzMDc0MzMzNDc1fSwiaGFuZGxlT3V0Ijp7IngiOi0xOC4xNTQ4MzIyNDI1ODUyMiwieSI6LTAuMTA3OTM0NjU3MTU2MTQ0OTV9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwic2VtYW50aWNSb2xlIjoidXBwZXJfaG9ybl9sZWZ0In0seyJpZCI6InNnX3VwcGVyX2JvdXRfb3V0ZXJfbGVmdCIsInBvc2l0aW9uIjp7IngiOi0xMzcuMjQyMTE3MzMyMDUxNTIsInkiOjcyLjgxNTc3OTQwNTk2MDM0fSwiaGFuZGxlSW4iOnsieCI6LTAuMzI5ODU1NDg3MTAxODE0NiwieSI6LTM2LjI1Mjg3MDYzNDU5MDczfSwiaGFuZGxlT3V0Ijp7IngiOjAuNTc5MDQyNDAxNDc5OTkxMiwieSI6NjMuNjM5ODM2NTE1MTg3MDV9LCJoYW5kbGVNb2RlIjoic21vb3RoIn0seyJpZCI6InNnX3dhaXN0X2xlZnQiLCJwb3NpdGlvbiI6eyJ4IjotMTEyLjYzOTQwMzU2MTAwNzUsInkiOjIzMi42NDQ0NzI4NDc1Mjk0fSwiaGFuZGxlSW4iOnsieCI6MC45MzgzMDY3MDQxMDM1NjQyLCJ5IjotMzUuMzQyODg1ODU0NTY4MjJ9LCJoYW5kbGVPdXQiOnsieCI6LTAuODU3MTQyODU3MTQyODQwOSwieSI6MzIuMjg1NzE0Mjg1NzE0MjU2fSwiaGFuZGxlTW9kZSI6InNtb290aCIsInNlbWFudGljUm9sZSI6IndhaXN0X2xlZnQifSx7ImlkIjoic2dfbG93ZXJfYm91dF9sZWZ0IiwicG9zaXRpb24iOnsieCI6LTEzNS40ODY2NDI4NTcxNDI4NywieSI6MzYwLjc1MjAxNDI4NTcxNDI3fSwiaGFuZGxlSW4iOnsieCI6MTEuNTMwNjg1NzE0Mjg1NzEsInkiOi00OC42OTA4Mjg1NzE0Mjg1NX0sImhhbmRsZU91dCI6eyJ4IjotMTIuNjQ2MzYxNzM5MjM2ODc1LCJ5Ijo1My40MDIwMTMyNjc0ODI0M30sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJsb3dlcl9ib3V0X2xlZnQifSx7ImlkIjoic2dfbG93ZXJfYm91dF9ib3R0b21fbGVmdCIsInBvc2l0aW9uIjp7IngiOi0xNDMuMTc1MzI4NTcxNDI4NTcsInkiOjUwNi4xMjA2NzE0Mjg1NzEzN30sImhhbmRsZUluIjp7IngiOi01LjA4OTM5NTE5MDYxNTE0OCwieSI6LTQwLjk1NjIxMzk2ODIxNDh9LCJoYW5kbGVPdXQiOnsieCI6Mi45NzQ2NjUzODgyMjU1MjcsInkiOjIzLjkzODIxNDE4MDg2NDU1Nn0sImhhbmRsZU1vZGUiOiJzbW9vdGgifSx7ImlkIjoiYW5jaG9yXzE3ODUxNTk1NjIxNDFfNWV4bXIiLCJwb3NpdGlvbiI6eyJ4IjotMTE4Ljc3ODExMDE4Mzk3MjI1LCJ5Ijo1MjIuNTg1Mzk2Nzg4NDIyOX0sImhhbmRsZUluIjp7IngiOi01Ljk2MjY2MDcyOTgyMDkzMywieSI6NS41NDg2NTI3NDQ5NDg4MDN9LCJoYW5kbGVNb2RlIjoiY29ybmVyIiwic2VtYW50aWNSb2xlIjoiY3VzdG9tIn0seyJpZCI6ImFuY2hvcl8xNzg1MTU5NTQ2MzM5X3ZiajU3IiwicG9zaXRpb24iOnsieCI6LTM4Ljc0ODgxNDIzNTA3NzcyLCJ5Ijo0NTQuMzI3NjMzMTc5MzU2OH0sImhhbmRsZU1vZGUiOiJjb3JuZXIiLCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImlkIjoic2dfdGFpbF9jZW50ZXIiLCJwb3NpdGlvbiI6eyJ4IjotMzEuMDgwMjk5OTk5OTk5OTk4LCJ5Ijo0NjIuMjE3NTg1NzE0Mjg1NzV9LCJoYW5kbGVNb2RlIjoiY29ybmVyIiwic2VtYW50aWNSb2xlIjoidGFpbF9jZW50ZXIifSx7ImlkIjoiYW5jaG9yXzE3ODUxNTk0ODQ4OTVfbzRzZm0iLCJwb3NpdGlvbiI6eyJ4IjozMS4zMDQxOTc1MjY4NjkyMiwieSI6NDYxLjE2ODQ4MTEwNDY2MTN9LCJoYW5kbGVPdXQiOnsieCI6NS45NzQ0NjE0MzU1OTMxNjg0LCJ5IjotMTQuOTk1MDk3MjE2MjA5MjI2fSwiaGFuZGxlTW9kZSI6ImNvcm5lciIsInNlbWFudGljUm9sZSI6ImN1c3RvbSJ9LHsiaWQiOiJzZ19sb3dlcl9ib3V0X2JvdHRvbV9yaWdodCIsInBvc2l0aW9uIjp7IngiOjY0LjEwNDc0Mjg1NzE0Mjg4LCJ5Ijo0MzYuMDc0Nzg1NzE0Mjg1N30sImhhbmRsZUluIjp7IngiOi0xMy4wNDMwMDMwNjk5Njc2NTQsInkiOjAuMDM2MzY3NDQzNzk2MzQ0OTV9LCJoYW5kbGVPdXQiOnsieCI6MTcuOTUwNzc4MzM4MzM2MDMsInkiOi0wLjA1MDA1MTY1NzQ5MTYxMzMxfSwiaGFuZGxlTW9kZSI6InNtb290aCJ9LHsiaWQiOiJhbmNob3JfMTc4NTE1OTQ1ODM3OF8yMTl5eCIsInBvc2l0aW9uIjp7IngiOjEyNS42MDgwMjU3MTgwODg3MSwieSI6NDYxLjk5NTMxNzQ2MDc1NzYzfSwiaGFuZGxlSW4iOnsieCI6LTE3LjQyODMxNzA3ODg3NjE1LCJ5IjowLjYwNzYzMzQwMTY4MTcwNzh9LCJoYW5kbGVPdXQiOnsieCI6MjMuMjY5ODg1MzA2Njk3MiwieSI6LTAuODExMjk4MDQ0NTM2MzQ1NH0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImlkIjoic2dfbG93ZXJfYm91dF9yaWdodCIsInBvc2l0aW9uIjp7IngiOjE1MC40NDM2ODU3MTQyODU3MiwieSI6NDA4LjcxOTYyODU3MTQyODUzfSwiaGFuZGxlSW4iOnsieCI6MS4yMjU4ODc0ODg5MzA2Njg4LCJ5IjozNS4yMDI0MjA1Mjg5MTEyNn0sImhhbmRsZU91dCI6eyJ4IjotMS44MTc2NDM0MTE0MDg2OTYxLCJ5IjotNTIuMTk1MjA0MTQyMTI1NDN9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwic2VtYW50aWNSb2xlIjoibG93ZXJfYm91dF9yaWdodCJ9LHsiaWQiOiJzZ193YWlzdF9yaWdodCIsInBvc2l0aW9uIjp7IngiOjEwNC4xMDY0NTcxNDI4NTcxMiwieSI6MjQ2LjM5Nzg1NzE0Mjg1NzEzfSwiaGFuZGxlSW4iOnsieCI6MC4zMjEwNzUzMDAyODYyMDg1LCJ5IjozOS44NzM2MDMwNDQxNzg2NDR9LCJoYW5kbGVPdXQiOnsieCI6LTAuMjg1Nzk3ODk4OTEyNTQ5ODYsInkiOi0zNS40OTI1ODM3MDgzNzMxNzV9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwic2VtYW50aWNSb2xlIjoid2Fpc3RfcmlnaHQifSx7ImlkIjoic2dfdXBwZXJfYm91dF9vdXRlcl9yaWdodCIsInBvc2l0aW9uIjp7IngiOjEyMS4xNzEyNTcxNDI4NTcxNiwieSI6MTQzLjUwMjA0Mjg1NzE0Mjg3fSwiaGFuZGxlSW4iOnsieCI6LTAuNzU1OTk2NjU5NDgyNDAyLCJ5Ijo1MS41OTUxODc0OTE2MDkwN30sImhhbmRsZU91dCI6eyJ4IjowLjM1ODU1NTEzMzc3MTk0MzMsInkiOi0yNC40NzA2MzYzNzI1MzE1MX0sImhhbmRsZU1vZGUiOiJzbW9vdGgifSx7ImlkIjoic2dfdXBwZXJfaG9ybl90aXBfcmlnaHQiLCJwb3NpdGlvbiI6eyJ4IjoxMDguOTA3ODQyODU3MTQyODcsInkiOjExMy45NzYzNDI4NTcxNDI4NX0sImhhbmRsZUluIjp7IngiOjYuNjg5NTcxNDI4NTcxNDI4LCJ5Ijo2LjYwMzc1NzE0Mjg1NzE0OH0sImhhbmRsZU1vZGUiOiJjb3JuZXIiLCJzZW1hbnRpY1JvbGUiOiJ1cHBlcl9ob3JuX3JpZ2h0In0seyJpZCI6InNnX2hvcm5fc2Nvb3BfcmlnaHQiLCJwb3NpdGlvbiI6eyJ4IjozNC4xODUzNTcxNDI4NTcxMywieSI6NjMuOTg0MDcxNDI4NTcxNDN9LCJoYW5kbGVPdXQiOnsieCI6LTYuMTM1MDU4MTEwMTE5MDU5NSwieSI6LTQuNTcwNDk1NzU4OTI4NTc5fSwiaGFuZGxlTW9kZSI6ImNvcm5lciJ9LHsiaWQiOiJhbmNob3JfMTc4NTE1OTM1MTE1OV9tNWRmdyIsInBvc2l0aW9uIjp7IngiOjI1LjI5MjQ1MjQ1NTEyMTc0NywieSI6NDguNDIxNTM1NTUxNDU4NzQ2fSwiaGFuZGxlSW4iOnsieCI6MC44NTA3ODU3MDQ4MTYwNzIzLCJ5Ijo2LjU2NzkyMjEyMzQxNjA3NX0sImhhbmRsZU1vZGUiOiJjb3JuZXIiLCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImlkIjoiYW5jaG9yXzE3ODUxNTkxOTk2NzRfNWJrOTgiLCJwb3NpdGlvbiI6eyJ4IjoyNS41NDI1MzAxMjcxNzA1OTcsInkiOjAuNTMzNjIzNTk3NTg1NzM5M30sImhhbmRsZU1vZGUiOiJjb3JuZXIiLCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImlkIjoic2dfcG9ja2V0X3JpZ2h0IiwicG9zaXRpb24iOnsieCI6MTkuMDUsInkiOjB9LCJoYW5kbGVNb2RlIjoiY29ybmVyIiwibG9ja2VkIjp0cnVlLCJzZW1hbnRpY1JvbGUiOiJuZWNrX3BvY2tldF9yaWdodCIsImhhbmRsZU91dCI6eyJ4IjotMjAuMjY5NywieSI6LTAuNDMxfX1dLCJjbG9zZWQiOnRydWV9LCJuZWNrUHJlc2V0SWQiOiJncmV0c2NoX3RodW5kZXJiaXJkXzIyIiwiYnJpZGdlUHJlc2V0SWQiOiJ0dW5lX29fbWF0aWMiLCJwaWNrdXBzIjpbeyJpZCI6InBfbmVjayIsInR5cGUiOiJodW1idWNrZXIiLCJvZmZzZXRZTW0iOjEwNywib2Zmc2V0WE1tIjowLCJhbmdsZURlZ3JlZXMiOjAsIndpZHRoTW0iOjcwLCJoZWlnaHRNbSI6Mzh9LHsiaWQiOiJwX2JyaWRnZSIsInR5cGUiOiJodW1idWNrZXIiLCJvZmZzZXRZTW0iOjE5MSwib2Zmc2V0WE1tIjowLCJhbmdsZURlZ3JlZXMiOjAsIndpZHRoTW0iOjcwLCJoZWlnaHRNbSI6Mzh9XX0=</project:data>
+  </metadata>
+
+  <style>
+    .body-line { fill: none; stroke: #111111; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .neck-pocket { fill: none; stroke: #dc3545; stroke-width: 1.2; stroke-dasharray: 4,4; }
+    .pickup-rout { fill: none; stroke: #28a745; stroke-width: 1.0; }
+    .bridge-rout { fill: none; stroke: #007bff; stroke-width: 1.2; }
+    .center-axis { fill: none; stroke: #6c757d; stroke-width: 0.5; stroke-dasharray: 6,4; opacity: 0.7; }
+    .calibration-box { fill: none; stroke: #d9534f; stroke-width: 0.8; stroke-dasharray: 3,3; }
+    .band-rule { fill: none; stroke: #adb5bd; stroke-width: 0.5; }
+    .text-label { font-family: monospace, sans-serif; font-size: 5px; fill: #d9534f; }
+    .axis-label { font-family: monospace, sans-serif; font-size: 5px; fill: #6c757d; }
+    .title-label { font-family: sans-serif; font-size: 10px; font-weight: bold; fill: #222222; }
+  </style>
+
+  <!-- Guitar Geometry Group -->
+  <g>
+    <!-- Centerline Alignment Axis (X = 0) -->
+    <line x1="0" y1="-15.43" x2="0" y2="545.06" class="center-axis" />
+
+    <!-- Joint Line Marker (Y = 0) -->
+    <line x1="-163.26" y1="0" x2="151.67" y2="0" class="center-axis" />
+    <text x="155.67" y="3" class="axis-label">Y=0 (Joint Line)</text>
+
+    <!-- Theoretical Saddle Line Marker -->
+    <line x1="-163.26" y1="244.45" x2="151.67" y2="244.45" class="center-axis" stroke="#007bff" />
+    <text x="155.67" y="247.45" class="axis-label" fill="#007bff">Scale Line (244.4mm)</text>
+
+    <!-- Outer Custom Body Profile -->
+    <path d="M -19.05 0.00 C -19.05 0.00, -23.75 0.05, -23.75 0.05 C -23.09 20.46, -31.48 37.64, -49.18 37.29 C -75.99 36.76, -94.44 1.04, -113.29 0.93 C -131.44 0.82, -137.57 36.56, -137.24 72.82 C -136.66 136.46, -111.70 197.30, -112.64 232.64 C -113.50 264.93, -123.96 312.06, -135.49 360.75 C -148.13 414.15, -148.26 465.16, -143.18 506.12 C -140.20 530.06, -124.74 528.13, -118.78 522.59 C -118.78 522.59, -38.75 454.33, -38.75 454.33 C -38.75 454.33, -31.08 462.22, -31.08 462.22 C -31.08 462.22, 31.30 461.17, 31.30 461.17 C 37.28 446.17, 51.06 436.11, 64.10 436.07 C 82.06 436.02, 108.18 462.60, 125.61 462.00 C 148.88 461.18, 151.67 443.92, 150.44 408.72 C 148.63 356.52, 104.43 286.27, 104.11 246.40 C 103.82 210.91, 120.42 195.10, 121.17 143.50 C 121.53 119.03, 115.60 120.58, 108.91 113.98 C 108.91 113.98, 34.19 63.98, 34.19 63.98 C 28.05 59.41, 26.14 54.99, 25.29 48.42 C 25.29 48.42, 25.54 0.53, 25.54 0.53 C 25.54 0.53, 19.05 0.00, 19.05 0.00 C -1.22 -0.43, 1.22 0.04, -19.05 0.00 Z" class="body-line" />
+
+    <!-- Immutable Neck Pocket Cavity -->
+    <rect
+      x="-19.05"
+      y="0"
+      width="38.1"
+      height="76.2"
+      rx="6.35"
+      ry="6.35"
+      class="neck-pocket"
+    />
+
+    <!-- Pickup Routing Cavities -->
+    
+          <g transform="translate(0, 107) rotate(0)">
+            <rect x="-35.00" y="-19.00" width="70" height="38" rx="4" ry="4" class="pickup-rout" />
+            <circle cx="0" cy="0" r="1.5" fill="#28a745" />
+          </g>
+        
+          <g transform="translate(0, 191) rotate(0)">
+            <rect x="-35.00" y="-19.00" width="70" height="38" rx="4" ry="4" class="pickup-rout" />
+            <circle cx="0" cy="0" r="1.5" fill="#28a745" />
+          </g>
+        
+
+    <!-- Bridge Hardware Plate, Saddle Line & Mounting Holes -->
+    <g transform="translate(0, 247.45)">
+      <rect x="-42.00" y="-7.00" width="84" height="14" class="bridge-rout" />
+      <line x1="-37.00" y1="0" x2="37.00" y2="0" stroke="#dc3545" stroke-width="1.2" />
+      <circle cx="-37" cy="0" r="2" fill="#007bff" /><circle cx="37" cy="0" r="2" fill="#007bff" /><circle cx="-41" cy="45" r="2" fill="#007bff" /><circle cx="41" cy="45" r="2" fill="#007bff" />
+    </g>
+  </g>
+
+  <!-- Title, Specs & Calibration Band (page space - never rotated) -->
+  <g>
+    <line x1="-163.26" y1="545.06" x2="231.67" y2="545.06" class="band-rule" />
+    <text x="-151.26" y="565.06" class="title-label">Thunderbird - 1:1 Scale Print Template</text>
+    <text x="-151.26" y="578.06" class="text-label">Scale: 628.6mm (24.75") | Joint: 38.1mm W x 76.2mm D | Saddle Y: 247.4mm</text>
+    <text x="-151.26" y="588.06" class="text-label">Date: 2026-07-27 | Printable 100% True Scale (Do Not Scale Page)</text>
+
+    <!-- 100mm x 100mm Ruler Calibration Box -->
+    <g transform="translate(-151.26, 597.06)">
+      <rect x="0" y="0" width="100" height="100" class="calibration-box" />
+      <text x="5" y="15" class="text-label" font-weight="bold">CALIBRATION BOX</text>
+      <text x="5" y="30" class="text-label">100 mm x 100 mm</text>
+      <text x="5" y="45" class="text-label">Measure with ruler</text>
+      <text x="5" y="60" class="text-label">to verify 100% print</text>
+    </g>
+  </g>
+</svg>
