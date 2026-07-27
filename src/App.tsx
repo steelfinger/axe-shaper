@@ -9,6 +9,7 @@ import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegme
 import { HistoryManager } from './utils/history';
 import { downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
 import { TemplateCodeModal } from './components/TemplateCodeModal';
+import { SaveInfoModal } from './components/SaveInfoModal';
 
 const INITIAL_PROJECT: GuitarProject = {
   schemaVersion: 1,
@@ -85,6 +86,9 @@ export function App(): React.JSX.Element {
   const [selectedAnchorId, setSelectedAnchorId] = useState<string | null>(null);
   const [selectedSegmentIndex, setSelectedSegmentIndex] = useState<number | null>(null);
   const [isTemplateCodeModalOpen, setIsTemplateCodeModalOpen] = useState(false);
+  const [isSaveInfoModalOpen, setIsSaveInfoModalOpen] = useState(false);
+  // In-memory only - reappears on reload, deliberately not persisted to localStorage.
+  const hasSeenSaveInfoRef = useRef(false);
   const [guideImage, setGuideImage] = useState<GuideImageState>(INITIAL_GUIDE_IMAGE);
 
   const historyRef = useRef(new HistoryManager<EditorDoc>(cloneDoc, UNDO_STEPS));
@@ -294,9 +298,23 @@ export function App(): React.JSX.Element {
 
   // Save the project as a .axe.svg - a printable 1:1 true-scale SVG that
   // also embeds the full project data, so it doubles as the save file.
-  const handleSaveProject = () => {
+  const downloadProjectSVG = () => {
     const svgString = exportProjectToSVG(project);
     downloadSVGFile(`${project.settings.name.toLowerCase().replace(/\s+/g, '-')}.axe.svg`, svgString);
+  };
+
+  const handleSaveProject = () => {
+    if (!hasSeenSaveInfoRef.current) {
+      setIsSaveInfoModalOpen(true);
+      return;
+    }
+    downloadProjectSVG();
+  };
+
+  const handleContinueFromSaveInfo = () => {
+    hasSeenSaveInfoRef.current = true;
+    setIsSaveInfoModalOpen(false);
+    downloadProjectSVG();
   };
 
   // Open a .axe.svg project file.
@@ -406,6 +424,17 @@ export function App(): React.JSX.Element {
         project={project}
         isOpen={isTemplateCodeModalOpen}
         onClose={() => setIsTemplateCodeModalOpen(false)}
+      />
+
+      <SaveInfoModal
+        isOpen={isSaveInfoModalOpen}
+        onClose={() => {
+          // Dismissing without saving still counts as "seen" - otherwise the
+          // next Save click would just reopen the same modal instead of saving.
+          hasSeenSaveInfoRef.current = true;
+          setIsSaveInfoModalOpen(false);
+        }}
+        onContinue={handleContinueFromSaveInfo}
       />
     </div>
   );
