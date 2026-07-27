@@ -257,101 +257,101 @@ export const SINGLE_CUT_ANCHORS: PathAnchor[] = [
   {
     id: "sc_pocket_left",
     position: { x: -19.05, y: 0 },
-    handleOut: { x: -57.6551, y: 0.1447 },
+    handleOut: { x: -59.704, y: 0.1498 },
     handleMode: "corner",
     locked: true,
     semanticRole: "neck_pocket_left"
   },
   {
     id: "sc_upper_shoulder",
-    position: { x: -115.7337, y: 64.9047 },
-    handleIn: { x: 0.9155, y: -37.49 },
-    handleOut: { x: -0.9337, y: 38.2382 },
+    position: { x: -119.8466, y: 67.2112 },
+    handleIn: { x: 0.948, y: -38.8223 },
+    handleOut: { x: -0.9669, y: 39.5971 },
     handleMode: "smooth"
   },
   {
     id: "sc_upper_bout",
-    position: { x: -90.8084, y: 148.1867 },
-    handleIn: { x: 0.0965, y: -30.0012 },
-    handleOut: { x: -0.1156, y: 35.9218 },
+    position: { x: -94.0355, y: 153.4528 },
+    handleIn: { x: 0.0999, y: -31.0674 },
+    handleOut: { x: -0.1197, y: 37.1984 },
     handleMode: "smooth",
     semanticRole: "upper_horn_left"
   },
   {
     id: "sc_lower_bout_left",
-    position: { x: -160.1429, y: 287.7143 },
-    handleIn: { x: 1.0905, y: -78.3625 },
-    handleOut: { x: -1.2097, y: 86.9287 },
+    position: { x: -165.8339, y: 297.9389 },
+    handleIn: { x: 1.1293, y: -81.1473 },
+    handleOut: { x: -1.2527, y: 90.0179 },
     handleMode: "smooth",
     semanticRole: "lower_bout_left"
   },
   {
     id: "sc_tail_center",
-    position: { x: -0.5881, y: 423.1096 },
-    handleIn: { x: -92.4361, y: 0.5213 },
-    handleOut: { x: 92.4361, y: -0.5213 },
+    position: { x: -0.609, y: 438.1457 },
+    handleIn: { x: -95.721, y: 0.5398 },
+    handleOut: { x: 95.721, y: -0.5398 },
     handleMode: "symmetric",
     semanticRole: "tail_center"
   },
   {
     id: "sc_lower_bout_right",
-    position: { x: 159, y: 291.1429 },
-    handleIn: { x: -0.8038, y: 84.9025 },
-    handleOut: { x: 0.7911, y: -83.5678 },
+    position: { x: 164.6504, y: 301.4893 },
+    handleIn: { x: -0.8324, y: 87.9197 },
+    handleOut: { x: 0.8192, y: -86.5376 },
     handleMode: "smooth",
     semanticRole: "lower_bout_right"
   },
   {
     id: "sc_waist_right",
-    position: { x: 86.5714, y: 147.8571 },
-    handleIn: { x: 1.5725, y: 32.2806 },
-    handleOut: { x: -1.1582, y: -23.7756 },
+    position: { x: 89.6479, y: 153.1115 },
+    handleIn: { x: 1.6284, y: 33.4278 },
+    handleOut: { x: -1.1994, y: -24.6205 },
     handleMode: "smooth",
     semanticRole: "waist_right"
   },
   {
     id: "anchor_1785072642913_kdp70",
-    position: { x: 112.2641, y: 69.0843 },
-    handleIn: { x: -0.4707, y: 28.5732 },
-    handleOut: { x: 0.2483, y: -15.07 },
+    position: { x: 116.2537, y: 71.5394 },
+    handleIn: { x: -0.4874, y: 29.5886 },
+    handleOut: { x: 0.2571, y: -15.6055 },
     handleMode: "smooth",
     semanticRole: "custom"
   },
   {
     id: "sc_cutaway_horn_tip",
-    position: { x: 100.319, y: 42.9167 },
-    handleIn: { x: 7.4999, y: 0.0886 },
-    handleOut: { x: -14.2482, y: -0.1683 },
+    position: { x: 103.8841, y: 44.4418 },
+    handleIn: { x: 7.7664, y: 0.0917 },
+    handleOut: { x: -14.7545, y: -0.1743 },
     handleMode: "smooth",
     semanticRole: "upper_horn_right"
   },
   {
     id: "anchor_1785072576588_chpj8",
-    position: { x: 60.3024, y: 68.9346 },
-    handleIn: { x: 28.75, y: -0.5536 },
-    handleOut: { x: -16.5844, y: 0.3193 },
+    position: { x: 62.4454, y: 71.3843 },
+    handleIn: { x: 29.7717, y: -0.5733 },
+    handleOut: { x: -17.1738, y: 0.3306 },
     handleMode: "smooth",
     semanticRole: "custom"
   },
   {
     id: "sc_cutaway_inner_scoop",
-    position: { x: 27.1429, y: 39.5977 },
-    handleIn: { x: 4.5, y: 22.7143 },
-    handleOut: { x: -0.2143, y: -12.5 },
+    position: { x: 28.1075, y: 41.0049 },
+    handleIn: { x: 4.6599, y: 23.5215 },
+    handleOut: { x: -0.2219, y: -12.9442 },
     handleMode: "corner"
   },
   {
     id: "anchor_1785072512647_iico5",
-    position: { x: 26.6679, y: 1.9821 },
-    handleIn: { x: 0.6882, y: 17.4557 },
-    handleOut: { x: -3.2732, y: -0.0179 },
+    position: { x: 27.6156, y: 2.0525 },
+    handleIn: { x: 0.7127, y: 18.076 },
+    handleOut: { x: -3.3895, y: -0.0185 },
     handleMode: "corner",
     semanticRole: "custom"
   },
   {
     id: "sc_pocket_right",
     position: { x: 19.05, y: 0 },
-    handleIn: { x: 2.5, y: 0 },
+    handleIn: { x: 2.5888, y: 0 },
     handleMode: "smooth",
     locked: true,
     semanticRole: "neck_pocket_right"
@@ -488,21 +488,23 @@ export const REFERENCE_TEMPLATES: Record<string, ReferenceTemplate> = {
     bridgePresetId: 'tune_o_matic',
     defaultAnchors: SINGLE_CUT_ANCHORS,
     defaultPickups: [
+      // Neck pickup on the 24th-fret node; bridge pickup 44.5mm ahead of the saddle line
       { id: 'p_neck', type: 'humbucker', offsetYMm: 90, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
-      { id: 'p_bridge', type: 'humbucker', offsetYMm: 198, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
+      { id: 'p_bridge', type: 'humbucker', offsetYMm: 205, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
     ],
   },
   sg_style: {
     id: 'sg_style',
     name: 'Double-Cut SG Vintage',
     description: 'Symmetric double-cutaway Vintage SG body (Gibson/Yamaha style) with bevel contours.',
-    category: 'Single-Cut',
+    category: 'Double-Cut',
     neckPresetId: 'gibson_sg_22',
     bridgePresetId: 'tune_o_matic',
     defaultAnchors: SG_STYLE_ANCHORS,
     defaultPickups: [
-      { id: 'p_neck', type: 'humbucker', offsetYMm: 90, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
-      { id: 'p_bridge', type: 'humbucker', offsetYMm: 198, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
+      // Same absolute positions as the Single-Cut, rebased onto the SG's fret-19 joint line
+      { id: 'p_neck', type: 'humbucker', offsetYMm: 50.4, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
+      { id: 'p_bridge', type: 'humbucker', offsetYMm: 165.4, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 38 },
     ],
   },
   s_style: {
@@ -514,9 +516,10 @@ export const REFERENCE_TEMPLATES: Record<string, ReferenceTemplate> = {
     bridgePresetId: 'tremolo_strat',
     defaultAnchors: S_STYLE_ANCHORS,
     defaultPickups: [
-      { id: 'p_neck', type: 'single_coil', offsetYMm: 85, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 18 },
-      { id: 'p_middle', type: 'single_coil', offsetYMm: 145, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 18 },
-      { id: 'p_bridge', type: 'single_coil', offsetYMm: 205, offsetXMm: 0, angleDegrees: 10, widthMm: 70, heightMm: 18 },
+      // 6-3/8", 3-7/8" and 1-5/8" ahead of the saddle line; the neck pickup lands on the 24th-fret node
+      { id: 'p_neck', type: 'single_coil', offsetYMm: 95, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 18 },
+      { id: 'p_middle', type: 'single_coil', offsetYMm: 159, offsetXMm: 0, angleDegrees: 0, widthMm: 70, heightMm: 18 },
+      { id: 'p_bridge', type: 'single_coil', offsetYMm: 216, offsetXMm: 0, angleDegrees: 10, widthMm: 70, heightMm: 18 },
     ],
   },
   t_style: {
