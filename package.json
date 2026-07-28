@@ -9,6 +9,8 @@
     "build:zip": "rm -f axe-shaper-dist.zip && npm run build && cd dist && zip -r ../axe-shaper-dist.zip . && cd ..",
     "package": "npm run build:zip",
     "lint": "oxlint",
+    "corpus": "node scripts/generate-golden-corpus.ts",
+    "corpus:check": "node scripts/generate-golden-corpus.ts --check",
     "preview": "vite preview"
   },
   "dependencies": {

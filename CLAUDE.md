@@ -11,6 +11,8 @@ npm run dev        # vite dev server on :5173
 npm run build      # tsc -b && vite build
 npm run build:zip  # rebuilds dist and axe-shaper-dist.zip (the deliverable)
 npm run lint       # oxlint
+npm run corpus     # regenerate tests/golden/geometry-corpus.json
+npm run corpus:check  # fail if the committed corpus is stale
 ```
 
 `npx tsc -b --noEmit` before committing. `src/App.tsx` has two known lint
@@ -56,6 +58,15 @@ The consequence is intended: fixing a spec in `hardware.ts` does not move the
 bridge on existing saves. Re-picking the preset adopts the new spec.
 
 `migrateProject()` backfills the copies when a version 1 file is opened.
+
+## The golden corpus
+
+`tests/golden/geometry-corpus.json` is this app's geometry output, frozen, for
+a native port to assert against - code is not shared between implementations,
+so the `.axe.svg` format and this corpus are the contract. `npm run corpus:check`
+also makes it a regression test here: it fails if curve evaluation, scale math
+or symmetry output changes. Regenerate deliberately, never to make the check
+pass. See `tests/golden/README.md`.
 
 ## Where the real logic lives
 
