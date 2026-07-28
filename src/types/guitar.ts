@@ -77,14 +77,32 @@ export interface BridgePreset {
 
 export type PickupType = 'humbucker' | 'single_coil' | 'p90' | 'tele_neck' | 'tele_bridge';
 
+/** The rectangle actually routed for a pickup. */
+export interface PickupRoutSpec {
+  widthMm: LengthMm;
+  heightMm: LengthMm;
+  cornerRadiusMm: LengthMm;
+}
+
 export interface PickupPlacement {
   id: string;
   type: PickupType;
   offsetYMm: LengthMm;
   offsetXMm: LengthMm;
   angleDegrees: number;
+  /**
+   * Rout dimensions for this specific pickup, saved with the file. These are
+   * authoritative - `type` selects the defaults when a pickup is created, but
+   * it is not re-consulted afterwards, so a file whose type this build has
+   * never heard of still routs the right hole. See resolvePickupSpec() in
+   * src/utils/presets.ts.
+   *
+   * cornerRadiusMm is optional only because schemaVersion 1 files predate it;
+   * migrateProject() backfills it from the type.
+   */
   widthMm: LengthMm;
   heightMm: LengthMm;
+  cornerRadiusMm?: LengthMm;
 }
 
 export interface HardwareCavity {

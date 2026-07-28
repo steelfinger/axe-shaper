@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Stage, Layer, Line, Circle, Rect, Path, Text, Group, Image as KonvaImage } from 'react-konva';
 import Konva from 'konva';
-import { PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import type { GuitarProject, GuideImageState, Vector2D, CalibrationState } from '../types/guitar';
 import {
@@ -13,7 +12,7 @@ import {
   updateAnchorHandle,
 } from '../utils/bezier';
 import { applyLiveSymmetry, withMirroredInsertion } from '../utils/symmetry';
-import { resolveBridgePreset, resolveNeckPreset } from '../utils/presets';
+import { resolveBridgePreset, resolveNeckPreset, resolvePickupSpec } from '../utils/presets';
 import { getBridgePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 import { ZoomIn, ZoomOut, Maximize2, Hand, Spline } from 'lucide-react';
 import {
@@ -627,9 +626,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
               {/* Pickup Routings */}
               {pickups.map((p) => {
-                const spec = PICKUP_SPECIFICATIONS[p.type] || PICKUP_SPECIFICATIONS.single_coil;
-                const w = spec.widthMm;
-                const h = spec.heightMm;
+                const { widthMm: w, heightMm: h, cornerRadiusMm } = resolvePickupSpec(p);
                 return (
                   <Group key={p.id} x={p.offsetXMm} y={p.offsetYMm} rotation={p.angleDegrees}>
                     <Rect
@@ -640,7 +637,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                       fill="rgba(10, 185, 129, 0.15)"
                       stroke="#10b981"
                       strokeWidth={1.2 / zoom}
-                      cornerRadius={spec.cornerRadiusMm}
+                      cornerRadius={cornerRadiusMm}
                     />
                     <Circle x={0} y={0} radius={2 / zoom} fill="#10b981" />
                   </Group>

@@ -40,7 +40,18 @@ is a nanometre, so nothing that matters can hide under it.
 | `constants` | The full neck, bridge and pickup tables. Diff these against the port's own constants first - a mismatch here explains every downstream failure at once. |
 | `unitConversions`, `gridSnapping` | `units.ts`: mm/inch conversion, display formatting, grid preset snapping. |
 | `scaleMathMatrix` | `scaleMath.ts` over **every** neck x bridge combination. Saddle and bridge-plate placement is the highest-consequence math in the app; it is covered exhaustively rather than sampled. |
-| `cases[]` | Per built-in blueprint: the input contour, and the expected output of every geometry function. |
+| `cases[]` | Per built-in blueprint: the input contour, the pickup routs, and the expected output of every geometry function. |
+
+Each case also carries `pickups[]`: the resolved rout for every pickup, plus
+its four corners already rotated into model space. The corners are there to pin
+down the rotation convention - **positive `angleDegrees` turns clockwise**,
+because Y grows downward, matching SVG's `rotate()`. Two blueprints have
+genuinely slanted pickups (10 and 11 degrees), so a port that rotates the wrong
+way fails here rather than silently routing a mirrored cavity.
+
+Note that the rout comes from the *placement*, not from the pickup type -
+`type` only seeds the defaults when a pickup is created. Read
+`widthMm` / `heightMm` / `cornerRadiusMm` off the placement.
 
 Each case carries `input` (the contour as authored) and `expected`:
 

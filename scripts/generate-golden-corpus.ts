@@ -101,6 +101,28 @@ function serializeAnchor(a: any) {
 
 const serializeAnchors = (anchors: any[]) => anchors.map(serializeAnchor);
 
+/**
+ * The four corners of a pickup rout in model space, rotated about the
+ * placement origin. Pins down the rotation convention, which is the easy thing
+ * to get backwards when porting: positive angleDegrees turns clockwise,
+ * because Y grows downward - matching SVG's rotate() and Konva's rotation.
+ */
+function routCorners(p: any, spec: { widthMm: number; heightMm: number }) {
+  const rad = (p.angleDegrees * Math.PI) / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+  const hw = spec.widthMm / 2;
+  const hh = spec.heightMm / 2;
+  return [
+    [-hw, -hh],
+    [hw, -hh],
+    [hw, hh],
+    [-hw, hh],
+  ].map(([x, y]) =>
+    vec({ x: p.offsetXMm + x * cos - y * sin, y: p.offsetYMm + x * sin + y * cos })
+  );
+}
+
 function anchorBounds(anchors: any[]) {
   const xs = anchors.map((a: any) => a.position.x);
   const ys = anchors.map((a: any) => a.position.y);
@@ -117,6 +139,7 @@ async function build() {
   });
 
   const load = (p: string) => server.ssrLoadModule(p);
+  const presets = await load('/src/utils/presets.ts');
   const bezier = await load('/src/utils/bezier.ts');
   const scaleMath = await load('/src/utils/scaleMath.ts');
   const symmetry = await load('/src/utils/symmetry.ts');
@@ -255,6 +278,22 @@ async function build() {
         bridgePlateTopYMm: round(scaleMath.getBridgePlateTopYMm(neck, bridge)),
       },
       input: { closed, anchors: serializeAnchors(anchors) },
+      pickups: (project.pickups ?? []).map((p: any) => {
+        const spec = presets.resolvePickupSpec(p);
+        return {
+          id: p.id,
+          type: p.type,
+          offsetXMm: round(p.offsetXMm),
+          offsetYMm: round(p.offsetYMm),
+          angleDegrees: round(p.angleDegrees),
+          rout: {
+            widthMm: round(spec.widthMm),
+            heightMm: round(spec.heightMm),
+            cornerRadiusMm: round(spec.cornerRadiusMm),
+          },
+          corners: routCorners(p, spec),
+        };
+      }),
       expected: {
         svgPath: bezier.anchorsToSVGPath(anchors, closed),
         segmentCount: count,

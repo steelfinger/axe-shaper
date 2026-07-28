@@ -57,7 +57,14 @@ has never heard of still comes out right.
 The consequence is intended: fixing a spec in `hardware.ts` does not move the
 bridge on existing saves. Re-picking the preset adopts the new spec.
 
-`migrateProject()` backfills the copies when a version 1 file is opened.
+Pickups work the same way, via `resolvePickupSpec()`: the rout comes from the
+`PickupPlacement`'s own `widthMm` / `heightMm` / `cornerRadiusMm`, and `type`
+only seeds those when a pickup is created. The first two fields always existed
+on the placement but nothing read them - every call site went to
+`PICKUP_SPECIFICATIONS[type]` - so a file carried two answers for the size of a
+rout and the obvious one to read was the one nothing used.
+
+`migrateProject()` backfills all of these when a version 1 file is opened.
 
 ## The golden corpus
 

@@ -1,4 +1,4 @@
-import type { BridgePreset, NeckPreset, PickupType } from '../types/guitar';
+import type { BridgePreset, NeckPreset, PickupRoutSpec, PickupType } from '../types/guitar';
 
 export const NECK_PRESETS: Record<string, NeckPreset> = {
   fender_strat_21: {
@@ -217,7 +217,12 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
   },
 };
 
-export const PICKUP_SPECIFICATIONS: Record<PickupType, { name: string; widthMm: number; heightMm: number; cornerRadiusMm: number }> = {
+/**
+ * Default rout dimensions per pickup type. These seed a PickupPlacement when
+ * one is created; the placement carries its own copy from then on, so editing
+ * a spec here does not resize routs on existing designs.
+ */
+export const PICKUP_SPECIFICATIONS: Record<PickupType, PickupRoutSpec & { name: string }> = {
   humbucker: {
     name: 'Standard Humbucker (Covered)',
     widthMm: 70.0,

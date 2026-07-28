@@ -1,7 +1,11 @@
-import { PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import type { GuitarProject, LengthMm } from '../types/guitar';
 import { anchorsToSVGPath } from './bezier';
-import { resolveBridgePreset, resolveNeckPreset, withEmbeddedPresets } from './presets';
+import {
+  resolveBridgePreset,
+  resolveNeckPreset,
+  resolvePickupSpec,
+  withEmbeddedPresets,
+} from './presets';
 import { getBridgePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from './scaleMath';
 
 /** Namespace for the <project:*> metadata elements. Must be declared or the file is not well-formed XML. */
@@ -111,7 +115,7 @@ function getContentBoundsMm(project: GuitarProject): BoundsMm {
 
   // Pickup routs (use the diagonal so any rotation angle stays inside)
   for (const p of pickups) {
-    const spec = PICKUP_SPECIFICATIONS[p.type] || PICKUP_SPECIFICATIONS.single_coil;
+    const spec = resolvePickupSpec(p);
     const reach = Math.hypot(spec.widthMm, spec.heightMm) / 2;
     add(p.offsetXMm - reach, p.offsetYMm - reach);
     add(p.offsetXMm + reach, p.offsetYMm + reach);
@@ -238,10 +242,7 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
     <!-- Pickup Routing Cavities -->
     ${pickups
       .map((p) => {
-        const spec = PICKUP_SPECIFICATIONS[p.type] || PICKUP_SPECIFICATIONS.single_coil;
-        const w = spec.widthMm;
-        const h = spec.heightMm;
-        const rx = spec.cornerRadiusMm;
+        const { widthMm: w, heightMm: h, cornerRadiusMm: rx } = resolvePickupSpec(p);
         return `
           <g transform="translate(${p.offsetXMm}, ${p.offsetYMm}) rotate(${p.angleDegrees})">
             <rect x="${(-w / 2).toFixed(2)}" y="${(-h / 2).toFixed(2)}" width="${w}" height="${h}" rx="${rx}" ry="${rx}" class="pickup-rout" />

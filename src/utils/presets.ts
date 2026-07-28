@@ -1,6 +1,12 @@
-import { BRIDGE_PRESETS, NECK_PRESETS } from '../constants/hardware';
+import { BRIDGE_PRESETS, NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import { PROJECT_SCHEMA_VERSION } from '../constants/schema';
-import type { BridgePreset, GuitarProject, NeckPreset } from '../types/guitar';
+import type {
+  BridgePreset,
+  GuitarProject,
+  NeckPreset,
+  PickupPlacement,
+  PickupRoutSpec,
+} from '../types/guitar';
 
 /**
  * Hardware resolution for a project.
@@ -25,6 +31,7 @@ import type { BridgePreset, GuitarProject, NeckPreset } from '../types/guitar';
 
 export const DEFAULT_NECK_PRESET_ID = 'fender_strat_21';
 export const DEFAULT_BRIDGE_PRESET_ID = 'tremolo_strat';
+export const DEFAULT_PICKUP_TYPE = 'single_coil';
 
 type NeckRef = Pick<GuitarProject, 'neckPresetId' | 'neckPreset'>;
 type BridgeRef = Pick<GuitarProject, 'bridgePresetId' | 'bridgePreset'>;
@@ -58,6 +65,34 @@ export function bridgePresetFields(id: string): Required<BridgeRef> {
 }
 
 /**
+ * Rout dimensions for one pickup. The placement's own fields win; `type` only
+ * supplies what is missing.
+ *
+ * Same hazard as the neck and bridge presets, and one extra: widthMm and
+ * heightMm have always been *stored* on the placement but were never read -
+ * every call site went to PICKUP_SPECIFICATIONS[type] instead. A file
+ * therefore carried two answers for the size of a rout, and the obvious one to
+ * read was the one nothing used. Reading the placement first collapses that to
+ * one answer, and leaves room for a per-pickup size override later.
+ *
+ * Defensive against missing fields despite the types: decoded JSON is not
+ * checked at runtime, and a rout is a hole cut in a finished body.
+ */
+export function resolvePickupSpec(placement: PickupPlacement): PickupRoutSpec {
+  const defaults = PICKUP_SPECIFICATIONS[placement.type] ?? PICKUP_SPECIFICATIONS[DEFAULT_PICKUP_TYPE];
+  return {
+    widthMm: placement.widthMm ?? defaults.widthMm,
+    heightMm: placement.heightMm ?? defaults.heightMm,
+    cornerRadiusMm: placement.cornerRadiusMm ?? defaults.cornerRadiusMm,
+  };
+}
+
+/** Stamp each placement with its resolved rout, leaving existing values alone. */
+export function withEmbeddedPickupSpecs(pickups: PickupPlacement[]): PickupPlacement[] {
+  return pickups.map((p) => ({ ...p, ...resolvePickupSpec(p) }));
+}
+
+/**
  * Backfill the embedded presets without disturbing any that are already there.
  * Safe to call on a project of any schema version.
  */
@@ -66,6 +101,9 @@ export function withEmbeddedPresets(project: GuitarProject): GuitarProject {
     ...project,
     neckPreset: resolveNeckPreset(project),
     bridgePreset: resolveBridgePreset(project),
+    // ?? [] rather than trusting the type: a hand-edited or foreign file can
+    // omit this, and every consumer maps over it.
+    pickups: withEmbeddedPickupSpecs(project.pickups ?? []),
   };
 }
 
