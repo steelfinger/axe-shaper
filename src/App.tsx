@@ -12,6 +12,9 @@ import { downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './ut
 import { getUserTemplate } from './utils/userTemplates';
 import { SaveInfoModal } from './components/SaveInfoModal';
 
+/** Matches the floor InspectorPanel's delete button enforces - a contour needs at least this many nodes to stay a sane shape. */
+const MIN_ANCHOR_COUNT = 4;
+
 const INITIAL_PROJECT: GuitarProject = {
   schemaVersion: 1,
   appVersion: '1.0.0',
@@ -290,13 +293,30 @@ export function App(): React.JSX.Element {
   // Delete Anchor
   const handleDeleteSelectedAnchor = () => {
     if (!selectedAnchorId) return;
-    handleUpdateProject((prev) => ({
-      ...prev,
-      contour: {
-        ...prev.contour,
-        anchors: prev.contour.anchors.filter((a) => a.id !== selectedAnchorId),
-      },
-    }));
+    handleUpdateProject((prev) => {
+      const { anchors } = prev.contour;
+      const selected = anchors.find((a) => a.id === selectedAnchorId);
+      const partner =
+        prev.settings.symmetry.mode === 'live_centerline' && selected?.mirrorId
+          ? anchors.find((a) => a.id === selected.mirrorId && !a.locked)
+          : undefined;
+
+      // Matches the InspectorPanel's delete-button floor - don't let a paired
+      // delete drop the contour below a usable node count. Falls back to
+      // deleting just the selected anchor rather than blocking the action.
+      const idsToRemove =
+        partner && anchors.length - 2 >= MIN_ANCHOR_COUNT
+          ? [selectedAnchorId, partner.id]
+          : [selectedAnchorId];
+
+      return {
+        ...prev,
+        contour: {
+          ...prev.contour,
+          anchors: anchors.filter((a) => !idsToRemove.includes(a.id)),
+        },
+      };
+    });
     setSelectedAnchorId(null);
   };
 
