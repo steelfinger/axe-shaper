@@ -121,6 +121,61 @@ export function updateAnchorHandle(
   return updated;
 }
 
+const MIN_RESET_HANDLE_LEN_MM = 8;
+const MAX_RESET_HANDLE_LEN_MM = 40;
+const FALLBACK_RESET_HANDLE_LEN_MM = 15;
+
+/**
+ * Snap a handle that's been dragged somewhere unreachable (typically right on
+ * top of its own anchor) back out to a third of the way along the neighboring
+ * chord - the same convention curveSegment() uses. Escape hatch for the
+ * zero-length case handle reachability can't otherwise recover from, however
+ * far you zoom in.
+ */
+export function resetAnchorHandle(
+  anchors: PathAnchor[],
+  index: number,
+  handleType: 'in' | 'out',
+  closed: boolean
+): PathAnchor[] {
+  if (index < 0 || index >= anchors.length) return anchors;
+
+  const count = anchors.length;
+  const anchor = anchors[index];
+  const neighborIndex =
+    handleType === 'out'
+      ? closed
+        ? (index + 1) % count
+        : index + 1
+      : closed
+        ? (index - 1 + count) % count
+        : index - 1;
+  const neighbor = neighborIndex >= 0 && neighborIndex < count ? anchors[neighborIndex] : null;
+
+  let dir: Vector2D;
+  let chordLen: number;
+  if (neighbor) {
+    chordLen = distanceVector(anchor.position, neighbor.position) || FALLBACK_RESET_HANDLE_LEN_MM * 3;
+    dir = {
+      x: (neighbor.position.x - anchor.position.x) / chordLen,
+      y: (neighbor.position.y - anchor.position.y) / chordLen,
+    };
+  } else {
+    // Open-contour endpoint with nothing on this side - mirror the other handle if it exists.
+    const other = handleType === 'out' ? anchor.handleIn : anchor.handleOut;
+    const otherLen = other ? Math.sqrt(other.x * other.x + other.y * other.y) : 0;
+    dir = otherLen > 0.0001 ? { x: -other!.x / otherLen, y: -other!.y / otherLen } : { x: 1, y: 0 };
+    chordLen = FALLBACK_RESET_HANDLE_LEN_MM * 3;
+  }
+
+  const len = Math.min(Math.max(chordLen / 3, MIN_RESET_HANDLE_LEN_MM), MAX_RESET_HANDLE_LEN_MM);
+  const target = updateAnchorHandle(anchor, handleType, { x: dir.x * len, y: dir.y * len });
+
+  const result = [...anchors];
+  result[index] = target;
+  return result;
+}
+
 /**
  * Generate an SVG path data string (`d="..."`) from an array of PathAnchors.
  * Each anchor's handleOut and next anchor's handleIn form a cubic Bezier segment.

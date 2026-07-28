@@ -9,6 +9,7 @@ import {
   findClosestSegment,
   getSegmentControlPoints,
   insertAnchorOnSegment,
+  resetAnchorHandle,
   updateAnchorHandle,
 } from '../utils/bezier';
 import { applyLiveSymmetry } from '../utils/symmetry';
@@ -276,6 +277,21 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         contour: { ...prev.contour, anchors: finalAnchors },
       };
     }, handleDragKey(anchor.id, handleType));
+  };
+
+  // Escape hatch for a handle dragged somewhere unreachable (typically right on
+  // top of its own anchor) - double-click snaps it back out to a grabbable length.
+  const handleHandleReset = (index: number, handleType: 'in' | 'out') => {
+    const anchor = contour.anchors[index];
+    onUpdateProject((prev) => {
+      const updatedAnchors = resetAnchorHandle(prev.contour.anchors, index, handleType, prev.contour.closed);
+      const finalAnchors = applyLiveSymmetry(updatedAnchors, anchor.id, prev.settings.symmetry);
+
+      return {
+        ...prev,
+        contour: { ...prev.contour, anchors: finalAnchors },
+      };
+    });
   };
 
   const isPanMode = isPanToolActive || isSpacePressed || isModifierPanning;
@@ -713,6 +729,24 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   />
                 )}
 
+                {/* Anchor Circle - drawn under the handles, so a handle sitting on
+                    top of its own anchor still wins the hit-test and stays grabbable */}
+                <Circle
+                  x={ax}
+                  y={ay}
+                  radius={anchor.locked ? 7 : isSelected ? 9 : 7}
+                  fill={anchor.locked ? '#f59e0b' : isSelected ? '#38bdf8' : '#2563eb'}
+                  stroke="#ffffff"
+                  strokeWidth={2}
+                  draggable={!isPanMode && !anchor.locked}
+                  onClick={() => {
+                    if (!isPanMode) onSelectAnchor(anchor.id);
+                  }}
+                  onDragStart={() => onBeginEdit(anchorDragKey(anchor.id))}
+                  onDragMove={(e) => handleAnchorDragMove(index, e)}
+                  onDragEnd={onEndEdit}
+                />
+
                 {/* Handle In Circle */}
                 {showHandles && hInPos && (
                   <Circle
@@ -730,6 +764,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                     }}
                     onDragMove={(e) => handleHandleDragMove(index, 'in', e)}
                     onDragEnd={onEndEdit}
+                    onDblClick={() => handleHandleReset(index, 'in')}
                   />
                 )}
 
@@ -750,25 +785,9 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                     }}
                     onDragMove={(e) => handleHandleDragMove(index, 'out', e)}
                     onDragEnd={onEndEdit}
+                    onDblClick={() => handleHandleReset(index, 'out')}
                   />
                 )}
-
-                {/* Anchor Circle */}
-                <Circle
-                  x={ax}
-                  y={ay}
-                  radius={anchor.locked ? 7 : isSelected ? 9 : 7}
-                  fill={anchor.locked ? '#f59e0b' : isSelected ? '#38bdf8' : '#2563eb'}
-                  stroke="#ffffff"
-                  strokeWidth={2}
-                  draggable={!isPanMode && !anchor.locked}
-                  onClick={() => {
-                    if (!isPanMode) onSelectAnchor(anchor.id);
-                  }}
-                  onDragStart={() => onBeginEdit(anchorDragKey(anchor.id))}
-                  onDragMove={(e) => handleAnchorDragMove(index, e)}
-                  onDragEnd={onEndEdit}
-                />
               </Group>
             );
           })}
