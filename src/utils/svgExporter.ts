@@ -1,6 +1,7 @@
-import { BRIDGE_PRESETS, NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
+import { PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import type { GuitarProject, LengthMm } from '../types/guitar';
 import { anchorsToSVGPath } from './bezier';
+import { resolveBridgePreset, resolveNeckPreset, withEmbeddedPresets } from './presets';
 import { getBridgePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from './scaleMath';
 
 /** Namespace for the <project:*> metadata elements. Must be declared or the file is not well-formed XML. */
@@ -74,9 +75,9 @@ export function extractProjectFromSVG(svgText: string): GuitarProject | null {
  * Bezier control points are included, which bounds the curve conservatively.
  */
 function getContentBoundsMm(project: GuitarProject): BoundsMm {
-  const { contour, neckPresetId, bridgePresetId, pickups } = project;
-  const neck = NECK_PRESETS[neckPresetId] || NECK_PRESETS.fender_strat_21;
-  const bridge = BRIDGE_PRESETS[bridgePresetId] || BRIDGE_PRESETS.tremolo_strat;
+  const { contour, pickups } = project;
+  const neck = resolveNeckPreset(project);
+  const bridge = resolveBridgePreset(project);
 
   const bounds: BoundsMm = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
   const add = (x: LengthMm, y: LengthMm) => {
@@ -124,10 +125,15 @@ function getContentBoundsMm(project: GuitarProject): BoundsMm {
   return bounds;
 }
 
-export function exportProjectToSVG(project: GuitarProject): string {
-  const { contour, neckPresetId, bridgePresetId, pickups, settings } = project;
-  const neck = NECK_PRESETS[neckPresetId] || NECK_PRESETS.fender_strat_21;
-  const bridge = BRIDGE_PRESETS[bridgePresetId] || BRIDGE_PRESETS.tremolo_strat;
+export function exportProjectToSVG(rawProject: GuitarProject): string {
+  // Stamp the resolved hardware into the payload before encoding, so a saved
+  // file always carries the geometry it was drawn with even if the in-memory
+  // project came from a version 1 load and was never otherwise touched.
+  const project = withEmbeddedPresets(rawProject);
+
+  const { contour, pickups, settings } = project;
+  const neck = resolveNeckPreset(project);
+  const bridge = resolveBridgePreset(project);
 
   const bodyPath = anchorsToSVGPath(contour.anchors, contour.closed);
 

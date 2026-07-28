@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Stage, Layer, Line, Circle, Rect, Path, Text, Group, Image as KonvaImage } from 'react-konva';
 import Konva from 'konva';
-import { BRIDGE_PRESETS, NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
+import { PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import type { GuitarProject, GuideImageState, Vector2D, CalibrationState } from '../types/guitar';
 import {
@@ -13,6 +13,7 @@ import {
   updateAnchorHandle,
 } from '../utils/bezier';
 import { applyLiveSymmetry, withMirroredInsertion } from '../utils/symmetry';
+import { resolveBridgePreset, resolveNeckPreset } from '../utils/presets';
 import { getBridgePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 import { ZoomIn, ZoomOut, Maximize2, Hand, Spline } from 'lucide-react';
 import {
@@ -90,9 +91,9 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   // Show every anchor's bezier handles at once, instead of only the selected one's
   const [showAllHandles, setShowAllHandles] = useState(false);
 
-  const { contour, settings, neckPresetId, bridgePresetId, pickups, activeTemplateId } = project;
-  const neck = NECK_PRESETS[neckPresetId] || NECK_PRESETS.fender_strat_21;
-  const bridge = BRIDGE_PRESETS[bridgePresetId] || BRIDGE_PRESETS.tremolo_strat;
+  const { contour, settings, pickups, activeTemplateId } = project;
+  const neck = resolveNeckPreset(project);
+  const bridge = resolveBridgePreset(project);
   const activeTemplate = REFERENCE_TEMPLATES[activeTemplateId] || REFERENCE_TEMPLATES.s_style;
 
   const isHorizontal = settings.canvasOrientation === 'horizontal';

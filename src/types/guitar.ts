@@ -165,5 +165,14 @@ export interface GuitarProject {
   contour: BodyContour;
   neckPresetId: string;
   bridgePresetId: string;
+  /**
+   * Resolved copy of the hardware this design was drawn against, saved with
+   * the file so the geometry survives a reader whose preset table differs -
+   * an older build, or a separate implementation. Takes precedence over the
+   * id; see src/utils/presets.ts. Optional only because schemaVersion 1 files
+   * predate it, and migrateProject() backfills them on load.
+   */
+  neckPreset?: NeckPreset;
+  bridgePreset?: BridgePreset;
   pickups: PickupPlacement[];
 }

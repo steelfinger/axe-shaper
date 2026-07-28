@@ -37,6 +37,26 @@ Changing it on a template whose horns stop at Y=0 slides the entire body up the
 neck and drags the bridge and pickups with it. There is a comment about this on
 `sg_style` in `src/constants/hardware.ts` - it was found the hard way.
 
+## Hardware presets: the embedded copy wins
+
+A project stores hardware twice - the preset *id*, and a full copy of the
+preset itself (`neckPreset` / `bridgePreset`, schemaVersion 2). `resolveNeckPreset`
+and `resolveBridgePreset` in `src/utils/presets.ts` read the **copy** first, so
+**setting `neckPresetId` on its own does nothing**. Spread `neckPresetFields(id)`
+/ `bridgePresetFields(id)` instead - they move the pair together.
+
+The reason is that bridge Y comes from the neck's scale length and the bridge's
+compensation. A reader that resolves an unknown id by falling back to a default
+does not fail loudly, it just puts the saddle line somewhere else - about 38mm
+out in the worst case measured - on a drawing whose whole point is to be
+printed 1:1 and cut. The copy means a file drawn against hardware this build
+has never heard of still comes out right.
+
+The consequence is intended: fixing a spec in `hardware.ts` does not move the
+bridge on existing saves. Re-picking the preset adopts the new spec.
+
+`migrateProject()` backfills the copies when a version 1 file is opened.
+
 ## Where the real logic lives
 
 - `src/utils/scaleMath.ts` - single source of truth for saddle and bridge Y.

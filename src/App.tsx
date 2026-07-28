@@ -4,6 +4,8 @@ import { Sidebar } from './components/Sidebar';
 import { InspectorPanel } from './components/InspectorPanel';
 import { CanvasWorkspace } from './components/CanvasWorkspace';
 import { REFERENCE_TEMPLATES } from './constants/templates';
+import { PROJECT_SCHEMA_VERSION } from './constants/schema';
+import { bridgePresetFields, migrateProject, neckPresetFields } from './utils/presets';
 import type { GuitarProject, GuideImageState, CalibrationState, Vector2D } from './types/guitar';
 import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
@@ -16,7 +18,7 @@ import { SaveInfoModal } from './components/SaveInfoModal';
 const MIN_ANCHOR_COUNT = 4;
 
 const INITIAL_PROJECT: GuitarProject = {
-  schemaVersion: 1,
+  schemaVersion: PROJECT_SCHEMA_VERSION,
   appVersion: '1.0.0',
   metadata: {
     created: new Date().toISOString(),
@@ -49,8 +51,8 @@ const INITIAL_PROJECT: GuitarProject = {
     anchors: REFERENCE_TEMPLATES.s_style.defaultAnchors,
     closed: true,
   },
-  neckPresetId: REFERENCE_TEMPLATES.s_style.neckPresetId,
-  bridgePresetId: REFERENCE_TEMPLATES.s_style.bridgePresetId,
+  ...neckPresetFields(REFERENCE_TEMPLATES.s_style.neckPresetId),
+  ...bridgePresetFields(REFERENCE_TEMPLATES.s_style.bridgePresetId),
   pickups: REFERENCE_TEMPLATES.s_style.defaultPickups,
 };
 
@@ -222,8 +224,11 @@ export function App(): React.JSX.Element {
     handleUpdateProject((prev) => ({
       ...prev,
       activeTemplateId: templateId,
-      neckPresetId: template.neckPresetId,
-      bridgePresetId: template.bridgePresetId,
+      // Built-in blueprints and user templates both reference hardware by id,
+      // and for those this build's table is the authority - so resolve fresh
+      // rather than carrying over whatever the previous project had embedded.
+      ...neckPresetFields(template.neckPresetId),
+      ...bridgePresetFields(template.bridgePresetId),
       contour: {
         anchors: JSON.parse(JSON.stringify(template.defaultAnchors)),
         closed: true,
@@ -351,7 +356,7 @@ export function App(): React.JSX.Element {
       const text = event.target?.result as string;
       const imported = extractProjectFromSVG(text);
       if (imported && imported.contour && imported.settings) {
-        handleUpdateProject(() => imported);
+        handleUpdateProject(() => migrateProject(imported));
         setSelectedAnchorId(null);
         setSelectedSegmentIndex(null);
       } else {

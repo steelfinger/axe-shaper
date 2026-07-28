@@ -3,6 +3,12 @@ import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, L
 import { BRIDGE_PRESETS, NECK_PRESETS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import type { GuitarProject, GuideImageState, SymmetryMode, CalibrationState } from '../types/guitar';
+import {
+  bridgePresetFields,
+  neckPresetFields,
+  resolveBridgePreset,
+  resolveNeckPreset,
+} from '../utils/presets';
 import { getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 import { GRID_PRESETS, formatLength, gridMinorDivisor, toMm, unitLabel } from '../utils/units';
 import { deleteUserTemplate, loadUserTemplates, saveUserTemplate, type UserTemplate } from '../utils/userTemplates';
@@ -72,8 +78,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const { settings, neckPresetId, bridgePresetId } = project;
-  const currentNeck = NECK_PRESETS[neckPresetId] || NECK_PRESETS.fender_strat_21;
-  const currentBridge = BRIDGE_PRESETS[bridgePresetId] || BRIDGE_PRESETS.tremolo_strat;
+  // Resolved, so the spec readouts below describe the hardware the design is
+  // actually drawn against - which, on a file from another build, need not be
+  // what this app's table has under that id.
+  const currentNeck = resolveNeckPreset(project);
+  const currentBridge = resolveBridgePreset(project);
 
   return (
     <aside className="app-sidebar">
@@ -564,10 +573,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   value={neckPresetId}
                   onChange={(e) =>
                     onUpdateProject((prev) => {
-                      const newNeckId = e.target.value;
-                      const newNeck = NECK_PRESETS[newNeckId];
+                      const neckFields = neckPresetFields(e.target.value);
                       // Auto-snap shoulder anchors to new joint width
-                      const halfWidth = newNeck.jointWidthMm / 2;
+                      const halfWidth = neckFields.neckPreset.jointWidthMm / 2;
                       const updatedAnchors = prev.contour.anchors.map((a) => {
                         if (a.semanticRole === 'neck_pocket_left') {
                           return { ...a, position: { ...a.position, x: -halfWidth } };
@@ -579,7 +587,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       });
                       return {
                         ...prev,
-                        neckPresetId: newNeckId,
+                        ...neckFields,
                         contour: { ...prev.contour, anchors: updatedAnchors },
                       };
                     })
@@ -609,7 +617,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <select
                   value={bridgePresetId}
                   onChange={(e) =>
-                    onUpdateProject((prev) => ({ ...prev, bridgePresetId: e.target.value }))
+                    onUpdateProject((prev) => ({ ...prev, ...bridgePresetFields(e.target.value) }))
                   }
                   className="form-select"
                 >
