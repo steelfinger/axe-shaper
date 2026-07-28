@@ -205,7 +205,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
     e.evt.preventDefault();
     const scaleBy = 1.08;
     const newZoom = e.evt.deltaY < 0 ? zoom * scaleBy : zoom / scaleBy;
-    setZoom(Math.min(Math.max(0.4, newZoom), 3.5));
+    setZoom(Math.min(Math.max(0.4, newZoom), 10));
   };
 
   // Node Dragging Handler
@@ -318,7 +318,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           <ZoomOut size={14} />
         </button>
         <span className="zoom-text">{Math.round(zoom * 100)}%</span>
-        <button className="btn btn-sm" onClick={() => setZoom((z) => Math.min(3.5, z * 1.15))} title="Zoom In">
+        <button className="btn btn-sm" onClick={() => setZoom((z) => Math.min(10, z * 1.15))} title="Zoom In">
           <ZoomIn size={14} />
         </button>
         <button
