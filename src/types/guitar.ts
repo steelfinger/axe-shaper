@@ -27,6 +27,13 @@ export interface PathAnchor {
   handleMode: HandleMode;
   locked?: boolean;
   semanticRole?: BodyNodeRole;
+  /**
+   * id of the anchor this one mirrors under live-centerline symmetry, once
+   * established. Absent on older saves and on anchors that haven't been
+   * paired yet - applyLiveSymmetry() bootstraps it on demand, by role or by
+   * geometric proximity, rather than requiring a migration.
+   */
+  mirrorId?: string;
 }
 
 export interface BodyContour {

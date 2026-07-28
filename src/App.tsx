@@ -7,6 +7,7 @@ import { REFERENCE_TEMPLATES } from './constants/templates';
 import type { GuitarProject, GuideImageState, CalibrationState, Vector2D } from './types/guitar';
 import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
+import { withMirroredInsertion } from './utils/symmetry';
 import { downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
 import { getUserTemplate } from './utils/userTemplates';
 import { SaveInfoModal } from './components/SaveInfoModal';
@@ -276,8 +277,11 @@ export function App(): React.JSX.Element {
 
     // Split up front: React runs the updater after this handler returns, so an id
     // read from inside it would still be empty when we go to select the new node.
-    const anchors = insertAnchorOnSegment(project.contour.anchors, idx, 0.5);
+    let anchors = insertAnchorOnSegment(project.contour.anchors, idx, 0.5);
     const insertedId = anchors[idx + 1]?.id;
+    if (insertedId) {
+      anchors = withMirroredInsertion(anchors, insertedId, project.settings.symmetry, project.contour.closed);
+    }
 
     handleUpdateProject((prev) => ({ ...prev, contour: { ...prev.contour, anchors } }));
     if (insertedId) handleSelectAnchor(insertedId);

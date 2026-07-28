@@ -12,7 +12,7 @@ import {
   resetAnchorHandle,
   updateAnchorHandle,
 } from '../utils/bezier';
-import { applyLiveSymmetry } from '../utils/symmetry';
+import { applyLiveSymmetry, withMirroredInsertion } from '../utils/symmetry';
 import { getBridgePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 import { ZoomIn, ZoomOut, Maximize2, Hand, Spline } from 'lucide-react';
 import {
@@ -400,8 +400,11 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
           // Split up front rather than inside the updater: React runs the updater
           // after the handler returns, so an id read from in there is always empty
-          const updated = insertAnchorOnSegment(contour.anchors, hit.index, hit.t);
+          let updated = insertAnchorOnSegment(contour.anchors, hit.index, hit.t);
           const insertedId = updated[hit.index + 1]?.id;
+          if (insertedId) {
+            updated = withMirroredInsertion(updated, insertedId, settings.symmetry, contour.closed);
+          }
 
           onUpdateProject((prev) => ({ ...prev, contour: { ...prev.contour, anchors: updated } }));
           if (insertedId) onSelectAnchor(insertedId);
