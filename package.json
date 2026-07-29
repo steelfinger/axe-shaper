@@ -11,6 +11,7 @@
     "lint": "oxlint",
     "corpus": "node scripts/generate-golden-corpus.ts",
     "corpus:check": "node scripts/generate-golden-corpus.ts --check",
+    "fixtures:check": "node scripts/check-ios-fixtures.ts",
     "preview": "vite preview"
   },
   "dependencies": {
