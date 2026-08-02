@@ -69,7 +69,16 @@ export interface BridgePreset {
     treble: LengthMm;
     bass: LengthMm;
   };
-  mountingPoints: Vector2D[]; // Relative to bridge origin mm
+  /**
+   * Mounting screw positions relative to the bridge origin, in mm. Optional
+   * because the *embedded copy* in a file need not carry them: the iOS app's
+   * preset catalogue doesn't transcribe this field, so every bridgePreset it
+   * embeds omits it, and this app used to crash rendering or saving such a
+   * file (`bridge.mountingPoints.map` on undefined). Nothing in the scale or
+   * saddle math reads it — it is drawn decoration — so `?? []` at each call
+   * site is the right answer, and the optional type is what forces one.
+   */
+  mountingPoints?: Vector2D[]; // Relative to bridge origin mm
   widthMm: LengthMm;
   lengthMm: LengthMm;
   saddleOffsetYMm?: LengthMm; // Distance from top edge of plate to saddle line

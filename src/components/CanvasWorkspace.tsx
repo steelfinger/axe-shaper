@@ -662,7 +662,11 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   stroke="#ef4444"
                   strokeWidth={2.0 / zoom}
                 />
-                {bridge.mountingPoints.map((pt, idx) => (
+                {/* `?? []` - an embedded bridge copy need not carry these, and
+                    an iOS-written file never does. Unguarded, this threw
+                    inside render, which is a blank canvas rather than a
+                    missing detail. See BridgePreset.mountingPoints. */}
+                {(bridge.mountingPoints ?? []).map((pt, idx) => (
                   <Circle key={idx} x={pt.x} y={pt.y} radius={3 / zoom} fill="#3b82f6" />
                 ))}
               </Group>

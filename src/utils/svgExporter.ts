@@ -109,7 +109,11 @@ function getContentBoundsMm(project: GuitarProject): BoundsMm {
   add(-bridge.widthMm / 2, plateTopY);
   add(bridge.widthMm / 2, plateTopY + bridge.lengthMm);
   add(0, getTheoreticalSaddleYMm(neck));
-  for (const pt of bridge.mountingPoints) {
+  // `?? []` because an embedded bridge copy need not carry them — see the
+  // note on BridgePreset.mountingPoints. Same defensive shape as
+  // `project.pickups ?? []` in withEmbeddedPresets, and for the same reason:
+  // a foreign file is not obliged to populate every field of our type.
+  for (const pt of bridge.mountingPoints ?? []) {
     add(pt.x, saddleY + pt.y);
   }
 
@@ -256,7 +260,7 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
     <g transform="translate(0, ${saddleY.toFixed(2)})">
       <rect x="${(-bridge.widthMm / 2).toFixed(2)}" y="${(bridgePlateTopY - saddleY).toFixed(2)}" width="${bridge.widthMm}" height="${bridge.lengthMm}" class="bridge-rout" />
       <line x1="${(-bridge.widthMm / 2 + 5).toFixed(2)}" y1="0" x2="${(bridge.widthMm / 2 - 5).toFixed(2)}" y2="0" stroke="#dc3545" stroke-width="1.2" />
-      ${bridge.mountingPoints
+      ${(bridge.mountingPoints ?? [])
         .map((pt) => `<circle cx="${pt.x}" cy="${pt.y}" r="2" fill="#007bff" />`)
         .join('')}
     </g>
