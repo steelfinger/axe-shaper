@@ -17,7 +17,12 @@
  *   - loading is a no-op: migrateProject() deep-equals the payload, so a
  *     current, fully-embedded file round-trips untouched;
  *   - the drawn body path equals anchorsToSVGPath() of the decoded payload —
- *     drawn geometry is the one thing plan §3 pins across implementations.
+ *     drawn geometry is the one thing plan §3 pins across implementations;
+ *   - saving is lossless: running this app's own writer over the decoded
+ *     payload and re-reading it returns the same object, including keys this
+ *     app has no model for (guideImage, which the iOS app persists and this
+ *     one does not). Loading was never the risk; a save that rebuilds the
+ *     project instead of spreading it is.
  *
  * Usage:
  *   npm run fixtures:check
@@ -36,8 +41,12 @@ import { createServer } from 'vite';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const FIXTURE_DIR = join(ROOT, 'tests', 'fixtures', 'ios-written');
 
-/** The synthetic fixture the blueprints can't be: live symmetry with mirrorIds. */
-const SYNTHETIC_FIXTURES = ['live_symmetry.axe.svg'];
+/**
+ * The synthetic fixtures the blueprints can't be: live symmetry with
+ * mirrorIds, and a `guideImage` — a payload object this app has no model for
+ * at all (its own guide image is session-only and never saved).
+ */
+const SYNTHETIC_FIXTURES = ['live_symmetry.axe.svg', 'guide_image.axe.svg'];
 
 let failures = 0;
 function check(label: string, fn: () => void) {
@@ -92,6 +101,10 @@ async function main() {
     const scaleMath = await load('/src/utils/scaleMath.ts');
     const manifest = await load('/src/constants/blueprintManifest.ts');
     const schema = await load('/src/constants/schema.ts');
+    // exportProjectToSVG is DOM-free (TextEncoder + btoa); only
+    // extractProjectFromSVG in the same module needs a DOMParser, and this
+    // script does its own scanning rather than calling it.
+    const exporter = await load('/src/utils/svgExporter.ts');
 
     invariant(existsSync(FIXTURE_DIR), `fixture directory missing: ${FIXTURE_DIR} — run the iOS repo's Scripts/sync-fixtures-to-web.sh`);
 
@@ -175,6 +188,31 @@ async function main() {
         const expectedPath = bezier.anchorsToSVGPath(project.contour.anchors, project.contour.closed ?? true);
         deepStrictEqual(drawnBodyPath(svg), expectedPath);
       });
+
+      // Loading is not where an iOS-only field gets lost — *saving* is. This
+      // app writes whatever object it is holding, so a field it has no model
+      // for survives only as long as every update path spreads the parsed
+      // object rather than rebuilding it. That is currently true, and it is
+      // true by habit rather than by design, which is exactly the kind of
+      // thing that stops being true in a refactor nobody connects to the
+      // iPad. Running the real writer is what turns it into a checked fact.
+      check('a save preserves the whole payload, including fields this app has no model for', () => {
+        const written = scan(exporter.exportProjectToSVG(project)).project;
+        deepStrictEqual(written, presets.migrateProject(project));
+      });
+
+      // Called out separately from the whole-payload check above: a
+      // deepStrictEqual diff over an entire project is unreadable, and this
+      // is the field with something real at stake — a scanned, calibrated
+      // reference photo the user cannot casually recreate, carrying its own
+      // image bytes.
+      if (project.guideImage) {
+        check('the iOS guide image survives a save byte-for-byte', () => {
+          const written = scan(exporter.exportProjectToSVG(project)).project;
+          invariant(written.guideImage, 'the guide image was dropped by the writer');
+          deepStrictEqual(written.guideImage, project.guideImage);
+        });
+      }
     }
   } finally {
     await server.close();
