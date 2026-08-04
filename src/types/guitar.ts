@@ -59,6 +59,15 @@ export interface NeckPreset {
   jointDepthMm: LengthMm;
   jointCornerRadiusMm: LengthMm;
   style: 'fender_style' | 'gibson_style' | 'baritone';
+  /**
+   * Same measurement as jointWidthMm/jointDepthMm/jointCornerRadiusMm, under
+   * the name the iOS writer uses. Not read by any rendering or export code
+   * here - present so pocket*-only fields on an iOS-written file survive a
+   * round trip through this app instead of being silently dropped.
+   */
+  pocketWidthMm?: LengthMm;
+  pocketDepthMm?: LengthMm;
+  pocketCornerRadiusMm?: LengthMm;
 }
 
 export interface BridgePreset {

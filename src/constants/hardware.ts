@@ -1,5 +1,9 @@
 import type { BridgePreset, NeckPreset, PickupRoutSpec, PickupType } from '../types/guitar';
 
+// pocketWidthMm/pocketDepthMm/pocketCornerRadiusMm duplicate
+// jointWidthMm/jointDepthMm/jointCornerRadiusMm below - the iOS writer's name
+// for the same measurement. Rendering and export here still read joint*; the
+// pocket* copy exists so a project this app writes carries both names.
 export const NECK_PRESETS: Record<string, NeckPreset> = {
   fender_strat_21: {
     id: 'fender_strat_21',
@@ -11,6 +15,9 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     jointWidthMm: 55.56,      // 2-3/16 inches
     jointDepthMm: 76.2,       // 3.0 inches pocket length into the body
     jointCornerRadiusMm: 6.35, // 1/4 inch - radius left by the router bit
+    pocketWidthMm: 55.56,
+    pocketDepthMm: 76.2,
+    pocketCornerRadiusMm: 6.35,
     style: 'fender_style',
   },
   fender_tele_22: {
@@ -23,6 +30,9 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     jointWidthMm: 55.56,
     jointDepthMm: 76.2,
     jointCornerRadiusMm: 6.35, // Same routed pocket as the S-Style - not square
+    pocketWidthMm: 55.56,
+    pocketDepthMm: 76.2,
+    pocketCornerRadiusMm: 6.35,
     style: 'fender_style',
   },
   gibson_lp_22: {
@@ -35,6 +45,9 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     jointWidthMm: 38.1,       // 1.5 inches mortise
     jointDepthMm: 101.6,      // 4.0 inches - long tenon, runs under the neck pickup rout
     jointCornerRadiusMm: 6.35,
+    pocketWidthMm: 38.1,
+    pocketDepthMm: 101.6,
+    pocketCornerRadiusMm: 6.35,
     style: 'gibson_style',
   },
   gibson_sg_22: {
@@ -50,6 +63,9 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     jointWidthMm: 38.1,       // 1.5 inches mortise
     jointDepthMm: 76.2,       // SG pocket depth inside body
     jointCornerRadiusMm: 6.35,
+    pocketWidthMm: 38.1,
+    pocketDepthMm: 76.2,
+    pocketCornerRadiusMm: 6.35,
     style: 'gibson_style',
   },
   gibson_firebird_19: {
@@ -73,6 +89,9 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     jointWidthMm: 38.1,       // 1.5 inches - same pocket width as the other Gibson-style presets, matches the routing template's 3.80cm reference dimension
     jointDepthMm: 82.0,       // Pocket depth, measured off the routing template
     jointCornerRadiusMm: 6.35,
+    pocketWidthMm: 38.1,
+    pocketDepthMm: 82.0,
+    pocketCornerRadiusMm: 6.35,
     style: 'gibson_style',
   },
   gretsch_thunderbird_22: {
@@ -89,6 +108,9 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     jointWidthMm: 38.1,       // Matches THUNDERBIRD_ANCHORS' pocket anchors (x=+-19.05)
     jointDepthMm: 76.2,       // Carried over from gibson_sg_22 - not separately measured for this template
     jointCornerRadiusMm: 6.35,
+    pocketWidthMm: 38.1,
+    pocketDepthMm: 76.2,
+    pocketCornerRadiusMm: 6.35,
     style: 'gibson_style',
   },
   gibson_flying_v_22: {
@@ -105,6 +127,9 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     jointWidthMm: 38.1,       // Matches V_STYLE_ANCHORS' pocket anchors (x=+-19.05)
     jointDepthMm: 67.0,       // Given directly for this template
     jointCornerRadiusMm: 6.35,
+    pocketWidthMm: 38.1,
+    pocketDepthMm: 67.0,
+    pocketCornerRadiusMm: 6.35,
     style: 'gibson_style',
   },
   baritone_27: {
@@ -117,6 +142,9 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     jointWidthMm: 57.0,
     jointDepthMm: 76.2,
     jointCornerRadiusMm: 12.7,
+    pocketWidthMm: 57.0,
+    pocketDepthMm: 76.2,
+    pocketCornerRadiusMm: 12.7,
     style: 'baritone',
   },
 };
