@@ -12,6 +12,12 @@ import {
   updateAnchorHandle,
 } from '../utils/bezier';
 import { applyLiveSymmetry, withMirroredInsertion } from '../utils/symmetry';
+import { type ActiveLayer, getActiveContour, withActiveContour } from '../utils/layerShapes';
+import {
+  movingPickup,
+  pickupRotationHandlePosition,
+  rotatingPickupToward,
+} from '../utils/pickupEditing';
 import { resolveBridgePreset, resolveNeckPreset, resolvePickupSpec } from '../utils/presets';
 import { getBridgePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 import { ZoomIn, ZoomOut, Maximize2, Hand, Spline } from 'lucide-react';
@@ -38,6 +44,8 @@ const PICK_TOLERANCE_PX = 12;
 const anchorDragKey = (id: string) => `anchor:${id}`;
 const handleDragKey = (id: string, type: 'in' | 'out') => `handle:${id}:${type}`;
 const GUIDE_DRAG_KEY = 'guide:move';
+const pickupMoveKey = (id: string) => `pickup:move:${id}`;
+const pickupRotateKey = (id: string) => `pickup:rotate:${id}`;
 
 interface CanvasWorkspaceProps {
   project: GuitarProject;
@@ -45,6 +53,8 @@ interface CanvasWorkspaceProps {
   onSelectAnchor: (id: string | null) => void;
   selectedSegmentIndex: number | null;
   onSelectSegment: (index: number | null) => void;
+  selectedPickupId: string | null;
+  onSelectPickup: (id: string | null) => void;
   onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject, coalesceKey?: string) => void;
   /** Snapshot before an edit; pass the same key the following updates use. */
   onBeginEdit: (coalesceKey?: string) => void;
@@ -59,6 +69,8 @@ interface CanvasWorkspaceProps {
   onCalibrationPick: (point: Vector2D) => void;
   onApplyCalibration: (knownDistanceMm: number) => void;
   onCancelCalibration: () => void;
+  /** Which contour a gesture on this canvas edits - the body by default. */
+  activeLayer: ActiveLayer;
 }
 
 
@@ -68,6 +80,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   onSelectAnchor,
   selectedSegmentIndex,
   onSelectSegment,
+  selectedPickupId,
+  onSelectPickup,
   onUpdateProject,
   onBeginEdit,
   onEndEdit,
@@ -77,6 +91,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   onCalibrationPick,
   onApplyCalibration,
   onCancelCalibration,
+  activeLayer,
 }) => {
   const [knownDistanceInput, setKnownDistanceInput] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -90,10 +105,20 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   // Show every anchor's bezier handles at once, instead of only the selected one's
   const [showAllHandles, setShowAllHandles] = useState(false);
 
-  const { contour, settings, pickups, activeTemplateId } = project;
+  // pickguards/frontRoutes/backRoutes are optional on GuitarProject - a file
+  // from before this feature existed genuinely lacks the key - so default
+  // here rather than at every .map()/.filter() below.
+  const { contour, settings, pickups, pickguards = [], frontRoutes = [], backRoutes = [], activeTemplateId } = project;
   const neck = resolveNeckPreset(project);
   const bridge = resolveBridgePreset(project);
   const activeTemplate = REFERENCE_TEMPLATES[activeTemplateId] || REFERENCE_TEMPLATES.s_style;
+
+  const isBodyActive = activeLayer.kind === 'body';
+  // The contour a gesture on this canvas actually reads/writes - `contour`
+  // itself when body is active (every file today), a pickguard/route's own
+  // contour otherwise. Falls back to the body if the active shape's id has
+  // gone missing (e.g. deleted from another tab) rather than editing nothing.
+  const activeContour = getActiveContour(project, activeLayer) ?? contour;
 
   const isHorizontal = settings.canvasOrientation === 'horizontal';
   const rotation = isHorizontal ? 90 : 0;
@@ -195,6 +220,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   const ghostSVGPath = anchorsToSVGPath(activeTemplate.defaultAnchors, true);
   // Live body path data
   const bodySVGPath = anchorsToSVGPath(contour.anchors, contour.closed);
+  // The currently-editable contour's path - same as bodySVGPath when the body is active
+  const activeSVGPath = isBodyActive ? bodySVGPath : anchorsToSVGPath(activeContour.anchors, activeContour.closed);
 
   // Theoretical saddle & bridge Y mm (measured from body pocket entrance edge Y=0)
   const theoreticalSaddleY = getTheoreticalSaddleYMm(neck);
@@ -218,29 +245,31 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
     let newModelX = modelPt.x;
     let newModelY = modelPt.y;
 
-    const anchor = contour.anchors[index];
+    const anchor = activeContour.anchors[index];
 
-    // Pocket constraint: If anchor is locked, keep x snapped to joint width
-    if (anchor.locked) {
+    // Pocket constraint: If anchor is locked, keep x snapped to joint width.
+    // A body-only concept - the neck pocket only exists relative to the body.
+    if (isBodyActive && anchor.locked) {
       newModelY = 0; // Lock to Y=0 joint line
       if (anchor.semanticRole === 'neck_pocket_left') newModelX = -neck.jointWidthMm / 2;
       if (anchor.semanticRole === 'neck_pocket_right') newModelX = neck.jointWidthMm / 2;
     }
 
     onUpdateProject((prev) => {
-      const updatedAnchors = [...prev.contour.anchors];
+      const prevContour = getActiveContour(prev, activeLayer);
+      if (!prevContour) return prev;
+      const updatedAnchors = [...prevContour.anchors];
       updatedAnchors[index] = {
         ...anchor,
         position: { x: newModelX, y: newModelY },
       };
 
-      // Apply live symmetry
-      const finalAnchors = applyLiveSymmetry(updatedAnchors, anchor.id, prev.settings.symmetry);
+      // Live-centerline mirroring only exists for the body.
+      const finalAnchors = isBodyActive
+        ? applyLiveSymmetry(updatedAnchors, anchor.id, prev.settings.symmetry)
+        : updatedAnchors;
 
-      return {
-        ...prev,
-        contour: { ...prev.contour, anchors: finalAnchors },
-      };
+      return withActiveContour(prev, activeLayer, { ...prevContour, anchors: finalAnchors });
     }, anchorDragKey(anchor.id));
   };
 
@@ -253,7 +282,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
     const newScreenX = e.target.x();
     const newScreenY = e.target.y();
 
-    const anchor = contour.anchors[index];
+    const anchor = activeContour.anchors[index];
     const anchorScreen = toScreen(anchor.position);
 
     // Delta in screen pixels
@@ -266,45 +295,47 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
     const offsetY = (deltaScreenX * Math.sin(rad) + deltaScreenY * Math.cos(rad)) / zoom;
 
     onUpdateProject((prev) => {
-      const updatedAnchors = [...prev.contour.anchors];
+      const prevContour = getActiveContour(prev, activeLayer);
+      if (!prevContour) return prev;
+      const updatedAnchors = [...prevContour.anchors];
       const target = updateAnchorHandle(anchor, handleType, { x: offsetX, y: offsetY });
 
       updatedAnchors[index] = target;
-      const finalAnchors = applyLiveSymmetry(updatedAnchors, anchor.id, prev.settings.symmetry);
+      const finalAnchors = isBodyActive
+        ? applyLiveSymmetry(updatedAnchors, anchor.id, prev.settings.symmetry)
+        : updatedAnchors;
 
-      return {
-        ...prev,
-        contour: { ...prev.contour, anchors: finalAnchors },
-      };
+      return withActiveContour(prev, activeLayer, { ...prevContour, anchors: finalAnchors });
     }, handleDragKey(anchor.id, handleType));
   };
 
   // Escape hatch for a handle dragged somewhere unreachable (typically right on
   // top of its own anchor) - double-click snaps it back out to a grabbable length.
   const handleHandleReset = (index: number, handleType: 'in' | 'out') => {
-    const anchor = contour.anchors[index];
+    const anchor = activeContour.anchors[index];
     onUpdateProject((prev) => {
-      const updatedAnchors = resetAnchorHandle(prev.contour.anchors, index, handleType, prev.contour.closed);
-      const finalAnchors = applyLiveSymmetry(updatedAnchors, anchor.id, prev.settings.symmetry);
+      const prevContour = getActiveContour(prev, activeLayer);
+      if (!prevContour) return prev;
+      const updatedAnchors = resetAnchorHandle(prevContour.anchors, index, handleType, prevContour.closed);
+      const finalAnchors = isBodyActive
+        ? applyLiveSymmetry(updatedAnchors, anchor.id, prev.settings.symmetry)
+        : updatedAnchors;
 
-      return {
-        ...prev,
-        contour: { ...prev.contour, anchors: finalAnchors },
-      };
+      return withActiveContour(prev, activeLayer, { ...prevContour, anchors: finalAnchors });
     });
   };
 
   const isPanMode = isPanToolActive || isSpacePressed || isModifierPanning;
 
-  /** Nearest contour segment to a stage pointer position, if the click was close enough. */
+  /** Nearest active-contour segment to a stage pointer position, if the click was close enough. */
   const pickSegment = (pointer: Vector2D): number | null => {
-    const hit = findClosestSegment(contour.anchors, contour.closed, toModel(pointer));
+    const hit = findClosestSegment(activeContour.anchors, activeContour.closed, toModel(pointer));
     if (!hit) return null;
     // Tolerance in screen px, so it stays the same size as you zoom
     return hit.distance * zoom <= PICK_TOLERANCE_PX ? hit.index : null;
   };
 
-  /** Only empty canvas and the body itself pick segments - never a node or handle. */
+  /** Only empty canvas and the active outline pick segments - never a node or handle. */
   const isOutlinePickTarget = (target: Konva.Node): boolean =>
     target === target.getStage() || target.name() === BODY_OUTLINE_NAME;
 
@@ -388,25 +419,29 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           const index = pickSegment(pointer);
           onSelectSegment(index);
           // A click out in open space, or well inside the body, clears everything
-          if (index === null) onSelectAnchor(null);
+          if (index === null) {
+            onSelectAnchor(null);
+            onSelectPickup(null);
+          }
         }}
         onDblClick={(e) => {
           if (isPanMode || calibration.active || !isOutlinePickTarget(e.target)) return;
 
           const pointer = e.target.getStage()?.getPointerPosition();
           if (!pointer) return;
-          const hit = findClosestSegment(contour.anchors, contour.closed, toModel(pointer));
+          const hit = findClosestSegment(activeContour.anchors, activeContour.closed, toModel(pointer));
           if (!hit || hit.distance * zoom > PICK_TOLERANCE_PX) return;
 
           // Split up front rather than inside the updater: React runs the updater
           // after the handler returns, so an id read from in there is always empty
-          let updated = insertAnchorOnSegment(contour.anchors, hit.index, hit.t);
+          let updated = insertAnchorOnSegment(activeContour.anchors, hit.index, hit.t);
           const insertedId = updated[hit.index + 1]?.id;
-          if (insertedId) {
-            updated = withMirroredInsertion(updated, insertedId, settings.symmetry, contour.closed);
+          // Live-centerline mirroring only exists for the body.
+          if (insertedId && isBodyActive) {
+            updated = withMirroredInsertion(updated, insertedId, settings.symmetry, activeContour.closed);
           }
 
-          onUpdateProject((prev) => ({ ...prev, contour: { ...prev.contour, anchors: updated } }));
+          onUpdateProject((prev) => withActiveContour(prev, activeLayer, { ...activeContour, anchors: updated }));
           if (insertedId) onSelectAnchor(insertedId);
         }}
       >
@@ -558,7 +593,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
         {/* LAYER 1.5: GUIDE BACKGROUND IMAGE */}
         {guideImage.visible && guideImage.element && (
-          <Layer listening={!isPanMode && !calibration.active}>
+          <Layer listening={!isPanMode && !calibration.active && isBodyActive}>
             <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               <KonvaImage
                 image={guideImage.element}
@@ -570,7 +605,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 scaleY={guideImage.scale}
                 rotation={guideImage.rotationDegrees}
                 opacity={guideImage.opacity}
-                draggable={!isPanMode && !guideImage.locked}
+                draggable={!isPanMode && isBodyActive && !guideImage.locked}
                 onDragStart={() => onBeginEdit(GUIDE_DRAG_KEY)}
                 onDragEnd={(e) => {
                   onUpdateGuideImage(
@@ -584,26 +619,67 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           </Layer>
         )}
 
-        {/* LAYER 2: LIVE BODY SHAPE */}
+        {/* LAYER 1.75: BACK ROUTED CAVITIES - dashed, drawn under the body fill
+            since a cut from the back isn't visible from the front */}
+        {settings.showBackRoutes !== false && backRoutes.length > 0 && (
+          <Layer listening={false}>
+            <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
+              {backRoutes
+                .filter((r) => r.visible !== false)
+                .map((r) => (
+                  <Path
+                    key={r.id}
+                    data={anchorsToSVGPath(r.contour.anchors, r.contour.closed)}
+                    stroke="#9333ea"
+                    strokeWidth={1.5 / zoom}
+                    dash={[4 / zoom, 3 / zoom]}
+                  />
+                ))}
+            </Group>
+          </Layer>
+        )}
+
+        {/* LAYER 2: LIVE BODY SHAPE (and, while editing one, the active pickguard/route outline) */}
         <Layer listening={!isPanMode && !calibration.active}>
           <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
+            {/* Dimmed reference outline of the real body, while editing a different layer */}
+            {!isBodyActive && (
+              <Path data={bodySVGPath} stroke="#f0f4f8" strokeWidth={1.5 / zoom} opacity={0.15} listening={false} />
+            )}
             <Path
-              data={bodySVGPath}
+              data={activeSVGPath}
               fill={
-                settings.finishStyle === 'solid'
-                  ? settings.bodyColor
-                  : settings.finishStyle === 'sunburst'
-                  ? '#b45309'
-                  : '#d97706'
+                isBodyActive
+                  ? settings.finishStyle === 'solid'
+                    ? settings.bodyColor
+                    : settings.finishStyle === 'sunburst'
+                    ? '#b45309'
+                    : '#d97706'
+                  : 'rgba(147, 51, 234, 0.18)'
               }
-              opacity={settings.bodyFillOpacity ?? 0.35}
-              stroke="#f0f4f8"
+              opacity={isBodyActive ? settings.bodyFillOpacity ?? 0.35 : 1}
+              stroke={isBodyActive ? '#f0f4f8' : '#9333ea'}
               strokeWidth={2.5 / zoom}
               shadowColor="#000"
-              shadowBlur={20}
-              shadowOpacity={0.5}
+              shadowBlur={isBodyActive ? 20 : 0}
+              shadowOpacity={isBodyActive ? 0.5 : 0}
               name={BODY_OUTLINE_NAME}
             />
+            {/* Pickguard - translucent, above the body, under the hardware/pickups */}
+            {settings.showPickguard !== false &&
+              pickguards
+                .filter((p) => p.visible !== false)
+                .map((p) => (
+                  <Path
+                    key={p.id}
+                    data={anchorsToSVGPath(p.contour.anchors, p.contour.closed)}
+                    fill={p.colorHex ?? '#ffffff'}
+                    opacity={0.55}
+                    stroke="#9ca3af"
+                    strokeWidth={1 / zoom}
+                    listening={false}
+                  />
+                ))}
           </Group>
         </Layer>
 
@@ -624,25 +700,19 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 cornerRadius={neck.jointCornerRadiusMm}
               />
 
-              {/* Pickup Routings */}
-              {pickups.map((p) => {
-                const { widthMm: w, heightMm: h, cornerRadiusMm } = resolvePickupSpec(p);
-                return (
-                  <Group key={p.id} x={p.offsetXMm} y={p.offsetYMm} rotation={p.angleDegrees}>
-                    <Rect
-                      x={-w / 2}
-                      y={-h / 2}
-                      width={w}
-                      height={h}
-                      fill="rgba(10, 185, 129, 0.15)"
-                      stroke="#10b981"
+              {/* Front Routed Cavities - alongside the pickup routs */}
+              {settings.showFrontRoutes !== false &&
+                frontRoutes
+                  .filter((r) => r.visible !== false)
+                  .map((r) => (
+                    <Path
+                      key={r.id}
+                      data={anchorsToSVGPath(r.contour.anchors, r.contour.closed)}
+                      fill="rgba(147, 51, 234, 0.12)"
+                      stroke="#9333ea"
                       strokeWidth={1.2 / zoom}
-                      cornerRadius={cornerRadiusMm}
                     />
-                    <Circle x={0} y={0} radius={2 / zoom} fill="#10b981" />
-                  </Group>
-                );
-              })}
+                  ))}
 
               {/* Bridge Hardware Plate & Saddles */}
               <Group x={0} y={bridgeY}>
@@ -674,13 +744,94 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           </Layer>
         )}
 
+        {/* LAYER 3.5: PICKUPS - interactive, body-layer-only (the same "not the
+            active layer doesn't hit-test" rule the pickguard/route layers follow,
+            applied to pickups instead - see EditingController.ActiveLayer on iOS) */}
+        {settings.showHardwareCavities && (
+          <Layer listening={!isPanMode && !calibration.active && isBodyActive}>
+            <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
+              {pickups.map((p) => {
+                const { widthMm: w, heightMm: h, cornerRadiusMm } = resolvePickupSpec(p);
+                const isSelected = p.id === selectedPickupId;
+                const handlePos = pickupRotationHandlePosition(p);
+                return (
+                  <Group key={p.id}>
+                    <Group
+                      x={p.offsetXMm}
+                      y={p.offsetYMm}
+                      rotation={p.angleDegrees}
+                      draggable={!isPanMode && isBodyActive}
+                      // Konva tracks a dragged node's position itself, independent of the
+                      // React props, until the gesture ends - pinning offsetXMm to 0 in
+                      // committed state (movingPickup) only snaps it back at drag end,
+                      // which lets the shape visibly wander off-axis mid-drag. This
+                      // constrains the live drag itself, every frame, the same way
+                      // toModel/toScreen already convert for the locked neck-pocket
+                      // anchors above.
+                      dragBoundFunc={(pos) => {
+                        const model = toModel(pos);
+                        return toScreen({ x: 0, y: model.y });
+                      }}
+                      onClick={() => {
+                        if (!isPanMode) onSelectPickup(p.id);
+                      }}
+                      onDragStart={() => {
+                        onSelectPickup(p.id);
+                        onBeginEdit(pickupMoveKey(p.id));
+                      }}
+                      onDragMove={(e) =>
+                        onUpdateProject((prev) => movingPickup(prev, p.id, e.target.y()), pickupMoveKey(p.id))
+                      }
+                      onDragEnd={onEndEdit}
+                    >
+                      <Rect
+                        x={-w / 2}
+                        y={-h / 2}
+                        width={w}
+                        height={h}
+                        fill={isSelected ? 'rgba(56, 189, 248, 0.22)' : 'rgba(10, 185, 129, 0.15)'}
+                        stroke={isSelected ? '#38bdf8' : '#10b981'}
+                        strokeWidth={(isSelected ? 2.2 : 1.2) / zoom}
+                        cornerRadius={cornerRadiusMm}
+                      />
+                      <Circle x={0} y={0} radius={2 / zoom} fill={isSelected ? '#38bdf8' : '#10b981'} />
+                    </Group>
+
+                    {/* Rotation handle - only hittable once this pickup is already
+                        selected, matching CanvasRenderer/ContourEditing on iOS */}
+                    {isSelected && (
+                      <Circle
+                        x={handlePos.x}
+                        y={handlePos.y}
+                        radius={5 / zoom}
+                        fill="#38bdf8"
+                        stroke="#fff"
+                        strokeWidth={1.5 / zoom}
+                        draggable={!isPanMode && isBodyActive}
+                        onDragStart={() => onBeginEdit(pickupRotateKey(p.id))}
+                        onDragMove={(e) =>
+                          onUpdateProject(
+                            (prev) => rotatingPickupToward(prev, p.id, { x: e.target.x(), y: e.target.y() }),
+                            pickupRotateKey(p.id)
+                          )
+                        }
+                        onDragEnd={onEndEdit}
+                      />
+                    )}
+                  </Group>
+                );
+              })}
+            </Group>
+          </Layer>
+        )}
+
         {/* LAYER 4: INTERACTIVE BEZIER NODE CONTROLS */}
         <Layer listening={!isPanMode && !calibration.active}>
           {/* Selected segment highlight */}
           {selectedSegmentIndex !== null && (
             <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation} listening={false}>
               {(() => {
-                const cps = getSegmentControlPoints(contour.anchors, selectedSegmentIndex, contour.closed);
+                const cps = getSegmentControlPoints(activeContour.anchors, selectedSegmentIndex, activeContour.closed);
                 if (!cps) return null;
                 const [p0, p1, p2, p3] = cps;
                 return (
@@ -696,7 +847,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
             </Group>
           )}
 
-          {contour.anchors.map((anchor, index) => {
+          {activeContour.anchors.map((anchor, index) => {
             const isSelected = anchor.id === selectedAnchorId;
             const showHandles = isSelected || showAllHandles;
             const handleOpacity = isSelected ? 1 : 0.55;

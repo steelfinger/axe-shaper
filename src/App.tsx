@@ -6,12 +6,22 @@ import { CanvasWorkspace } from './components/CanvasWorkspace';
 import { REFERENCE_TEMPLATES } from './constants/templates';
 import { PROJECT_SCHEMA_VERSION } from './constants/schema';
 import { bridgePresetFields, migrateProject, neckPresetFields } from './utils/presets';
-import type { GuitarProject, GuideImageState, CalibrationState, Vector2D } from './types/guitar';
+import type { GuitarProject, GuideImageState, CalibrationState, Vector2D, PickupType } from './types/guitar';
 import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
 import { withMirroredInsertion } from './utils/symmetry';
 import { downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
 import { getUserTemplate } from './utils/userTemplates';
+import {
+  type ActiveLayer,
+  addingBackRoute,
+  addingFrontRoute,
+  addingPickguard,
+  deletingLayerShape,
+  getActiveContour,
+  withActiveContour,
+} from './utils/layerShapes';
+import { addingPickup, removingPickup } from './utils/pickupEditing';
 import { SaveInfoModal } from './components/SaveInfoModal';
 
 /** Matches the floor InspectorPanel's delete button enforces - a contour needs at least this many nodes to stay a sane shape. */
@@ -54,6 +64,9 @@ const INITIAL_PROJECT: GuitarProject = {
   ...neckPresetFields(REFERENCE_TEMPLATES.s_style.neckPresetId),
   ...bridgePresetFields(REFERENCE_TEMPLATES.s_style.bridgePresetId),
   pickups: REFERENCE_TEMPLATES.s_style.defaultPickups,
+  pickguards: REFERENCE_TEMPLATES.s_style.defaultPickguards ?? [],
+  frontRoutes: REFERENCE_TEMPLATES.s_style.defaultFrontRoutes ?? [],
+  backRoutes: REFERENCE_TEMPLATES.s_style.defaultBackRoutes ?? [],
 };
 
 const INITIAL_GUIDE_IMAGE: GuideImageState = {
@@ -91,6 +104,11 @@ export function App(): React.JSX.Element {
   const [project, setProject] = useState<GuitarProject>(INITIAL_PROJECT);
   const [selectedAnchorId, setSelectedAnchorId] = useState<string | null>(null);
   const [selectedSegmentIndex, setSelectedSegmentIndex] = useState<number | null>(null);
+  const [selectedPickupId, setSelectedPickupId] = useState<string | null>(null);
+  // Which contour a canvas gesture or inspector edit targets - body by default,
+  // so every existing file and every session that never opens the Layers tab
+  // behaves exactly as it did before this concept existed.
+  const [activeLayer, setActiveLayer] = useState<ActiveLayer>({ kind: 'body' });
   const [isSaveInfoModalOpen, setIsSaveInfoModalOpen] = useState(false);
   // In-memory only - reappears on reload, deliberately not persisted to localStorage.
   const hasSeenSaveInfoRef = useRef(false);
@@ -199,9 +217,12 @@ export function App(): React.JSX.Element {
   const applyDoc = (doc: EditorDoc) => {
     setProject(doc.project);
     setGuideImage(doc.guideImage);
-    // Ids and segment indices may not survive a structural change
+    // Ids and segment indices may not survive a structural change, and an
+    // active pickguard/route id has no guarantee of surviving one either
     setSelectedAnchorId(null);
     setSelectedSegmentIndex(null);
+    setSelectedPickupId(null);
+    setActiveLayer({ kind: 'body' });
     updateHistoryState();
   };
 
@@ -234,6 +255,9 @@ export function App(): React.JSX.Element {
         closed: true,
       },
       pickups: JSON.parse(JSON.stringify(template.defaultPickups)),
+      pickguards: JSON.parse(JSON.stringify(template.defaultPickguards ?? [])),
+      frontRoutes: JSON.parse(JSON.stringify(template.defaultFrontRoutes ?? [])),
+      backRoutes: JSON.parse(JSON.stringify(template.defaultBackRoutes ?? [])),
       settings: {
         ...prev.settings,
         name: `Custom ${template.name}`,
@@ -241,57 +265,77 @@ export function App(): React.JSX.Element {
     }));
     setSelectedAnchorId(null);
     setSelectedSegmentIndex(null);
+    setSelectedPickupId(null);
+    setActiveLayer({ kind: 'body' });
   };
 
   const handleResetTemplate = () => {
     handleSelectTemplate(project.activeTemplateId);
   };
 
-  // Anchor and segment selection are mutually exclusive - the Inspector shows one
-  // set of controls, and it should never be ambiguous which one an action applies to.
+  // Anchor, segment and pickup selection are mutually exclusive - the Inspector
+  // shows one set of controls, and it should never be ambiguous which one an
+  // action applies to.
   const handleSelectAnchor = (id: string | null) => {
     setSelectedAnchorId(id);
-    if (id) setSelectedSegmentIndex(null);
+    if (id) {
+      setSelectedSegmentIndex(null);
+      setSelectedPickupId(null);
+    }
   };
 
   const handleSelectSegment = (index: number | null) => {
     setSelectedSegmentIndex(index);
-    if (index !== null) setSelectedAnchorId(null);
+    if (index !== null) {
+      setSelectedAnchorId(null);
+      setSelectedPickupId(null);
+    }
+  };
+
+  const handleSelectPickup = (id: string | null) => {
+    setSelectedPickupId(id);
+    if (id) {
+      setSelectedAnchorId(null);
+      setSelectedSegmentIndex(null);
+    }
   };
 
   const handleToggleSegmentStraight = () => {
     if (selectedSegmentIndex === null) return;
     handleUpdateProject((prev) => {
-      const { anchors, closed } = prev.contour;
+      const active = getActiveContour(prev, activeLayer);
+      if (!active) return prev;
+      const { anchors, closed } = active;
       const straight = isSegmentStraight(anchors, selectedSegmentIndex, closed);
-      return {
-        ...prev,
-        contour: {
-          ...prev.contour,
-          anchors: straight
-            ? curveSegment(anchors, selectedSegmentIndex, closed)
-            : straightenSegment(anchors, selectedSegmentIndex, closed),
-        },
-      };
+      return withActiveContour(prev, activeLayer, {
+        ...active,
+        anchors: straight
+          ? curveSegment(anchors, selectedSegmentIndex, closed)
+          : straightenSegment(anchors, selectedSegmentIndex, closed),
+      });
     });
   };
 
   // De Casteljau Bezier Curve Splitting (Add Node on Segment)
   const handleAddAnchorOnSegment = () => {
+    const activeContour = getActiveContour(project, activeLayer);
+    if (!activeContour) return;
     const idx =
       selectedSegmentIndex ??
-      project.contour.anchors.findIndex((a) => a.id === selectedAnchorId);
+      activeContour.anchors.findIndex((a) => a.id === selectedAnchorId);
     if (idx === undefined || idx < 0) return;
 
     // Split up front: React runs the updater after this handler returns, so an id
     // read from inside it would still be empty when we go to select the new node.
-    let anchors = insertAnchorOnSegment(project.contour.anchors, idx, 0.5);
+    let anchors = insertAnchorOnSegment(activeContour.anchors, idx, 0.5);
     const insertedId = anchors[idx + 1]?.id;
-    if (insertedId) {
-      anchors = withMirroredInsertion(anchors, insertedId, project.settings.symmetry, project.contour.closed);
+    // Live-centerline mirroring only exists for the body - pickguards and
+    // routed cavities have no symmetry concept in this version.
+    if (insertedId && activeLayer.kind === 'body') {
+      anchors = withMirroredInsertion(anchors, insertedId, project.settings.symmetry, activeContour.closed);
     }
 
-    handleUpdateProject((prev) => ({ ...prev, contour: { ...prev.contour, anchors } }));
+    handleUpdateProject((prev) => withActiveContour(prev, activeLayer, { ...activeContour, anchors }));
     if (insertedId) handleSelectAnchor(insertedId);
   };
 
@@ -299,10 +343,13 @@ export function App(): React.JSX.Element {
   const handleDeleteSelectedAnchor = () => {
     if (!selectedAnchorId) return;
     handleUpdateProject((prev) => {
-      const { anchors } = prev.contour;
+      const active = getActiveContour(prev, activeLayer);
+      if (!active) return prev;
+      const { anchors } = active;
       const selected = anchors.find((a) => a.id === selectedAnchorId);
+      // Mirrored-partner deletion is a body-only, live-centerline concept.
       const partner =
-        prev.settings.symmetry.mode === 'live_centerline' && selected?.mirrorId
+        activeLayer.kind === 'body' && prev.settings.symmetry.mode === 'live_centerline' && selected?.mirrorId
           ? anchors.find((a) => a.id === selected.mirrorId && !a.locked)
           : undefined;
 
@@ -314,15 +361,74 @@ export function App(): React.JSX.Element {
           ? [selectedAnchorId, partner.id]
           : [selectedAnchorId];
 
-      return {
-        ...prev,
-        contour: {
-          ...prev.contour,
-          anchors: anchors.filter((a) => !idsToRemove.includes(a.id)),
-        },
-      };
+      return withActiveContour(prev, activeLayer, {
+        ...active,
+        anchors: anchors.filter((a) => !idsToRemove.includes(a.id)),
+      });
     });
     setSelectedAnchorId(null);
+  };
+
+  // A locked shape can't become the active layer - same "locked doesn't
+  // hit-test" rule the guide image already follows.
+  const isLayerLocked = (layer: ActiveLayer): boolean => {
+    switch (layer.kind) {
+      case 'body':
+        return false;
+      case 'pickguard':
+        return (project.pickguards ?? []).find((p) => p.id === layer.id)?.locked ?? false;
+      case 'frontRoute':
+        return (project.frontRoutes ?? []).find((r) => r.id === layer.id)?.locked ?? false;
+      case 'backRoute':
+        return (project.backRoutes ?? []).find((r) => r.id === layer.id)?.locked ?? false;
+    }
+  };
+
+  const handleSetActiveLayer = (layer: ActiveLayer) => {
+    if (isLayerLocked(layer)) return;
+    setActiveLayer(layer);
+    setSelectedAnchorId(null);
+    setSelectedSegmentIndex(null);
+  };
+
+  const handleAddPickguard = () => {
+    const { project: next, layer } = addingPickguard(project);
+    handleUpdateProject(() => next);
+    handleSetActiveLayer(layer);
+  };
+
+  const handleAddFrontRoute = () => {
+    const { project: next, layer } = addingFrontRoute(project);
+    handleUpdateProject(() => next);
+    handleSetActiveLayer(layer);
+  };
+
+  const handleAddBackRoute = () => {
+    const { project: next, layer } = addingBackRoute(project);
+    handleUpdateProject(() => next);
+    handleSetActiveLayer(layer);
+  };
+
+  const handleDeleteLayerShape = (layer: Exclude<ActiveLayer, { kind: 'body' }>) => {
+    handleUpdateProject((prev) => deletingLayerShape(prev, layer));
+    if (activeLayer.kind === layer.kind && 'id' in activeLayer && activeLayer.id === layer.id) {
+      setActiveLayer({ kind: 'body' });
+    }
+  };
+
+  const handleAddPickup = (type: PickupType) => {
+    const { project: next, id } = addingPickup(project, type);
+    handleUpdateProject(() => next);
+    handleSelectPickup(id);
+  };
+
+  const handleDeletePickup = (id: string) => {
+    handleUpdateProject((prev) => removingPickup(prev, id));
+    if (selectedPickupId === id) setSelectedPickupId(null);
+  };
+
+  const handleDeleteSelectedPickup = () => {
+    if (selectedPickupId) handleDeletePickup(selectedPickupId);
   };
 
   // Save the project as a .axe.svg - a printable 1:1 true-scale SVG that
@@ -359,6 +465,8 @@ export function App(): React.JSX.Element {
         handleUpdateProject(() => migrateProject(imported));
         setSelectedAnchorId(null);
         setSelectedSegmentIndex(null);
+        setSelectedPickupId(null);
+        setActiveLayer({ kind: 'body' });
       } else {
         alert('This SVG does not contain Axe Shaper project data.');
       }
@@ -383,13 +491,16 @@ export function App(): React.JSX.Element {
         if (selectedAnchorId) {
           e.preventDefault();
           handleDeleteSelectedAnchor();
+        } else if (selectedPickupId) {
+          e.preventDefault();
+          handleDeleteSelectedPickup();
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedAnchorId, canUndo, canRedo]);
+  }, [selectedAnchorId, selectedPickupId, canUndo, canRedo]);
 
   return (
     <div className="app-container">
@@ -418,6 +529,16 @@ export function App(): React.JSX.Element {
         calibration={calibration}
         onStartCalibration={handleStartCalibration}
         onCancelCalibration={handleCancelCalibration}
+        activeLayer={activeLayer}
+        onSetActiveLayer={handleSetActiveLayer}
+        onAddPickguard={handleAddPickguard}
+        onAddFrontRoute={handleAddFrontRoute}
+        onAddBackRoute={handleAddBackRoute}
+        onDeleteLayerShape={handleDeleteLayerShape}
+        selectedPickupId={selectedPickupId}
+        onSelectPickup={handleSelectPickup}
+        onAddPickup={handleAddPickup}
+        onDeletePickup={handleDeletePickup}
       />
 
       <CanvasWorkspace
@@ -426,6 +547,8 @@ export function App(): React.JSX.Element {
         onSelectAnchor={handleSelectAnchor}
         selectedSegmentIndex={selectedSegmentIndex}
         onSelectSegment={handleSelectSegment}
+        selectedPickupId={selectedPickupId}
+        onSelectPickup={handleSelectPickup}
         onUpdateProject={handleUpdateProject}
         onBeginEdit={beginEdit}
         onEndEdit={endEdit}
@@ -435,17 +558,21 @@ export function App(): React.JSX.Element {
         onCalibrationPick={handleCalibrationPick}
         onApplyCalibration={handleApplyCalibration}
         onCancelCalibration={handleCancelCalibration}
+        activeLayer={activeLayer}
       />
 
       <InspectorPanel
         project={project}
         selectedAnchorId={selectedAnchorId}
         selectedSegmentIndex={selectedSegmentIndex}
+        selectedPickupId={selectedPickupId}
         onUpdateProject={handleUpdateProject}
         onEndEdit={endEdit}
         onDeleteSelectedAnchor={handleDeleteSelectedAnchor}
         onAddAnchorOnSegment={handleAddAnchorOnSegment}
         onToggleSegmentStraight={handleToggleSegmentStraight}
+        onDeleteSelectedPickup={handleDeleteSelectedPickup}
+        activeLayer={activeLayer}
       />
 
       <SaveInfoModal

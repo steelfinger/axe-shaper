@@ -79,7 +79,7 @@ export function extractProjectFromSVG(svgText: string): GuitarProject | null {
  * Bezier control points are included, which bounds the curve conservatively.
  */
 function getContentBoundsMm(project: GuitarProject): BoundsMm {
-  const { contour, pickups } = project;
+  const { contour, pickups, pickguards, frontRoutes, backRoutes } = project;
   const neck = resolveNeckPreset(project);
   const bridge = resolveBridgePreset(project);
 
@@ -90,12 +90,20 @@ function getContentBoundsMm(project: GuitarProject): BoundsMm {
     bounds.maxX = Math.max(bounds.maxX, x);
     bounds.maxY = Math.max(bounds.maxY, y);
   };
+  const addContourBounds = (anchors: typeof contour.anchors) => {
+    for (const anchor of anchors) {
+      add(anchor.position.x, anchor.position.y);
+      if (anchor.handleIn) add(anchor.position.x + anchor.handleIn.x, anchor.position.y + anchor.handleIn.y);
+      if (anchor.handleOut) add(anchor.position.x + anchor.handleOut.x, anchor.position.y + anchor.handleOut.y);
+    }
+  };
 
   // Body contour: anchors plus their handle control points
-  for (const anchor of contour.anchors) {
-    add(anchor.position.x, anchor.position.y);
-    if (anchor.handleIn) add(anchor.position.x + anchor.handleIn.x, anchor.position.y + anchor.handleIn.y);
-    if (anchor.handleOut) add(anchor.position.x + anchor.handleOut.x, anchor.position.y + anchor.handleOut.y);
+  addContourBounds(contour.anchors);
+
+  // Pickguard and routed-cavity contours - same shape as the body contour
+  for (const shape of [...(pickguards ?? []), ...(frontRoutes ?? []), ...(backRoutes ?? [])]) {
+    addContourBounds(shape.contour.anchors);
   }
 
   // Centerline and joint line markers
@@ -139,7 +147,7 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
   // project came from a version 1 load and was never otherwise touched.
   const project = withEmbeddedPresets(rawProject);
 
-  const { contour, pickups, settings } = project;
+  const { contour, pickups, pickguards, frontRoutes, backRoutes, settings } = project;
   const neck = resolveNeckPreset(project);
   const bridge = resolveBridgePreset(project);
 
@@ -208,6 +216,9 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
     .neck-pocket { fill: none; stroke: #dc3545; stroke-width: 1.2; stroke-dasharray: 4,4; }
     .pickup-rout { fill: none; stroke: #28a745; stroke-width: 1.0; }
     .bridge-rout { fill: none; stroke: #007bff; stroke-width: 1.2; }
+    .back-route { fill: none; stroke: #9333ea; stroke-width: 1.0; stroke-dasharray: 3,3; }
+    .front-route { fill: none; stroke: #9333ea; stroke-width: 1.0; }
+    .pickguard { fill: #ffffff; fill-opacity: 0.35; stroke: #6b7280; stroke-width: 1.0; }
     .center-axis { fill: none; stroke: #6c757d; stroke-width: 0.5; stroke-dasharray: 6,4; opacity: 0.7; }
     .calibration-box { fill: none; stroke: #d9534f; stroke-width: 0.8; stroke-dasharray: 3,3; }
     .band-rule { fill: none; stroke: #adb5bd; stroke-width: 0.5; }
@@ -229,8 +240,23 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
     <line x1="${model.minX.toFixed(2)}" y1="${theoreticalSaddleY.toFixed(2)}" x2="${content.maxX.toFixed(2)}" y2="${theoreticalSaddleY.toFixed(2)}" class="center-axis" stroke="#007bff" />
     <text x="${(content.maxX + 4).toFixed(2)}" y="${(theoreticalSaddleY + 3).toFixed(2)}" class="axis-label" fill="#007bff">Scale Line (${theoreticalSaddleY.toFixed(1)}mm)</text>
 
+    <!-- Back Routed Cavities (drawn under the body so a front view can't see them) -->
+    ${(backRoutes ?? [])
+      .filter((r) => r.visible !== false)
+      .map((r) => `<path d="${anchorsToSVGPath(r.contour.anchors, r.contour.closed)}" class="back-route" />`)
+      .join('')}
+
     <!-- Outer Custom Body Profile -->
     <path d="${bodyPath}" class="body-line" />
+
+    <!-- Pickguard (translucent, above the body, under the hardware) -->
+    ${(pickguards ?? [])
+      .filter((p) => p.visible !== false)
+      .map(
+        (p) =>
+          `<path d="${anchorsToSVGPath(p.contour.anchors, p.contour.closed)}" class="pickguard" style="fill:${escapeXml(p.colorHex ?? '#ffffff')}" />`
+      )
+      .join('')}
 
     <!-- Immutable Neck Pocket Cavity -->
     <rect
@@ -254,6 +280,12 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
           </g>
         `;
       })
+      .join('')}
+
+    <!-- Front Routed Cavities (control cavities, etc. - alongside the pickup routs) -->
+    ${(frontRoutes ?? [])
+      .filter((r) => r.visible !== false)
+      .map((r) => `<path d="${anchorsToSVGPath(r.contour.anchors, r.contour.closed)}" class="front-route" />`)
       .join('')}
 
     <!-- Bridge Hardware Plate, Saddle Line & Mounting Holes -->

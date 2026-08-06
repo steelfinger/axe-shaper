@@ -104,6 +104,11 @@ export function withEmbeddedPresets(project: GuitarProject): GuitarProject {
     // ?? [] rather than trusting the type: a hand-edited or foreign file can
     // omit this, and every consumer maps over it.
     pickups: withEmbeddedPickupSpecs(project.pickups ?? []),
+    // pickguards/frontRoutes/backRoutes are deliberately NOT backfilled here,
+    // unlike pickups: they're optional on GuitarProject precisely so a file
+    // that predates them decodes with the key genuinely absent, and loading
+    // it is a no-op (see the type's own comment). They pass through via the
+    // ...project spread above; every reader guards with `?? []` instead.
   };
 }
 

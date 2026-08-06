@@ -47,6 +47,11 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
       bridgePresetId: project.bridgePresetId,
       defaultAnchors: project.contour.anchors,
       defaultPickups: project.pickups,
+      // `?? []` - no bundled blueprint carries these yet, and
+      // extractProjectFromSVG does a raw JSON.parse with no field defaulting.
+      defaultPickguards: project.pickguards ?? [],
+      defaultFrontRoutes: project.frontRoutes ?? [],
+      defaultBackRoutes: project.backRoutes ?? [],
     };
   }
 

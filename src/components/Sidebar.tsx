@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
-import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Ruler, ChevronDown, ChevronRight, Bookmark, Plus } from 'lucide-react';
-import { BRIDGE_PRESETS, NECK_PRESETS } from '../constants/hardware';
+import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, ChevronDown, ChevronRight, Bookmark, Plus, Zap } from 'lucide-react';
+import { BRIDGE_PRESETS, NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
-import type { GuitarProject, GuideImageState, SymmetryMode, CalibrationState } from '../types/guitar';
+import type {
+  GuitarProject,
+  GuideImageState,
+  SymmetryMode,
+  CalibrationState,
+  PickguardPlacement,
+  RoutedCavity,
+  PickupType,
+} from '../types/guitar';
 import {
   bridgePresetFields,
   neckPresetFields,
   resolveBridgePreset,
   resolveNeckPreset,
 } from '../utils/presets';
+import { type ActiveLayer, activeLayersEqual } from '../utils/layerShapes';
 import { getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 import { GRID_PRESETS, formatLength, gridMinorDivisor, toMm, unitLabel } from '../utils/units';
 import { deleteUserTemplate, loadUserTemplates, saveUserTemplate, type UserTemplate } from '../utils/userTemplates';
@@ -29,6 +38,16 @@ interface SidebarProps {
   calibration: CalibrationState;
   onStartCalibration: () => void;
   onCancelCalibration: () => void;
+  activeLayer: ActiveLayer;
+  onSetActiveLayer: (layer: ActiveLayer) => void;
+  onAddPickguard: () => void;
+  onAddFrontRoute: () => void;
+  onAddBackRoute: () => void;
+  onDeleteLayerShape: (layer: Exclude<ActiveLayer, { kind: 'body' }>) => void;
+  selectedPickupId: string | null;
+  onSelectPickup: (id: string | null) => void;
+  onAddPickup: (type: PickupType) => void;
+  onDeletePickup: (id: string) => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -43,6 +62,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
   calibration,
   onStartCalibration,
   onCancelCalibration,
+  activeLayer,
+  onSetActiveLayer,
+  onAddPickguard,
+  onAddFrontRoute,
+  onAddBackRoute,
+  onDeleteLayerShape,
+  selectedPickupId,
+  onSelectPickup,
+  onAddPickup,
+  onDeletePickup,
 }) => {
   const [activeTab, setActiveTab] = useState<'templates' | 'hardware' | 'guide' | 'finishes' | 'layers'>('templates');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -68,6 +97,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       bridgePresetId: project.bridgePresetId,
       defaultAnchors: JSON.parse(JSON.stringify(project.contour.anchors)),
       defaultPickups: JSON.parse(JSON.stringify(project.pickups)),
+      defaultPickguards: JSON.parse(JSON.stringify(project.pickguards ?? [])),
+      defaultFrontRoutes: JSON.parse(JSON.stringify(project.frontRoutes ?? [])),
+      defaultBackRoutes: JSON.parse(JSON.stringify(project.backRoutes ?? [])),
       createdAt: new Date().toISOString(),
     };
     setUserTemplates(saveUserTemplate(template));
@@ -76,6 +108,115 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const handleDeleteUserTemplate = (id: string) => {
     setUserTemplates(deleteUserTemplate(id));
   };
+
+  type LayerShapeKind = 'pickguard' | 'frontRoute' | 'backRoute';
+
+  const toggleField = <T extends { id: string }>(arr: T[], id: string, patch: (item: T) => Partial<T>): T[] =>
+    arr.map((item) => (item.id === id ? { ...item, ...patch(item) } : item));
+
+  const handleToggleShapeVisible = (kind: LayerShapeKind, id: string) => {
+    onUpdateProject((prev) => {
+      switch (kind) {
+        case 'pickguard':
+          return { ...prev, pickguards: toggleField(prev.pickguards ?? [], id, (s) => ({ visible: s.visible === false })) };
+        case 'frontRoute':
+          return { ...prev, frontRoutes: toggleField(prev.frontRoutes ?? [], id, (s) => ({ visible: s.visible === false })) };
+        case 'backRoute':
+          return { ...prev, backRoutes: toggleField(prev.backRoutes ?? [], id, (s) => ({ visible: s.visible === false })) };
+      }
+    });
+  };
+
+  const handleToggleShapeLocked = (kind: LayerShapeKind, id: string) => {
+    onUpdateProject((prev) => {
+      switch (kind) {
+        case 'pickguard':
+          return { ...prev, pickguards: toggleField(prev.pickguards ?? [], id, (s) => ({ locked: !(s.locked ?? false) })) };
+        case 'frontRoute':
+          return { ...prev, frontRoutes: toggleField(prev.frontRoutes ?? [], id, (s) => ({ locked: !(s.locked ?? false) })) };
+        case 'backRoute':
+          return { ...prev, backRoutes: toggleField(prev.backRoutes ?? [], id, (s) => ({ locked: !(s.locked ?? false) })) };
+      }
+    });
+  };
+
+  const renderLayerShapeList = (
+    kind: LayerShapeKind,
+    shapes: (PickguardPlacement | RoutedCavity)[],
+    emptyLabel: string
+  ) => (
+    <>
+      {shapes.length === 0 ? (
+        <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '8px' }}>{emptyLabel}</p>
+      ) : (
+        shapes.map((shape, i) => {
+          const layer: Exclude<ActiveLayer, { kind: 'body' }> = { kind, id: shape.id };
+          const isActive = activeLayersEqual(activeLayer, layer);
+          const locked = shape.locked ?? false;
+          return (
+            <div
+              key={shape.id}
+              onClick={() => onSetActiveLayer(layer)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '8px 10px',
+                borderRadius: 'var(--radius-sm)',
+                background: isActive ? 'rgba(147, 51, 234, 0.15)' : 'var(--bg-primary)',
+                border: isActive ? '1px solid #9333ea' : '1px solid var(--panel-border)',
+                marginBottom: '6px',
+                cursor: locked ? 'not-allowed' : 'pointer',
+                opacity: locked && !isActive ? 0.6 : 1,
+              }}
+            >
+              <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{shape.name || `Shape ${i + 1}`}</span>
+              <div style={{ display: 'flex', gap: '2px' }}>
+                <button
+                  className="btn btn-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleShapeVisible(kind, shape.id);
+                  }}
+                  style={{ padding: '4px 6px', border: 'none', background: 'transparent' }}
+                  title={shape.visible === false ? 'Show' : 'Hide'}
+                >
+                  {shape.visible === false ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+                <button
+                  className="btn btn-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleShapeLocked(kind, shape.id);
+                  }}
+                  style={{
+                    padding: '4px 6px',
+                    border: 'none',
+                    background: 'transparent',
+                    color: locked ? 'var(--accent-amber)' : 'var(--text-secondary)',
+                  }}
+                  title={locked ? 'Unlock' : 'Lock'}
+                >
+                  {locked ? <Lock size={14} /> : <Unlock size={14} />}
+                </button>
+                <button
+                  className="btn btn-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteLayerShape(layer);
+                  }}
+                  style={{ padding: '4px 6px', border: 'none', background: 'transparent', color: 'var(--accent-red)' }}
+                  title="Delete"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </div>
+          );
+        })
+      )}
+    </>
+  );
 
   const { settings, neckPresetId, bridgePresetId } = project;
   // Resolved, so the spec readouts below describe the hardware the design is
@@ -636,6 +777,81 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div>• Compensated Saddle Y: <strong>{getSaddleYMm(currentNeck, currentBridge).toFixed(1)} mm</strong></div>
               </div>
             </div>
+
+            <div className="panel-section">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <div className="section-title" style={{ marginBottom: 0 }}>
+                  <Zap size={16} /> Pickups
+                </div>
+                <select
+                  value=""
+                  onChange={(e) => {
+                    if (e.target.value) onAddPickup(e.target.value as PickupType);
+                    e.target.value = '';
+                  }}
+                  className="form-select"
+                  style={{ width: 'auto', fontSize: '0.78rem', padding: '4px 6px' }}
+                  title="Add a pickup"
+                >
+                  <option value="">+ Add Pickup&hellip;</option>
+                  {(Object.keys(PICKUP_SPECIFICATIONS) as PickupType[]).map((type) => (
+                    <option key={type} value={type}>
+                      {PICKUP_SPECIFICATIONS[type].name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {project.pickups.length === 0 ? (
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '8px' }}>
+                  No pickups yet.
+                </p>
+              ) : (
+                <div style={{ marginTop: '10px' }}>
+                  {project.pickups.map((pickup) => {
+                    const isSelected = pickup.id === selectedPickupId;
+                    return (
+                      <div
+                        key={pickup.id}
+                        onClick={() => onSelectPickup(isSelected ? null : pickup.id)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '8px 10px',
+                          borderRadius: 'var(--radius-sm)',
+                          background: isSelected ? 'rgba(56, 189, 248, 0.15)' : 'var(--bg-primary)',
+                          border: isSelected ? '1px solid #38bdf8' : '1px solid var(--panel-border)',
+                          marginBottom: '6px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>
+                            {PICKUP_SPECIFICATIONS[pickup.type]?.name ?? pickup.type}
+                          </div>
+                          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                            {pickup.widthMm.toFixed(0)} &times; {pickup.heightMm.toFixed(0)} mm,{' '}
+                            {pickup.angleDegrees.toFixed(1)}&deg;
+                          </div>
+                        </div>
+                        <button
+                          className="btn btn-sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeletePickup(pickup.id);
+                          }}
+                          style={{ padding: '4px 6px', border: 'none', background: 'transparent', color: 'var(--accent-red)' }}
+                          title="Delete pickup"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -790,6 +1006,104 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </select>
                 </div>
               )}
+
+              <div className="toggle-row" style={{ marginTop: '12px' }}>
+                <span style={{ fontSize: '0.85rem' }}>Pickguard</span>
+                <input
+                  type="checkbox"
+                  checked={settings.showPickguard !== false}
+                  onChange={(e) =>
+                    onUpdateProject((prev) => ({
+                      ...prev,
+                      settings: { ...prev.settings, showPickguard: e.target.checked },
+                    }))
+                  }
+                />
+              </div>
+
+              <div className="toggle-row">
+                <span style={{ fontSize: '0.85rem' }}>Front Routed Cavities</span>
+                <input
+                  type="checkbox"
+                  checked={settings.showFrontRoutes !== false}
+                  onChange={(e) =>
+                    onUpdateProject((prev) => ({
+                      ...prev,
+                      settings: { ...prev.settings, showFrontRoutes: e.target.checked },
+                    }))
+                  }
+                />
+              </div>
+
+              <div className="toggle-row">
+                <span style={{ fontSize: '0.85rem' }}>Back Routed Cavities</span>
+                <input
+                  type="checkbox"
+                  checked={settings.showBackRoutes !== false}
+                  onChange={(e) =>
+                    onUpdateProject((prev) => ({
+                      ...prev,
+                      settings: { ...prev.settings, showBackRoutes: e.target.checked },
+                    }))
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="panel-section">
+              <div className="section-title">
+                <Layers size={16} /> Body Layers
+              </div>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
+                Editable shapes on top of the body outline - a pickguard, and cavities routed from the
+                front or back. Select one to edit its own anchors and handles, exactly like the body.
+              </p>
+
+              <div
+                onClick={() => onSetActiveLayer({ kind: 'body' })}
+                style={{
+                  padding: '8px 10px',
+                  borderRadius: 'var(--radius-sm)',
+                  background: activeLayer.kind === 'body' ? 'rgba(245, 158, 11, 0.12)' : 'var(--bg-primary)',
+                  border: activeLayer.kind === 'body' ? '1px solid var(--accent-amber)' : '1px solid var(--panel-border)',
+                  marginBottom: '14px',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                }}
+              >
+                Body Outline{activeLayer.kind === 'body' ? ' (editing)' : ''}
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Pickguard</span>
+                  <button className="btn btn-sm" onClick={onAddPickguard} title="Add a pickguard shape">
+                    <Plus size={13} /> Add
+                  </button>
+                </div>
+                {renderLayerShapeList('pickguard', project.pickguards ?? [], 'No pickguard yet.')}
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Front Routed Cavities</span>
+                  <button className="btn btn-sm" onClick={onAddFrontRoute} title="Add a front-routed cavity">
+                    <Plus size={13} /> Add
+                  </button>
+                </div>
+                {renderLayerShapeList('frontRoute', project.frontRoutes ?? [], 'No front routes yet.')}
+              </div>
+
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Back Routed Cavities</span>
+                  <button className="btn btn-sm" onClick={onAddBackRoute} title="Add a back-routed cavity">
+                    <Plus size={13} /> Add
+                  </button>
+                </div>
+                {renderLayerShapeList('backRoute', project.backRoutes ?? [], 'No back routes yet.')}
+              </div>
             </div>
           </div>
         )}

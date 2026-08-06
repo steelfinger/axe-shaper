@@ -123,6 +123,24 @@ export interface PickupPlacement {
   cornerRadiusMm?: LengthMm;
 }
 
+export interface PickguardPlacement {
+  id: string;
+  name?: string;
+  contour: BodyContour;
+  colorHex?: string;
+  visible?: boolean;
+  locked?: boolean;
+}
+
+export interface RoutedCavity {
+  id: string;
+  name?: string;
+  contour: BodyContour;
+  depthMm?: LengthMm;
+  visible?: boolean;
+  locked?: boolean;
+}
+
 export interface HardwareCavity {
   id: string;
   label: string;
@@ -171,6 +189,15 @@ export interface ProjectSettings {
   bodyFillOpacity: number; // 0.0 (transparent) to 1.0 (opaque)
   pickguardEnabled: boolean;
   pickguardColor: string;
+  /**
+   * Absent-means-on, unlike the required flags above: these three have no
+   * existing files to retroactively affect - a file either predates this
+   * feature (empty arrays, default-on is a no-op) or was written by it
+   * (field always present).
+   */
+  showPickguard?: boolean;
+  showFrontRoutes?: boolean;
+  showBackRoutes?: boolean;
 }
 
 export interface ReferenceTemplate {
@@ -186,6 +213,9 @@ export interface ReferenceTemplate {
   bridgePresetId: string;
   defaultAnchors: PathAnchor[];
   defaultPickups: PickupPlacement[];
+  defaultPickguards?: PickguardPlacement[];
+  defaultFrontRoutes?: RoutedCavity[];
+  defaultBackRoutes?: RoutedCavity[];
 }
 
 export interface GuitarProject {
@@ -211,4 +241,17 @@ export interface GuitarProject {
   neckPreset?: NeckPreset;
   bridgePreset?: BridgePreset;
   pickups: PickupPlacement[];
+  /**
+   * Optional, unlike `pickups` - a file from before this feature existed
+   * genuinely lacks the key, and `migrateProject()` deliberately does not
+   * backfill it (unlike the embedded hardware presets): doing so would mean
+   * loading a file changes its bytes even when nothing about the design
+   * did, which is exactly the "loading is a no-op for a current file"
+   * guarantee `scripts/check-ios-fixtures.ts` pins. Every reader guards
+   * with `?? []` instead, the same idiom already used for
+   * `BridgePreset.mountingPoints`.
+   */
+  pickguards?: PickguardPlacement[];
+  frontRoutes?: RoutedCavity[];
+  backRoutes?: RoutedCavity[];
 }

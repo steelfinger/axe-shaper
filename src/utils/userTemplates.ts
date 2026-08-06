@@ -1,4 +1,4 @@
-import type { PathAnchor, PickupPlacement } from '../types/guitar';
+import type { PathAnchor, PickupPlacement, PickguardPlacement, RoutedCavity } from '../types/guitar';
 
 /**
  * A user-saved starting point, structurally the same fields as
@@ -12,6 +12,9 @@ export interface UserTemplate {
   bridgePresetId: string;
   defaultAnchors: PathAnchor[];
   defaultPickups: PickupPlacement[];
+  defaultPickguards?: PickguardPlacement[];
+  defaultFrontRoutes?: RoutedCavity[];
+  defaultBackRoutes?: RoutedCavity[];
   createdAt: string;
 }
 

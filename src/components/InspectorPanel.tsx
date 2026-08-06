@@ -1,45 +1,73 @@
 import React from 'react';
-import { MousePointer, Trash2, PlusCircle, Ruler, Spline, Slash } from 'lucide-react';
-import type { GuitarProject, HandleMode } from '../types/guitar';
+import { MousePointer, Trash2, PlusCircle, Ruler, Spline, Slash, Zap } from 'lucide-react';
+import { PICKUP_SPECIFICATIONS } from '../constants/hardware';
+import type { GuitarProject, HandleMode, PickupType } from '../types/guitar';
 import { distanceVector, isSegmentStraight, updateAnchorHandle } from '../utils/bezier';
+import { type ActiveLayer, getActiveContour, withActiveContour } from '../utils/layerShapes';
+import {
+  settingPickupAngle,
+  settingPickupCornerRadius,
+  settingPickupHeight,
+  settingPickupType,
+  settingPickupWidth,
+  movingPickup,
+} from '../utils/pickupEditing';
 
 interface InspectorPanelProps {
   project: GuitarProject;
   selectedAnchorId: string | null;
   selectedSegmentIndex: number | null;
+  selectedPickupId: string | null;
   onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject, coalesceKey?: string) => void;
   /** Close a typing gesture so the next edit is its own undo step. */
   onEndEdit: () => void;
   onDeleteSelectedAnchor: () => void;
   onAddAnchorOnSegment: () => void;
   onToggleSegmentStraight: () => void;
+  onDeleteSelectedPickup: () => void;
+  /** Which contour the selected anchor/segment - and any edit below - belongs to. */
+  activeLayer: ActiveLayer;
 }
 
 export const InspectorPanel: React.FC<InspectorPanelProps> = ({
   project,
   selectedAnchorId,
   selectedSegmentIndex,
+  selectedPickupId,
   onUpdateProject,
   onEndEdit,
   onDeleteSelectedAnchor,
   onAddAnchorOnSegment,
   onToggleSegmentStraight,
+  onDeleteSelectedPickup,
+  activeLayer,
 }) => {
   const { contour, settings } = project;
   const isMm = settings.unitDisplay === 'mm';
   const unitLabel = isMm ? 'mm' : 'in';
   const factor = isMm ? 1 : 1 / 25.4;
 
-  const selectedAnchor = contour.anchors.find((a) => a.id === selectedAnchorId);
+  // The contour the current selection belongs to - the real body when body is
+  // active, a pickguard/route's own contour otherwise.
+  const activeContour = getActiveContour(project, activeLayer) ?? contour;
+
+  const selectedAnchor = activeContour.anchors.find((a) => a.id === selectedAnchorId);
 
   const segment =
-    selectedSegmentIndex !== null && selectedSegmentIndex < contour.anchors.length
+    selectedSegmentIndex !== null && selectedSegmentIndex < activeContour.anchors.length
       ? {
-          from: contour.anchors[selectedSegmentIndex],
-          to: contour.anchors[(selectedSegmentIndex + 1) % contour.anchors.length],
-          straight: isSegmentStraight(contour.anchors, selectedSegmentIndex, contour.closed),
+          from: activeContour.anchors[selectedSegmentIndex],
+          to: activeContour.anchors[(selectedSegmentIndex + 1) % activeContour.anchors.length],
+          straight: isSegmentStraight(activeContour.anchors, selectedSegmentIndex, activeContour.closed),
         }
       : null;
+
+  const selectedPickup = project.pickups.find((p) => p.id === selectedPickupId) ?? null;
+
+  const mmFromInput = (raw: string) => {
+    const val = parseFloat(raw) || 0;
+    return isMm ? val : val * 25.4;
+  };
 
   // Compute live body measurements
   const xPositions = contour.anchors.map((a) => Math.abs(a.position.x));
@@ -56,11 +84,12 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
     const mmVal = isMm ? val : val * 25.4;
 
     onUpdateProject(
-      (prev) => ({
-        ...prev,
-        contour: {
-          ...prev.contour,
-          anchors: prev.contour.anchors.map((a) => {
+      (prev) => {
+        const prevContour = getActiveContour(prev, activeLayer);
+        if (!prevContour) return prev;
+        return withActiveContour(prev, activeLayer, {
+          ...prevContour,
+          anchors: prevContour.anchors.map((a) => {
             if (a.id !== selectedAnchorId) return a;
             return {
               ...a,
@@ -70,8 +99,8 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               },
             };
           }),
-        },
-      }),
+        });
+      },
       // One step for the whole number you type, not one per digit
       `anchor.position:${selectedAnchorId}:${axis}`
     );
@@ -79,11 +108,12 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
 
   const handleModeChange = (mode: HandleMode) => {
     if (!selectedAnchorId) return;
-    onUpdateProject((prev) => ({
-      ...prev,
-      contour: {
-        ...prev.contour,
-        anchors: prev.contour.anchors.map((a) => {
+    onUpdateProject((prev) => {
+      const prevContour = getActiveContour(prev, activeLayer);
+      if (!prevContour) return prev;
+      return withActiveContour(prev, activeLayer, {
+        ...prevContour,
+        anchors: prevContour.anchors.map((a) => {
           if (a.id !== selectedAnchorId) return a;
           const updated = { ...a, handleMode: mode };
           if (mode !== 'corner' && a.handleOut) {
@@ -91,8 +121,8 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
           }
           return updated;
         }),
-      },
-    }));
+      });
+    });
   };
 
   return (
@@ -100,7 +130,11 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
       {/* NODE EDITOR SECTION */}
       <div className="panel-section">
         <div className="section-title">
-          {segment && !selectedAnchor ? (
+          {selectedPickup ? (
+            <>
+              <Zap size={16} /> Pickup Inspector
+            </>
+          ) : segment && !selectedAnchor ? (
             <>
               <Slash size={16} /> Segment Inspector
             </>
@@ -170,7 +204,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               <button
                 className="btn btn-sm"
                 style={{ borderColor: 'var(--accent-red)', color: 'var(--accent-red)' }}
-                disabled={selectedAnchor.locked || contour.anchors.length <= 4}
+                disabled={selectedAnchor.locked || activeContour.anchors.length <= 4}
                 onClick={onDeleteSelectedAnchor}
                 title="Delete selected anchor point"
               >
@@ -223,11 +257,145 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               <PlusCircle size={14} /> Add Node Here
             </button>
           </div>
+        ) : selectedPickup ? (
+          <div>
+            <div className="form-group" style={{ marginBottom: '12px' }}>
+              <label className="form-label">Pickup Type</label>
+              <select
+                value={selectedPickup.type}
+                onChange={(e) =>
+                  onUpdateProject((prev) =>
+                    settingPickupType(prev, selectedPickup.id, e.target.value as PickupType)
+                  )
+                }
+                className="form-select"
+              >
+                {(Object.keys(PICKUP_SPECIFICATIONS) as PickupType[]).map((type) => (
+                  <option key={type} value={type}>
+                    {PICKUP_SPECIFICATIONS[type].name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '4px' }}>
+              <div className="form-group">
+                <label className="form-label">X ({unitLabel})</label>
+                <input
+                  type="number"
+                  className="form-input"
+                  disabled
+                  value={(selectedPickup.offsetXMm * factor).toFixed(2)}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Y ({unitLabel})</label>
+                <input
+                  type="number"
+                  step={isMm ? '0.5' : '0.05'}
+                  className="form-input"
+                  value={(selectedPickup.offsetYMm * factor).toFixed(2)}
+                  onChange={(e) =>
+                    onUpdateProject(
+                      (prev) => movingPickup(prev, selectedPickup.id, mmFromInput(e.target.value)),
+                      `pickup.y:${selectedPickup.id}`
+                    )
+                  }
+                  onBlur={onEndEdit}
+                />
+              </div>
+            </div>
+            <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
+              X stays locked to the centreline - every pickup here is centred under strings that are
+              themselves symmetric about it.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+              <div className="form-group">
+                <label className="form-label">Width ({unitLabel})</label>
+                <input
+                  type="number"
+                  step={isMm ? '0.5' : '0.05'}
+                  className="form-input"
+                  value={(selectedPickup.widthMm * factor).toFixed(2)}
+                  onChange={(e) =>
+                    onUpdateProject(
+                      (prev) => settingPickupWidth(prev, selectedPickup.id, mmFromInput(e.target.value)),
+                      `pickup.width:${selectedPickup.id}`
+                    )
+                  }
+                  onBlur={onEndEdit}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Height ({unitLabel})</label>
+                <input
+                  type="number"
+                  step={isMm ? '0.5' : '0.05'}
+                  className="form-input"
+                  value={(selectedPickup.heightMm * factor).toFixed(2)}
+                  onChange={(e) =>
+                    onUpdateProject(
+                      (prev) => settingPickupHeight(prev, selectedPickup.id, mmFromInput(e.target.value)),
+                      `pickup.height:${selectedPickup.id}`
+                    )
+                  }
+                  onBlur={onEndEdit}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+              <div className="form-group">
+                <label className="form-label">Corner Radius ({unitLabel})</label>
+                <input
+                  type="number"
+                  step={isMm ? '0.5' : '0.05'}
+                  className="form-input"
+                  value={((selectedPickup.cornerRadiusMm ?? 0) * factor).toFixed(2)}
+                  onChange={(e) =>
+                    onUpdateProject(
+                      (prev) => settingPickupCornerRadius(prev, selectedPickup.id, mmFromInput(e.target.value)),
+                      `pickup.radius:${selectedPickup.id}`
+                    )
+                  }
+                  onBlur={onEndEdit}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Angle (deg)</label>
+                <input
+                  type="number"
+                  step="0.5"
+                  className="form-input"
+                  value={selectedPickup.angleDegrees.toFixed(1)}
+                  onChange={(e) =>
+                    onUpdateProject(
+                      (prev) => settingPickupAngle(prev, selectedPickup.id, parseFloat(e.target.value) || 0),
+                      `pickup.angle:${selectedPickup.id}`
+                    )
+                  }
+                  onBlur={onEndEdit}
+                />
+              </div>
+            </div>
+
+            <button
+              className="btn btn-sm"
+              style={{ borderColor: 'var(--accent-red)', color: 'var(--accent-red)' }}
+              onClick={onDeleteSelectedPickup}
+              title="Delete this pickup"
+            >
+              <Trash2 size={14} /> Delete Pickup
+            </button>
+          </div>
         ) : (
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            Click any blue anchor circle to inspect coordinates and edit Bezier handles, or click the
-            body outline between two anchors to select that edge and make it straight or curved.
-            Double-click the outline to add a node where you clicked.
+            Click any blue anchor circle to inspect coordinates and edit Bezier handles, click a green
+            pickup rout to move or rotate it, or click the{' '}
+            {activeLayer.kind === 'body' ? 'body outline' : 'outline'} between two anchors to select
+            that edge and make it straight or curved. Double-click the outline to add a node where you
+            clicked.
           </p>
         )}
       </div>
