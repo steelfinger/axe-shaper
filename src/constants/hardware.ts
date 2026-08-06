@@ -56,8 +56,13 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     scaleLengthMm: 628.65,    // 24.75 inches
     // A real SG joins at fret 19, but Y=0 here is the top of the *outline*, and the SG
     // template's horn tips sit at Y=0 rather than reaching up past the joint. Dialling in
-    // fret 19 without redrawing those horns drags the whole body ~40mm up the neck.
-    nutToBodyEdgeMm: 379.2,   // Nut to Fret 16 (body entrance edge Y=0)
+    // fret 19 without redrawing those horns drags the whole body ~40mm up the neck - this
+    // value is still back-solved the same way as gibson_firebird_19 / gretsch_thunderbird_22
+    // below, not derived from a fret number.
+    // Target bridge (compensated saddle) position 214.5mm -> theoreticalSaddleY
+    // 211.5mm (less tune_o_matic's 3.0mm treble compensation) -> nutToBodyEdgeMm
+    // = 628.65 - 211.5 = 417.15mm.
+    nutToBodyEdgeMm: 417.15,
     nutToJointMm: 414.27,
     frets: 22,
     jointWidthMm: 38.1,       // 1.5 inches mortise
@@ -117,11 +122,11 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     id: 'gibson_flying_v_22',
     name: 'V-Style Vintage (24.75" Scale, 22 Frets)',
     scaleLengthMm: 628.65,    // 24.75 inches - same as gibson_sg_22, unchanged from the SG template this was built from
-    // Measured from the joint line: bridge at 7-3/4" to 7-27/32" (tilted;
-    // averaged to 198.04mm) -> theoreticalSaddleY 195.04mm (less
-    // tune_o_matic's 3.0mm treble compensation) -> nutToBodyEdgeMm =
-    // 628.65 - 195.04 = 433.61mm.
-    nutToBodyEdgeMm: 433.61,
+    // Superseded the original routing-template measurement (198.04mm) with an
+    // updated target bridge position of 183mm -> theoreticalSaddleY 180mm
+    // (less tune_o_matic's 3.0mm treble compensation) -> nutToBodyEdgeMm =
+    // 628.65 - 180 = 448.65mm.
+    nutToBodyEdgeMm: 448.65,
     nutToJointMm: 468.68,
     frets: 22,
     jointWidthMm: 38.1,       // Matches V_STYLE_ANCHORS' pocket anchors (x=+-19.05)
