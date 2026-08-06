@@ -95,6 +95,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 }) => {
   const [knownDistanceInput, setKnownDistanceInput] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<Konva.Stage>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [zoom, setZoom] = useState(1.2); // 1.2 px per mm base scale
   const [panOffset, setPanOffset] = useState<Vector2D>({ x: 0, y: 0 });
@@ -327,6 +328,25 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
   const isPanMode = isPanToolActive || isSpacePressed || isModifierPanning;
 
+  // The bug this closes: releasing Space/Alt (or the window losing focus -
+  // `releaseAll` above, on blur) mid-pan-drag flips `draggable` off on the
+  // Stage, but does nothing about a drag Konva is already tracking. If that
+  // drag never gets a mouseup - blur is exactly the case where the browser
+  // may never deliver one - `onDragEnd` never runs, so the live offset never
+  // folds into `panOffset` and the Stage's own transform never resets to
+  // zero. Every click afterward still computes model coordinates from
+  // `panOffset` (React state, unaware anything is wrong) while the canvas is
+  // actually rendered shifted by Konva's leftover internal position - a
+  // fixed-pixel offset on every future click/segment-pick/calibration-pick,
+  // invisible to React and unrecoverable without a reload since nothing
+  // re-renders it away. `stopDrag()` is a no-op if nothing is dragging, and
+  // otherwise synchronously fires the real `dragend` - the Stage's own
+  // `onDragEnd` below is what actually commits `panOffset` and zeroes the
+  // transform back out.
+  useEffect(() => {
+    if (!isPanMode) stageRef.current?.stopDrag();
+  }, [isPanMode]);
+
   /** Nearest active-contour segment to a stage pointer position, if the click was close enough. */
   const pickSegment = (pointer: Vector2D): number | null => {
     const hit = findClosestSegment(activeContour.anchors, activeContour.closed, toModel(pointer));
@@ -373,6 +393,11 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           onClick={() => {
             setZoom(1.2);
             setPanOffset({ x: 0, y: 0 });
+            // Belt and suspenders alongside the isPanMode effect above: if the
+            // Stage's own Konva-internal position is ever left non-zero by some
+            // other path this doesn't cover, resetting only the React state
+            // above wouldn't touch it, and every click would stay offset.
+            stageRef.current?.position({ x: 0, y: 0 });
           }}
           title="Recenter Canvas & Reset Zoom"
         >
@@ -381,6 +406,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
       </div>
 
       <Stage
+        ref={stageRef}
         // Never 0: Konva throws building its buffer canvas at zero size, and the
         // container really can measure 0x0 for a frame before layout settles.
         width={Math.max(1, dimensions.width)}
