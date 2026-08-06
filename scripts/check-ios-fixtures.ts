@@ -43,10 +43,11 @@ const FIXTURE_DIR = join(ROOT, 'tests', 'fixtures', 'ios-written');
 
 /**
  * The synthetic fixtures the blueprints can't be: live symmetry with
- * mirrorIds, and a `guideImage` — a payload object this app has no model for
- * at all (its own guide image is session-only and never saved).
+ * mirrorIds, a `guideImage` — a payload object this app has no model for at
+ * all (its own guide image is session-only and never saved) — and
+ * `canvasOrientation: horizontal`, which no bundled blueprint sets.
  */
-const SYNTHETIC_FIXTURES = ['live_symmetry.axe.svg', 'guide_image.axe.svg'];
+const SYNTHETIC_FIXTURES = ['live_symmetry.axe.svg', 'guide_image.axe.svg', 'horizontal_orientation.axe.svg'];
 
 let failures = 0;
 function check(label: string, fn: () => void) {
