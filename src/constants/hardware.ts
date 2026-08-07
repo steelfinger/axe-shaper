@@ -137,6 +137,24 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     pocketCornerRadiusMm: 6.35,
     style: 'gibson_style',
   },
+  jaguar_22: {
+    id: 'jaguar_22',
+    name: 'Jaguar-Style (610 mm Scale, 22 Frets)',
+    scaleLengthMm: 610.0,
+    // Target compensated saddle line: 237.5mm with Tune-O-Matic's 3.0mm
+    // treble compensation -> theoretical saddle Y = 234.5mm ->
+    // nutToBodyEdgeMm = 610.0 - 234.5 = 375.5mm.
+    nutToBodyEdgeMm: 375.5,
+    nutToJointMm: 439.0,
+    frets: 22,
+    jointWidthMm: 55.56,
+    jointDepthMm: 76.2,
+    jointCornerRadiusMm: 6.35,
+    pocketWidthMm: 55.56,
+    pocketDepthMm: 76.2,
+    pocketCornerRadiusMm: 6.35,
+    style: 'fender_style',
+  },
   baritone_27: {
     id: 'baritone_27',
     name: 'Baritone Extended (27.0" Scale, 24 Frets)',

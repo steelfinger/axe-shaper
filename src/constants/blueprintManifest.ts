@@ -48,6 +48,11 @@ export const BLUEPRINT_MANIFEST: Record<
     category: 'V-Style',
     tier: 'extra',
   },
+  jag_style: {
+    description: 'Jaguar-style offset body with its pickguard and front control routes, a 610 mm scale neck, and Tune-O-Matic bridge.',
+    category: 'Offset',
+    tier: 'extra',
+  },
 };
 
 /** Display order - the manifest above is keyed for lookup, not iteration. */
@@ -59,4 +64,5 @@ export const BLUEPRINT_ORDER = [
   'gibson_firebird',
   'gretsch_thunderbird',
   'gibson_flying_v',
+  'jag_style',
 ] as const;
