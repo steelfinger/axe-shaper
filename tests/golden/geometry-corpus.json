@@ -11181,7 +11181,7 @@
       "scaleMath": {
         "theoreticalSaddleYMm": 257,
         "saddleYMm": 259.5,
-        "bridgePlateTopYMm": 174.77478
+        "bridgePlateTopYMm": 192
       },
       "input": {
         "closed": true,
