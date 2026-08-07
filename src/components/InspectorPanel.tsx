@@ -1,7 +1,7 @@
 import React from 'react';
-import { MousePointer, Trash2, PlusCircle, Ruler, Spline, Slash, Zap } from 'lucide-react';
+import { MousePointer, Trash2, PlusCircle, Ruler, Spline, Slash, Zap, Crosshair } from 'lucide-react';
 import { PICKUP_SPECIFICATIONS } from '../constants/hardware';
-import type { GuitarProject, HandleMode, PickupType } from '../types/guitar';
+import type { GuitarProject, HandleMode, PickupType, Vector2D } from '../types/guitar';
 import { distanceVector, isSegmentStraight, updateAnchorHandle } from '../utils/bezier';
 import { type ActiveLayer, getActiveContour, withActiveContour } from '../utils/layerShapes';
 import {
@@ -12,12 +12,15 @@ import {
   settingPickupWidth,
   movingPickup,
 } from '../utils/pickupEditing';
+import { formatLength } from '../utils/units';
 
 interface InspectorPanelProps {
   project: GuitarProject;
   selectedAnchorId: string | null;
   selectedSegmentIndex: number | null;
   selectedPickupId: string | null;
+  /** Live model-space cursor position over the canvas, null while the pointer is off it. */
+  cursorPos: Vector2D | null;
   onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject, coalesceKey?: string) => void;
   /** Close a typing gesture so the next edit is its own undo step. */
   onEndEdit: () => void;
@@ -34,6 +37,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
   selectedAnchorId,
   selectedSegmentIndex,
   selectedPickupId,
+  cursorPos,
   onUpdateProject,
   onEndEdit,
   onDeleteSelectedAnchor,
@@ -127,6 +131,32 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
 
   return (
     <aside className="app-inspector">
+      {/* CURSOR POSITION - live readout so a precise mm figure can be read off the
+          canvas and quoted back, instead of eyeballing gridlines or a screenshot. */}
+      <div className="panel-section">
+        <div className="section-title">
+          <Crosshair size={16} /> Cursor Position
+        </div>
+        {cursorPos ? (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.85rem' }}>
+            <div>
+              <span style={{ color: 'var(--text-muted)' }}>X: </span>
+              <strong>
+                {formatLength(cursorPos.x, settings.unitDisplay)} {unitLabel}
+              </strong>
+            </div>
+            <div>
+              <span style={{ color: 'var(--text-muted)' }}>Y: </span>
+              <strong>
+                {formatLength(cursorPos.y, settings.unitDisplay)} {unitLabel}
+              </strong>
+            </div>
+          </div>
+        ) : (
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Move the cursor over the canvas.</p>
+        )}
+      </div>
+
       {/* NODE EDITOR SECTION */}
       <div className="panel-section">
         <div className="section-title">

@@ -55,6 +55,8 @@ interface CanvasWorkspaceProps {
   onSelectSegment: (index: number | null) => void;
   selectedPickupId: string | null;
   onSelectPickup: (id: string | null) => void;
+  /** Model-space cursor position, live, for the sidebar readout - null while the pointer is off the canvas. */
+  onCursorMove: (pos: Vector2D | null) => void;
   onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject, coalesceKey?: string) => void;
   /** Snapshot before an edit; pass the same key the following updates use. */
   onBeginEdit: (coalesceKey?: string) => void;
@@ -82,6 +84,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   onSelectSegment,
   selectedPickupId,
   onSelectPickup,
+  onCursorMove,
   onUpdateProject,
   onBeginEdit,
   onEndEdit,
@@ -412,6 +415,11 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         width={Math.max(1, dimensions.width)}
         height={Math.max(1, dimensions.height)}
         onWheel={handleWheel}
+        onMouseMove={(e) => {
+          const pointer = e.target.getStage()?.getPointerPosition();
+          onCursorMove(pointer ? toModel(pointer) : null);
+        }}
+        onMouseLeave={() => onCursorMove(null)}
         draggable={isPanMode}
         onDragStart={(e) => {
           if (e.target === e.target.getStage()) {

@@ -105,6 +105,8 @@ export function App(): React.JSX.Element {
   const [selectedAnchorId, setSelectedAnchorId] = useState<string | null>(null);
   const [selectedSegmentIndex, setSelectedSegmentIndex] = useState<number | null>(null);
   const [selectedPickupId, setSelectedPickupId] = useState<string | null>(null);
+  // Live model-space cursor position for the sidebar readout - null while the pointer is off the canvas.
+  const [cursorPos, setCursorPos] = useState<Vector2D | null>(null);
   // Which contour a canvas gesture or inspector edit targets - body by default,
   // so every existing file and every session that never opens the Layers tab
   // behaves exactly as it did before this concept existed.
@@ -549,6 +551,7 @@ export function App(): React.JSX.Element {
         onSelectSegment={handleSelectSegment}
         selectedPickupId={selectedPickupId}
         onSelectPickup={handleSelectPickup}
+        onCursorMove={setCursorPos}
         onUpdateProject={handleUpdateProject}
         onBeginEdit={beginEdit}
         onEndEdit={endEdit}
@@ -566,6 +569,7 @@ export function App(): React.JSX.Element {
         selectedAnchorId={selectedAnchorId}
         selectedSegmentIndex={selectedSegmentIndex}
         selectedPickupId={selectedPickupId}
+        cursorPos={cursorPos}
         onUpdateProject={handleUpdateProject}
         onEndEdit={endEdit}
         onDeleteSelectedAnchor={handleDeleteSelectedAnchor}
