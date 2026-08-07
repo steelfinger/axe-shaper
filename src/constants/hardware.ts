@@ -180,17 +180,21 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
       treble: 2.0,
       bass: 5.0,
     },
-    saddleOffsetYMm: 22.0,
-    mountingPoints: [
-      { x: -28, y: -8 },
-      { x: -16.8, y: -8 },
-      { x: -5.6, y: -8 },
-      { x: 5.6, y: -8 },
-      { x: 16.8, y: -8 },
-      { x: 28, y: -8 },
-    ],
-    widthMm: 83.5,
-    lengthMm: 40.0,
+    // Plate footprint measured directly: front edge 249mm from the joint
+    // line -> saddleOffsetYMm = saddleY(259.0, fender_strat_21 + this
+    // bridge's 2.0mm treble compensation) - 249 = 10mm. widthMm/lengthMm are
+    // the measured 74mm / 38mm plate size, not the original guess.
+    //
+    // This table entry, not s_style.axe.svg's embedded copy, is what
+    // template selection actually resolves - see the tele_bridge_plate
+    // comment above (same bug, same fix, this is the S-Style equivalent).
+    saddleOffsetYMm: 10.0,
+    // No mountingPoints: real screw positions are bridge-model-specific
+    // detail this app doesn't model accurately, and the old six were fixed
+    // to the pre-fix plate's geometry - stale, drawn outside the corrected
+    // plate. Omitted rather than re-guessed.
+    widthMm: 74.0,
+    lengthMm: 38.0,
   },
   tune_o_matic: {
     id: 'tune_o_matic',

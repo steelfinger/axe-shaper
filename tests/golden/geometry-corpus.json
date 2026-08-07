@@ -170,35 +170,9 @@
           "treble": 2,
           "bass": 5
         },
-        "saddleOffsetYMm": 22,
-        "mountingPoints": [
-          {
-            "x": -28,
-            "y": -8
-          },
-          {
-            "x": -16.8,
-            "y": -8
-          },
-          {
-            "x": -5.6,
-            "y": -8
-          },
-          {
-            "x": 5.6,
-            "y": -8
-          },
-          {
-            "x": 16.8,
-            "y": -8
-          },
-          {
-            "x": 28,
-            "y": -8
-          }
-        ],
-        "widthMm": 83.5,
-        "lengthMm": 40
+        "saddleOffsetYMm": 10,
+        "widthMm": 74,
+        "lengthMm": 38
       },
       "tune_o_matic": {
         "id": "tune_o_matic",
@@ -475,7 +449,7 @@
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 257,
       "saddleYMm": 259,
-      "bridgePlateTopYMm": 237
+      "bridgePlateTopYMm": 249
     },
     {
       "neckPresetId": "fender_strat_21",
@@ -510,7 +484,7 @@
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 257,
       "saddleYMm": 259,
-      "bridgePlateTopYMm": 237
+      "bridgePlateTopYMm": 249
     },
     {
       "neckPresetId": "fender_tele_22",
@@ -545,7 +519,7 @@
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 249.45,
       "saddleYMm": 251.45,
-      "bridgePlateTopYMm": 229.45
+      "bridgePlateTopYMm": 241.45
     },
     {
       "neckPresetId": "gibson_lp_22",
@@ -580,7 +554,7 @@
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 211.5,
       "saddleYMm": 213.5,
-      "bridgePlateTopYMm": 191.5
+      "bridgePlateTopYMm": 203.5
     },
     {
       "neckPresetId": "gibson_sg_22",
@@ -615,7 +589,7 @@
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 204.5,
       "saddleYMm": 206.5,
-      "bridgePlateTopYMm": 184.5
+      "bridgePlateTopYMm": 196.5
     },
     {
       "neckPresetId": "gibson_firebird_19",
@@ -650,7 +624,7 @@
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 244.45,
       "saddleYMm": 246.45,
-      "bridgePlateTopYMm": 224.45
+      "bridgePlateTopYMm": 236.45
     },
     {
       "neckPresetId": "gretsch_thunderbird_22",
@@ -685,7 +659,7 @@
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 180,
       "saddleYMm": 182,
-      "bridgePlateTopYMm": 160
+      "bridgePlateTopYMm": 172
     },
     {
       "neckPresetId": "gibson_flying_v_22",
@@ -720,7 +694,7 @@
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 270,
       "saddleYMm": 272,
-      "bridgePlateTopYMm": 250
+      "bridgePlateTopYMm": 262
     },
     {
       "neckPresetId": "baritone_27",
@@ -7535,7 +7509,7 @@
       "scaleMath": {
         "theoreticalSaddleYMm": 257,
         "saddleYMm": 259,
-        "bridgePlateTopYMm": 237
+        "bridgePlateTopYMm": 249
       },
       "input": {
         "closed": true,
