@@ -10,7 +10,7 @@ import type { GuitarProject, GuideImageState, CalibrationState, Vector2D, Pickup
 import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
 import { withMirroredInsertion } from './utils/symmetry';
-import { downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
+import { buildProjectFilename, downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
 import { getUserTemplate } from './utils/userTemplates';
 import {
   type ActiveLayer,
@@ -437,7 +437,7 @@ export function App(): React.JSX.Element {
   // also embeds the full project data, so it doubles as the save file.
   const downloadProjectSVG = () => {
     const svgString = exportProjectToSVG(project);
-    downloadSVGFile(`${project.settings.name.toLowerCase().replace(/\s+/g, '-')}.axe.svg`, svgString);
+    downloadSVGFile(buildProjectFilename(project.settings.name), svgString);
   };
 
   const handleSaveProject = () => {

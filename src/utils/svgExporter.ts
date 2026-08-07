@@ -319,6 +319,20 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
   return svgContent;
 }
 
+// Builds a save filename that's unique per save, so the browser's Downloads
+// folder doesn't collide and silently rename the file to "name.axe (1).svg".
+// The token is tenths-of-a-second since local midnight, zero-padded to 6
+// decimal digits (max value 863999), so same-day filenames still sort
+// chronologically as strings.
+export function buildProjectFilename(projectName: string, date: Date = new Date()): string {
+  const slug = projectName.toLowerCase().replace(/\s+/g, '-');
+  const localDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  const secondsSinceMidnight = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
+  const tenths = secondsSinceMidnight * 10 + Math.floor(date.getMilliseconds() / 100);
+  const token = tenths.toString().padStart(6, '0');
+  return `${slug}-${localDate}-${token}.axe.svg`;
+}
+
 export function downloadSVGFile(filename: string, svgContent: string): void {
   const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
