@@ -268,7 +268,7 @@
           "treble": 2.5,
           "bass": 5.5
         },
-        "saddleOffsetYMm": 52,
+        "saddleOffsetYMm": 67.5,
         "mountingPoints": [
           {
             "x": -32.5,
@@ -283,8 +283,8 @@
             "y": 24
           }
         ],
-        "widthMm": 76.5,
-        "lengthMm": 86
+        "widthMm": 79.90847906788953,
+        "lengthMm": 92
       }
     },
     "pickupSpecifications": {
@@ -510,7 +510,7 @@
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 257,
       "saddleYMm": 259.5,
-      "bridgePlateTopYMm": 207.5
+      "bridgePlateTopYMm": 192
     },
     {
       "neckPresetId": "fender_tele_22",
@@ -545,7 +545,7 @@
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 257,
       "saddleYMm": 259.5,
-      "bridgePlateTopYMm": 207.5
+      "bridgePlateTopYMm": 192
     },
     {
       "neckPresetId": "gibson_lp_22",
@@ -580,7 +580,7 @@
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 249.45,
       "saddleYMm": 251.95,
-      "bridgePlateTopYMm": 199.95
+      "bridgePlateTopYMm": 184.45
     },
     {
       "neckPresetId": "gibson_sg_22",
@@ -615,7 +615,7 @@
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 211.5,
       "saddleYMm": 214,
-      "bridgePlateTopYMm": 162
+      "bridgePlateTopYMm": 146.5
     },
     {
       "neckPresetId": "gibson_firebird_19",
@@ -650,7 +650,7 @@
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 204.5,
       "saddleYMm": 207,
-      "bridgePlateTopYMm": 155
+      "bridgePlateTopYMm": 139.5
     },
     {
       "neckPresetId": "gretsch_thunderbird_22",
@@ -685,7 +685,7 @@
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 244.45,
       "saddleYMm": 246.95,
-      "bridgePlateTopYMm": 194.95
+      "bridgePlateTopYMm": 179.45
     },
     {
       "neckPresetId": "gibson_flying_v_22",
@@ -720,7 +720,7 @@
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 180,
       "saddleYMm": 182.5,
-      "bridgePlateTopYMm": 130.5
+      "bridgePlateTopYMm": 115
     },
     {
       "neckPresetId": "baritone_27",
@@ -755,7 +755,7 @@
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 270,
       "saddleYMm": 272.5,
-      "bridgePlateTopYMm": 220.5
+      "bridgePlateTopYMm": 205
     }
   ],
   "cases": [

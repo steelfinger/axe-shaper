@@ -239,14 +239,27 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
       treble: 2.5,
       bass: 5.5,
     },
-    saddleOffsetYMm: 52.0,
+    // Plate footprint measured directly: front edge 192mm from the joint
+    // line, back edge 284mm -> lengthMm = 284 - 192 = 92mm; saddleOffsetYMm
+    // (front edge to the saddle line) = saddleY(259.5, fender_tele_22 +
+    // this bridge's 2.5mm treble compensation) - 192 = 67.5mm. widthMm is
+    // the earlier-measured plate width (79.9mm), not the original guess.
+    //
+    // This table entry, not a blueprint file's embedded copy, is what
+    // t_style.axe.svg's bridgePresetId: 'tele_bridge_plate' actually
+    // resolves to on template selection - see the neckPresetFields/
+    // bridgePresetFields comment in utils/presets.ts. Three earlier fixes
+    // that only edited the blueprint file's embedded bridgePreset never
+    // reached the app, because handleSelectTemplate re-resolves hardware by
+    // id from this table and discards whatever a blueprint's own copy says.
+    saddleOffsetYMm: 67.5,
     mountingPoints: [
       { x: -32.5, y: 24 },
       { x: 0, y: 24 },
       { x: 32.5, y: 24 },
     ],
-    widthMm: 76.5,
-    lengthMm: 86.0,
+    widthMm: 79.90847906788953,
+    lengthMm: 92.0,
   },
 };
 
