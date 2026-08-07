@@ -253,11 +253,10 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
     // reached the app, because handleSelectTemplate re-resolves hardware by
     // id from this table and discards whatever a blueprint's own copy says.
     saddleOffsetYMm: 67.5,
-    mountingPoints: [
-      { x: -32.5, y: 24 },
-      { x: 0, y: 24 },
-      { x: 32.5, y: 24 },
-    ],
+    // No mountingPoints: real screw positions are bridge-model-specific
+    // detail this app doesn't model accurately, and the old three (-32.5/0/
+    // 32.5, y:24) were fixed to the pre-fix plate's geometry - now stale and
+    // drawn outside the corrected plate. Omitted rather than guessed.
     widthMm: 79.90847906788953,
     lengthMm: 92.0,
   },
