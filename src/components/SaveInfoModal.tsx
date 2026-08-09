@@ -29,7 +29,7 @@ export const SaveInfoModal: React.FC<SaveInfoModalProps> = ({ isOpen, onClose, o
           width: '100%',
           maxWidth: '520px',
           backgroundColor: 'var(--bg-secondary)',
-          border: '1px solid var(--border-color)',
+          border: '1px solid var(--panel-border)',
           borderRadius: 'var(--radius-md)',
           boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
           display: 'flex',
@@ -40,14 +40,14 @@ export const SaveInfoModal: React.FC<SaveInfoModalProps> = ({ isOpen, onClose, o
         <div
           style={{
             padding: '16px 20px',
-            borderBottom: '1px solid var(--border-color)',
+            borderBottom: '1px solid var(--panel-border)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 600 }}>
-            <Info size={18} className="text-amber-500" />
+            <Info size={18} style={{ color: 'var(--accent-amber)' }} />
             <span>About your saved file</span>
           </div>
           <button
@@ -77,7 +77,7 @@ export const SaveInfoModal: React.FC<SaveInfoModalProps> = ({ isOpen, onClose, o
         <div
           style={{
             padding: '14px 20px',
-            borderTop: '1px solid var(--border-color)',
+            borderTop: '1px solid var(--panel-border)',
             display: 'flex',
             justifyContent: 'flex-end',
             gap: '12px',
