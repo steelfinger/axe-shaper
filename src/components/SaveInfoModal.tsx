@@ -47,7 +47,7 @@ export const SaveInfoModal: React.FC<SaveInfoModalProps> = ({ isOpen, onClose, o
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 600 }}>
-            <Info size={18} style={{ color: 'var(--accent-amber)' }} />
+            <Info size={18} style={{ color: 'var(--accent-gold)' }} />
             <span>About your saved file</span>
           </div>
           <button
@@ -62,7 +62,7 @@ export const SaveInfoModal: React.FC<SaveInfoModalProps> = ({ isOpen, onClose, o
         {/* MODAL BODY */}
         <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
-            Your project saves as a real <code style={{ color: 'var(--accent-amber)' }}>.axe.svg</code> file — a
+            Your project saves as a real <code style={{ color: 'var(--accent-gold)' }}>.axe.svg</code> file — a
             standard, true-to-scale SVG. That means it doubles as a 1:1 print template: open it in any browser or
             image viewer, print it at 100% scale, and it's an accurately sized paper plan for your build.
           </p>

@@ -13,7 +13,7 @@
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
 
-  --accent-amber: #f59e0b;
+  --accent-gold: #d1a53d;
   --accent-blue: #38bdf8;
   --accent-green: #10b981;
   --accent-red: #ef4444;
@@ -79,7 +79,7 @@ body, html, #root {
 }
 
 .brand-badge {
-  background: linear-gradient(135deg, var(--accent-amber), #d97706);
+  background: linear-gradient(135deg, var(--accent-gold), #b3861f);
   color: #000;
   font-size: 0.7rem;
   font-weight: 800;
@@ -177,9 +177,9 @@ body, html, #root {
 }
 
 .sidebar-tab.active {
-  color: var(--accent-amber);
-  border-bottom-color: var(--accent-amber);
-  background: rgba(245, 158, 11, 0.05);
+  color: var(--accent-gold);
+  border-bottom-color: var(--accent-gold);
+  background: rgba(209, 165, 61, 0.05);
 }
 
 .sidebar-content {
@@ -309,7 +309,7 @@ body, html, #root {
   padding: 14px 16px;
   background: var(--panel-bg);
   backdrop-filter: blur(12px);
-  border: 1px solid var(--accent-amber);
+  border: 1px solid var(--accent-gold);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
   z-index: 20;
@@ -319,7 +319,7 @@ body, html, #root {
   font-weight: 600;
   font-size: 0.9rem;
   margin-bottom: 6px;
-  color: var(--accent-amber);
+  color: var(--accent-gold);
 }
 
 .calibration-hint {

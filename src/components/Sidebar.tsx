@@ -193,7 +193,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     padding: '4px 6px',
                     border: 'none',
                     background: 'transparent',
-                    color: locked ? 'var(--accent-amber)' : 'var(--text-secondary)',
+                    color: locked ? 'var(--accent-gold)' : 'var(--text-secondary)',
                   }}
                   title={locked ? 'Unlock' : 'Lock'}
                 >
@@ -280,8 +280,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   style={{
                     padding: '12px',
                     borderRadius: 'var(--radius-sm)',
-                    background: project.activeTemplateId === tmpl.id ? 'rgba(245, 158, 11, 0.12)' : 'var(--bg-primary)',
-                    border: project.activeTemplateId === tmpl.id ? '1px solid var(--accent-amber)' : '1px solid var(--panel-border)',
+                    background: project.activeTemplateId === tmpl.id ? 'rgba(209, 165, 61, 0.12)' : 'var(--bg-primary)',
+                    border: project.activeTemplateId === tmpl.id ? '1px solid var(--accent-gold)' : '1px solid var(--panel-border)',
                     marginBottom: '10px',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
@@ -333,8 +333,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           style={{
                             padding: '12px',
                             borderRadius: 'var(--radius-sm)',
-                            background: project.activeTemplateId === tmpl.id ? 'rgba(245, 158, 11, 0.12)' : 'var(--bg-primary)',
-                            border: project.activeTemplateId === tmpl.id ? '1px solid var(--accent-amber)' : '1px solid var(--panel-border)',
+                            background: project.activeTemplateId === tmpl.id ? 'rgba(209, 165, 61, 0.12)' : 'var(--bg-primary)',
+                            border: project.activeTemplateId === tmpl.id ? '1px solid var(--accent-gold)' : '1px solid var(--panel-border)',
                             marginBottom: '10px',
                             cursor: 'pointer',
                             transition: 'all 0.15s ease',
@@ -381,8 +381,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     style={{
                       padding: '12px',
                       borderRadius: 'var(--radius-sm)',
-                      background: project.activeTemplateId === tmpl.id ? 'rgba(245, 158, 11, 0.12)' : 'var(--bg-primary)',
-                      border: project.activeTemplateId === tmpl.id ? '1px solid var(--accent-amber)' : '1px solid var(--panel-border)',
+                      background: project.activeTemplateId === tmpl.id ? 'rgba(209, 165, 61, 0.12)' : 'var(--bg-primary)',
+                      border: project.activeTemplateId === tmpl.id ? '1px solid var(--accent-gold)' : '1px solid var(--panel-border)',
                       marginBottom: '10px',
                       cursor: 'pointer',
                       transition: 'all 0.15s ease',
@@ -473,8 +473,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <button
                       className={`btn btn-sm ${guideImage.locked ? 'btn-primary' : ''}`}
                       style={{
-                        borderColor: guideImage.locked ? 'var(--accent-amber)' : 'var(--panel-border)',
-                        color: guideImage.locked ? 'var(--accent-amber)' : 'var(--text-secondary)',
+                        borderColor: guideImage.locked ? 'var(--accent-gold)' : 'var(--panel-border)',
+                        color: guideImage.locked ? 'var(--accent-gold)' : 'var(--text-secondary)',
                       }}
                       onClick={() =>
                         onUpdateGuideImage((prev) => ({ ...prev, locked: !prev.locked }))
@@ -1064,8 +1064,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 style={{
                   padding: '8px 10px',
                   borderRadius: 'var(--radius-sm)',
-                  background: activeLayer.kind === 'body' ? 'rgba(245, 158, 11, 0.12)' : 'var(--bg-primary)',
-                  border: activeLayer.kind === 'body' ? '1px solid var(--accent-amber)' : '1px solid var(--panel-border)',
+                  background: activeLayer.kind === 'body' ? 'rgba(209, 165, 61, 0.12)' : 'var(--bg-primary)',
+                  border: activeLayer.kind === 'body' ? '1px solid var(--accent-gold)' : '1px solid var(--panel-border)',
                   marginBottom: '14px',
                   cursor: 'pointer',
                   fontSize: '0.85rem',

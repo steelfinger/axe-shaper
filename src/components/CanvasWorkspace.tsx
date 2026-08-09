@@ -589,14 +589,14 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 return (
                   <Line
                     points={[p1.x, p1.y, p2.x, p2.y]}
-                    stroke="#f59e0b"
+                    stroke="#d1a53d"
                     strokeWidth={1.5}
                     dash={[6, 4]}
                     opacity={0.6}
                   />
                 );
               })()}
-              <Text x={20} y={originY - 18} text="Neck Pocket Joint Line (Y=0)" fill="#f59e0b" fontSize={11} opacity={0.7} />
+              <Text x={20} y={originY - 18} text="Neck Pocket Joint Line (Y=0)" fill="#d1a53d" fontSize={11} opacity={0.7} />
 
               {/* Theoretical Scale Line */}
               {(() => {
@@ -687,8 +687,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   ? settings.finishStyle === 'solid'
                     ? settings.bodyColor
                     : settings.finishStyle === 'sunburst'
-                    ? '#b45309'
-                    : '#d97706'
+                    ? '#8a6718'
+                    : '#b3861f'
                   : 'rgba(147, 51, 234, 0.18)'
               }
               opacity={isBodyActive ? settings.bodyFillOpacity ?? 0.35 : 1}
@@ -925,7 +925,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   x={ax}
                   y={ay}
                   radius={anchor.locked ? 7 : isSelected ? 9 : 7}
-                  fill={anchor.locked ? '#f59e0b' : isSelected ? '#38bdf8' : '#2563eb'}
+                  fill={anchor.locked ? '#d1a53d' : isSelected ? '#38bdf8' : '#2563eb'}
                   stroke="#ffffff"
                   strokeWidth={2}
                   draggable={!isPanMode && !anchor.locked}
@@ -991,16 +991,16 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 const a = toScreen(calibration.points[0]);
                 const b = toScreen(calibration.points[1]);
                 return (
-                  <Line points={[a.x, a.y, b.x, b.y]} stroke="#f59e0b" strokeWidth={1.5} dash={[6, 4]} />
+                  <Line points={[a.x, a.y, b.x, b.y]} stroke="#d1a53d" strokeWidth={1.5} dash={[6, 4]} />
                 );
               })()}
             {calibration.points.map((pt, i) => {
               const s = toScreen(pt);
               return (
                 <Group key={`cal_${i}`}>
-                  <Line points={[s.x - 9, s.y, s.x + 9, s.y]} stroke="#f59e0b" strokeWidth={1.5} />
-                  <Line points={[s.x, s.y - 9, s.x, s.y + 9]} stroke="#f59e0b" strokeWidth={1.5} />
-                  <Circle x={s.x} y={s.y} radius={4} stroke="#f59e0b" strokeWidth={1.5} />
+                  <Line points={[s.x - 9, s.y, s.x + 9, s.y]} stroke="#d1a53d" strokeWidth={1.5} />
+                  <Line points={[s.x, s.y - 9, s.x, s.y + 9]} stroke="#d1a53d" strokeWidth={1.5} />
+                  <Circle x={s.x} y={s.y} radius={4} stroke="#d1a53d" strokeWidth={1.5} />
                 </Group>
               );
             })}

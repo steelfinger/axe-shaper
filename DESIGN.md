@@ -11,7 +11,7 @@ colors:
   text-primary: "#f0f4f8"
   text-secondary: "#94a3b8"
   text-muted: "#64748b"
-  accent-amber: "#f59e0b"
+  accent-gold: "#d1a53d"
   accent-blue: "#38bdf8"
   accent-green: "#10b981"
   accent-red: "#ef4444"
@@ -77,21 +77,21 @@ components:
 
 **Creative North Star: "The Luthier's Night Bench"**
 
-Axe Shaper reads like a workshop after hours: a dark room, one warm amber
-work-light, and precision instruments laid out on dark glass. The chrome
-around the canvas is quiet on purpose — near-black slate panels, hairline
-borders, no ornament — so the only thing asking for attention is the amber
-accent marking whatever is *currently live*: the active tab, the selected
-template, a locked anchor. The mood is precise, quiet, and technical, closer
-to a well-made measuring tool than a creative app; it should never read as
-playful or as generic SaaS chrome.
+Axe Shaper reads like a workshop after hours: a dark room, one warm
+antique-gold work-light, and precision instruments laid out on dark glass.
+The chrome around the canvas is quiet on purpose — near-black slate panels,
+hairline borders, no ornament — so the only thing asking for attention is the
+gold accent marking whatever is *currently live*: the active tab, the
+selected template, a locked anchor. The mood is precise, quiet, and
+technical, closer to a well-made measuring tool than a creative app; it
+should never read as playful or as generic SaaS chrome.
 
 **Key Characteristics:**
 - Near-black navy-slate surfaces (`#0f1117` → `#282d3f`) with a single warm
-  amber accent (`#f59e0b`) reserved for "this is active/current/locked."
+  antique-gold accent (`#d1a53d`) reserved for "this is active/current/locked."
   A cooler sky-blue and emerald green carry secondary, purpose-specific
   signals (focus/info, save/confirm) rather than competing for the same
-  attention amber owns.
+  attention gold owns.
 - Flat, bordered structural chrome; floating overlays get glass treatment.
   See the Floating Glass Rule in Elevation & Depth.
 - JetBrains Mono for every physical/numeric readout (zoom %, scale bar,
@@ -106,8 +106,8 @@ Dark navy-slate neutrals dominate; color is spent narrowly and each hue has
 exactly one job.
 
 ### Primary
-- **Amber** (`#f59e0b`): the "this is active" signal — active sidebar tab,
-  selected template card, locked anchor point, the brand badge, the
+- **Antique Gold** (`#d1a53d`): the "this is active" signal — active sidebar
+  tab, selected template card, locked anchor point, the brand badge, the
   neck-pocket joint line on canvas. Never decorative.
 
 ### Secondary
@@ -138,10 +138,10 @@ exactly one job.
   secondary, and muted text, in that order of emphasis.
 
 ### Named Rules
-**The Amber Is Truth Rule.** Amber always means "this is the current, active,
-or locked one." It is never used for a button that isn't the active state of
-a toggle, never for decoration. Its rarity across an otherwise near-monochrome
-UI is what makes it legible at a glance.
+**The Gold Is Truth Rule.** The antique-gold accent always means "this is the
+current, active, or locked one." It is never used for a button that isn't the
+active state of a toggle, never for decoration. Its rarity across an
+otherwise near-monochrome UI is what makes it legible at a glance.
 
 ## Typography
 
@@ -240,8 +240,8 @@ second toolbar.
 - **Background:** `--bg-tertiary` on a `--bg-secondary` panel (one tone up
   from the surface it sits on).
 - **Border:** `1px solid --panel-border`; template/list cards swap this for
-  `1px solid --accent-amber` plus a faint amber tint background
-  (`rgba(245,158,11,0.12)`) when selected.
+  `1px solid --accent-gold` plus a faint gold tint background
+  (`rgba(209,165,61,0.12)`) when selected.
 - **Shadow:** none — see Elevation & Depth; cards are docked-panel content,
   not floating.
 
@@ -254,8 +254,8 @@ second toolbar.
 ### Navigation (Sidebar Tabs)
 - **Style:** flex row of equal-width tabs, `0.75rem` label, `--text-muted` at
   rest, 2px bottom border transparent.
-- **Active:** text and bottom border both switch to `--accent-amber`, with a
-  faint amber-tinted background (`rgba(245,158,11,0.05)`) — the same amber
+- **Active:** text and bottom border both switch to `--accent-gold`, with a
+  faint gold-tinted background (`rgba(209,165,61,0.05)`) — the same gold
   language as the active-template card.
 
 ### Modals
@@ -269,22 +269,25 @@ second toolbar.
 ### Canvas Workspace (signature component)
 The Bezier editing surface is the product, and it has its own deliberate
 color language, independent of the chrome palette above:
-- **Anchor points:** `#2563eb` blue by default with a white stroke; amber
-  (`--accent-amber`) when locked; cyan-blue (`--accent-blue`) when selected.
+- **Anchor points:** `#2563eb` blue by default with a white stroke; antique
+  gold (`--accent-gold`) when locked; cyan-blue (`--accent-blue`) when
+  selected.
 - **Bezier handles:** emerald (`--accent-green`) by default, cyan-blue when
   selected, connected to their anchor by a thin dashed line.
 - **Centerline axis (X=0):** cyan-blue, labeled, low-opacity.
-- **Neck-pocket joint line (Y=0):** amber, labeled, low-opacity — the one
-  place amber marks a fixed reference rather than a UI active-state.
+- **Neck-pocket joint line (Y=0):** antique gold, labeled, low-opacity — the
+  one place gold marks a fixed reference rather than a UI active-state.
 - **Body outline:** violet-purple when active/hovered, near-white at 15%
   opacity as the faint "ghost" reference outline.
-- **Dimension/calibration overlays:** amber dashed lines and tick marks.
+- **Dimension/calibration overlays:** antique-gold dashed lines and tick
+  marks.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** reserve amber exclusively for "this is the active/current/locked
-  one" (The Amber Is Truth Rule) — never as a decorative accent.
+- **Do** reserve the antique-gold accent exclusively for "this is the
+  active/current/locked one" (The Gold Is Truth Rule) — never as a
+  decorative accent.
 - **Do** keep docked structural chrome (header, sidebar, inspector) flat —
   border only, no shadow or blur (The Floating Glass Rule).
 - **Do** set any physical/numeric readout in JetBrains Mono (The

@@ -13,7 +13,7 @@
       "text-primary": { "role": "neutral", "displayName": "Fog", "canonical": "#f0f4f8", "tonalRamp": ["#0b0c10", "#0f1117", "#161922", "#1e2230", "#282d3f", "#64748b", "#94a3b8", "#f0f4f8"] },
       "text-secondary": { "role": "neutral", "displayName": "Ash", "canonical": "#94a3b8", "tonalRamp": ["#0b0c10", "#0f1117", "#161922", "#1e2230", "#282d3f", "#64748b", "#94a3b8", "#f0f4f8"] },
       "text-muted": { "role": "neutral", "displayName": "Slate Text", "canonical": "#64748b", "tonalRamp": ["#0b0c10", "#0f1117", "#161922", "#1e2230", "#282d3f", "#64748b", "#94a3b8", "#f0f4f8"] },
-      "accent-amber": { "role": "primary", "displayName": "Amber", "canonical": "#f59e0b", "tonalRamp": ["#78350f", "#b45309", "#d97706", "#f59e0b", "#fbbf24", "#fcd34d", "#fde68a", "#fef3c7"] },
+      "accent-gold": { "role": "primary", "displayName": "Antique Gold", "canonical": "#d1a53d", "tonalRamp": ["#4a3710", "#6b4f13", "#8a6718", "#b3861f", "#d1a53d", "#dbb35c", "#e5c481", "#efd7a8"] },
       "accent-blue": { "role": "secondary", "displayName": "Sky Blue", "canonical": "#38bdf8", "tonalRamp": ["#0c4a6e", "#075985", "#0369a1", "#0284c7", "#0ea5e9", "#38bdf8", "#7dd3fc", "#bae6fd"] },
       "accent-green": { "role": "secondary", "displayName": "Emerald Green", "canonical": "#10b981", "tonalRamp": ["#064e3b", "#065f46", "#047857", "#059669", "#10b981", "#34d399", "#6ee7b7", "#a7f3d0"] },
       "accent-red": { "role": "secondary", "displayName": "Signal Red", "canonical": "#ef4444", "tonalRamp": ["#7f1d1d", "#991b1b", "#b91c1c", "#dc2626", "#ef4444", "#f87171", "#fca5a5", "#fecaca"] },
@@ -73,9 +73,9 @@
       "name": "Card — Template (selectable)",
       "kind": "card",
       "refersTo": "panel-section",
-      "description": "A selectable list card; amber border + tint marks the active template, the same amber language as the active sidebar tab.",
+      "description": "A selectable list card; gold border + tint marks the active template, the same gold language as the active sidebar tab.",
       "html": "<div class=\"ds-template-card ds-template-card--active\"><div class=\"ds-template-row\"><span class=\"ds-template-name\">S-Style Standard</span><span class=\"ds-template-tag\">reference</span></div><p class=\"ds-template-desc\">Double cutaway with sweeping horns and waist contours.</p></div>",
-      "css": ".ds-template-card { padding: 12px; border-radius: 6px; background: var(--bg-primary); border: 1px solid var(--panel-border); margin-bottom: 10px; cursor: pointer; transition: all 0.15s ease; } .ds-template-card--active { background: rgba(245, 158, 11, 0.12); border-color: var(--accent-amber); } .ds-template-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; } .ds-template-name { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); } .ds-template-tag { font-size: 0.7rem; color: var(--text-muted); background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; } .ds-template-desc { font-size: 0.78rem; color: var(--text-secondary); margin: 0; }"
+      "css": ".ds-template-card { padding: 12px; border-radius: 6px; background: var(--bg-primary); border: 1px solid var(--panel-border); margin-bottom: 10px; cursor: pointer; transition: all 0.15s ease; } .ds-template-card--active { background: rgba(209, 165, 61, 0.12); border-color: var(--accent-gold); } .ds-template-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; } .ds-template-name { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); } .ds-template-tag { font-size: 0.7rem; color: var(--text-muted); background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; } .ds-template-desc { font-size: 0.78rem; color: var(--text-secondary); margin: 0; }"
     },
     {
       "name": "Input — Text Field",
@@ -89,9 +89,9 @@
       "name": "Navigation — Sidebar Tabs",
       "kind": "nav",
       "refersTo": "sidebar-tabs",
-      "description": "Equal-width tab row; active tab switches to amber text + underline + faint tint.",
+      "description": "Equal-width tab row; active tab switches to gold text + underline + faint tint.",
       "html": "<div class=\"ds-tabs\"><div class=\"ds-tab ds-tab--active\">Templates</div><div class=\"ds-tab\">Hardware</div><div class=\"ds-tab\">Guide</div></div>",
-      "css": ".ds-tabs { display: flex; border-bottom: 1px solid var(--panel-border); background: rgba(0,0,0,0.2); } .ds-tab { flex: 1; min-width: 0; padding: 12px 4px; font-size: 0.75rem; font-weight: 500; text-align: center; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s ease; } .ds-tab--active { color: var(--accent-amber); border-bottom-color: var(--accent-amber); background: rgba(245, 158, 11, 0.05); }"
+      "css": ".ds-tabs { display: flex; border-bottom: 1px solid var(--panel-border); background: rgba(0,0,0,0.2); } .ds-tab { flex: 1; min-width: 0; padding: 12px 4px; font-size: 0.75rem; font-weight: 500; text-align: center; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s ease; } .ds-tab--active { color: var(--accent-gold); border-bottom-color: var(--accent-gold); background: rgba(209, 165, 61, 0.05); }"
     },
     {
       "name": "Toolbar — Floating Canvas Toolbar",
@@ -104,21 +104,21 @@
   ],
   "narrative": {
     "northStar": "The Luthier's Night Bench",
-    "overview": "Axe Shaper reads like a workshop after hours: a dark room, one warm amber work-light, and precision instruments laid out on dark glass. The chrome around the canvas is quiet on purpose — near-black slate panels, hairline borders, no ornament — so the only thing asking for attention is the amber accent marking whatever is currently live: the active tab, the selected template, a locked anchor. The mood is precise, quiet, and technical, closer to a well-made measuring tool than a creative app; it should never read as playful or as generic SaaS chrome.",
+    "overview": "Axe Shaper reads like a workshop after hours: a dark room, one warm antique-gold work-light, and precision instruments laid out on dark glass. The chrome around the canvas is quiet on purpose — near-black slate panels, hairline borders, no ornament — so the only thing asking for attention is the gold accent marking whatever is currently live: the active tab, the selected template, a locked anchor. The mood is precise, quiet, and technical, closer to a well-made measuring tool than a creative app; it should never read as playful or as generic SaaS chrome.",
     "keyCharacteristics": [
-      "Near-black navy-slate surfaces (#0f1117 → #282d3f) with a single warm amber accent (#f59e0b) reserved for \"this is active/current/locked.\" A cooler sky-blue and emerald green carry secondary, purpose-specific signals (focus/info, save/confirm) rather than competing for the same attention amber owns.",
+      "Near-black navy-slate surfaces (#0f1117 → #282d3f) with a single warm antique-gold accent (#d1a53d) reserved for \"this is active/current/locked.\" A cooler sky-blue and emerald green carry secondary, purpose-specific signals (focus/info, save/confirm) rather than competing for the same attention gold owns.",
       "Flat, bordered structural chrome; floating overlays get glass treatment. See the Floating Glass Rule.",
       "JetBrains Mono for every physical/numeric readout (zoom %, scale bar, coordinates), Inter for everything else.",
       "Tactile, confident controls: buttons read as solid and clickable, sized for a tool used for long sessions, not a marketing surface."
     ],
     "rules": [
-      { "name": "The Amber Is Truth Rule", "body": "Amber always means \"this is the current, active, or locked one.\" It is never used for a button that isn't the active state of a toggle, never for decoration.", "section": "colors" },
+      { "name": "The Gold Is Truth Rule", "body": "The antique-gold accent always means \"this is the current, active, or locked one.\" It is never used for a button that isn't the active state of a toggle, never for decoration.", "section": "colors" },
       { "name": "The Mono-Means-Measured Rule", "body": "If a piece of text states a physical quantity the user could act on with a ruler or a router, it is set in JetBrains Mono. Everything else — labels, copy, names — is Inter.", "section": "typography" },
       { "name": "The Floating Glass Rule", "body": "Blur and shadow are reserved for elements that float free of the layout's edges — toolbars, calibration cards, modals. Anything docked to a grid edge (header, sidebar, inspector) stays flat with a border only, regardless of whether it happens to sit visually over the canvas.", "section": "elevation" },
       { "name": "The Toolbar Pill Rule", "body": "The bottom-centered canvas toolbar is the one element allowed a full pill radius; every other container uses the sm/md radius scale. A second pill-shaped surface anywhere else would read as a second toolbar.", "section": "shapes" }
     ],
     "dos": [
-      "Do reserve amber exclusively for \"this is the active/current/locked one\" — never as a decorative accent.",
+      "Do reserve the antique-gold accent exclusively for \"this is the active/current/locked one\" — never as a decorative accent.",
       "Do keep docked structural chrome (header, sidebar, inspector) flat — border only, no shadow or blur.",
       "Do set any physical/numeric readout in JetBrains Mono.",
       "Do size lucide icons explicitly per context: 15px inside .btn-sm, 16–18px in headers and modals, 20px for the brand mark."

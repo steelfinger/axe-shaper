@@ -33,7 +33,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="app-header">
       <div className="brand-title">
-        <Disc size={20} style={{ color: 'var(--accent-amber)' }} />
+        <Disc size={20} style={{ color: 'var(--accent-gold)' }} />
         <span>Axe Shaper</span>
         <span className="brand-badge">2D Luthier</span>
       </div>
