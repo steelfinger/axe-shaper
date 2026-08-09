@@ -16,7 +16,7 @@ const PAGE_PADDING_MM = 15;
 /** Extra room on the right of the geometry for the axis line labels, in mm. */
 const LABEL_MARGIN_MM = 80;
 /** Height of the title + calibration band appended below the geometry, in mm. */
-const INFO_BAND_MM = 165;
+const INFO_BAND_MM = 181;
 /** Minimum page width so the 100mm calibration box always fits, in mm. */
 const MIN_PAGE_WIDTH_MM = 220;
 
@@ -223,6 +223,7 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
     .calibration-box { fill: none; stroke: #d9534f; stroke-width: 0.8; stroke-dasharray: 3,3; }
     .band-rule { fill: none; stroke: #adb5bd; stroke-width: 0.5; }
     .text-label { font-family: monospace, sans-serif; font-size: 5px; fill: #d9534f; }
+    .disclaimer-label { font-family: monospace, sans-serif; font-size: 4.5px; font-style: italic; fill: #6c757d; }
     .axis-label { font-family: monospace, sans-serif; font-size: 5px; fill: #6c757d; }
     .title-label { font-family: sans-serif; font-size: 10px; font-weight: bold; fill: #222222; }
   </style>
@@ -304,9 +305,10 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
     <text x="${bandLeftX.toFixed(2)}" y="${(bandTopY + 20).toFixed(2)}" class="title-label">${escapeXml(settings.name)} - 1:1 Scale Print Template</text>
     <text x="${bandLeftX.toFixed(2)}" y="${(bandTopY + 33).toFixed(2)}" class="text-label">Scale: ${neck.scaleLengthMm.toFixed(1)}mm (${(neck.scaleLengthMm / 25.4).toFixed(2)}") | Joint: ${neck.jointWidthMm}mm W x ${neck.jointDepthMm}mm D | Saddle Y: ${saddleY.toFixed(1)}mm</text>
     <text x="${bandLeftX.toFixed(2)}" y="${(bandTopY + 43).toFixed(2)}" class="text-label">Date: ${new Date().toISOString().split('T')[0]} | Printable 100% True Scale (Do Not Scale Page)</text>
+    <text x="${bandLeftX.toFixed(2)}" y="${(bandTopY + 56).toFixed(2)}" class="disclaimer-label">Editing this file in another app will not update Axe Shaper - re-importing it may discard your changes.</text>
 
     <!-- 100mm x 100mm Ruler Calibration Box -->
-    <g transform="translate(${bandLeftX.toFixed(2)}, ${(bandTopY + 52).toFixed(2)})">
+    <g transform="translate(${bandLeftX.toFixed(2)}, ${(bandTopY + 68).toFixed(2)})">
       <rect x="0" y="0" width="100" height="100" class="calibration-box" />
       <text x="5" y="15" class="text-label" font-weight="bold">CALIBRATION BOX</text>
       <text x="5" y="30" class="text-label">100 mm x 100 mm</text>
