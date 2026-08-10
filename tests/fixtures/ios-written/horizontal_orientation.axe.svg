@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:project="https://axe-shaper.app/ns/project/1" width="395.00mm" height="360.00mm" viewBox="-375.00 -180.00 395.00 360.00">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:project="https://axe-shaper.app/ns/project/1" width="405.00mm" height="360.00mm" viewBox="-385.00 -180.00 405.00 360.00">
 <metadata>
 <project:schemaVersion>2</project:schemaVersion>
 <project:data>eyJhY3RpdmVUZW1wbGF0ZUlkIjoidGVzdCIsImFwcFZlcnNpb24iOiIwLjEiLCJiYWNrUm91dGVzIjpbXSwiYnJpZGdlUHJlc2V0Ijp7ImNvbXBlbnNhdGlvbk1tIjp7ImJhc3MiOjUsInRyZWJsZSI6Mn0sImlkIjoidGVzdC1icmlkZ2UiLCJuYW1lIjoiVGVzdCBoYXJkdGFpbCIsInBsYXRlSGVpZ2h0TW0iOjQwLCJwbGF0ZVdpZHRoTW0iOjcwLCJzYWRkbGVPZmZzZXRZTW0iOjE1fSwiYnJpZGdlUHJlc2V0SWQiOiJ0ZXN0LWJyaWRnZSIsImNvbnRvdXIiOnsiYW5jaG9ycyI6W3siaGFuZGxlSW4iOnsieCI6LTEwLCJ5IjowfSwiaGFuZGxlTW9kZSI6InNtb290aCIsImhhbmRsZU91dCI6eyJ4IjoxMCwieSI6MH0sImlkIjoiYSIsInBvc2l0aW9uIjp7IngiOjAsInkiOjB9fSx7ImhhbmRsZUluIjp7IngiOjAsInkiOi0yMH0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJoYW5kbGVPdXQiOnsieCI6MCwieSI6MjB9LCJpZCI6ImIiLCJtaXJyb3JJZCI6ImMiLCJwb3NpdGlvbiI6eyJ4IjoxNjAsInkiOjIwMH19LHsiaGFuZGxlSW4iOnsieCI6MCwieSI6MjB9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwiaGFuZGxlT3V0Ijp7IngiOjAsInkiOi0yMH0sImlkIjoiYyIsIm1pcnJvcklkIjoiYiIsInBvc2l0aW9uIjp7IngiOi0xNjAsInkiOjIwMH19XSwiY2xvc2VkIjp0cnVlfSwiZnJvbnRSb3V0ZXMiOltdLCJtZXRhZGF0YSI6eyJhdXRob3IiOiJUZXN0IGF1dGhvciJ9LCJuZWNrUHJlc2V0Ijp7ImlkIjoidGVzdC1uZWNrLTI1LjUiLCJuYW1lIjoiVGVzdCAyNS41XCIiLCJudXRUb0JvZHlFZGdlTW0iOjM5MC43LCJzY2FsZUxlbmd0aE1tIjo2NDcuNywic3R5bGUiOiJmZW5kZXJfc3R5bGUifSwibmVja1ByZXNldElkIjoidGVzdC1uZWNrLTI1LjUiLCJwaWNrZ3VhcmRzIjpbXSwicGlja3VwcyI6W3siYW5nbGVEZWdyZWVzIjoxMCwiY29ybmVyUmFkaXVzTW0iOjEuNSwiaGVpZ2h0TW0iOjM4LCJpZCI6InAxIiwib2Zmc2V0WE1tIjowLCJvZmZzZXRZTW0iOjE4MCwidHlwZSI6Imh1bWJ1Y2tlciIsIndpZHRoTW0iOjcwfV0sInNjaGVtYVZlcnNpb24iOjIsInNldHRpbmdzIjp7ImNhbnZhc09yaWVudGF0aW9uIjoiaG9yaXpvbnRhbCIsImdyaWRTaXplTW0iOjEwLCJuYW1lIjoiSG9yaXpvbnRhbCBvcmllbnRhdGlvbiBmaXh0dXJlIiwic25hcFRvR3JpZCI6dHJ1ZSwidW5pdERpc3BsYXkiOiJtbSJ9fQ==</project:data>
@@ -10,10 +10,11 @@
 .guide{fill:none;stroke:#999;stroke-width:0.2;stroke-dasharray:4 2}
 .cal{fill:none;stroke:#111;stroke-width:0.4}
 .label{font-family:sans-serif;font-size:4px;fill:#111}
+.disclaimer{font-family:sans-serif;font-size:3.5px;font-style:italic;fill:#666}
 </style>
 <g transform="rotate(90)">
 <g id="guides">
-<line class="guide" x1="0" y1="-20.00" x2="0" y2="375.00"/>
+<line class="guide" x1="0" y1="-20.00" x2="0" y2="385.00"/>
 <line class="guide" x1="-180.00" y1="0" x2="180.00" y2="0"/>
 </g>
 <g id="body">
@@ -29,6 +30,7 @@
 <g id="calibration">
 <rect class="cal" x="-160.00" y="255.00" width="100.00" height="100.00"/>
 <text class="label" x="-160.00" y="252.00">Calibration: this square must measure 100 mm. If it doesn't, the print is scaled.</text>
+<text class="disclaimer" x="-160.00" y="245.00">Editing this file in another app will not update Axe Shaper - re-importing it may discard your changes.</text>
 </g>
 </g>
 </svg>
