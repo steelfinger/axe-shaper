@@ -16,6 +16,8 @@ preview_*
 
 # Editor directories and files
 .claude/
+.agents/
+skills-lock.json
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -26,4 +28,8 @@ preview_*
 *.sln
 *.sw?
 *.html
+!index.html
 script_*.js
+
+# Firebase CLI local cache
+.firebase/
