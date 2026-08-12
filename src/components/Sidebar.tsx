@@ -1008,6 +1008,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
               )}
 
               <div className="toggle-row" style={{ marginTop: '12px' }}>
+                <span style={{ fontSize: '0.85rem' }}>Snap to Grid</span>
+                <input
+                  type="checkbox"
+                  checked={settings.snapToGridEnabled}
+                  onChange={(e) =>
+                    onUpdateProject((prev) => ({
+                      ...prev,
+                      settings: { ...prev.settings, snapToGridEnabled: e.target.checked },
+                    }))
+                  }
+                />
+              </div>
+              {settings.snapToGridEnabled && (
+                <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                  Nodes and pickups snap to{' '}
+                  {formatLength(settings.gridSizeMm / gridMinorDivisor(settings.unitDisplay), settings.unitDisplay, 1)}{' '}
+                  {unitLabel(settings.unitDisplay)} increments.
+                </p>
+              )}
+
+              <div className="toggle-row" style={{ marginTop: '12px' }}>
                 <span style={{ fontSize: '0.85rem' }}>Pickguard</span>
                 <input
                   type="checkbox"

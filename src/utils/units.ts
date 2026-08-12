@@ -38,6 +38,13 @@ export const GRID_PRESETS: Record<UnitDisplay, { majorMm: LengthMm; label: strin
 
 export const gridMinorDivisor = (unit: UnitDisplay): number => (unit === 'mm' ? 5 : 4);
 
+/** Round to the nearest minor grid line - the finest increment the grid actually draws. */
+export const snapToGridMm = (valueMm: number, gridSizeMm: LengthMm, unit: UnitDisplay): LengthMm => {
+  const stepMm = gridSizeMm / gridMinorDivisor(unit);
+  if (!(stepMm > 0)) return valueMm;
+  return Math.round(valueMm / stepMm) * stepMm;
+};
+
 /** Nearest preset in the target unit, so toggling units keeps the grid sensible. */
 export const snapGridToUnit = (currentMm: LengthMm, unit: UnitDisplay): LengthMm =>
   GRID_PRESETS[unit].reduce((best, p) =>

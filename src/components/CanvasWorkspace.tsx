@@ -25,6 +25,7 @@ import {
   SCALE_BAR_STEPS,
   formatLength,
   gridMinorDivisor,
+  snapToGridMm,
   toMm,
   unitLabel,
 } from '../utils/units';
@@ -248,6 +249,11 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
     const modelPt = toModel({ x: newScreenX, y: newScreenY });
     let newModelX = modelPt.x;
     let newModelY = modelPt.y;
+
+    if (settings.snapToGridEnabled) {
+      newModelX = snapToGridMm(newModelX, settings.gridSizeMm, settings.unitDisplay);
+      newModelY = snapToGridMm(newModelY, settings.gridSizeMm, settings.unitDisplay);
+    }
 
     const anchor = activeContour.anchors[index];
 
@@ -802,7 +808,10 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                       // anchors above.
                       dragBoundFunc={(pos) => {
                         const model = toModel(pos);
-                        return toScreen({ x: 0, y: model.y });
+                        const y = settings.snapToGridEnabled
+                          ? snapToGridMm(model.y, settings.gridSizeMm, settings.unitDisplay)
+                          : model.y;
+                        return toScreen({ x: 0, y });
                       }}
                       onClick={() => {
                         if (!isPanMode) onSelectPickup(p.id);

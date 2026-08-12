@@ -183,6 +183,7 @@ export interface ProjectSettings {
   showDimensions: boolean;
   showGrid: boolean;
   gridSizeMm: LengthMm;
+  snapToGridEnabled: boolean;
   finishStyle: 'solid' | 'sunburst' | 'flame_maple' | 'natural_wood';
   bodyColor: string;
   secondaryColor: string;

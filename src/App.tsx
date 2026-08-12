@@ -49,6 +49,7 @@ const INITIAL_PROJECT: GuitarProject = {
     showDimensions: true,
     showGrid: true,
     gridSizeMm: 50,
+    snapToGridEnabled: false,
     finishStyle: 'sunburst',
     bodyColor: '#3b82f6',
     secondaryColor: '#f59e0b',
