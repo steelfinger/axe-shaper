@@ -479,8 +479,14 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           if (insertedId) onSelectAnchor(insertedId);
         }}
       >
-        {/* LAYER 0: GRID & CENTERLINE AXIS */}
-        <Layer listening={false}>
+        {/* LAYER 0: GRID, GHOST GUIDE, GUIDE IMAGE & BACK ROUTES - merged into one
+            Konva Layer to stay within the recommended 3-5 layer budget. Each
+            piece keeps its own Group (screen-space grid vs model-space
+            ghost/guide-image/back-routes), and only the guide image needs to be
+            hittable, so the layer's own listening flag matches its old layer
+            and the rest get an explicit listening={false} on their Group. */}
+        <Layer listening={!isPanMode && !calibration.active && isBodyActive}>
+          <Group listening={false}>
           {settings.showGrid && (
             <Group>
               {(() => {
@@ -614,20 +620,15 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               })()}
             </Group>
           )}
-        </Layer>
+          </Group>
 
-        {/* LAYER 1: GHOST REFERENCE GUIDE */}
-        {settings.showGhostGuide && (
-          <Layer listening={false}>
-            <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
+          {settings.showGhostGuide && (
+            <Group listening={false} x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               <Path data={ghostSVGPath} stroke="#64748b" strokeWidth={1.5 / zoom} dash={[5, 5]} opacity={0.35} />
             </Group>
-          </Layer>
-        )}
+          )}
 
-        {/* LAYER 1.5: GUIDE BACKGROUND IMAGE */}
-        {guideImage.visible && guideImage.element && (
-          <Layer listening={!isPanMode && !calibration.active && isBodyActive}>
+          {guideImage.visible && guideImage.element && (
             <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               <KonvaImage
                 image={guideImage.element}
@@ -650,14 +651,12 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 }}
               />
             </Group>
-          </Layer>
-        )}
+          )}
 
-        {/* LAYER 1.75: BACK ROUTED CAVITIES - dashed, drawn under the body fill
-            since a cut from the back isn't visible from the front */}
-        {settings.showBackRoutes !== false && backRoutes.length > 0 && (
-          <Layer listening={false}>
-            <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
+          {/* Back-routed cavities - dashed, drawn under the body fill since a
+              cut from the back isn't visible from the front */}
+          {settings.showBackRoutes !== false && backRoutes.length > 0 && (
+            <Group listening={false} x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               {backRoutes
                 .filter((r) => r.visible !== false)
                 .map((r) => (
@@ -670,10 +669,10 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   />
                 ))}
             </Group>
-          </Layer>
-        )}
+          )}
+        </Layer>
 
-        {/* LAYER 2: LIVE BODY SHAPE (and, while editing one, the active pickguard/route outline) */}
+        {/* LAYER 1: LIVE BODY SHAPE (and, while editing one, the active pickguard/route outline) */}
         <Layer listening={!isPanMode && !calibration.active}>
           <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
             {/* Dimmed reference outline of the real body, while editing a different layer */}
@@ -717,10 +716,13 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           </Group>
         </Layer>
 
-        {/* LAYER 3: HARDWARE & ROUTS - display only, so it never eats a canvas click */}
+        {/* LAYER 2: HARDWARE, ROUTS & PICKUPS - merged into one Layer (see LAYER 0
+            above for why). Hardware/routs stay display-only via an explicit
+            listening={false} on their Group; pickups keep the layer's own
+            listening flag so their drag/rotate handles still hit-test. */}
         {settings.showHardwareCavities && (
-          <Layer listening={false}>
-            <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
+          <Layer listening={!isPanMode && !calibration.active && isBodyActive}>
+            <Group listening={false} x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               {/* Neck Pocket Cavity */}
               <Rect
                 x={-neck.jointWidthMm / 2}
@@ -775,14 +777,10 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 ))}
               </Group>
             </Group>
-          </Layer>
-        )}
 
-        {/* LAYER 3.5: PICKUPS - interactive, body-layer-only (the same "not the
-            active layer doesn't hit-test" rule the pickguard/route layers follow,
-            applied to pickups instead - see EditingController.ActiveLayer on iOS) */}
-        {settings.showHardwareCavities && (
-          <Layer listening={!isPanMode && !calibration.active && isBodyActive}>
+            {/* Pickups - interactive, body-layer-only (the same "not the active
+                layer doesn't hit-test" rule the pickguard/route content follows,
+                applied to pickups instead - see EditingController.ActiveLayer on iOS) */}
             <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               {pickups.map((p) => {
                 const { widthMm: w, heightMm: h, cornerRadiusMm } = resolvePickupSpec(p);
@@ -859,7 +857,11 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           </Layer>
         )}
 
-        {/* LAYER 4: INTERACTIVE BEZIER NODE CONTROLS */}
+        {/* LAYER 3: INTERACTIVE BEZIER NODE CONTROLS & CALIBRATION PICKS - merged
+            into one Layer (see LAYER 0 above for why). Calibration content only
+            renders while calibration.active is true, at which point this layer's
+            own listening flag is already false, so the two never fight over
+            hit-testing. */}
         <Layer listening={!isPanMode && !calibration.active}>
           {/* Selected segment highlight */}
           {selectedSegmentIndex !== null && (
@@ -981,31 +983,30 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               </Group>
             );
           })}
-        </Layer>
 
-        {/* LAYER 5: CALIBRATION PICKS */}
-        {calibration.active && (
-          <Layer listening={false}>
-            {calibration.points.length === 2 &&
-              (() => {
-                const a = toScreen(calibration.points[0]);
-                const b = toScreen(calibration.points[1]);
+          {calibration.active && (
+            <Group listening={false}>
+              {calibration.points.length === 2 &&
+                (() => {
+                  const a = toScreen(calibration.points[0]);
+                  const b = toScreen(calibration.points[1]);
+                  return (
+                    <Line points={[a.x, a.y, b.x, b.y]} stroke="#d1a53d" strokeWidth={1.5} dash={[6, 4]} />
+                  );
+                })()}
+              {calibration.points.map((pt, i) => {
+                const s = toScreen(pt);
                 return (
-                  <Line points={[a.x, a.y, b.x, b.y]} stroke="#d1a53d" strokeWidth={1.5} dash={[6, 4]} />
+                  <Group key={`cal_${i}`}>
+                    <Line points={[s.x - 9, s.y, s.x + 9, s.y]} stroke="#d1a53d" strokeWidth={1.5} />
+                    <Line points={[s.x, s.y - 9, s.x, s.y + 9]} stroke="#d1a53d" strokeWidth={1.5} />
+                    <Circle x={s.x} y={s.y} radius={4} stroke="#d1a53d" strokeWidth={1.5} />
+                  </Group>
                 );
-              })()}
-            {calibration.points.map((pt, i) => {
-              const s = toScreen(pt);
-              return (
-                <Group key={`cal_${i}`}>
-                  <Line points={[s.x - 9, s.y, s.x + 9, s.y]} stroke="#d1a53d" strokeWidth={1.5} />
-                  <Line points={[s.x, s.y - 9, s.x, s.y + 9]} stroke="#d1a53d" strokeWidth={1.5} />
-                  <Circle x={s.x} y={s.y} radius={4} stroke="#d1a53d" strokeWidth={1.5} />
-                </Group>
-              );
-            })}
-          </Layer>
-        )}
+              })}
+            </Group>
+          )}
+        </Layer>
       </Stage>
 
       {/* Scale bar - lets you sanity-check the workspace scale at a glance */}
