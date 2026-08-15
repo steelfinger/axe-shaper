@@ -69,7 +69,22 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     // 452.241058 - 33.38 = 418.86. This does move the bridge ~32.8mm up the
     // body from the old measured position - a deliberate trade, same as the
     // iOS side already made and already shipping there.
-    nutToBodyEdgeMm: 418.86,
+    //
+    // Every contour/pickguard/pickup/route node in sg_style.axe.svg except
+    // the two locked neck-pocket corners was moved +10mm in Y - same
+    // mechanics as the Flying V's +52mm shift (22556dd) and the Firebird's
+    // +35mm shift (c76a5d8), much smaller here because the SG's outline was
+    // already close, just not quite enough room for a bolt-on neck heel
+    // (75mm pocket). This value has to move by the same +10mm so the
+    // computed bridge Y (scaleLengthMm - nutToBodyEdgeMm) tracks the
+    // shifted pickups instead of crushing their spacing to the bridge:
+    // fingerboardOverhangMm grows by 10 to stay derived from the fret model
+    // rather than patched: 33.38 + 10 = 43.38 -> nutToBodyEdgeMm =
+    // 452.241058 - 43.38 = 408.86. Updated here (the shared table new
+    // documents resolve from) and in the blueprint's own embedded copy
+    // together via scripts/refresh-blueprint-presets.ts, so the two can't
+    // diverge the way they did for the V (dd5d8a4).
+    nutToBodyEdgeMm: 408.86,
     // A real SG joins at fret 19; theoretical fret-19 distance on this
     // 628.65mm scale is ~418.9mm (same figure gibson_firebird_19 states
     // below). Unlike nutToBodyEdgeMm, this field isn't read by any geometry -
