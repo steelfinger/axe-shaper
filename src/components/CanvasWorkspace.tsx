@@ -19,7 +19,12 @@ import {
   rotatingPickupToward,
 } from '../utils/pickupEditing';
 import { resolveBridgePreset, resolveNeckPreset, resolvePickupSpec } from '../utils/presets';
-import { getBridgePlateTopYMm, getSaddlePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
+import {
+  getBridgePlateTopYMm,
+  getMountingPointOriginYMm,
+  getSaddlePlateTopYMm,
+  getTheoreticalSaddleYMm,
+} from '../utils/scaleMath';
 import { ZoomIn, ZoomOut, Maximize2, Hand, Spline } from 'lucide-react';
 import {
   SCALE_BAR_STEPS,
@@ -230,9 +235,9 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
   // Theoretical saddle & bridge Y mm (measured from body pocket entrance edge Y=0)
   const theoreticalSaddleY = getTheoreticalSaddleYMm(neck);
-  const saddleY = getSaddleYMm(neck, bridge);
   const bridgePlateTopY = getBridgePlateTopYMm(neck, bridge);
   const saddlePlateTopY = getSaddlePlateTopYMm(neck, bridge);
+  const mountingOriginY = getMountingPointOriginYMm(neck, bridge);
 
   // Wheel Zoom handler
   const handleWheel = (e: Konva.KonvaEventObject<WheelEvent>) => {
@@ -795,7 +800,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                     an iOS-written file never does. Unguarded, this threw
                     inside render, which is a blank canvas rather than a
                     missing detail. See BridgePreset.mountingPoints. */}
-                <Group x={0} y={saddleY}>
+                <Group x={0} y={mountingOriginY}>
                   {(bridge.mountingPoints ?? []).map((pt, idx) => (
                     <Circle key={idx} x={pt.x} y={pt.y} radius={3 / zoom} fill="#3b82f6" />
                   ))}

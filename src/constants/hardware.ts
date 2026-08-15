@@ -279,13 +279,30 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
       bass: 40.5,
     },
     saddleOffsetYMm: 7.0,
+    // Post holes are measured from the post line (getMountingPointOriginYMm
+    // branches on scaleReference above), not the compensated saddle line -
+    // every bridge's mountingPoints used to be anchored to the saddle line
+    // regardless of this field, which for a TOM put the post holes 37.5mm
+    // downstream, inside the saddle plate instead of the bridge plate they
+    // actually belong to.
+    //
+    // The two posts are also slanted, per the same real-bridge geometry the
+    // compensationMm comment above already documents: treble/high-E sits
+    // ~3mm closer to the neck than bass/low-E. x=37 is the treble/high-E
+    // side (StringGeometry's index-6-is-high-E / positive-X convention), so
+    // it gets the smaller y; x=-37 (bass) gets the larger one, split
+    // symmetrically around the nominal post line rather than putting the
+    // whole 3mm on one side.
+    //
     // One shared tailpiece spacing for every Tune-O-Matic-mounted body
     // (formerly split out into tune_o_matic_firebird's own 39.5mm figure) -
     // as long as the bridge-to-tailpiece run is long enough to string
-    // through, the exact distance isn't worth a second preset entry.
+    // through, the exact distance isn't worth a second preset entry. The
+    // tailpiece itself isn't slanted - it's just a string anchor, not part
+    // of intonation.
     mountingPoints: [
-      { x: -37.0, y: 0 },
-      { x: 37.0, y: 0 },
+      { x: -37.0, y: 1.5 },
+      { x: 37.0, y: -1.5 },
       { x: -41.0, y: 45.0 },
       { x: 41.0, y: 45.0 },
     ],

@@ -56,3 +56,26 @@ export function getBridgePlateTopYMm(neck: NeckPreset, bridge: BridgePreset): Le
 export function getSaddlePlateTopYMm(neck: NeckPreset, bridge: BridgePreset): LengthMm {
   return getSaddleYMm(neck, bridge) - (bridge.saddleOffsetYMm ?? 15);
 }
+
+/**
+ * Where `bridge.mountingPoints` are measured from. Each preset's own
+ * `scaleReference` says what its recorded {x,y} offsets are relative to -
+ * `post_line` for a TOM (the mounting posts sit at the uncompensated line,
+ * well ahead of where the saddles land), `saddle_line` for a hardtail/plate
+ * bridge (the screws are on the same plate as the saddles), `plate_origin`
+ * for a bridge whose points are measured from its own rout footprint. Was
+ * previously hardcoded to getSaddleYMm() everywhere, which is correct for
+ * saddle_line bridges but put a TOM's post holes 37.5mm downstream of the
+ * actual posts - inside the saddle plate instead of the bridge plate.
+ */
+export function getMountingPointOriginYMm(neck: NeckPreset, bridge: BridgePreset): LengthMm {
+  switch (bridge.scaleReference) {
+    case 'post_line':
+      return getTheoreticalSaddleYMm(neck);
+    case 'plate_origin':
+      return getBridgePlateTopYMm(neck, bridge);
+    case 'saddle_line':
+    default:
+      return getSaddleYMm(neck, bridge);
+  }
+}

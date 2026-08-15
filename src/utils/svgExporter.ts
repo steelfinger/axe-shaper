@@ -6,7 +6,13 @@ import {
   resolvePickupSpec,
   withEmbeddedPresets,
 } from './presets';
-import { getBridgePlateTopYMm, getSaddlePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from './scaleMath';
+import {
+  getBridgePlateTopYMm,
+  getMountingPointOriginYMm,
+  getSaddlePlateTopYMm,
+  getSaddleYMm,
+  getTheoreticalSaddleYMm,
+} from './scaleMath';
 
 /** Namespace for the <project:*> metadata elements. Must be declared or the file is not well-formed XML. */
 const PROJECT_NS = 'https://axe-shaper.app/ns/project/1';
@@ -112,7 +118,6 @@ function getContentBoundsMm(project: GuitarProject): BoundsMm {
   add(neck.jointWidthMm / 2, neck.jointDepthMm);
 
   // Bridge plate, saddle plate, theoretical scale-length line, mounting holes
-  const saddleY = getSaddleYMm(neck, bridge);
   const plateTopY = getBridgePlateTopYMm(neck, bridge);
   const saddlePlateTopY = getSaddlePlateTopYMm(neck, bridge);
   add(-bridge.widthMm / 2, plateTopY);
@@ -124,8 +129,9 @@ function getContentBoundsMm(project: GuitarProject): BoundsMm {
   // note on BridgePreset.mountingPoints. Same defensive shape as
   // `project.pickups ?? []` in withEmbeddedPresets, and for the same reason:
   // a foreign file is not obliged to populate every field of our type.
+  const mountingOriginY = getMountingPointOriginYMm(neck, bridge);
   for (const pt of bridge.mountingPoints ?? []) {
-    add(pt.x, saddleY + pt.y);
+    add(pt.x, mountingOriginY + pt.y);
   }
 
   // Pickup routs (use the diagonal so any rotation angle stays inside)
@@ -161,6 +167,7 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
   const saddleY = getSaddleYMm(neck, bridge);
   const bridgePlateTopY = getBridgePlateTopYMm(neck, bridge);
   const saddlePlateTopY = getSaddlePlateTopYMm(neck, bridge);
+  const mountingOriginY = getMountingPointOriginYMm(neck, bridge);
 
   const isHorizontal = settings.canvasOrientation === 'horizontal';
 
@@ -299,7 +306,7 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
       <rect x="${(-bridge.widthMm / 2).toFixed(2)}" y="${bridgePlateTopY.toFixed(2)}" width="${bridge.widthMm}" height="${bridge.lengthMm}" class="bridge-rout" />
       <rect x="${(-bridge.widthMm / 2).toFixed(2)}" y="${saddlePlateTopY.toFixed(2)}" width="${bridge.widthMm}" height="${bridge.lengthMm}" class="bridge-rout" />
       <line x1="${(-bridge.widthMm / 2 + 5).toFixed(2)}" y1="${theoreticalSaddleY.toFixed(2)}" x2="${(bridge.widthMm / 2 - 5).toFixed(2)}" y2="${theoreticalSaddleY.toFixed(2)}" stroke="#dc3545" stroke-width="1.2" />
-      <g transform="translate(0, ${saddleY.toFixed(2)})">
+      <g transform="translate(0, ${mountingOriginY.toFixed(2)})">
         ${(bridge.mountingPoints ?? [])
           .map((pt) => `<circle cx="${pt.x}" cy="${pt.y}" r="2" fill="#007bff" />`)
           .join('')}
