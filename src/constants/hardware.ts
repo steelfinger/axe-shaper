@@ -106,7 +106,22 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     // value took its place) = 452.241058 - 33.38 = 418.86. This moves the
     // bridge ~39.8mm up the body from the old measured position - the same
     // trade the iOS side already made and already ships.
-    nutToBodyEdgeMm: 418.86,  // Nut to body entrance edge Y=0
+    //
+    // Every contour/pickguard/pickup/route node in gibson_firebird.axe.svg
+    // except the two locked neck-pocket corners was moved +35mm in Y (same
+    // move as gibson_flying_v_22 got, +52mm, for the same reason - the
+    // outline left essentially no room for a bolt-on neck heel). This value
+    // has to move by the same +35mm so the computed bridge Y
+    // (scaleLengthMm - nutToBodyEdgeMm) tracks the pickups/body instead of
+    // staying put and crushing the neck-pickup-to-bridge spacing - the exact
+    // bug the V's first fix attempt (dabbd75) made. fingerboardOverhangMm
+    // grows by the same 35mm to stay derived from the fret model rather than
+    // patched: 33.38 + 35 = 68.38 -> nutToBodyEdgeMm = 452.241058 - 68.38 =
+    // 383.86. Updated here (the shared table new documents resolve from) and
+    // in the blueprint's own embedded copy together via
+    // scripts/refresh-blueprint-presets.ts, so the two can't diverge the way
+    // they did for the V (dd5d8a4).
+    nutToBodyEdgeMm: 383.86,  // Nut to body entrance edge Y=0
     nutToJointMm: 459.2,
     frets: 22,
     jointWidthMm: 38.1,       // 1.5 inches - same pocket width as the other Gibson-style presets, matches the routing template's 3.80cm reference dimension
