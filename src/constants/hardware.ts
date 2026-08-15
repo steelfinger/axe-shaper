@@ -121,15 +121,19 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     id: 'gretsch_thunderbird_22',
     name: 'Thunderbird-Style (24.75" Scale, 22 Frets)',
     scaleLengthMm: 628.65,    // 24.75 inches - same as gibson_sg_22, unchanged from the SG template this was built from
-    // Started from gibson_sg_22's original nutToBodyEdgeMm (379.2mm, giving a
-    // 252.45mm saddle line with tune_o_matic's old 3.0mm compensation), then
-    // shifted 5mm toward the neck per spec for this body: target saddle line
-    // 247.45mm - a fixed real target, independent of whatever tune_o_matic's
-    // own compensationMm says. Originally solved against the old 3.0mm:
-    // theoreticalSaddleY 244.45mm -> nutToBodyEdgeMm 384.2mm. Re-solved here
-    // for the corrected 37.5mm: theoreticalSaddleY = 247.45 - 37.5 = 209.95mm
-    // -> nutToBodyEdgeMm = 628.65 - 209.95 = 418.7mm.
-    nutToBodyEdgeMm: 418.7,
+    // This was back-solved from a measured/derived target (418.7, itself
+    // shifted off gibson_sg_22's own old value) until the iOS sibling app
+    // replaced that whole approach - see the identical note on gibson_sg_22
+    // above (docs/m17-hardware-and-body-refinements.md, "Step 4c"/"Step 4i"
+    // in the iOS repo). Superseded a first fret-based attempt that
+    // (for lack of an independently sourced fact) inherited gibson_sg_22's
+    // own fret-19 overhang (33.38) - close enough to the old value that the
+    // divergence went unnoticed at first, but wrong: it put the bridge close
+    // enough to Y=0 to overlap the bridge pickup rout, reported directly.
+    // A real measurement replaces the guess: fret 22 sits 73mm past the
+    // joint line -> nutToBodyEdgeMm = fret22Distance(628.65) - 73 =
+    // 452.241058 - 73 = 379.24.
+    nutToBodyEdgeMm: 379.24,
     nutToJointMm: 419.3,
     frets: 22,
     jointWidthMm: 38.1,       // Matches THUNDERBIRD_ANCHORS' pocket anchors (x=+-19.05)

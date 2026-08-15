@@ -93,7 +93,7 @@
         "id": "gretsch_thunderbird_22",
         "name": "Thunderbird-Style (24.75\" Scale, 22 Frets)",
         "scaleLengthMm": 628.65,
-        "nutToBodyEdgeMm": 418.7,
+        "nutToBodyEdgeMm": 379.24,
         "nutToJointMm": 419.3,
         "frets": 22,
         "jointWidthMm": 38.1,
@@ -565,30 +565,30 @@
     {
       "neckPresetId": "gretsch_thunderbird_22",
       "bridgePresetId": "hardtail_6",
-      "theoreticalSaddleYMm": 209.95,
-      "saddleYMm": 211.45,
-      "bridgePlateTopYMm": 185.95
+      "theoreticalSaddleYMm": 249.41,
+      "saddleYMm": 250.91,
+      "bridgePlateTopYMm": 225.41
     },
     {
       "neckPresetId": "gretsch_thunderbird_22",
       "bridgePresetId": "tremolo_strat",
-      "theoreticalSaddleYMm": 209.95,
-      "saddleYMm": 211.95,
-      "bridgePlateTopYMm": 199.95
+      "theoreticalSaddleYMm": 249.41,
+      "saddleYMm": 251.41,
+      "bridgePlateTopYMm": 239.41
     },
     {
       "neckPresetId": "gretsch_thunderbird_22",
       "bridgePresetId": "tune_o_matic",
-      "theoreticalSaddleYMm": 209.95,
-      "saddleYMm": 247.45,
-      "bridgePlateTopYMm": 202.95
+      "theoreticalSaddleYMm": 249.41,
+      "saddleYMm": 286.91,
+      "bridgePlateTopYMm": 242.41
     },
     {
       "neckPresetId": "gretsch_thunderbird_22",
       "bridgePresetId": "tele_bridge_plate",
-      "theoreticalSaddleYMm": 209.95,
-      "saddleYMm": 212.45,
-      "bridgePlateTopYMm": 142.45
+      "theoreticalSaddleYMm": 249.41,
+      "saddleYMm": 251.91,
+      "bridgePlateTopYMm": 181.91
     },
     {
       "neckPresetId": "gibson_flying_v_22",
@@ -18754,9 +18754,9 @@
       "neckPresetId": "gretsch_thunderbird_22",
       "bridgePresetId": "tune_o_matic",
       "scaleMath": {
-        "theoreticalSaddleYMm": 209.95,
-        "saddleYMm": 247.45,
-        "bridgePlateTopYMm": 202.95
+        "theoreticalSaddleYMm": 249.41,
+        "saddleYMm": 286.91,
+        "bridgePlateTopYMm": 242.41
       },
       "input": {
         "closed": true,
