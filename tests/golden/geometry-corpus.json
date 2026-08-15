@@ -427,252 +427,252 @@
       "bridgePresetId": "hardtail_6",
       "theoreticalSaddleYMm": 257,
       "saddleYMm": 258.5,
-      "bridgePlateTopYMm": 234.5
+      "bridgePlateTopYMm": 233
     },
     {
       "neckPresetId": "fender_strat_21",
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 257,
       "saddleYMm": 259,
-      "bridgePlateTopYMm": 249
+      "bridgePlateTopYMm": 247
     },
     {
       "neckPresetId": "fender_strat_21",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 257,
       "saddleYMm": 294.5,
-      "bridgePlateTopYMm": 287.5
+      "bridgePlateTopYMm": 250
     },
     {
       "neckPresetId": "fender_strat_21",
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 257,
       "saddleYMm": 259.5,
-      "bridgePlateTopYMm": 192
+      "bridgePlateTopYMm": 189.5
     },
     {
       "neckPresetId": "fender_tele_22",
       "bridgePresetId": "hardtail_6",
       "theoreticalSaddleYMm": 257,
       "saddleYMm": 258.5,
-      "bridgePlateTopYMm": 234.5
+      "bridgePlateTopYMm": 233
     },
     {
       "neckPresetId": "fender_tele_22",
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 257,
       "saddleYMm": 259,
-      "bridgePlateTopYMm": 249
+      "bridgePlateTopYMm": 247
     },
     {
       "neckPresetId": "fender_tele_22",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 257,
       "saddleYMm": 294.5,
-      "bridgePlateTopYMm": 287.5
+      "bridgePlateTopYMm": 250
     },
     {
       "neckPresetId": "fender_tele_22",
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 257,
       "saddleYMm": 259.5,
-      "bridgePlateTopYMm": 192
+      "bridgePlateTopYMm": 189.5
     },
     {
       "neckPresetId": "gibson_lp_22",
       "bridgePresetId": "hardtail_6",
       "theoreticalSaddleYMm": 249.45,
       "saddleYMm": 250.95,
-      "bridgePlateTopYMm": 226.95
+      "bridgePlateTopYMm": 225.45
     },
     {
       "neckPresetId": "gibson_lp_22",
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 249.45,
       "saddleYMm": 251.45,
-      "bridgePlateTopYMm": 241.45
+      "bridgePlateTopYMm": 239.45
     },
     {
       "neckPresetId": "gibson_lp_22",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 249.45,
       "saddleYMm": 286.95,
-      "bridgePlateTopYMm": 279.95
+      "bridgePlateTopYMm": 242.45
     },
     {
       "neckPresetId": "gibson_lp_22",
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 249.45,
       "saddleYMm": 251.95,
-      "bridgePlateTopYMm": 184.45
+      "bridgePlateTopYMm": 181.95
     },
     {
       "neckPresetId": "gibson_sg_22",
       "bridgePresetId": "hardtail_6",
       "theoreticalSaddleYMm": 177,
       "saddleYMm": 178.5,
-      "bridgePlateTopYMm": 154.5
+      "bridgePlateTopYMm": 153
     },
     {
       "neckPresetId": "gibson_sg_22",
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 177,
       "saddleYMm": 179,
-      "bridgePlateTopYMm": 169
+      "bridgePlateTopYMm": 167
     },
     {
       "neckPresetId": "gibson_sg_22",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 177,
       "saddleYMm": 214.5,
-      "bridgePlateTopYMm": 207.5
+      "bridgePlateTopYMm": 170
     },
     {
       "neckPresetId": "gibson_sg_22",
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 177,
       "saddleYMm": 179.5,
-      "bridgePlateTopYMm": 112
+      "bridgePlateTopYMm": 109.5
     },
     {
       "neckPresetId": "gibson_firebird_19",
       "bridgePresetId": "hardtail_6",
       "theoreticalSaddleYMm": 170,
       "saddleYMm": 171.5,
-      "bridgePlateTopYMm": 147.5
+      "bridgePlateTopYMm": 146
     },
     {
       "neckPresetId": "gibson_firebird_19",
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 170,
       "saddleYMm": 172,
-      "bridgePlateTopYMm": 162
+      "bridgePlateTopYMm": 160
     },
     {
       "neckPresetId": "gibson_firebird_19",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 170,
       "saddleYMm": 207.5,
-      "bridgePlateTopYMm": 200.5
+      "bridgePlateTopYMm": 163
     },
     {
       "neckPresetId": "gibson_firebird_19",
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 170,
       "saddleYMm": 172.5,
-      "bridgePlateTopYMm": 105
+      "bridgePlateTopYMm": 102.5
     },
     {
       "neckPresetId": "gretsch_thunderbird_22",
       "bridgePresetId": "hardtail_6",
       "theoreticalSaddleYMm": 209.95,
       "saddleYMm": 211.45,
-      "bridgePlateTopYMm": 187.45
+      "bridgePlateTopYMm": 185.95
     },
     {
       "neckPresetId": "gretsch_thunderbird_22",
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 209.95,
       "saddleYMm": 211.95,
-      "bridgePlateTopYMm": 201.95
+      "bridgePlateTopYMm": 199.95
     },
     {
       "neckPresetId": "gretsch_thunderbird_22",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 209.95,
       "saddleYMm": 247.45,
-      "bridgePlateTopYMm": 240.45
+      "bridgePlateTopYMm": 202.95
     },
     {
       "neckPresetId": "gretsch_thunderbird_22",
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 209.95,
       "saddleYMm": 212.45,
-      "bridgePlateTopYMm": 144.95
+      "bridgePlateTopYMm": 142.45
     },
     {
       "neckPresetId": "gibson_flying_v_22",
       "bridgePresetId": "hardtail_6",
       "theoreticalSaddleYMm": 145.5,
       "saddleYMm": 147,
-      "bridgePlateTopYMm": 123
+      "bridgePlateTopYMm": 121.5
     },
     {
       "neckPresetId": "gibson_flying_v_22",
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 145.5,
       "saddleYMm": 147.5,
-      "bridgePlateTopYMm": 137.5
+      "bridgePlateTopYMm": 135.5
     },
     {
       "neckPresetId": "gibson_flying_v_22",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 145.5,
       "saddleYMm": 183,
-      "bridgePlateTopYMm": 176
+      "bridgePlateTopYMm": 138.5
     },
     {
       "neckPresetId": "gibson_flying_v_22",
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 145.5,
       "saddleYMm": 148,
-      "bridgePlateTopYMm": 80.5
+      "bridgePlateTopYMm": 78
     },
     {
       "neckPresetId": "jaguar_22",
       "bridgePresetId": "hardtail_6",
       "theoreticalSaddleYMm": 200,
       "saddleYMm": 201.5,
-      "bridgePlateTopYMm": 177.5
+      "bridgePlateTopYMm": 176
     },
     {
       "neckPresetId": "jaguar_22",
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 200,
       "saddleYMm": 202,
-      "bridgePlateTopYMm": 192
+      "bridgePlateTopYMm": 190
     },
     {
       "neckPresetId": "jaguar_22",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 200,
       "saddleYMm": 237.5,
-      "bridgePlateTopYMm": 230.5
+      "bridgePlateTopYMm": 193
     },
     {
       "neckPresetId": "jaguar_22",
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 200,
       "saddleYMm": 202.5,
-      "bridgePlateTopYMm": 135
+      "bridgePlateTopYMm": 132.5
     },
     {
       "neckPresetId": "baritone_27",
       "bridgePresetId": "hardtail_6",
       "theoreticalSaddleYMm": 270,
       "saddleYMm": 271.5,
-      "bridgePlateTopYMm": 247.5
+      "bridgePlateTopYMm": 246
     },
     {
       "neckPresetId": "baritone_27",
       "bridgePresetId": "tremolo_strat",
       "theoreticalSaddleYMm": 270,
       "saddleYMm": 272,
-      "bridgePlateTopYMm": 262
+      "bridgePlateTopYMm": 260
     },
     {
       "neckPresetId": "baritone_27",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 270,
       "saddleYMm": 307.5,
-      "bridgePlateTopYMm": 300.5
+      "bridgePlateTopYMm": 263
     },
     {
       "neckPresetId": "baritone_27",
       "bridgePresetId": "tele_bridge_plate",
       "theoreticalSaddleYMm": 270,
       "saddleYMm": 272.5,
-      "bridgePlateTopYMm": 205
+      "bridgePlateTopYMm": 202.5
     }
   ],
   "cases": [
@@ -684,7 +684,7 @@
       "scaleMath": {
         "theoreticalSaddleYMm": 249.45,
         "saddleYMm": 286.95,
-        "bridgePlateTopYMm": 279.95
+        "bridgePlateTopYMm": 242.45
       },
       "input": {
         "closed": true,
@@ -3495,7 +3495,7 @@
       "scaleMath": {
         "theoreticalSaddleYMm": 177,
         "saddleYMm": 214.5,
-        "bridgePlateTopYMm": 207.5
+        "bridgePlateTopYMm": 170
       },
       "input": {
         "closed": true,
@@ -7466,7 +7466,7 @@
       "scaleMath": {
         "theoreticalSaddleYMm": 257,
         "saddleYMm": 259,
-        "bridgePlateTopYMm": 249
+        "bridgePlateTopYMm": 247
       },
       "input": {
         "closed": true,
@@ -11098,7 +11098,7 @@
       "scaleMath": {
         "theoreticalSaddleYMm": 257,
         "saddleYMm": 259.5,
-        "bridgePlateTopYMm": 192
+        "bridgePlateTopYMm": 189.5
       },
       "input": {
         "closed": true,
@@ -14523,7 +14523,7 @@
       "scaleMath": {
         "theoreticalSaddleYMm": 170,
         "saddleYMm": 207.5,
-        "bridgePlateTopYMm": 200.5
+        "bridgePlateTopYMm": 163
       },
       "input": {
         "closed": true,
@@ -18756,7 +18756,7 @@
       "scaleMath": {
         "theoreticalSaddleYMm": 209.95,
         "saddleYMm": 247.45,
-        "bridgePlateTopYMm": 240.45
+        "bridgePlateTopYMm": 202.95
       },
       "input": {
         "closed": true,
@@ -23294,7 +23294,7 @@
       "scaleMath": {
         "theoreticalSaddleYMm": 250.41,
         "saddleYMm": 287.91,
-        "bridgePlateTopYMm": 280.91
+        "bridgePlateTopYMm": 243.41
       },
       "input": {
         "closed": true,
@@ -25820,7 +25820,7 @@
       "scaleMath": {
         "theoreticalSaddleYMm": 200,
         "saddleYMm": 237.5,
-        "bridgePlateTopYMm": 230.5
+        "bridgePlateTopYMm": 193
       },
       "input": {
         "closed": true,

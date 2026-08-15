@@ -28,7 +28,18 @@ export function getSaddleYMm(neck: NeckPreset, bridge: BridgePreset): LengthMm {
   return getTheoreticalSaddleYMm(neck) + bridge.compensationMm.treble;
 }
 
-/** Top edge of the bridge plate, derived from the saddle line. */
+/**
+ * Top edge of the bridge plate/rout footprint - anchored to the
+ * *uncompensated* theoretical saddle line (where the bridge's own mounting
+ * posts sit), not the compensated saddle line. Anchoring to the compensated
+ * saddle was the bug: harmless for a small-compensation bridge (a hardtail,
+ * ~2mm), but for a TOM (37.5mm) it pulled the whole plate footprint onto the
+ * saddle line, rendering as one cluster instead of two features ~38mm apart.
+ * `saddleOffsetYMm` keeps its own meaning (where within the plate's own
+ * footprint this bridge type's saddle typically sits, e.g. TOM's `7` centres
+ * its 14mm-deep plate on that line) - only the point it's measured *from*
+ * changes.
+ */
 export function getBridgePlateTopYMm(neck: NeckPreset, bridge: BridgePreset): LengthMm {
-  return getSaddleYMm(neck, bridge) - (bridge.saddleOffsetYMm ?? 15);
+  return getTheoreticalSaddleYMm(neck) - (bridge.saddleOffsetYMm ?? 15);
 }

@@ -82,7 +82,7 @@
 
     <!-- Bridge Hardware Plate, Saddle Line & Mounting Holes -->
     <g transform="translate(0, 259.50)">
-      <rect x="-39.95" y="-67.50" width="79.90847906788953" height="92" class="bridge-rout" />
+      <rect x="-39.95" y="-70.00" width="79.90847906788953" height="92" class="bridge-rout" />
       <line x1="-34.95" y1="0" x2="34.95" y2="0" stroke="#dc3545" stroke-width="1.2" />
       
     </g>
