@@ -23292,9 +23292,9 @@
       "neckPresetId": "gibson_flying_v_22",
       "bridgePresetId": "tune_o_matic",
       "scaleMath": {
-        "theoreticalSaddleYMm": 145.5,
-        "saddleYMm": 183,
-        "bridgePlateTopYMm": 176
+        "theoreticalSaddleYMm": 197.5,
+        "saddleYMm": 235,
+        "bridgePlateTopYMm": 228
       },
       "input": {
         "closed": true,
