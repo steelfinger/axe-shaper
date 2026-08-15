@@ -64,7 +64,7 @@
         "name": "Double-Cut SG Vintage (24.75\" Scale, 22 Frets, Fret 16 Joint Line)",
         "scaleLengthMm": 628.65,
         "nutToBodyEdgeMm": 417.15,
-        "nutToJointMm": 414.27,
+        "nutToJointMm": 418.9,
         "frets": 22,
         "jointWidthMm": 38.1,
         "jointDepthMm": 76.2,
@@ -153,7 +153,7 @@
     "bridgePresets": {
       "hardtail_6": {
         "id": "hardtail_6",
-        "name": "Hardtail 6-Saddle Plate",
+        "name": "F-style Hardtail",
         "scaleReference": "saddle_line",
         "compensationMm": {
           "treble": 1.5,
@@ -179,7 +179,7 @@
       },
       "tremolo_strat": {
         "id": "tremolo_strat",
-        "name": "Vintage 6-Screw Tremolo Bridge",
+        "name": "F-style Tremolo",
         "scaleReference": "saddle_line",
         "compensationMm": {
           "treble": 2,
@@ -191,11 +191,11 @@
       },
       "tune_o_matic": {
         "id": "tune_o_matic",
-        "name": "Tune-O-Matic + Stopbar Tailpiece",
+        "name": "TOM-style Bridge",
         "scaleReference": "post_line",
         "compensationMm": {
-          "treble": 3,
-          "bass": 6
+          "treble": 4,
+          "bass": 8
         },
         "saddleOffsetYMm": 7,
         "mountingPoints": [
@@ -214,36 +214,6 @@
           {
             "x": 41,
             "y": 45
-          }
-        ],
-        "widthMm": 84,
-        "lengthMm": 14
-      },
-      "tune_o_matic_firebird": {
-        "id": "tune_o_matic_firebird",
-        "name": "Tune-O-Matic + Stopbar Tailpiece (Firebird spacing)",
-        "scaleReference": "post_line",
-        "compensationMm": {
-          "treble": 3,
-          "bass": 6
-        },
-        "saddleOffsetYMm": 7,
-        "mountingPoints": [
-          {
-            "x": -37,
-            "y": 0
-          },
-          {
-            "x": 37,
-            "y": 0
-          },
-          {
-            "x": -41,
-            "y": 39.5
-          },
-          {
-            "x": 41,
-            "y": 39.5
           }
         ],
         "widthMm": 84,
@@ -251,7 +221,7 @@
       },
       "tele_bridge_plate": {
         "id": "tele_bridge_plate",
-        "name": "Vintage T-Style Bridge & Pickup Plate",
+        "name": "T-Style Vintage",
         "scaleReference": "saddle_line",
         "compensationMm": {
           "treble": 2.5,
@@ -470,15 +440,8 @@
       "neckPresetId": "fender_strat_21",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 257,
-      "saddleYMm": 260,
-      "bridgePlateTopYMm": 253
-    },
-    {
-      "neckPresetId": "fender_strat_21",
-      "bridgePresetId": "tune_o_matic_firebird",
-      "theoreticalSaddleYMm": 257,
-      "saddleYMm": 260,
-      "bridgePlateTopYMm": 253
+      "saddleYMm": 261,
+      "bridgePlateTopYMm": 254
     },
     {
       "neckPresetId": "fender_strat_21",
@@ -505,15 +468,8 @@
       "neckPresetId": "fender_tele_22",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 257,
-      "saddleYMm": 260,
-      "bridgePlateTopYMm": 253
-    },
-    {
-      "neckPresetId": "fender_tele_22",
-      "bridgePresetId": "tune_o_matic_firebird",
-      "theoreticalSaddleYMm": 257,
-      "saddleYMm": 260,
-      "bridgePlateTopYMm": 253
+      "saddleYMm": 261,
+      "bridgePlateTopYMm": 254
     },
     {
       "neckPresetId": "fender_tele_22",
@@ -540,15 +496,8 @@
       "neckPresetId": "gibson_lp_22",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 249.45,
-      "saddleYMm": 252.45,
-      "bridgePlateTopYMm": 245.45
-    },
-    {
-      "neckPresetId": "gibson_lp_22",
-      "bridgePresetId": "tune_o_matic_firebird",
-      "theoreticalSaddleYMm": 249.45,
-      "saddleYMm": 252.45,
-      "bridgePlateTopYMm": 245.45
+      "saddleYMm": 253.45,
+      "bridgePlateTopYMm": 246.45
     },
     {
       "neckPresetId": "gibson_lp_22",
@@ -575,15 +524,8 @@
       "neckPresetId": "gibson_sg_22",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 211.5,
-      "saddleYMm": 214.5,
-      "bridgePlateTopYMm": 207.5
-    },
-    {
-      "neckPresetId": "gibson_sg_22",
-      "bridgePresetId": "tune_o_matic_firebird",
-      "theoreticalSaddleYMm": 211.5,
-      "saddleYMm": 214.5,
-      "bridgePlateTopYMm": 207.5
+      "saddleYMm": 215.5,
+      "bridgePlateTopYMm": 208.5
     },
     {
       "neckPresetId": "gibson_sg_22",
@@ -610,15 +552,8 @@
       "neckPresetId": "gibson_firebird_19",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 204.5,
-      "saddleYMm": 207.5,
-      "bridgePlateTopYMm": 200.5
-    },
-    {
-      "neckPresetId": "gibson_firebird_19",
-      "bridgePresetId": "tune_o_matic_firebird",
-      "theoreticalSaddleYMm": 204.5,
-      "saddleYMm": 207.5,
-      "bridgePlateTopYMm": 200.5
+      "saddleYMm": 208.5,
+      "bridgePlateTopYMm": 201.5
     },
     {
       "neckPresetId": "gibson_firebird_19",
@@ -645,15 +580,8 @@
       "neckPresetId": "gretsch_thunderbird_22",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 244.45,
-      "saddleYMm": 247.45,
-      "bridgePlateTopYMm": 240.45
-    },
-    {
-      "neckPresetId": "gretsch_thunderbird_22",
-      "bridgePresetId": "tune_o_matic_firebird",
-      "theoreticalSaddleYMm": 244.45,
-      "saddleYMm": 247.45,
-      "bridgePlateTopYMm": 240.45
+      "saddleYMm": 248.45,
+      "bridgePlateTopYMm": 241.45
     },
     {
       "neckPresetId": "gretsch_thunderbird_22",
@@ -680,15 +608,8 @@
       "neckPresetId": "gibson_flying_v_22",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 180,
-      "saddleYMm": 183,
-      "bridgePlateTopYMm": 176
-    },
-    {
-      "neckPresetId": "gibson_flying_v_22",
-      "bridgePresetId": "tune_o_matic_firebird",
-      "theoreticalSaddleYMm": 180,
-      "saddleYMm": 183,
-      "bridgePlateTopYMm": 176
+      "saddleYMm": 184,
+      "bridgePlateTopYMm": 177
     },
     {
       "neckPresetId": "gibson_flying_v_22",
@@ -715,15 +636,8 @@
       "neckPresetId": "jaguar_22",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 234.5,
-      "saddleYMm": 237.5,
-      "bridgePlateTopYMm": 230.5
-    },
-    {
-      "neckPresetId": "jaguar_22",
-      "bridgePresetId": "tune_o_matic_firebird",
-      "theoreticalSaddleYMm": 234.5,
-      "saddleYMm": 237.5,
-      "bridgePlateTopYMm": 230.5
+      "saddleYMm": 238.5,
+      "bridgePlateTopYMm": 231.5
     },
     {
       "neckPresetId": "jaguar_22",
@@ -750,15 +664,8 @@
       "neckPresetId": "baritone_27",
       "bridgePresetId": "tune_o_matic",
       "theoreticalSaddleYMm": 270,
-      "saddleYMm": 273,
-      "bridgePlateTopYMm": 266
-    },
-    {
-      "neckPresetId": "baritone_27",
-      "bridgePresetId": "tune_o_matic_firebird",
-      "theoreticalSaddleYMm": 270,
-      "saddleYMm": 273,
-      "bridgePlateTopYMm": 266
+      "saddleYMm": 274,
+      "bridgePlateTopYMm": 267
     },
     {
       "neckPresetId": "baritone_27",
@@ -776,8 +683,8 @@
       "bridgePresetId": "tune_o_matic",
       "scaleMath": {
         "theoreticalSaddleYMm": 249.45,
-        "saddleYMm": 252.45,
-        "bridgePlateTopYMm": 245.45
+        "saddleYMm": 253.45,
+        "bridgePlateTopYMm": 246.45
       },
       "input": {
         "closed": true,
@@ -3587,8 +3494,8 @@
       "bridgePresetId": "tune_o_matic",
       "scaleMath": {
         "theoreticalSaddleYMm": 211.5,
-        "saddleYMm": 214.5,
-        "bridgePlateTopYMm": 207.5
+        "saddleYMm": 215.5,
+        "bridgePlateTopYMm": 208.5
       },
       "input": {
         "closed": true,
@@ -14612,11 +14519,11 @@
       "id": "gibson_firebird",
       "name": "Firebird-Style",
       "neckPresetId": "gibson_firebird_19",
-      "bridgePresetId": "tune_o_matic_firebird",
+      "bridgePresetId": "tune_o_matic",
       "scaleMath": {
         "theoreticalSaddleYMm": 204.5,
-        "saddleYMm": 207.5,
-        "bridgePlateTopYMm": 200.5
+        "saddleYMm": 208.5,
+        "bridgePlateTopYMm": 201.5
       },
       "input": {
         "closed": true,
@@ -18848,8 +18755,8 @@
       "bridgePresetId": "tune_o_matic",
       "scaleMath": {
         "theoreticalSaddleYMm": 244.45,
-        "saddleYMm": 247.45,
-        "bridgePlateTopYMm": 240.45
+        "saddleYMm": 248.45,
+        "bridgePlateTopYMm": 241.45
       },
       "input": {
         "closed": true,
@@ -23386,8 +23293,8 @@
       "bridgePresetId": "tune_o_matic",
       "scaleMath": {
         "theoreticalSaddleYMm": 180,
-        "saddleYMm": 183,
-        "bridgePlateTopYMm": 176
+        "saddleYMm": 184,
+        "bridgePlateTopYMm": 177
       },
       "input": {
         "closed": true,
@@ -25914,8 +25821,8 @@
       "bridgePresetId": "tune_o_matic",
       "scaleMath": {
         "theoreticalSaddleYMm": 234.5,
-        "saddleYMm": 237.5,
-        "bridgePlateTopYMm": 230.5
+        "saddleYMm": 238.5,
+        "bridgePlateTopYMm": 231.5
       },
       "input": {
         "closed": true,

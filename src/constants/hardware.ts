@@ -63,7 +63,14 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     // 211.5mm (less tune_o_matic's 3.0mm treble compensation) -> nutToBodyEdgeMm
     // = 628.65 - 211.5 = 417.15mm.
     nutToBodyEdgeMm: 417.15,
-    nutToJointMm: 414.27,
+    // A real SG joins at fret 19; theoretical fret-19 distance on this
+    // 628.65mm scale is ~418.9mm (same figure gibson_firebird_19 states
+    // below). Unlike nutToBodyEdgeMm, this field isn't read by any geometry -
+    // scaleMath.ts warns against using it for saddle Y - it's sidebar display
+    // only, so it doesn't need back-solving around the Y=0 quirk; the plain
+    // fret-19 distance is what "Nut-to-Joint" should show. Previously
+    // 414.27mm, byte-identical to gibson_lp_22's - a copy-paste placeholder.
+    nutToJointMm: 418.9,
     frets: 22,
     jointWidthMm: 38.1,       // 1.5 inches mortise
     jointDepthMm: 76.2,       // SG pocket depth inside body
@@ -85,9 +92,12 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     // neck-through construction (this app has no distinct neck-through
     // concept), so the value is calibrated instead to the measured TOM post
     // line on a real routing template (206-209mm from the joint line,
-    // average 207.5mm via getSaddleYMm with tune_o_matic_firebird's 3.0mm
-    // treble compensation), which is more precise than the theoretical fret
-    // math alone.
+    // average 207.5mm via getSaddleYMm), which is more precise than the
+    // theoretical fret math alone. That average used tune_o_matic_firebird's
+    // now-removed 3.0mm treble compensation; tune_o_matic's compensation is
+    // now 4.0mm (see that entry), which moves this preset's resolved saddle
+    // to 208.5mm - still inside the original 206-209mm measured range, so
+    // nutToBodyEdgeMm wasn't re-derived for the 1mm shift.
     nutToBodyEdgeMm: 424.15,  // Nut to body entrance edge Y=0, back-solved from the measured bridge position
     nutToJointMm: 459.2,
     frets: 22,
@@ -175,7 +185,7 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
 export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
   hardtail_6: {
     id: 'hardtail_6',
-    name: 'Hardtail 6-Saddle Plate',
+    name: 'F-style Hardtail',
     scaleReference: 'saddle_line',
     compensationMm: {
       treble: 1.5,
@@ -192,7 +202,7 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
   },
   tremolo_strat: {
     id: 'tremolo_strat',
-    name: 'Vintage 6-Screw Tremolo Bridge',
+    name: 'F-style Tremolo',
     scaleReference: 'saddle_line',
     compensationMm: {
       treble: 2.0,
@@ -216,13 +226,26 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
   },
   tune_o_matic: {
     id: 'tune_o_matic',
-    name: 'Tune-O-Matic + Stopbar Tailpiece',
+    name: 'TOM-style Bridge',
     scaleReference: 'post_line',
+    // getSaddleYMm doesn't branch on scaleReference (see the comment there) -
+    // it just adds compensationMm.treble to the theoretical saddle Y, same as
+    // every other bridge type. At the old 3.0/6.0mm, that put TOM's saddle
+    // line and whole hardware group (CanvasWorkspace's bridge Group, which
+    // everything - plate, red saddle-line indicator, mounting points - is
+    // anchored to) within ~1.5mm of hardtail_6/tremolo_strat's, reading as
+    // "selecting a TOM bridge does nothing." Bumped clear of that 1.5-3.0mm
+    // cluster rather than chasing another spec number - this app's presets
+    // are a starting point for the user's own build, not a reproduction.
     compensationMm: {
-      treble: 3.0,
-      bass: 6.0,
+      treble: 4.0,
+      bass: 8.0,
     },
     saddleOffsetYMm: 7.0,
+    // One shared tailpiece spacing for every Tune-O-Matic-mounted body
+    // (formerly split out into tune_o_matic_firebird's own 39.5mm figure) -
+    // as long as the bridge-to-tailpiece run is long enough to string
+    // through, the exact distance isn't worth a second preset entry.
     mountingPoints: [
       { x: -37.0, y: 0 },
       { x: 37.0, y: 0 },
@@ -232,30 +255,9 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
     widthMm: 84.0,
     lengthMm: 14.0,
   },
-  tune_o_matic_firebird: {
-    id: 'tune_o_matic_firebird',
-    name: 'Tune-O-Matic + Stopbar Tailpiece (Firebird spacing)',
-    scaleReference: 'post_line',
-    // Same plate/compensation as tune_o_matic, but the tailpiece sits 39.5mm
-    // behind the post line here (not 45mm) - measured off the real routing
-    // template (bridge posts ~207.5mm, tailpiece 247mm from the joint line).
-    compensationMm: {
-      treble: 3.0,
-      bass: 6.0,
-    },
-    saddleOffsetYMm: 7.0,
-    mountingPoints: [
-      { x: -37.0, y: 0 },
-      { x: 37.0, y: 0 },
-      { x: -41.0, y: 39.5 },
-      { x: 41.0, y: 39.5 },
-    ],
-    widthMm: 84.0,
-    lengthMm: 14.0,
-  },
   tele_bridge_plate: {
     id: 'tele_bridge_plate',
-    name: 'Vintage T-Style Bridge & Pickup Plate',
+    name: 'T-Style Vintage',
     scaleReference: 'saddle_line',
     compensationMm: {
       treble: 2.5,
