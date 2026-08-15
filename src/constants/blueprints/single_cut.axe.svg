@@ -84,7 +84,7 @@
          theoretical scale-length reference line through the bridge -->
     <g id="bridge-hardware">
       <rect x="-42.00" y="242.45" width="84" height="14" class="bridge-rout" />
-      <rect x="-42.00" y="279.95" width="84" height="14" class="bridge-rout" />
+      <rect x="-42.00" y="287.45" width="84" height="14" class="bridge-rout" />
       <line x1="-37.00" y1="249.45" x2="37.00" y2="249.45" stroke="#dc3545" stroke-width="1.2" />
       <g transform="translate(0, 249.45)">
         <circle cx="-37" cy="1.5" r="2" fill="#007bff" /><circle cx="37" cy="-1.5" r="2" fill="#007bff" /><circle cx="-41" cy="45" r="2" fill="#007bff" /><circle cx="41" cy="45" r="2" fill="#007bff" />

@@ -45,15 +45,32 @@ export function getBridgePlateTopYMm(neck: NeckPreset, bridge: BridgePreset): Le
 }
 
 /**
- * The saddle's own plate footprint - the hardware that actually sets
- * intonation, the same size/shape as the bridge plate (getBridgePlateTopYMm)
- * but anchored to the *compensated* line (getSaddleYMm) instead of the
- * uncompensated one. For a bridge with large compensation (TOM, 37.5mm) this
- * sits well clear of the bridge plate; for a small-compensation bridge (a
- * hardtail, ~2mm) the two nearly coincide, which is physically correct - the
- * saddles genuinely sit almost on top of the bridge's own footprint there.
+ * The second rectangle's top edge. For most bridges this is the saddle's own
+ * plate footprint - the hardware that actually sets intonation, the same
+ * size/shape as the bridge plate (getBridgePlateTopYMm) but anchored to the
+ * *compensated* line (getSaddleYMm) instead of the uncompensated one.
+ *
+ * A bridge with 4+ `mountingPoints` (today, only a TOM) draws this rectangle
+ * differently: those bridges have a genuinely separate physical part beyond
+ * the bridge's own 2 posts - a stopbar tailpiece, mounted on its own 2 studs
+ * - and that tailpiece's real position was never actually measured against
+ * the compensated saddle line; it just happened to land close by
+ * coincidence. Centre on the *tailpiece's own* mounting points instead
+ * (everything past the first pair, which are the bridge's own posts already
+ * centred inside the first rectangle by `getBridgePlateTopYMm`).
+ *
+ * A bridge with fewer points (a hardtail's 3, all on one plate with the
+ * saddles) keeps the compensated-line anchor - there's no second physical
+ * part for those to represent.
  */
 export function getSaddlePlateTopYMm(neck: NeckPreset, bridge: BridgePreset): LengthMm {
+  const points = bridge.mountingPoints;
+  if (points && points.length >= 4) {
+    const secondary = points.slice(2);
+    const secondaryY = secondary.reduce((sum, p) => sum + p.y, 0) / secondary.length;
+    const centre = getMountingPointOriginYMm(neck, bridge) + secondaryY;
+    return centre - bridge.lengthMm / 2;
+  }
   return getSaddleYMm(neck, bridge) - (bridge.saddleOffsetYMm ?? 15);
 }
 
