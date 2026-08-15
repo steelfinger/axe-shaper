@@ -146,14 +146,21 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     id: 'gibson_flying_v_22',
     name: 'V-Style Vintage (24.75" Scale, 22 Frets)',
     scaleLengthMm: 628.65,    // 24.75 inches - same as gibson_sg_22, unchanged from the SG template this was built from
-    // Superseded the original routing-template measurement (198.04mm) with an
-    // updated target bridge position of 183mm - a fixed real target,
-    // independent of whatever tune_o_matic's own compensationMm says.
-    // Originally solved against tune_o_matic's old (buggy) 3.0mm treble
-    // compensation: theoreticalSaddleY 180mm -> nutToBodyEdgeMm 448.65mm.
-    // Re-solved here for the corrected 37.5mm: theoreticalSaddleY =
-    // 183 - 37.5 = 145.5mm -> nutToBodyEdgeMm = 628.65 - 145.5 = 483.15mm.
-    nutToBodyEdgeMm: 483.15,
+    // 483.15 (this table's value through the TOM-compensation fix) was never
+    // the number actually shipping to a *new* document created from this
+    // template: gibson_flying_v.axe.svg's own embedded copy diverged from
+    // this table entry across three separate fixes today (blueprint-shape
+    // clearance, TOM bridgePlateTopY) - each one only ever patched the
+    // blueprint file's copy, never this shared entry, because "the copy
+    // wins" applies to *opening an existing file*, not to *creating a new
+    // one*: ReferenceTemplate (src/constants/templates.ts) carries only
+    // neckPresetId/bridgePresetId, not the embedded neckPreset/bridgePreset
+    // themselves, so a fresh document resolves straight from this table and
+    // never saw any of those fixes. Set to match: fret22Distance(628.65) -
+    // 74 = 378.24, where 74 is this body's own fret-22-past-the-joint-line
+    // measurement (2.37mm past the horn-scoop start), not re-derived here -
+    // see gibson_flying_v.axe.svg's own embedded copy, which now matches.
+    nutToBodyEdgeMm: 378.24,
     nutToJointMm: 468.68,
     frets: 22,
     jointWidthMm: 38.1,       // Matches V_STYLE_ANCHORS' pocket anchors (x=+-19.05)
