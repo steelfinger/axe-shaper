@@ -54,22 +54,22 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     id: 'gibson_sg_22',
     name: 'Double-Cut SG Vintage (24.75" Scale, 22 Frets, Fret 16 Joint Line)',
     scaleLengthMm: 628.65,    // 24.75 inches
-    // A real SG joins at fret 19, but Y=0 here is the top of the *outline*, and the SG
-    // template's horn tips sit at Y=0 rather than reaching up past the joint. Dialling in
-    // fret 19 without redrawing those horns drags the whole body ~40mm up the neck - this
-    // value is still back-solved the same way as gibson_firebird_19 / gretsch_thunderbird_22
-    // below, not derived from a fret number.
-    // Target bridge (compensated saddle) position 214.5mm - a fixed real
-    // target, independent of whatever tune_o_matic's own compensationMm
-    // says - -> theoreticalSaddleY = 214.5 - compensationMm.treble ->
-    // nutToBodyEdgeMm = 628.65 - theoreticalSaddleY. Originally solved
-    // against tune_o_matic's old (buggy) 3.0mm treble compensation:
-    // theoreticalSaddleY 211.5mm -> nutToBodyEdgeMm 417.15mm. Re-solved here
-    // for the corrected 37.5mm: theoreticalSaddleY = 214.5 - 37.5 = 177.0mm
-    // -> nutToBodyEdgeMm = 628.65 - 177.0 = 451.65mm - otherwise this body's
-    // real 214.5mm bridge position would jump ~34.5mm down the body for a
-    // reason that has nothing to do with this template.
-    nutToBodyEdgeMm: 451.65,
+    // This was back-solved from a measured bridge position (451.65, target
+    // 214.5mm compensated saddle line) until the iOS sibling app replaced
+    // that whole approach: trying to preserve an independently-measured
+    // bridge position *and* a fret-based joint position as two separate
+    // facts was itself the bug (docs/m17-hardware-and-body-refinements.md,
+    // "Step 4c" in the iOS repo) - swapping a different neck onto this body
+    // had no defined answer under the old model. The fix there, mirrored
+    // here: nutToBodyEdgeMm = fret22Distance(scaleLengthMm) -
+    // fingerboardOverhangMm, where fingerboardOverhangMm is this body's own
+    // "how far past the joint line should the fingerboard reach" constant -
+    // for the SG, fret22Distance(628.65) - fret19Distance(628.65) = 452.24 -
+    // 418.86 = 33.38 (a real SG joins at fret 19). nutToBodyEdgeMm =
+    // 452.241058 - 33.38 = 418.86. This does move the bridge ~32.8mm up the
+    // body from the old measured position - a deliberate trade, same as the
+    // iOS side already made and already shipping there.
+    nutToBodyEdgeMm: 418.86,
     // A real SG joins at fret 19; theoretical fret-19 distance on this
     // 628.65mm scale is ~418.9mm (same figure gibson_firebird_19 states
     // below). Unlike nutToBodyEdgeMm, this field isn't read by any geometry -
@@ -91,24 +91,22 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     id: 'gibson_firebird_19',
     name: 'Firebird-Style (24.75" Scale, 22 Frets, Fret 19 Joint Line)',
     scaleLengthMm: 628.65,    // 24.75 inches
-    // Unlike sg_style, GIBSON_FIREBIRD_ANCHORS' horn tip sits above Y=0
-    // (~-19mm), so - per the warning on sg_style below - it's safe to use a
-    // deeper join than fret 16 here. The real Firebird joins around fret 19
-    // (theoretical fret-19 distance is ~418.9mm), but this preset models a
-    // normal glued/bolted pocket joint rather than the real guitar's
-    // neck-through construction (this app has no distinct neck-through
-    // concept), so the value is calibrated instead to the measured TOM post
-    // line on a real routing template (206-209mm from the joint line,
-    // average 207.5mm via getSaddleYMm), which is more precise than the
-    // theoretical fret math alone. That average is a fixed real target,
-    // independent of whatever tune_o_matic's own compensationMm says -
-    // originally solved against its old (buggy) 3.0mm treble compensation:
-    // theoreticalSaddleY 204.5mm -> nutToBodyEdgeMm 424.15mm. Re-solved here
-    // for the corrected 37.5mm: theoreticalSaddleY = 207.5 - 37.5 = 170.0mm
-    // -> nutToBodyEdgeMm = 628.65 - 170.0 = 458.65mm - a ~34.5mm shift that
-    // exactly cancels tune_o_matic's own compensation correction, so the
-    // real measured 207.5mm bridge position is unchanged.
-    nutToBodyEdgeMm: 458.65,  // Nut to body entrance edge Y=0, back-solved from the measured bridge position
+    // This was back-solved from a measured TOM post-line position on a real
+    // routing template (458.65) until the iOS sibling app replaced that
+    // whole approach - see the identical note on gibson_sg_22 above
+    // (docs/m17-hardware-and-body-refinements.md, "Step 4c" in the iOS
+    // repo). A real neck-through Firebird's fingerboard runs further into
+    // the body than any bolted/glued joint this app models could reach, so
+    // trying to preserve the measured bridge position as a fact independent
+    // of the fret-based joint position was the actual bug (it went negative
+    // mid-fix on the iOS side before landing on this). Mirrored here:
+    // nutToBodyEdgeMm = fret22Distance(628.65) - fingerboardOverhangMm,
+    // where fingerboardOverhangMm reuses the same fret-19 fact as
+    // gibson_sg_22 (33.38, no independently-measured Firebird-specific
+    // value took its place) = 452.241058 - 33.38 = 418.86. This moves the
+    // bridge ~39.8mm up the body from the old measured position - the same
+    // trade the iOS side already made and already ships.
+    nutToBodyEdgeMm: 418.86,  // Nut to body entrance edge Y=0
     nutToJointMm: 459.2,
     frets: 22,
     jointWidthMm: 38.1,       // 1.5 inches - same pocket width as the other Gibson-style presets, matches the routing template's 3.80cm reference dimension
@@ -175,15 +173,22 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     id: 'jaguar_22',
     name: 'Jaguar-Style (610 mm Scale, 22 Frets)',
     scaleLengthMm: 610.0,
-    // jag_style.axe.svg's default bridge is tune_o_matic (this app's own
-    // pairing choice, not a real Jaguar's floating vibrato). Target
-    // compensated saddle line: 237.5mm - a fixed real target, independent of
-    // whatever tune_o_matic's own compensationMm says. Originally solved
-    // against its old (buggy) 3.0mm treble compensation: theoretical saddle
-    // Y 234.5mm -> nutToBodyEdgeMm 375.5mm. Re-solved here for the corrected
-    // 37.5mm: theoretical saddle Y = 237.5 - 37.5 = 200.0mm ->
-    // nutToBodyEdgeMm = 610.0 - 200.0 = 410.0mm.
-    nutToBodyEdgeMm: 410.0,
+    // This was back-solved from a measured compensated-saddle target
+    // (410.0, target 237.5mm) until the iOS sibling app replaced that whole
+    // approach - see the identical note on gibson_sg_22 above
+    // (docs/m17-hardware-and-body-refinements.md, "Step 4c" in the iOS
+    // repo). jag_style.axe.svg's default bridge is tune_o_matic (this app's
+    // own pairing choice, not a real Jaguar's floating vibrato) and there's
+    // no separately-measured real target to defer to beyond the plain "nut
+    // to fret 16" fact s_style/t_style already use, so this joins them
+    // rather than keeping an independently-measured fact. Mirrored here:
+    // nutToBodyEdgeMm = fret22Distance(610.0) - fingerboardOverhangMm,
+    // where fingerboardOverhangMm = fret22Distance(610) -
+    // fret16Distance(610) = 438.82 - 367.92 = 70.9 ->
+    // nutToBodyEdgeMm = 438.824538 - 70.9 = 367.92. This moves the bridge
+    // ~42.1mm up the body from the old measured position - the same trade
+    // the iOS side already made and already ships.
+    nutToBodyEdgeMm: 367.92,
     nutToJointMm: 439.0,
     frets: 22,
     jointWidthMm: 55.56,

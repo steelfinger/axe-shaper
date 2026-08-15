@@ -63,7 +63,7 @@
         "id": "gibson_sg_22",
         "name": "Double-Cut SG Vintage (24.75\" Scale, 22 Frets, Fret 16 Joint Line)",
         "scaleLengthMm": 628.65,
-        "nutToBodyEdgeMm": 451.65,
+        "nutToBodyEdgeMm": 418.86,
         "nutToJointMm": 418.9,
         "frets": 22,
         "jointWidthMm": 38.1,
@@ -78,7 +78,7 @@
         "id": "gibson_firebird_19",
         "name": "Firebird-Style (24.75\" Scale, 22 Frets, Fret 19 Joint Line)",
         "scaleLengthMm": 628.65,
-        "nutToBodyEdgeMm": 458.65,
+        "nutToBodyEdgeMm": 418.86,
         "nutToJointMm": 459.2,
         "frets": 22,
         "jointWidthMm": 38.1,
@@ -123,7 +123,7 @@
         "id": "jaguar_22",
         "name": "Jaguar-Style (610 mm Scale, 22 Frets)",
         "scaleLengthMm": 610,
-        "nutToBodyEdgeMm": 410,
+        "nutToBodyEdgeMm": 367.92,
         "nutToJointMm": 439,
         "frets": 22,
         "jointWidthMm": 55.56,
@@ -509,58 +509,58 @@
     {
       "neckPresetId": "gibson_sg_22",
       "bridgePresetId": "hardtail_6",
-      "theoreticalSaddleYMm": 177,
-      "saddleYMm": 178.5,
-      "bridgePlateTopYMm": 153
+      "theoreticalSaddleYMm": 209.79,
+      "saddleYMm": 211.29,
+      "bridgePlateTopYMm": 185.79
     },
     {
       "neckPresetId": "gibson_sg_22",
       "bridgePresetId": "tremolo_strat",
-      "theoreticalSaddleYMm": 177,
-      "saddleYMm": 179,
-      "bridgePlateTopYMm": 167
+      "theoreticalSaddleYMm": 209.79,
+      "saddleYMm": 211.79,
+      "bridgePlateTopYMm": 199.79
     },
     {
       "neckPresetId": "gibson_sg_22",
       "bridgePresetId": "tune_o_matic",
-      "theoreticalSaddleYMm": 177,
-      "saddleYMm": 214.5,
-      "bridgePlateTopYMm": 170
+      "theoreticalSaddleYMm": 209.79,
+      "saddleYMm": 247.29,
+      "bridgePlateTopYMm": 202.79
     },
     {
       "neckPresetId": "gibson_sg_22",
       "bridgePresetId": "tele_bridge_plate",
-      "theoreticalSaddleYMm": 177,
-      "saddleYMm": 179.5,
-      "bridgePlateTopYMm": 109.5
+      "theoreticalSaddleYMm": 209.79,
+      "saddleYMm": 212.29,
+      "bridgePlateTopYMm": 142.29
     },
     {
       "neckPresetId": "gibson_firebird_19",
       "bridgePresetId": "hardtail_6",
-      "theoreticalSaddleYMm": 170,
-      "saddleYMm": 171.5,
-      "bridgePlateTopYMm": 146
+      "theoreticalSaddleYMm": 209.79,
+      "saddleYMm": 211.29,
+      "bridgePlateTopYMm": 185.79
     },
     {
       "neckPresetId": "gibson_firebird_19",
       "bridgePresetId": "tremolo_strat",
-      "theoreticalSaddleYMm": 170,
-      "saddleYMm": 172,
-      "bridgePlateTopYMm": 160
+      "theoreticalSaddleYMm": 209.79,
+      "saddleYMm": 211.79,
+      "bridgePlateTopYMm": 199.79
     },
     {
       "neckPresetId": "gibson_firebird_19",
       "bridgePresetId": "tune_o_matic",
-      "theoreticalSaddleYMm": 170,
-      "saddleYMm": 207.5,
-      "bridgePlateTopYMm": 163
+      "theoreticalSaddleYMm": 209.79,
+      "saddleYMm": 247.29,
+      "bridgePlateTopYMm": 202.79
     },
     {
       "neckPresetId": "gibson_firebird_19",
       "bridgePresetId": "tele_bridge_plate",
-      "theoreticalSaddleYMm": 170,
-      "saddleYMm": 172.5,
-      "bridgePlateTopYMm": 102.5
+      "theoreticalSaddleYMm": 209.79,
+      "saddleYMm": 212.29,
+      "bridgePlateTopYMm": 142.29
     },
     {
       "neckPresetId": "gretsch_thunderbird_22",
@@ -621,30 +621,30 @@
     {
       "neckPresetId": "jaguar_22",
       "bridgePresetId": "hardtail_6",
-      "theoreticalSaddleYMm": 200,
-      "saddleYMm": 201.5,
-      "bridgePlateTopYMm": 176
+      "theoreticalSaddleYMm": 242.08,
+      "saddleYMm": 243.58,
+      "bridgePlateTopYMm": 218.08
     },
     {
       "neckPresetId": "jaguar_22",
       "bridgePresetId": "tremolo_strat",
-      "theoreticalSaddleYMm": 200,
-      "saddleYMm": 202,
-      "bridgePlateTopYMm": 190
+      "theoreticalSaddleYMm": 242.08,
+      "saddleYMm": 244.08,
+      "bridgePlateTopYMm": 232.08
     },
     {
       "neckPresetId": "jaguar_22",
       "bridgePresetId": "tune_o_matic",
-      "theoreticalSaddleYMm": 200,
-      "saddleYMm": 237.5,
-      "bridgePlateTopYMm": 193
+      "theoreticalSaddleYMm": 242.08,
+      "saddleYMm": 279.58,
+      "bridgePlateTopYMm": 235.08
     },
     {
       "neckPresetId": "jaguar_22",
       "bridgePresetId": "tele_bridge_plate",
-      "theoreticalSaddleYMm": 200,
-      "saddleYMm": 202.5,
-      "bridgePlateTopYMm": 132.5
+      "theoreticalSaddleYMm": 242.08,
+      "saddleYMm": 244.58,
+      "bridgePlateTopYMm": 174.58
     },
     {
       "neckPresetId": "baritone_27",
@@ -3493,9 +3493,9 @@
       "neckPresetId": "gibson_sg_22",
       "bridgePresetId": "tune_o_matic",
       "scaleMath": {
-        "theoreticalSaddleYMm": 177,
-        "saddleYMm": 214.5,
-        "bridgePlateTopYMm": 170
+        "theoreticalSaddleYMm": 209.79,
+        "saddleYMm": 247.29,
+        "bridgePlateTopYMm": 202.79
       },
       "input": {
         "closed": true,
@@ -14521,9 +14521,9 @@
       "neckPresetId": "gibson_firebird_19",
       "bridgePresetId": "tune_o_matic",
       "scaleMath": {
-        "theoreticalSaddleYMm": 170,
-        "saddleYMm": 207.5,
-        "bridgePlateTopYMm": 163
+        "theoreticalSaddleYMm": 209.79,
+        "saddleYMm": 247.29,
+        "bridgePlateTopYMm": 202.79
       },
       "input": {
         "closed": true,
@@ -25818,9 +25818,9 @@
       "neckPresetId": "jaguar_22",
       "bridgePresetId": "tune_o_matic",
       "scaleMath": {
-        "theoreticalSaddleYMm": 200,
-        "saddleYMm": 237.5,
-        "bridgePlateTopYMm": 193
+        "theoreticalSaddleYMm": 242.08,
+        "saddleYMm": 279.58,
+        "bridgePlateTopYMm": 235.08
       },
       "input": {
         "closed": true,
