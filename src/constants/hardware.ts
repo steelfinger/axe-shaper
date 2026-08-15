@@ -59,10 +59,17 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     // fret 19 without redrawing those horns drags the whole body ~40mm up the neck - this
     // value is still back-solved the same way as gibson_firebird_19 / gretsch_thunderbird_22
     // below, not derived from a fret number.
-    // Target bridge (compensated saddle) position 214.5mm -> theoreticalSaddleY
-    // 211.5mm (less tune_o_matic's 3.0mm treble compensation) -> nutToBodyEdgeMm
-    // = 628.65 - 211.5 = 417.15mm.
-    nutToBodyEdgeMm: 417.15,
+    // Target bridge (compensated saddle) position 214.5mm - a fixed real
+    // target, independent of whatever tune_o_matic's own compensationMm
+    // says - -> theoreticalSaddleY = 214.5 - compensationMm.treble ->
+    // nutToBodyEdgeMm = 628.65 - theoreticalSaddleY. Originally solved
+    // against tune_o_matic's old (buggy) 3.0mm treble compensation:
+    // theoreticalSaddleY 211.5mm -> nutToBodyEdgeMm 417.15mm. Re-solved here
+    // for the corrected 37.5mm: theoreticalSaddleY = 214.5 - 37.5 = 177.0mm
+    // -> nutToBodyEdgeMm = 628.65 - 177.0 = 451.65mm - otherwise this body's
+    // real 214.5mm bridge position would jump ~34.5mm down the body for a
+    // reason that has nothing to do with this template.
+    nutToBodyEdgeMm: 451.65,
     // A real SG joins at fret 19; theoretical fret-19 distance on this
     // 628.65mm scale is ~418.9mm (same figure gibson_firebird_19 states
     // below). Unlike nutToBodyEdgeMm, this field isn't read by any geometry -
@@ -93,12 +100,15 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     // concept), so the value is calibrated instead to the measured TOM post
     // line on a real routing template (206-209mm from the joint line,
     // average 207.5mm via getSaddleYMm), which is more precise than the
-    // theoretical fret math alone. That average used tune_o_matic_firebird's
-    // now-removed 3.0mm treble compensation; tune_o_matic's compensation is
-    // now 4.0mm (see that entry), which moves this preset's resolved saddle
-    // to 208.5mm - still inside the original 206-209mm measured range, so
-    // nutToBodyEdgeMm wasn't re-derived for the 1mm shift.
-    nutToBodyEdgeMm: 424.15,  // Nut to body entrance edge Y=0, back-solved from the measured bridge position
+    // theoretical fret math alone. That average is a fixed real target,
+    // independent of whatever tune_o_matic's own compensationMm says -
+    // originally solved against its old (buggy) 3.0mm treble compensation:
+    // theoreticalSaddleY 204.5mm -> nutToBodyEdgeMm 424.15mm. Re-solved here
+    // for the corrected 37.5mm: theoreticalSaddleY = 207.5 - 37.5 = 170.0mm
+    // -> nutToBodyEdgeMm = 628.65 - 170.0 = 458.65mm - a ~34.5mm shift that
+    // exactly cancels tune_o_matic's own compensation correction, so the
+    // real measured 207.5mm bridge position is unchanged.
+    nutToBodyEdgeMm: 458.65,  // Nut to body entrance edge Y=0, back-solved from the measured bridge position
     nutToJointMm: 459.2,
     frets: 22,
     jointWidthMm: 38.1,       // 1.5 inches - same pocket width as the other Gibson-style presets, matches the routing template's 3.80cm reference dimension
@@ -113,11 +123,15 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     id: 'gretsch_thunderbird_22',
     name: 'Thunderbird-Style (24.75" Scale, 22 Frets)',
     scaleLengthMm: 628.65,    // 24.75 inches - same as gibson_sg_22, unchanged from the SG template this was built from
-    // Started from gibson_sg_22's nutToBodyEdgeMm (379.2mm, giving a 252.45mm
-    // saddle line with tune_o_matic), then shifted 5mm toward the neck per
-    // spec for this body, i.e. saddle line at 247.45mm -> theoreticalSaddleY
-    // 244.45mm -> nutToBodyEdgeMm = 628.65 - 244.45 = 384.2mm.
-    nutToBodyEdgeMm: 384.2,
+    // Started from gibson_sg_22's original nutToBodyEdgeMm (379.2mm, giving a
+    // 252.45mm saddle line with tune_o_matic's old 3.0mm compensation), then
+    // shifted 5mm toward the neck per spec for this body: target saddle line
+    // 247.45mm - a fixed real target, independent of whatever tune_o_matic's
+    // own compensationMm says. Originally solved against the old 3.0mm:
+    // theoreticalSaddleY 244.45mm -> nutToBodyEdgeMm 384.2mm. Re-solved here
+    // for the corrected 37.5mm: theoreticalSaddleY = 247.45 - 37.5 = 209.95mm
+    // -> nutToBodyEdgeMm = 628.65 - 209.95 = 418.7mm.
+    nutToBodyEdgeMm: 418.7,
     nutToJointMm: 419.3,
     frets: 22,
     jointWidthMm: 38.1,       // Matches THUNDERBIRD_ANCHORS' pocket anchors (x=+-19.05)
@@ -133,10 +147,13 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     name: 'V-Style Vintage (24.75" Scale, 22 Frets)',
     scaleLengthMm: 628.65,    // 24.75 inches - same as gibson_sg_22, unchanged from the SG template this was built from
     // Superseded the original routing-template measurement (198.04mm) with an
-    // updated target bridge position of 183mm -> theoreticalSaddleY 180mm
-    // (less tune_o_matic's 3.0mm treble compensation) -> nutToBodyEdgeMm =
-    // 628.65 - 180 = 448.65mm.
-    nutToBodyEdgeMm: 448.65,
+    // updated target bridge position of 183mm - a fixed real target,
+    // independent of whatever tune_o_matic's own compensationMm says.
+    // Originally solved against tune_o_matic's old (buggy) 3.0mm treble
+    // compensation: theoreticalSaddleY 180mm -> nutToBodyEdgeMm 448.65mm.
+    // Re-solved here for the corrected 37.5mm: theoreticalSaddleY =
+    // 183 - 37.5 = 145.5mm -> nutToBodyEdgeMm = 628.65 - 145.5 = 483.15mm.
+    nutToBodyEdgeMm: 483.15,
     nutToJointMm: 468.68,
     frets: 22,
     jointWidthMm: 38.1,       // Matches V_STYLE_ANCHORS' pocket anchors (x=+-19.05)
@@ -151,10 +168,15 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     id: 'jaguar_22',
     name: 'Jaguar-Style (610 mm Scale, 22 Frets)',
     scaleLengthMm: 610.0,
-    // Target compensated saddle line: 237.5mm with Tune-O-Matic's 3.0mm
-    // treble compensation -> theoretical saddle Y = 234.5mm ->
-    // nutToBodyEdgeMm = 610.0 - 234.5 = 375.5mm.
-    nutToBodyEdgeMm: 375.5,
+    // jag_style.axe.svg's default bridge is tune_o_matic (this app's own
+    // pairing choice, not a real Jaguar's floating vibrato). Target
+    // compensated saddle line: 237.5mm - a fixed real target, independent of
+    // whatever tune_o_matic's own compensationMm says. Originally solved
+    // against its old (buggy) 3.0mm treble compensation: theoretical saddle
+    // Y 234.5mm -> nutToBodyEdgeMm 375.5mm. Re-solved here for the corrected
+    // 37.5mm: theoretical saddle Y = 237.5 - 37.5 = 200.0mm ->
+    // nutToBodyEdgeMm = 610.0 - 200.0 = 410.0mm.
+    nutToBodyEdgeMm: 410.0,
     nutToJointMm: 439.0,
     frets: 22,
     jointWidthMm: 55.56,
@@ -230,16 +252,24 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
     scaleReference: 'post_line',
     // getSaddleYMm doesn't branch on scaleReference (see the comment there) -
     // it just adds compensationMm.treble to the theoretical saddle Y, same as
-    // every other bridge type. At the old 3.0/6.0mm, that put TOM's saddle
-    // line and whole hardware group (CanvasWorkspace's bridge Group, which
-    // everything - plate, red saddle-line indicator, mounting points - is
-    // anchored to) within ~1.5mm of hardtail_6/tremolo_strat's, reading as
-    // "selecting a TOM bridge does nothing." Bumped clear of that 1.5-3.0mm
-    // cluster rather than chasing another spec number - this app's presets
-    // are a starting point for the user's own build, not a reproduction.
+    // every other bridge type. A real Tune-O-Matic bridge sits slanted 2-3
+    // degrees off the post line (treble/high-E side ~3mm closer to the neck
+    // than bass/low-E), and its saddles sit well back of the post line
+    // itself - the high E's free string length should land almost exactly on
+    // the neck's own nominal scale length, with the saddle set back roughly
+    // 37-38mm from that theoretical (uncompensated) point. An earlier pass
+    // here used 4.0/8.0mm - just far enough from hardtail_6/tremolo_strat's
+    // 1.5-2.5mm cluster to stop reading as "selecting a TOM bridge does
+    // nothing," but not a real measurement. This replaces that guess with
+    // the actual bridge geometry: 37.5mm treble (midpoint of the 37-38mm
+    // range), bass 3mm further out (the low-E side's longer free length from
+    // the same slant) at 40.5mm - a much larger treble/bass gap than the
+    // other bridges' 2-3.5mm, because most of this number is the bridge's
+    // own structural post-to-saddle offset (shared by both strings), not
+    // per-string intonation compensation.
     compensationMm: {
-      treble: 4.0,
-      bass: 8.0,
+      treble: 37.5,
+      bass: 40.5,
     },
     saddleOffsetYMm: 7.0,
     // One shared tailpiece spacing for every Tune-O-Matic-mounted body
