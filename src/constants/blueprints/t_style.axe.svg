@@ -80,11 +80,15 @@
     <!-- Front Routed Cavities (control cavities, etc. - alongside the pickup routs) -->
     <path d="M -34.01 87.81 C -34.01 87.81, 34.32 87.81, 34.32 87.81 C 47.66 88.49, 46.83 108.35, 35.57 108.61 C 35.57 108.61, 0.92 116.95, 0.92 116.95 C 0.92 116.95, -34.84 108.61, -34.84 108.61 C -45.54 109.18, -46.65 88.49, -34.01 87.81 Z" class="front-route" /><path d="M 76.66 199.74 C 75.90 183.90, 106.88 183.57, 106.97 198.81 C 106.97 198.81, 107.89 326.97, 107.89 326.97 C 108.84 347.76, 76.94 347.18, 76.80 329.13 C 76.80 329.13, 76.66 199.74, 76.66 199.74 Z" class="front-route" /><path d="M -35.23 207.73 C -35.66 204.32, -32.35 199.32, -24.92 198.83 C -24.92 198.83, 8.46 198.66, 8.46 198.66 C 25.76 210.03, 40.94 220.93, 40.09 228.59 C 40.09 228.59, 23.91 244.31, 23.91 244.31 C 23.91 244.31, -30.97 226.85, -30.97 226.85 C -30.97 226.85, -35.23 207.73, -35.23 207.73 Z" class="front-route" />
 
-    <!-- Bridge Hardware Plate, Saddle Line & Mounting Holes -->
-    <g transform="translate(0, 259.50)">
-      <rect x="-39.95" y="-70.00" width="79.90847906788953" height="92" class="bridge-rout" />
-      <line x1="-34.95" y1="0" x2="34.95" y2="0" stroke="#dc3545" stroke-width="1.2" />
-      
+    <!-- Bridge Plate, Saddle Plate (two real hardware parts) & the
+         theoretical scale-length reference line through the bridge -->
+    <g id="bridge-hardware">
+      <rect x="-39.95" y="189.50" width="79.90847906788953" height="92" class="bridge-rout" />
+      <rect x="-39.95" y="192.00" width="79.90847906788953" height="92" class="bridge-rout" />
+      <line x1="-34.95" y1="257.00" x2="34.95" y2="257.00" stroke="#dc3545" stroke-width="1.2" />
+      <g transform="translate(0, 259.50)">
+        
+      </g>
     </g>
   </g>
 

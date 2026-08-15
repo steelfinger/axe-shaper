@@ -43,3 +43,16 @@ export function getSaddleYMm(neck: NeckPreset, bridge: BridgePreset): LengthMm {
 export function getBridgePlateTopYMm(neck: NeckPreset, bridge: BridgePreset): LengthMm {
   return getTheoreticalSaddleYMm(neck) - (bridge.saddleOffsetYMm ?? 15);
 }
+
+/**
+ * The saddle's own plate footprint - the hardware that actually sets
+ * intonation, the same size/shape as the bridge plate (getBridgePlateTopYMm)
+ * but anchored to the *compensated* line (getSaddleYMm) instead of the
+ * uncompensated one. For a bridge with large compensation (TOM, 37.5mm) this
+ * sits well clear of the bridge plate; for a small-compensation bridge (a
+ * hardtail, ~2mm) the two nearly coincide, which is physically correct - the
+ * saddles genuinely sit almost on top of the bridge's own footprint there.
+ */
+export function getSaddlePlateTopYMm(neck: NeckPreset, bridge: BridgePreset): LengthMm {
+  return getSaddleYMm(neck, bridge) - (bridge.saddleOffsetYMm ?? 15);
+}

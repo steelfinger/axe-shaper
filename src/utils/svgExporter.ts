@@ -6,7 +6,7 @@ import {
   resolvePickupSpec,
   withEmbeddedPresets,
 } from './presets';
-import { getBridgePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from './scaleMath';
+import { getBridgePlateTopYMm, getSaddlePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from './scaleMath';
 
 /** Namespace for the <project:*> metadata elements. Must be declared or the file is not well-formed XML. */
 const PROJECT_NS = 'https://axe-shaper.app/ns/project/1';
@@ -111,11 +111,14 @@ function getContentBoundsMm(project: GuitarProject): BoundsMm {
   add(-neck.jointWidthMm / 2, 0);
   add(neck.jointWidthMm / 2, neck.jointDepthMm);
 
-  // Bridge plate, saddle line and mounting holes
+  // Bridge plate, saddle plate, theoretical scale-length line, mounting holes
   const saddleY = getSaddleYMm(neck, bridge);
   const plateTopY = getBridgePlateTopYMm(neck, bridge);
+  const saddlePlateTopY = getSaddlePlateTopYMm(neck, bridge);
   add(-bridge.widthMm / 2, plateTopY);
   add(bridge.widthMm / 2, plateTopY + bridge.lengthMm);
+  add(-bridge.widthMm / 2, saddlePlateTopY);
+  add(bridge.widthMm / 2, saddlePlateTopY + bridge.lengthMm);
   add(0, getTheoreticalSaddleYMm(neck));
   // `?? []` because an embedded bridge copy need not carry them — see the
   // note on BridgePreset.mountingPoints. Same defensive shape as
@@ -157,6 +160,7 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
   const theoreticalSaddleY = getTheoreticalSaddleYMm(neck);
   const saddleY = getSaddleYMm(neck, bridge);
   const bridgePlateTopY = getBridgePlateTopYMm(neck, bridge);
+  const saddlePlateTopY = getSaddlePlateTopYMm(neck, bridge);
 
   const isHorizontal = settings.canvasOrientation === 'horizontal';
 
@@ -289,13 +293,17 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
       .map((r) => `<path d="${anchorsToSVGPath(r.contour.anchors, r.contour.closed)}" class="front-route" />`)
       .join('')}
 
-    <!-- Bridge Hardware Plate, Saddle Line & Mounting Holes -->
-    <g transform="translate(0, ${saddleY.toFixed(2)})">
-      <rect x="${(-bridge.widthMm / 2).toFixed(2)}" y="${(bridgePlateTopY - saddleY).toFixed(2)}" width="${bridge.widthMm}" height="${bridge.lengthMm}" class="bridge-rout" />
-      <line x1="${(-bridge.widthMm / 2 + 5).toFixed(2)}" y1="0" x2="${(bridge.widthMm / 2 - 5).toFixed(2)}" y2="0" stroke="#dc3545" stroke-width="1.2" />
-      ${(bridge.mountingPoints ?? [])
-        .map((pt) => `<circle cx="${pt.x}" cy="${pt.y}" r="2" fill="#007bff" />`)
-        .join('')}
+    <!-- Bridge Plate, Saddle Plate (two real hardware parts) & the
+         theoretical scale-length reference line through the bridge -->
+    <g id="bridge-hardware">
+      <rect x="${(-bridge.widthMm / 2).toFixed(2)}" y="${bridgePlateTopY.toFixed(2)}" width="${bridge.widthMm}" height="${bridge.lengthMm}" class="bridge-rout" />
+      <rect x="${(-bridge.widthMm / 2).toFixed(2)}" y="${saddlePlateTopY.toFixed(2)}" width="${bridge.widthMm}" height="${bridge.lengthMm}" class="bridge-rout" />
+      <line x1="${(-bridge.widthMm / 2 + 5).toFixed(2)}" y1="${theoreticalSaddleY.toFixed(2)}" x2="${(bridge.widthMm / 2 - 5).toFixed(2)}" y2="${theoreticalSaddleY.toFixed(2)}" stroke="#dc3545" stroke-width="1.2" />
+      <g transform="translate(0, ${saddleY.toFixed(2)})">
+        ${(bridge.mountingPoints ?? [])
+          .map((pt) => `<circle cx="${pt.x}" cy="${pt.y}" r="2" fill="#007bff" />`)
+          .join('')}
+      </g>
     </g>
   </g>
 

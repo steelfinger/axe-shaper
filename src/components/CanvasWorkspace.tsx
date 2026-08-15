@@ -19,7 +19,7 @@ import {
   rotatingPickupToward,
 } from '../utils/pickupEditing';
 import { resolveBridgePreset, resolveNeckPreset, resolvePickupSpec } from '../utils/presets';
-import { getBridgePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
+import { getBridgePlateTopYMm, getSaddlePlateTopYMm, getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 import { ZoomIn, ZoomOut, Maximize2, Hand, Spline } from 'lucide-react';
 import {
   SCALE_BAR_STEPS,
@@ -230,8 +230,9 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
   // Theoretical saddle & bridge Y mm (measured from body pocket entrance edge Y=0)
   const theoreticalSaddleY = getTheoreticalSaddleYMm(neck);
-  const bridgeY = getSaddleYMm(neck, bridge);
+  const saddleY = getSaddleYMm(neck, bridge);
   const bridgePlateTopY = getBridgePlateTopYMm(neck, bridge);
+  const saddlePlateTopY = getSaddlePlateTopYMm(neck, bridge);
 
   // Wheel Zoom handler
   const handleWheel = (e: Konva.KonvaEventObject<WheelEvent>) => {
@@ -756,11 +757,16 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                     />
                   ))}
 
-              {/* Bridge Hardware Plate & Saddles */}
-              <Group x={0} y={bridgeY}>
+              {/* Bridge Plate & Saddle Plate - two real TOM parts, drawn the
+                  same way, at the uncompensated and compensated lines
+                  respectively - plus the theoretical scale-length reference
+                  line through the bridge plate. See ScaleMath.bridgePlateTopY's
+                  own doc comment (scaleMath.ts) for why these are two
+                  rectangles rather than a rectangle and a line. */}
+              <Group>
                 <Rect
                   x={-bridge.widthMm / 2}
-                  y={bridgePlateTopY - bridgeY}
+                  y={bridgePlateTopY}
                   width={bridge.widthMm}
                   height={bridge.lengthMm}
                   fill="rgba(59, 130, 246, 0.15)"
@@ -768,9 +774,20 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   strokeWidth={1.5 / zoom}
                   cornerRadius={3 / zoom}
                 />
-                {/* Saddle Line Indicator */}
+                <Rect
+                  x={-bridge.widthMm / 2}
+                  y={saddlePlateTopY}
+                  width={bridge.widthMm}
+                  height={bridge.lengthMm}
+                  fill="rgba(59, 130, 246, 0.15)"
+                  stroke="#3b82f6"
+                  strokeWidth={1.5 / zoom}
+                  cornerRadius={3 / zoom}
+                />
+                {/* Theoretical Scale-Length Line - exactly scaleLengthMm from
+                    the nut, zero compensation, drawn through the bridge plate */}
                 <Line
-                  points={[-bridge.widthMm / 2 + 5, 0, bridge.widthMm / 2 - 5, 0]}
+                  points={[-bridge.widthMm / 2 + 5, theoreticalSaddleY, bridge.widthMm / 2 - 5, theoreticalSaddleY]}
                   stroke="#ef4444"
                   strokeWidth={2.0 / zoom}
                 />
@@ -778,9 +795,11 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                     an iOS-written file never does. Unguarded, this threw
                     inside render, which is a blank canvas rather than a
                     missing detail. See BridgePreset.mountingPoints. */}
-                {(bridge.mountingPoints ?? []).map((pt, idx) => (
-                  <Circle key={idx} x={pt.x} y={pt.y} radius={3 / zoom} fill="#3b82f6" />
-                ))}
+                <Group x={0} y={saddleY}>
+                  {(bridge.mountingPoints ?? []).map((pt, idx) => (
+                    <Circle key={idx} x={pt.x} y={pt.y} radius={3 / zoom} fill="#3b82f6" />
+                  ))}
+                </Group>
               </Group>
             </Group>
 

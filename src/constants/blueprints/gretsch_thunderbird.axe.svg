@@ -80,11 +80,15 @@
     <!-- Front Routed Cavities (control cavities, etc. - alongside the pickup routs) -->
     <path d="M -35.97 88.15 C -35.97 88.15, 34.68 88.35, 34.68 88.35 C 34.68 88.35, 34.85 99.32, 34.85 99.32 C 34.85 99.32, 42.72 99.10, 42.72 99.10 C 42.72 99.10, 43.29 118.82, 43.29 118.82 C 43.29 118.82, 35.14 118.96, 35.14 118.96 C 35.14 118.96, 35.27 127.50, 35.27 127.50 C 35.27 127.50, -35.58 127.89, -35.58 127.89 C -35.58 127.89, -35.86 118.94, -35.86 118.94 C -35.86 118.94, -43.91 118.80, -43.91 118.80 C -43.91 118.80, -43.82 99.36, -43.82 99.36 C -43.82 99.36, -35.86 99.35, -35.86 99.35 C -35.92 93.02, -35.97 88.15, -35.97 88.15 Z" class="front-route" /><path d="M -35.97 172.15 C -35.97 172.15, 34.68 172.35, 34.68 172.35 C 34.68 172.35, 34.85 183.32, 34.85 183.32 C 34.85 183.32, 42.72 183.10, 42.72 183.10 C 42.72 183.10, 43.29 202.82, 43.29 202.82 C 43.29 202.82, 35.14 202.96, 35.14 202.96 C 35.14 202.96, 35.27 211.50, 35.27 211.50 C 35.27 211.50, -35.58 211.89, -35.58 211.89 C -35.58 211.89, -35.86 202.94, -35.86 202.94 C -35.86 202.94, -43.91 202.80, -43.91 202.80 C -43.91 202.80, -43.82 183.36, -43.82 183.36 C -43.82 183.36, -35.86 183.35, -35.86 183.35 C -35.92 177.02, -35.97 172.15, -35.97 172.15 Z" class="front-route" />
 
-    <!-- Bridge Hardware Plate, Saddle Line & Mounting Holes -->
-    <g transform="translate(0, 247.45)">
-      <rect x="-42.00" y="-44.50" width="84" height="14" class="bridge-rout" />
-      <line x1="-37.00" y1="0" x2="37.00" y2="0" stroke="#dc3545" stroke-width="1.2" />
-      <circle cx="-37" cy="0" r="2" fill="#007bff" /><circle cx="37" cy="0" r="2" fill="#007bff" /><circle cx="-41" cy="45" r="2" fill="#007bff" /><circle cx="41" cy="45" r="2" fill="#007bff" />
+    <!-- Bridge Plate, Saddle Plate (two real hardware parts) & the
+         theoretical scale-length reference line through the bridge -->
+    <g id="bridge-hardware">
+      <rect x="-42.00" y="202.95" width="84" height="14" class="bridge-rout" />
+      <rect x="-42.00" y="240.45" width="84" height="14" class="bridge-rout" />
+      <line x1="-37.00" y1="209.95" x2="37.00" y2="209.95" stroke="#dc3545" stroke-width="1.2" />
+      <g transform="translate(0, 247.45)">
+        <circle cx="-37" cy="0" r="2" fill="#007bff" /><circle cx="37" cy="0" r="2" fill="#007bff" /><circle cx="-41" cy="45" r="2" fill="#007bff" /><circle cx="41" cy="45" r="2" fill="#007bff" />
+      </g>
     </g>
   </g>
 
