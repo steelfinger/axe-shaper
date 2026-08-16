@@ -30,7 +30,7 @@ import { addingPickup, removingPickup } from './utils/pickupEditing';
 import { SaveInfoModal } from './components/SaveInfoModal';
 
 /** Matches the floor InspectorPanel's delete button enforces - a contour needs at least this many nodes to stay a sane shape. */
-const MIN_ANCHOR_COUNT = 4;
+export const MIN_ANCHOR_COUNT = 4;
 
 const INITIAL_PROJECT: GuitarProject = {
   schemaVersion: PROJECT_SCHEMA_VERSION,
@@ -109,7 +109,11 @@ const UNDO_STEPS = 50;
 
 export function App(): React.JSX.Element {
   const [project, setProject] = useState<GuitarProject>(INITIAL_PROJECT);
-  const [selectedAnchorId, setSelectedAnchorId] = useState<string | null>(null);
+  const [selectedAnchorIds, setSelectedAnchorIds] = useState<Set<string>>(() => new Set());
+  // The single selected anchor's id, when exactly one is selected - most
+  // existing single-node logic (position edit, add-node-here, delete
+  // cascade) only makes sense for one anchor at a time.
+  const selectedAnchorId = selectedAnchorIds.size === 1 ? [...selectedAnchorIds][0] : null;
   const [selectedSegmentIndex, setSelectedSegmentIndex] = useState<number | null>(null);
   const [selectedPickupId, setSelectedPickupId] = useState<string | null>(null);
   // Live model-space cursor position for the sidebar readout - null while the pointer is off the canvas.
@@ -228,7 +232,7 @@ export function App(): React.JSX.Element {
     setGuideImage(doc.guideImage);
     // Ids and segment indices may not survive a structural change, and an
     // active pickguard/route id has no guarantee of surviving one either
-    setSelectedAnchorId(null);
+    setSelectedAnchorIds(new Set());
     setSelectedSegmentIndex(null);
     setSelectedPickupId(null);
     setActiveLayer({ kind: 'body' });
@@ -276,7 +280,7 @@ export function App(): React.JSX.Element {
         name: `Custom ${template.name}`,
       },
     }));
-    setSelectedAnchorId(null);
+    setSelectedAnchorIds(new Set());
     setSelectedSegmentIndex(null);
     setSelectedPickupId(null);
     setActiveLayer({ kind: 'body' });
@@ -289,18 +293,26 @@ export function App(): React.JSX.Element {
   // Anchor, segment and pickup selection are mutually exclusive - the Inspector
   // shows one set of controls, and it should never be ambiguous which one an
   // action applies to.
-  const handleSelectAnchor = (id: string | null) => {
-    setSelectedAnchorId(id);
-    if (id) {
-      setSelectedSegmentIndex(null);
-      setSelectedPickupId(null);
+  const handleSelectAnchor = (id: string | null, shiftKey = false) => {
+    if (id === null) {
+      setSelectedAnchorIds(new Set());
+      return;
     }
+    setSelectedAnchorIds((prev) => {
+      if (!shiftKey) return new Set([id]);
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+    setSelectedSegmentIndex(null);
+    setSelectedPickupId(null);
   };
 
   const handleSelectSegment = (index: number | null) => {
     setSelectedSegmentIndex(index);
     if (index !== null) {
-      setSelectedAnchorId(null);
+      setSelectedAnchorIds(new Set());
       setSelectedPickupId(null);
     }
   };
@@ -308,7 +320,7 @@ export function App(): React.JSX.Element {
   const handleSelectPickup = (id: string | null) => {
     setSelectedPickupId(id);
     if (id) {
-      setSelectedAnchorId(null);
+      setSelectedAnchorIds(new Set());
       setSelectedSegmentIndex(null);
     }
   };
@@ -352,34 +364,47 @@ export function App(): React.JSX.Element {
     if (insertedId) handleSelectAnchor(insertedId);
   };
 
-  // Delete Anchor
-  const handleDeleteSelectedAnchor = () => {
-    if (!selectedAnchorId) return;
+  // Delete Anchor(s)
+  const handleDeleteSelectedAnchors = () => {
+    if (selectedAnchorIds.size === 0) return;
     handleUpdateProject((prev) => {
       const active = getActiveContour(prev, activeLayer);
       if (!active) return prev;
       const { anchors } = active;
-      const selected = anchors.find((a) => a.id === selectedAnchorId);
-      // Mirrored-partner deletion is a body-only, live-centerline concept.
-      const partner =
-        activeLayer.kind === 'body' && prev.settings.symmetry.mode === 'live_centerline' && selected?.mirrorId
-          ? anchors.find((a) => a.id === selected.mirrorId && !a.locked)
-          : undefined;
 
-      // Matches the InspectorPanel's delete-button floor - don't let a paired
-      // delete drop the contour below a usable node count. Falls back to
-      // deleting just the selected anchor rather than blocking the action.
-      const idsToRemove =
-        partner && anchors.length - 2 >= MIN_ANCHOR_COUNT
-          ? [selectedAnchorId, partner.id]
-          : [selectedAnchorId];
+      if (selectedAnchorIds.size === 1) {
+        const id = [...selectedAnchorIds][0];
+        const selected = anchors.find((a) => a.id === id);
+        // Mirrored-partner deletion is a body-only, live-centerline concept.
+        const partner =
+          activeLayer.kind === 'body' && prev.settings.symmetry.mode === 'live_centerline' && selected?.mirrorId
+            ? anchors.find((a) => a.id === selected.mirrorId && !a.locked)
+            : undefined;
 
+        // Matches the InspectorPanel's delete-button floor - don't let a paired
+        // delete drop the contour below a usable node count. Falls back to
+        // deleting just the selected anchor rather than blocking the action.
+        const idsToRemove =
+          partner && anchors.length - 2 >= MIN_ANCHOR_COUNT ? [id, partner.id] : [id];
+
+        return withActiveContour(prev, activeLayer, {
+          ...active,
+          anchors: anchors.filter((a) => !idsToRemove.includes(a.id)),
+        });
+      }
+
+      // Bulk delete: remove exactly the selected set. Deliberately not
+      // cascading to mirror partners the way single-delete does - a
+      // multi-selection is already an explicit set the user built by
+      // shift-clicking; auto-expanding it with hidden partners would make
+      // "delete these N" silently delete more than N.
+      if (anchors.length - selectedAnchorIds.size < MIN_ANCHOR_COUNT) return prev;
       return withActiveContour(prev, activeLayer, {
         ...active,
-        anchors: anchors.filter((a) => !idsToRemove.includes(a.id)),
+        anchors: anchors.filter((a) => !selectedAnchorIds.has(a.id)),
       });
     });
-    setSelectedAnchorId(null);
+    setSelectedAnchorIds(new Set());
   };
 
   // A locked shape can't become the active layer - same "locked doesn't
@@ -400,7 +425,7 @@ export function App(): React.JSX.Element {
   const handleSetActiveLayer = (layer: ActiveLayer) => {
     if (isLayerLocked(layer)) return;
     setActiveLayer(layer);
-    setSelectedAnchorId(null);
+    setSelectedAnchorIds(new Set());
     setSelectedSegmentIndex(null);
   };
 
@@ -476,7 +501,7 @@ export function App(): React.JSX.Element {
       const imported = extractProjectFromSVG(text);
       if (imported && imported.contour && imported.settings) {
         handleUpdateProject(() => migrateProject(imported));
-        setSelectedAnchorId(null);
+        setSelectedAnchorIds(new Set());
         setSelectedSegmentIndex(null);
         setSelectedPickupId(null);
         setActiveLayer({ kind: 'body' });
@@ -501,9 +526,9 @@ export function App(): React.JSX.Element {
         e.preventDefault();
         handleRedo();
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (selectedAnchorId) {
+        if (selectedAnchorIds.size > 0) {
           e.preventDefault();
-          handleDeleteSelectedAnchor();
+          handleDeleteSelectedAnchors();
         } else if (selectedPickupId) {
           e.preventDefault();
           handleDeleteSelectedPickup();
@@ -513,7 +538,7 @@ export function App(): React.JSX.Element {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedAnchorId, selectedPickupId, canUndo, canRedo]);
+  }, [selectedAnchorIds, selectedPickupId, canUndo, canRedo]);
 
   return (
     <div className="app-container">
@@ -556,7 +581,7 @@ export function App(): React.JSX.Element {
 
       <CanvasWorkspace
         project={project}
-        selectedAnchorId={selectedAnchorId}
+        selectedAnchorIds={selectedAnchorIds}
         onSelectAnchor={handleSelectAnchor}
         selectedSegmentIndex={selectedSegmentIndex}
         onSelectSegment={handleSelectSegment}
@@ -577,13 +602,13 @@ export function App(): React.JSX.Element {
 
       <InspectorPanel
         project={project}
-        selectedAnchorId={selectedAnchorId}
+        selectedAnchorIds={selectedAnchorIds}
         selectedSegmentIndex={selectedSegmentIndex}
         selectedPickupId={selectedPickupId}
         cursorPos={cursorPos}
         onUpdateProject={handleUpdateProject}
         onEndEdit={endEdit}
-        onDeleteSelectedAnchor={handleDeleteSelectedAnchor}
+        onDeleteSelectedAnchors={handleDeleteSelectedAnchors}
         onAddAnchorOnSegment={handleAddAnchorOnSegment}
         onToggleSegmentStraight={handleToggleSegmentStraight}
         onDeleteSelectedPickup={handleDeleteSelectedPickup}

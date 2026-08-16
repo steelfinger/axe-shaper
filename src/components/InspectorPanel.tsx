@@ -1,5 +1,6 @@
 import React from 'react';
 import { MousePointer, Trash2, PlusCircle, Ruler, Spline, Slash, Zap, Crosshair } from 'lucide-react';
+import { MIN_ANCHOR_COUNT } from '../App';
 import { PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import type { GuitarProject, HandleMode, PickupType, Vector2D } from '../types/guitar';
 import { distanceVector, isSegmentStraight, updateAnchorHandle } from '../utils/bezier';
@@ -16,7 +17,7 @@ import { formatLength } from '../utils/units';
 
 interface InspectorPanelProps {
   project: GuitarProject;
-  selectedAnchorId: string | null;
+  selectedAnchorIds: Set<string>;
   selectedSegmentIndex: number | null;
   selectedPickupId: string | null;
   /** Live model-space cursor position over the canvas, null while the pointer is off it. */
@@ -24,7 +25,7 @@ interface InspectorPanelProps {
   onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject, coalesceKey?: string) => void;
   /** Close a typing gesture so the next edit is its own undo step. */
   onEndEdit: () => void;
-  onDeleteSelectedAnchor: () => void;
+  onDeleteSelectedAnchors: () => void;
   onAddAnchorOnSegment: () => void;
   onToggleSegmentStraight: () => void;
   onDeleteSelectedPickup: () => void;
@@ -34,13 +35,13 @@ interface InspectorPanelProps {
 
 export const InspectorPanel: React.FC<InspectorPanelProps> = ({
   project,
-  selectedAnchorId,
+  selectedAnchorIds,
   selectedSegmentIndex,
   selectedPickupId,
   cursorPos,
   onUpdateProject,
   onEndEdit,
-  onDeleteSelectedAnchor,
+  onDeleteSelectedAnchors,
   onAddAnchorOnSegment,
   onToggleSegmentStraight,
   onDeleteSelectedPickup,
@@ -55,6 +56,10 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
   // active, a pickguard/route's own contour otherwise.
   const activeContour = getActiveContour(project, activeLayer) ?? contour;
 
+  // Only meaningful when exactly one anchor is selected - the per-node
+  // fields below (Position X/Y, Handle Mode) have no sane single value to
+  // show or edit across a multi-selection.
+  const selectedAnchorId = selectedAnchorIds.size === 1 ? [...selectedAnchorIds][0] : null;
   const selectedAnchor = activeContour.anchors.find((a) => a.id === selectedAnchorId);
 
   const segment =
@@ -234,13 +239,28 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               <button
                 className="btn btn-sm"
                 style={{ borderColor: 'var(--accent-red)', color: 'var(--accent-red)' }}
-                disabled={selectedAnchor.locked || activeContour.anchors.length <= 4}
-                onClick={onDeleteSelectedAnchor}
+                disabled={selectedAnchor.locked || activeContour.anchors.length <= MIN_ANCHOR_COUNT}
+                onClick={onDeleteSelectedAnchors}
                 title="Delete selected anchor point"
               >
                 <Trash2 size={14} /> Delete
               </button>
             </div>
+          </div>
+        ) : selectedAnchorIds.size > 1 ? (
+          <div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
+              <strong style={{ color: 'var(--text-primary)' }}>{selectedAnchorIds.size} nodes selected</strong>
+            </div>
+            <button
+              className="btn btn-sm"
+              style={{ borderColor: 'var(--accent-red)', color: 'var(--accent-red)' }}
+              disabled={activeContour.anchors.length - selectedAnchorIds.size < MIN_ANCHOR_COUNT}
+              onClick={onDeleteSelectedAnchors}
+              title="Delete selected anchor points"
+            >
+              <Trash2 size={14} /> Delete ({selectedAnchorIds.size})
+            </button>
           </div>
         ) : segment ? (
           <div>

@@ -52,11 +52,15 @@ const handleDragKey = (id: string, type: 'in' | 'out') => `handle:${id}:${type}`
 const GUIDE_DRAG_KEY = 'guide:move';
 const pickupMoveKey = (id: string) => `pickup:move:${id}`;
 const pickupRotateKey = (id: string) => `pickup:rotate:${id}`;
+// Konva only ever has one drag gesture in flight, so a single fixed key -
+// rather than one derived from the selected id set - is enough to coalesce
+// a whole multi-anchor drag into one undo step.
+const MULTI_ANCHOR_DRAG_KEY = 'anchor-multi-drag';
 
 interface CanvasWorkspaceProps {
   project: GuitarProject;
-  selectedAnchorId: string | null;
-  onSelectAnchor: (id: string | null) => void;
+  selectedAnchorIds: Set<string>;
+  onSelectAnchor: (id: string | null, shiftKey?: boolean) => void;
   selectedSegmentIndex: number | null;
   onSelectSegment: (index: number | null) => void;
   selectedPickupId: string | null;
@@ -84,7 +88,7 @@ interface CanvasWorkspaceProps {
 
 export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   project,
-  selectedAnchorId,
+  selectedAnchorIds,
   onSelectAnchor,
   selectedSegmentIndex,
   onSelectSegment,
@@ -105,6 +109,13 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   const [knownDistanceInput, setKnownDistanceInput] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<Konva.Stage>(null);
+  // Model-space starting positions of every selected anchor, captured once at
+  // the start of a multi-anchor drag gesture. Every onDragMove tick applies
+  // the grabbed anchor's delta-from-start to these fixed originals - never
+  // chaining off the previous tick's already-moved position, which would
+  // compound drift and let grid-snap on the grabbed anchor warp the
+  // followers' spacing. Null outside a multi-drag gesture.
+  const dragStartPositionsRef = useRef<Map<string, Vector2D> | null>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [zoom, setZoom] = useState(1.2); // 1.2 px per mm base scale
   const [panOffset, setPanOffset] = useState<Vector2D>({ x: 0, y: 0 });
@@ -265,10 +276,35 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
     // Pocket constraint: If anchor is locked, keep x snapped to joint width.
     // A body-only concept - the neck pocket only exists relative to the body.
+    // Only reachable via the single-anchor path below: a locked anchor is
+    // never draggable, so it can never be the grabbed node in a multi-drag.
     if (isBodyActive && anchor.locked) {
       newModelY = 0; // Lock to Y=0 joint line
       if (anchor.semanticRole === 'neck_pocket_left') newModelX = -neck.jointWidthMm / 2;
       if (anchor.semanticRole === 'neck_pocket_right') newModelX = neck.jointWidthMm / 2;
+    }
+
+    const dragStarts = dragStartPositionsRef.current;
+    if (dragStarts && selectedAnchorIds.size > 1) {
+      const startPos = dragStarts.get(anchor.id);
+      if (!startPos) return;
+      const dx = newModelX - startPos.x;
+      const dy = newModelY - startPos.y;
+
+      onUpdateProject((prev) => {
+        const prevContour = getActiveContour(prev, activeLayer);
+        if (!prevContour) return prev;
+        // Live-centerline mirroring is intentionally skipped here - every
+        // selected anchor moves by the same delta and nothing else moves
+        // as a side effect during a multi-anchor drag.
+        const updatedAnchors = prevContour.anchors.map((a) => {
+          const start = dragStarts.get(a.id);
+          if (!start) return a;
+          return { ...a, position: { x: start.x + dx, y: start.y + dy } };
+        });
+        return withActiveContour(prev, activeLayer, { ...prevContour, anchors: updatedAnchors });
+      }, MULTI_ANCHOR_DRAG_KEY);
+      return;
     }
 
     onUpdateProject((prev) => {
@@ -917,8 +953,11 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           )}
 
           {activeContour.anchors.map((anchor, index) => {
-            const isSelected = anchor.id === selectedAnchorId;
-            const showHandles = isSelected || showAllHandles;
+            const isSelected = selectedAnchorIds.has(anchor.id);
+            // Bezier handles only surface for a lone selection - showing N
+            // pairs of handle lines at once is visual noise, and it keeps
+            // handle-dragging unambiguously single-anchor-only.
+            const showHandles = (selectedAnchorIds.size === 1 && isSelected) || showAllHandles;
             const handleOpacity = isSelected ? 1 : 0.55;
             const aPos = toScreen(anchor.position);
             const ax = aPos.x;
@@ -964,12 +1003,43 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   stroke="#ffffff"
                   strokeWidth={2}
                   draggable={!isPanMode && !anchor.locked}
-                  onClick={() => {
-                    if (!isPanMode) onSelectAnchor(anchor.id);
+                  onClick={(e) => {
+                    if (isPanMode) return;
+                    // Locked pins (neck-pocket anchors) can't join a
+                    // multi-selection - they're never draggable, so a group
+                    // move could never act on them anyway. A plain click on
+                    // one still selects it solo, same as before.
+                    if (anchor.locked && e.evt.shiftKey) return;
+                    onSelectAnchor(anchor.id, e.evt.shiftKey);
                   }}
-                  onDragStart={() => onBeginEdit(anchorDragKey(anchor.id))}
+                  onDragStart={() => {
+                    // Grabbing an anchor that isn't part of the current
+                    // multi-selection collapses the selection to just that
+                    // anchor first - you don't drag "everything selected"
+                    // unless the node you grabbed was already one of them.
+                    if (!selectedAnchorIds.has(anchor.id)) {
+                      onSelectAnchor(anchor.id, false);
+                      dragStartPositionsRef.current = null;
+                      onBeginEdit(anchorDragKey(anchor.id));
+                      return;
+                    }
+                    if (selectedAnchorIds.size > 1) {
+                      dragStartPositionsRef.current = new Map(
+                        activeContour.anchors
+                          .filter((a) => selectedAnchorIds.has(a.id))
+                          .map((a) => [a.id, a.position])
+                      );
+                      onBeginEdit(MULTI_ANCHOR_DRAG_KEY);
+                    } else {
+                      dragStartPositionsRef.current = null;
+                      onBeginEdit(anchorDragKey(anchor.id));
+                    }
+                  }}
                   onDragMove={(e) => handleAnchorDragMove(index, e)}
-                  onDragEnd={onEndEdit}
+                  onDragEnd={() => {
+                    dragStartPositionsRef.current = null;
+                    onEndEdit();
+                  }}
                 />
 
                 {/* Handle In Circle */}
