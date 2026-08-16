@@ -70,6 +70,17 @@ export interface NeckPreset {
   pocketCornerRadiusMm?: LengthMm;
 }
 
+/**
+ * How the neck attaches to the body - an axis independent of both the body
+ * shape and the neck's scale length (a Gibson-scale neck can be bolt-on, a
+ * Fender-scale neck can be glued). Matches axe-shaper-ios's
+ * `NeckJointMechanism` (`TolerantEnums.swift`) string-for-string, including
+ * the ids: iOS's own fixture sync already writes `neckJointMechanism` into
+ * this app's `tests/fixtures/ios-written/*.axe.svg`, ahead of this app
+ * modeling the field itself.
+ */
+export type NeckJointMechanism = 'bolt_on' | 'glued';
+
 export interface BridgePreset {
   id: string;
   name: string;
@@ -241,6 +252,21 @@ export interface GuitarProject {
    */
   neckPreset?: NeckPreset;
   bridgePreset?: BridgePreset;
+  /**
+   * Bolt-on or glued - an explicit user choice, independent of which neck
+   * preset is attached; the neck-pocket rout shape (width/depth/corner
+   * radius) is driven entirely by this, not by the neck (see
+   * `GENERIC_POCKET_SPEC` in `constants/hardware.ts`). Optional and, like
+   * `pickguards` below, deliberately NOT backfilled by `migrateProject()`:
+   * a file predating this field genuinely lacks it, and synthesizing a
+   * value on load would change a file's bytes with nothing about the
+   * design having changed - the same `scripts/check-ios-fixtures.ts`
+   * "loading is a no-op" guarantee. Every reader uses
+   * `utils/presets.ts`'s `resolvedNeckJointMechanism()` instead, which
+   * falls back to the body's own real construction (or bolt-on) without
+   * writing anything back.
+   */
+  neckJointMechanism?: NeckJointMechanism;
   pickups: PickupPlacement[];
   /**
    * Optional, unlike `pickups` - a file from before this feature existed

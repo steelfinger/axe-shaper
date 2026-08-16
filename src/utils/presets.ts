@@ -1,7 +1,9 @@
 import {
   BRIDGE_PRESETS,
   CURATED_NECK_PRESETS,
+  DEFAULT_NECK_JOINT_MECHANISM,
   FINGERBOARD_OVERHANG_MM,
+  GENERIC_POCKET_SPEC,
   NECK_PRESETS,
   PICKUP_SPECIFICATIONS,
 } from '../constants/hardware';
@@ -9,6 +11,7 @@ import { PROJECT_SCHEMA_VERSION } from '../constants/schema';
 import type {
   BridgePreset,
   GuitarProject,
+  NeckJointMechanism,
   NeckPreset,
   PickupPlacement,
   PickupRoutSpec,
@@ -39,9 +42,27 @@ import { getFretDistanceFromNutMm } from './scaleMath';
 export const DEFAULT_NECK_PRESET_ID = 'fender_strat_21';
 export const DEFAULT_BRIDGE_PRESET_ID = 'tremolo_strat';
 export const DEFAULT_PICKUP_TYPE = 'single_coil';
+export const FALLBACK_NECK_JOINT_MECHANISM: NeckJointMechanism = 'bolt_on';
 
 type NeckRef = Pick<GuitarProject, 'neckPresetId' | 'neckPreset'>;
 type BridgeRef = Pick<GuitarProject, 'bridgePresetId' | 'bridgePreset'>;
+
+/**
+ * The effective `NeckJointMechanism` for display and for resolving a chosen
+ * neck's pocket shape: the project's own explicit choice, else the active
+ * body's own real-world default, else bolt-on. Never writes anything back -
+ * `neckJointMechanism` stays absent on a file that never set it, per the
+ * type's own "loading is a no-op" comment.
+ */
+export function resolvedNeckJointMechanism(
+  project: Pick<GuitarProject, 'neckJointMechanism' | 'activeTemplateId'>
+): NeckJointMechanism {
+  return (
+    project.neckJointMechanism ??
+    DEFAULT_NECK_JOINT_MECHANISM[project.activeTemplateId] ??
+    FALLBACK_NECK_JOINT_MECHANISM
+  );
+}
 
 /** Effective neck geometry: the project's embedded copy, else the built-in table, else the default. */
 export function resolveNeckPreset(ref: NeckRef): NeckPreset {
@@ -71,30 +92,55 @@ export function neckPresetFields(id: string): Required<NeckRef> {
 }
 
 /**
- * As `neckPresetFields`, except when `activeTemplateId` names one of the 8
- * bundled bodies (has an entry in `FINGERBOARD_OVERHANG_MM`):
- * `nutToBodyEdgeMm` is recomputed for *that* body rather than taking the
- * chosen preset's own stored value verbatim. Without this, attaching a
- * curated neck (or any neck not that body's own native one) to, say, the SG
- * would put the bridge wherever that neck's *donor* body's joint sits -
- * exactly the "two facts competing" class of bug the SG/Firebird/Flying V
- * comments in `constants/hardware.ts` document being fixed once already,
- * reintroduced the moment necks stopped being 1:1 with bodies. A
- * custom/unrecognized `activeTemplateId` (no table entry) leaves the chosen
- * preset's own `nutToBodyEdgeMm` untouched - the same "leave it exactly as
- * decoded" fallback as axe-shaper-ios's own equivalent. `nutToJointMm` is
- * left as the chosen preset's own value either way - it's sidebar display
- * only (see `scaleMath.ts`'s warning against using it for saddle Y), not
- * part of this correction.
+ * As `neckPresetFields`, except:
+ *
+ * - When `activeTemplateId` names one of the 8 bundled bodies (has an entry
+ *   in `FINGERBOARD_OVERHANG_MM`): `nutToBodyEdgeMm` is recomputed for
+ *   *that* body rather than taking the chosen preset's own stored value
+ *   verbatim. Without this, attaching a curated neck (or any neck not that
+ *   body's own native one) to, say, the SG would put the bridge wherever
+ *   that neck's *donor* body's joint sits - exactly the "two facts
+ *   competing" class of bug the SG/Firebird/Flying V comments in
+ *   `constants/hardware.ts` document being fixed once already, reintroduced
+ *   the moment necks stopped being 1:1 with bodies. A custom/unrecognized
+ *   `activeTemplateId` (no table entry) leaves the chosen preset's own
+ *   `nutToBodyEdgeMm` untouched - the same "leave it exactly as decoded"
+ *   fallback as axe-shaper-ios's own equivalent. `nutToJointMm` is left as
+ *   the chosen preset's own value either way - it's sidebar display only
+ *   (see `scaleMath.ts`'s warning against using it for saddle Y), not part
+ *   of this correction.
+ * - The pocket shape (`jointWidthMm`/`jointDepthMm`/`jointCornerRadiusMm`,
+ *   and their `pocket*` iOS-writer-named duplicates) always comes from
+ *   `GENERIC_POCKET_SPEC[mechanism]`, never from the chosen preset's own
+ *   stored pocket fields - pocket shape is mechanism-owned, not neck-owned
+ *   (see `GENERIC_POCKET_SPEC`'s own comment for why), applied
+ *   unconditionally because `mechanism` always has a concrete value by the
+ *   time it reaches this function (the caller resolves it, typically via
+ *   `resolvedNeckJointMechanism`).
  */
-export function neckPresetFieldsForTemplate(id: string, activeTemplateId: string): Required<NeckRef> {
+export function neckPresetFieldsForTemplate(
+  id: string,
+  activeTemplateId: string,
+  mechanism: NeckJointMechanism
+): Required<NeckRef> {
   const base = NECK_PRESETS[id] ?? CURATED_NECK_PRESETS[id] ?? NECK_PRESETS[DEFAULT_NECK_PRESET_ID];
   const overhang = FINGERBOARD_OVERHANG_MM[activeTemplateId];
-  if (overhang === undefined) {
-    return { neckPresetId: id, neckPreset: structuredClone(base) };
-  }
-  const nutToBodyEdgeMm = getFretDistanceFromNutMm(22, base.scaleLengthMm) - overhang;
-  return { neckPresetId: id, neckPreset: { ...structuredClone(base), nutToBodyEdgeMm } };
+  const nutToBodyEdgeMm =
+    overhang === undefined ? base.nutToBodyEdgeMm : getFretDistanceFromNutMm(22, base.scaleLengthMm) - overhang;
+  const pocket = GENERIC_POCKET_SPEC[mechanism];
+  return {
+    neckPresetId: id,
+    neckPreset: {
+      ...structuredClone(base),
+      nutToBodyEdgeMm,
+      jointWidthMm: pocket.jointWidthMm,
+      jointDepthMm: pocket.jointDepthMm,
+      jointCornerRadiusMm: pocket.jointCornerRadiusMm,
+      pocketWidthMm: pocket.jointWidthMm,
+      pocketDepthMm: pocket.jointDepthMm,
+      pocketCornerRadiusMm: pocket.jointCornerRadiusMm,
+    },
+  };
 }
 
 /**
@@ -120,12 +166,26 @@ function curatedNeckIdMatchingScaleLength(id: string): string {
  * bundled blueprint embeds; this remaps it to its curated equivalent first
  * (so the Neck picker lands on one of the 4 offered choices, not a foreign
  * 5th row) and then applies the same per-body correction as
- * `neckPresetFieldsForTemplate` - which is a no-op here by construction,
- * since a bundled template's own native pairing already reproduces its
- * exact stored `nutToBodyEdgeMm`.
+ * `neckPresetFieldsForTemplate`, using the body's own default
+ * `NeckJointMechanism` (`DEFAULT_NECK_JOINT_MECHANISM`) - a no-op for
+ * `nutToBodyEdgeMm` here by construction, since a bundled template's own
+ * native pairing already reproduces its exact stored value; the pocket
+ * fields do change from whatever the legacy preset's own numbers were to
+ * the mechanism's generic ones, matching what the caller should separately
+ * store as the project's own `neckJointMechanism` (see
+ * `defaultNeckJointMechanism`).
  */
 export function neckPresetFieldsForNewTemplate(nativeNeckId: string, activeTemplateId: string): Required<NeckRef> {
-  return neckPresetFieldsForTemplate(curatedNeckIdMatchingScaleLength(nativeNeckId), activeTemplateId);
+  return neckPresetFieldsForTemplate(
+    curatedNeckIdMatchingScaleLength(nativeNeckId),
+    activeTemplateId,
+    defaultNeckJointMechanism(activeTemplateId)
+  );
+}
+
+/** The body's own real-world default `NeckJointMechanism`, or bolt-on for a custom/unrecognized body. */
+export function defaultNeckJointMechanism(activeTemplateId: string): NeckJointMechanism {
+  return DEFAULT_NECK_JOINT_MECHANISM[activeTemplateId] ?? FALLBACK_NECK_JOINT_MECHANISM;
 }
 
 /** As neckPresetFields, for the bridge. */

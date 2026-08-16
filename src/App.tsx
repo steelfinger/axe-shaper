@@ -5,7 +5,12 @@ import { InspectorPanel } from './components/InspectorPanel';
 import { CanvasWorkspace } from './components/CanvasWorkspace';
 import { REFERENCE_TEMPLATES } from './constants/templates';
 import { PROJECT_SCHEMA_VERSION } from './constants/schema';
-import { bridgePresetFields, migrateProject, neckPresetFieldsForNewTemplate } from './utils/presets';
+import {
+  bridgePresetFields,
+  defaultNeckJointMechanism,
+  migrateProject,
+  neckPresetFieldsForNewTemplate,
+} from './utils/presets';
 import type { GuitarProject, GuideImageState, CalibrationState, Vector2D, PickupType } from './types/guitar';
 import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
@@ -63,6 +68,7 @@ const INITIAL_PROJECT: GuitarProject = {
     closed: true,
   },
   ...neckPresetFieldsForNewTemplate(REFERENCE_TEMPLATES.s_style.neckPresetId, 's_style'),
+  neckJointMechanism: defaultNeckJointMechanism('s_style'),
   ...bridgePresetFields(REFERENCE_TEMPLATES.s_style.bridgePresetId),
   pickups: REFERENCE_TEMPLATES.s_style.defaultPickups,
   pickguards: REFERENCE_TEMPLATES.s_style.defaultPickguards ?? [],
@@ -255,6 +261,7 @@ export function App(): React.JSX.Element {
       // equivalent (see neckPresetFieldsForNewTemplate) so the Neck picker
       // lands on one of the 4 offered choices, not a foreign 5th row.
       ...neckPresetFieldsForNewTemplate(template.neckPresetId, templateId),
+      neckJointMechanism: defaultNeckJointMechanism(templateId),
       ...bridgePresetFields(template.bridgePresetId),
       contour: {
         anchors: JSON.parse(JSON.stringify(template.defaultAnchors)),

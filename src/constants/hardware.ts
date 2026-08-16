@@ -1,4 +1,11 @@
-import type { BridgePreset, LengthMm, NeckPreset, PickupRoutSpec, PickupType } from '../types/guitar';
+import type {
+  BridgePreset,
+  LengthMm,
+  NeckJointMechanism,
+  NeckPreset,
+  PickupRoutSpec,
+  PickupType,
+} from '../types/guitar';
 
 // pocketWidthMm/pocketDepthMm/pocketCornerRadiusMm duplicate
 // jointWidthMm/jointDepthMm/jointCornerRadiusMm below - the iOS writer's name
@@ -377,6 +384,62 @@ export const FINGERBOARD_OVERHANG_MM: Record<string, LengthMm> = {
   gretsch_thunderbird: 73.0011, // gretsch_thunderbird_22
   gibson_flying_v: 74.0011, // gibson_flying_v_22
   jag_style: 70.9045, // jaguar_22
+};
+
+/**
+ * The neck-pocket rout - width, depth, and corner radius - for each
+ * `NeckJointMechanism`, independent of which neck or body it's attached to.
+ * Mirrors axe-shaper-ios's `PresetCatalogue.genericPocketSpec(for:)`
+ * (docs/m17-hardware-and-body-refinements.md, "Step 4", there): pocket shape
+ * used to be neck-owned (each of the 9 legacy `NECK_PRESETS` entries carries
+ * its own `jointWidthMm`/`jointDepthMm`/`jointCornerRadiusMm`), which broke
+ * the moment necks stopped being 1:1 with bodies (`CURATED_NECK_PRESETS`
+ * above) - a Gibson-style body with a Fender-scale neck attached has no
+ * single right answer for "whose pocket depth". One fixed spec per
+ * mechanism instead, applied by `utils/presets.ts`'s
+ * `neckPresetFieldsForTemplate` regardless of which neck/body is involved.
+ *
+ * `bolt_on`'s numbers aren't invented - they're exactly what
+ * `fender_scale`/`jaguar_scale`/`baritone_scale` above already agreed on
+ * (55.56mm x 76.2mm, 6.35mm corners, the real standard Fender pocket).
+ * `glued`'s width/radius (38.1mm/6.35mm) are the same universal agreement
+ * across every Gibson-style entry in `NECK_PRESETS`; its depth (101.6mm)
+ * takes the deepest of the 5 Gibson-style bodies (67-101.6mm) as the
+ * conservative generic default - too deep never stops a neck from seating,
+ * too shallow does - the same reasoning `CURATED_NECK_PRESETS.gibson_scale`
+ * already uses for the same number.
+ */
+export const GENERIC_POCKET_SPEC: Record<
+  NeckJointMechanism,
+  Pick<NeckPreset, 'jointWidthMm' | 'jointDepthMm' | 'jointCornerRadiusMm'>
+> = {
+  bolt_on: { jointWidthMm: 55.56, jointDepthMm: 76.2, jointCornerRadiusMm: 6.35 },
+  glued: { jointWidthMm: 38.1, jointDepthMm: 101.6, jointCornerRadiusMm: 6.35 },
+};
+
+/**
+ * Each bundled body's own real-world construction, seeded as its default
+ * `NeckJointMechanism` when a new project/document is created on it (the
+ * user can always override via the Neck Joint picker). Fender/Jaguar/
+ * Baritone-style bodies are bolt-on; the 5 Gibson-style bodies are glued,
+ * including Firebird/Thunderbird, whose real neck-through construction
+ * isn't modeled as a third option - `glued` is the closer of the two
+ * available buckets, not a claim they're built like an SG. Matches
+ * axe-shaper-ios's own per-template `defaultMechanism` exactly - confirmed
+ * against the `neckJointMechanism` iOS's fixture sync already wrote into
+ * `tests/fixtures/ios-written/*.axe.svg` (single_cut/sg_style/
+ * gibson_firebird/gretsch_thunderbird/gibson_flying_v: glued; s_style/
+ * t_style/jag_style: bolt_on).
+ */
+export const DEFAULT_NECK_JOINT_MECHANISM: Record<string, NeckJointMechanism> = {
+  single_cut: 'glued',
+  sg_style: 'glued',
+  s_style: 'bolt_on',
+  t_style: 'bolt_on',
+  gibson_firebird: 'glued',
+  gretsch_thunderbird: 'glued',
+  gibson_flying_v: 'glued',
+  jag_style: 'bolt_on',
 };
 
 export const BRIDGE_PRESETS: Record<string, BridgePreset> = {

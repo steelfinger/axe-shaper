@@ -7,6 +7,7 @@ import type {
   GuideImageState,
   SymmetryMode,
   CalibrationState,
+  NeckJointMechanism,
   PickguardPlacement,
   RoutedCavity,
   PickupType,
@@ -16,6 +17,7 @@ import {
   neckPresetFieldsForTemplate,
   resolveBridgePreset,
   resolveNeckPreset,
+  resolvedNeckJointMechanism,
 } from '../utils/presets';
 import { type ActiveLayer, activeLayersEqual } from '../utils/layerShapes';
 import { getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
@@ -224,6 +226,38 @@ export const Sidebar: React.FC<SidebarProps> = ({
   // what this app's table has under that id.
   const currentNeck = resolveNeckPreset(project);
   const currentBridge = resolveBridgePreset(project);
+  const currentMechanism = resolvedNeckJointMechanism(project);
+
+  /**
+   * Re-resolve the neck for `neckId`/`mechanism` against the active body and
+   * snap the neck-pocket shoulder anchors to the result's joint width - the
+   * one piece of geometry both the Neck and Neck Joint pickers have to keep
+   * in sync (the pocket's rout shape comes from the mechanism, not the neck,
+   * but both pickers can change it).
+   */
+  const applyNeckJointChange = (
+    prev: GuitarProject,
+    neckId: string,
+    mechanism: NeckJointMechanism
+  ): GuitarProject => {
+    const neckFields = neckPresetFieldsForTemplate(neckId, prev.activeTemplateId, mechanism);
+    const halfWidth = neckFields.neckPreset.jointWidthMm / 2;
+    const updatedAnchors = prev.contour.anchors.map((a) => {
+      if (a.semanticRole === 'neck_pocket_left') {
+        return { ...a, position: { ...a.position, x: -halfWidth } };
+      }
+      if (a.semanticRole === 'neck_pocket_right') {
+        return { ...a, position: { ...a.position, x: halfWidth } };
+      }
+      return a;
+    });
+    return {
+      ...prev,
+      ...neckFields,
+      neckJointMechanism: mechanism,
+      contour: { ...prev.contour, anchors: updatedAnchors },
+    };
+  };
 
   return (
     <aside className="app-sidebar">
@@ -713,25 +747,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <select
                   value={neckPresetId}
                   onChange={(e) =>
-                    onUpdateProject((prev) => {
-                      const neckFields = neckPresetFieldsForTemplate(e.target.value, prev.activeTemplateId);
-                      // Auto-snap shoulder anchors to new joint width
-                      const halfWidth = neckFields.neckPreset.jointWidthMm / 2;
-                      const updatedAnchors = prev.contour.anchors.map((a) => {
-                        if (a.semanticRole === 'neck_pocket_left') {
-                          return { ...a, position: { ...a.position, x: -halfWidth } };
-                        }
-                        if (a.semanticRole === 'neck_pocket_right') {
-                          return { ...a, position: { ...a.position, x: halfWidth } };
-                        }
-                        return a;
-                      });
-                      return {
-                        ...prev,
-                        ...neckFields,
-                        contour: { ...prev.contour, anchors: updatedAnchors },
-                      };
-                    })
+                    onUpdateProject((prev) => applyNeckJointChange(prev, e.target.value, currentMechanism))
                   }
                   className="form-select"
                 >
@@ -753,9 +769,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </select>
               </div>
 
+              <div className="form-group">
+                <label className="form-label">Neck Joint</label>
+                <select
+                  value={currentMechanism}
+                  onChange={(e) =>
+                    onUpdateProject((prev) =>
+                      applyNeckJointChange(prev, neckPresetId, e.target.value as NeckJointMechanism)
+                    )
+                  }
+                  className="form-select"
+                >
+                  <option value="bolt_on">Bolt-On</option>
+                  <option value="glued">Glued</option>
+                </select>
+              </div>
+
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '8px' }}>
                 <div>• Scale Length: <strong>{currentNeck.scaleLengthMm} mm</strong> ({(currentNeck.scaleLengthMm / 25.4).toFixed(2)}")</div>
                 <div>• Joint Pocket Width: <strong>{currentNeck.jointWidthMm} mm</strong></div>
+                <div>• Joint Pocket Depth: <strong>{currentNeck.jointDepthMm} mm</strong></div>
                 <div>• Nut-to-Joint: <strong>{currentNeck.nutToJointMm} mm</strong></div>
               </div>
             </div>
