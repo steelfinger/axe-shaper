@@ -1,4 +1,4 @@
-import type { BridgePreset, NeckPreset, PickupRoutSpec, PickupType } from '../types/guitar';
+import type { BridgePreset, LengthMm, NeckPreset, PickupRoutSpec, PickupType } from '../types/guitar';
 
 // pocketWidthMm/pocketDepthMm/pocketCornerRadiusMm duplicate
 // jointWidthMm/jointDepthMm/jointCornerRadiusMm below - the iOS writer's name
@@ -248,6 +248,135 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     pocketCornerRadiusMm: 12.7,
     style: 'baritone',
   },
+};
+
+/**
+ * The 4 generic, scale-length-only necks offered by the Neck picker, instead
+ * of the 9 per-body entries in `NECK_PRESETS` above. Kept as a genuinely
+ * separate table rather than folded into `NECK_PRESETS`: `npm run
+ * corpus:check` pins that dictionary's key set exactly against
+ * `tests/golden/geometry-corpus.json`, so adding 4 non-corpus ids there would
+ * fail the check outright, and `scripts/generate-golden-corpus.ts` iterates
+ * every `NECK_PRESETS` x `BRIDGE_PRESETS` pair - the same reason
+ * axe-shaper-ios's `PresetCatalogue.curatedNecks` is a separate table from
+ * its own corpus-pinned `necks` (docs/m17-hardware-and-body-refinements.md,
+ * "Step 3", in that repo). `NECK_PRESETS[id] ?? CURATED_NECK_PRESETS[id]` in
+ * `resolveNeckPreset` still resolves either kind, so a file naming any of
+ * the original 9 ids (every bundled blueprint does) keeps opening and
+ * drawing exactly as before - only the *picker* now offers these 4.
+ *
+ * One representative per real scale length actually in use across the 9
+ * legacy presets (Fender/Gibson/Jaguar/Baritone) - not sourced from
+ * anywhere else, this app's own decision, transcribed to match the values
+ * axe-shaper-ios's `PresetCatalogue.curatedNecks` already settled on so a
+ * fresh project created on either platform starts from the same numbers.
+ * `nutToBodyEdgeMm`/`nutToJointMm`/pocket fields here only matter for a
+ * custom/unrecognized body (`utils/presets.ts`'s `neckPresetFieldsForTemplate`
+ * recomputes `nutToBodyEdgeMm` fresh for any of the 8 bundled bodies, so
+ * these stored values are dead weight for rendering there, kept only
+ * because `NeckPreset` requires them structurally).
+ */
+export const CURATED_NECK_PRESETS: Record<string, NeckPreset> = {
+  baritone_scale: {
+    id: 'baritone_scale',
+    name: 'Baritone Scale (27" Scale, 22 Frets)',
+    scaleLengthMm: 685.8,
+    nutToBodyEdgeMm: 415.8,
+    nutToJointMm: 485.8,
+    frets: 22,
+    jointWidthMm: 57.0,
+    jointDepthMm: 76.2,
+    jointCornerRadiusMm: 12.7,
+    pocketWidthMm: 57.0,
+    pocketDepthMm: 76.2,
+    pocketCornerRadiusMm: 12.7,
+    style: 'baritone',
+  },
+  fender_scale: {
+    id: 'fender_scale',
+    name: 'Fender Scale (25.5" Scale, 22 Frets)',
+    scaleLengthMm: 647.7,
+    nutToBodyEdgeMm: 390.7,
+    nutToJointMm: 458.7,
+    frets: 22,
+    jointWidthMm: 55.56,
+    jointDepthMm: 76.2,
+    jointCornerRadiusMm: 6.35,
+    pocketWidthMm: 55.56,
+    pocketDepthMm: 76.2,
+    pocketCornerRadiusMm: 6.35,
+    style: 'fender_style',
+  },
+  // nutToBodyEdgeMm/nutToJointMm/pocketDepthMm here are gibson_lp_22's own -
+  // the one member of this scale-length group whose data was verified
+  // structurally sound on its own terms, not just relative to the SG's old
+  // copy-paste bug. The deepest pocket of the group (101.6mm) is the
+  // conservative choice for an unrecognized body: too deep never stops a
+  // neck from seating, too shallow does.
+  gibson_scale: {
+    id: 'gibson_scale',
+    name: 'Gibson Scale (24.75" Scale, 22 Frets)',
+    scaleLengthMm: 628.65,
+    nutToBodyEdgeMm: 379.2,
+    nutToJointMm: 414.27,
+    frets: 22,
+    jointWidthMm: 38.1,
+    jointDepthMm: 101.6,
+    jointCornerRadiusMm: 6.35,
+    pocketWidthMm: 38.1,
+    pocketDepthMm: 101.6,
+    pocketCornerRadiusMm: 6.35,
+    style: 'gibson_style',
+  },
+  jaguar_scale: {
+    id: 'jaguar_scale',
+    name: 'Jaguar Scale (24" Scale, 22 Frets)',
+    scaleLengthMm: 610,
+    nutToBodyEdgeMm: 375.5,
+    nutToJointMm: 439.0,
+    frets: 22,
+    jointWidthMm: 55.56,
+    jointDepthMm: 76.2,
+    jointCornerRadiusMm: 6.35,
+    pocketWidthMm: 55.56,
+    pocketDepthMm: 76.2,
+    pocketCornerRadiusMm: 6.35,
+    style: 'fender_style',
+  },
+};
+
+/**
+ * How far past Y=0 (the neck-pocket joint line) each bundled body's 22nd
+ * fret sits - one entry per `activeTemplateId` in `BLUEPRINT_ORDER`
+ * (`constants/blueprintManifest.ts`). Each value is
+ * `fret22Distance(nativeNeck.scaleLengthMm) - nativeNeck.nutToBodyEdgeMm`
+ * for that body's own native `NECK_PRESETS` entry above - the same
+ * body-owned constant axe-shaper-ios's `BlueprintCosmetics
+ * .fingerboardOverhangMm` stores (docs/m17-hardware-and-body-refinements.md
+ * there). `utils/presets.ts`'s `neckPresetFieldsForTemplate` uses this to
+ * recompute `nutToBodyEdgeMm` for whichever of the 4 `CURATED_NECK_PRESETS`
+ * a project attaches, so the bridge lands where each body's own native neck
+ * was measured against regardless of which curated neck is picked.
+ *
+ * Deliberately literal, not derived from `constants/templates.ts` at
+ * runtime: `templates.ts` decodes blueprints via `utils/svgExporter.ts`,
+ * which already imports from `utils/presets.ts` - importing `templates.ts`
+ * back from `presets.ts` would be a real import cycle
+ * (presets -> templates -> svgExporter -> presets), not just a style
+ * preference. Recompute by hand (`fret22Distance(s) = s * (1 - 2 **
+ * (-22/12))`, `utils/scaleMath.ts`'s `getFretDistanceFromNutMm`) if a
+ * template's native `NECK_PRESETS` entry's `scaleLengthMm`/
+ * `nutToBodyEdgeMm` above ever changes.
+ */
+export const FINGERBOARD_OVERHANG_MM: Record<string, LengthMm> = {
+  single_cut: 73.0411, // gibson_lp_22
+  sg_style: 43.3811, // gibson_sg_22
+  s_style: 75.2453, // fender_strat_21
+  t_style: 75.2453, // fender_tele_22
+  gibson_firebird: 68.3811, // gibson_firebird_19
+  gretsch_thunderbird: 73.0011, // gretsch_thunderbird_22
+  gibson_flying_v: 74.0011, // gibson_flying_v_22
+  jag_style: 70.9045, // jaguar_22
 };
 
 export const BRIDGE_PRESETS: Record<string, BridgePreset> = {

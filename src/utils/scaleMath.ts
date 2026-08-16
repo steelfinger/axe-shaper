@@ -96,3 +96,17 @@ export function getMountingPointOriginYMm(neck: NeckPreset, bridge: BridgePreset
       return getSaddleYMm(neck, bridge);
   }
 }
+
+/**
+ * Distance from the nut to a given fret, along the fingerboard centreline -
+ * standard equal-temperament fret spacing. Used to derive a body's own
+ * `fingerboardOverhangMm` (see `neckPresetFieldsForTemplate` in
+ * `utils/presets.ts`) so any of the 4 curated, scale-length-only necks can
+ * attach to any bundled body and still land the bridge at the fret-based
+ * position that body's own native neck was measured against - the same
+ * fret22Distance(scale) formula the axe-shaper-ios sibling app uses
+ * (docs/m17-hardware-and-body-refinements.md there).
+ */
+export function getFretDistanceFromNutMm(fret: number, scaleLengthMm: LengthMm): LengthMm {
+  return scaleLengthMm * (1 - Math.pow(2, -fret / 12));
+}

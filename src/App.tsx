@@ -5,7 +5,7 @@ import { InspectorPanel } from './components/InspectorPanel';
 import { CanvasWorkspace } from './components/CanvasWorkspace';
 import { REFERENCE_TEMPLATES } from './constants/templates';
 import { PROJECT_SCHEMA_VERSION } from './constants/schema';
-import { bridgePresetFields, migrateProject, neckPresetFields } from './utils/presets';
+import { bridgePresetFields, migrateProject, neckPresetFieldsForNewTemplate } from './utils/presets';
 import type { GuitarProject, GuideImageState, CalibrationState, Vector2D, PickupType } from './types/guitar';
 import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
@@ -62,7 +62,7 @@ const INITIAL_PROJECT: GuitarProject = {
     anchors: REFERENCE_TEMPLATES.s_style.defaultAnchors,
     closed: true,
   },
-  ...neckPresetFields(REFERENCE_TEMPLATES.s_style.neckPresetId),
+  ...neckPresetFieldsForNewTemplate(REFERENCE_TEMPLATES.s_style.neckPresetId, 's_style'),
   ...bridgePresetFields(REFERENCE_TEMPLATES.s_style.bridgePresetId),
   pickups: REFERENCE_TEMPLATES.s_style.defaultPickups,
   pickguards: REFERENCE_TEMPLATES.s_style.defaultPickguards ?? [],
@@ -251,7 +251,10 @@ export function App(): React.JSX.Element {
       // Built-in blueprints and user templates both reference hardware by id,
       // and for those this build's table is the authority - so resolve fresh
       // rather than carrying over whatever the previous project had embedded.
-      ...neckPresetFields(template.neckPresetId),
+      // Remaps the template's own legacy neckPresetId to its curated
+      // equivalent (see neckPresetFieldsForNewTemplate) so the Neck picker
+      // lands on one of the 4 offered choices, not a foreign 5th row.
+      ...neckPresetFieldsForNewTemplate(template.neckPresetId, templateId),
       ...bridgePresetFields(template.bridgePresetId),
       contour: {
         anchors: JSON.parse(JSON.stringify(template.defaultAnchors)),

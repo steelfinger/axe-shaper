@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, ChevronDown, ChevronRight, Bookmark, Plus, Zap } from 'lucide-react';
-import { BRIDGE_PRESETS, NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
+import { BRIDGE_PRESETS, CURATED_NECK_PRESETS, NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import type {
   GuitarProject,
@@ -13,7 +13,7 @@ import type {
 } from '../types/guitar';
 import {
   bridgePresetFields,
-  neckPresetFields,
+  neckPresetFieldsForTemplate,
   resolveBridgePreset,
   resolveNeckPreset,
 } from '../utils/presets';
@@ -714,7 +714,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   value={neckPresetId}
                   onChange={(e) =>
                     onUpdateProject((prev) => {
-                      const neckFields = neckPresetFields(e.target.value);
+                      const neckFields = neckPresetFieldsForTemplate(e.target.value, prev.activeTemplateId);
                       // Auto-snap shoulder anchors to new joint width
                       const halfWidth = neckFields.neckPreset.jointWidthMm / 2;
                       const updatedAnchors = prev.contour.anchors.map((a) => {
@@ -735,11 +735,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }
                   className="form-select"
                 >
-                  {Object.values(NECK_PRESETS).map((n) => (
+                  {Object.values(CURATED_NECK_PRESETS).map((n) => (
                     <option key={n.id} value={n.id}>
                       {n.name}
                     </option>
                   ))}
+                  {/* A file can still carry one of the 9 original per-body ids
+                      (every bundled blueprint does) - show its real name as an
+                      extra, already-selected row instead of a foreign/unknown
+                      value, exactly like axe-shaper-ios's own picker. Picking
+                      one of the 4 curated rows above replaces it. */}
+                  {NECK_PRESETS[neckPresetId] && (
+                    <option key={neckPresetId} value={neckPresetId}>
+                      {NECK_PRESETS[neckPresetId].name}
+                    </option>
+                  )}
                 </select>
               </div>
 

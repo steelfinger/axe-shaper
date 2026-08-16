@@ -1,4 +1,10 @@
-import { BRIDGE_PRESETS, NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
+import {
+  BRIDGE_PRESETS,
+  CURATED_NECK_PRESETS,
+  FINGERBOARD_OVERHANG_MM,
+  NECK_PRESETS,
+  PICKUP_SPECIFICATIONS,
+} from '../constants/hardware';
 import { PROJECT_SCHEMA_VERSION } from '../constants/schema';
 import type {
   BridgePreset,
@@ -7,6 +13,7 @@ import type {
   PickupPlacement,
   PickupRoutSpec,
 } from '../types/guitar';
+import { getFretDistanceFromNutMm } from './scaleMath';
 
 /**
  * Hardware resolution for a project.
@@ -38,7 +45,12 @@ type BridgeRef = Pick<GuitarProject, 'bridgePresetId' | 'bridgePreset'>;
 
 /** Effective neck geometry: the project's embedded copy, else the built-in table, else the default. */
 export function resolveNeckPreset(ref: NeckRef): NeckPreset {
-  return ref.neckPreset ?? NECK_PRESETS[ref.neckPresetId] ?? NECK_PRESETS[DEFAULT_NECK_PRESET_ID];
+  return (
+    ref.neckPreset ??
+    NECK_PRESETS[ref.neckPresetId] ??
+    CURATED_NECK_PRESETS[ref.neckPresetId] ??
+    NECK_PRESETS[DEFAULT_NECK_PRESET_ID]
+  );
 }
 
 /** Effective bridge geometry: the project's embedded copy, else the built-in table, else the default. */
@@ -54,8 +66,66 @@ export function resolveBridgePreset(ref: BridgeRef): BridgePreset {
  * the embedded copy first, so the two have to move together.
  */
 export function neckPresetFields(id: string): Required<NeckRef> {
-  const preset = NECK_PRESETS[id] ?? NECK_PRESETS[DEFAULT_NECK_PRESET_ID];
+  const preset = NECK_PRESETS[id] ?? CURATED_NECK_PRESETS[id] ?? NECK_PRESETS[DEFAULT_NECK_PRESET_ID];
   return { neckPresetId: id, neckPreset: structuredClone(preset) };
+}
+
+/**
+ * As `neckPresetFields`, except when `activeTemplateId` names one of the 8
+ * bundled bodies (has an entry in `FINGERBOARD_OVERHANG_MM`):
+ * `nutToBodyEdgeMm` is recomputed for *that* body rather than taking the
+ * chosen preset's own stored value verbatim. Without this, attaching a
+ * curated neck (or any neck not that body's own native one) to, say, the SG
+ * would put the bridge wherever that neck's *donor* body's joint sits -
+ * exactly the "two facts competing" class of bug the SG/Firebird/Flying V
+ * comments in `constants/hardware.ts` document being fixed once already,
+ * reintroduced the moment necks stopped being 1:1 with bodies. A
+ * custom/unrecognized `activeTemplateId` (no table entry) leaves the chosen
+ * preset's own `nutToBodyEdgeMm` untouched - the same "leave it exactly as
+ * decoded" fallback as axe-shaper-ios's own equivalent. `nutToJointMm` is
+ * left as the chosen preset's own value either way - it's sidebar display
+ * only (see `scaleMath.ts`'s warning against using it for saddle Y), not
+ * part of this correction.
+ */
+export function neckPresetFieldsForTemplate(id: string, activeTemplateId: string): Required<NeckRef> {
+  const base = NECK_PRESETS[id] ?? CURATED_NECK_PRESETS[id] ?? NECK_PRESETS[DEFAULT_NECK_PRESET_ID];
+  const overhang = FINGERBOARD_OVERHANG_MM[activeTemplateId];
+  if (overhang === undefined) {
+    return { neckPresetId: id, neckPreset: structuredClone(base) };
+  }
+  const nutToBodyEdgeMm = getFretDistanceFromNutMm(22, base.scaleLengthMm) - overhang;
+  return { neckPresetId: id, neckPreset: { ...structuredClone(base), nutToBodyEdgeMm } };
+}
+
+/**
+ * The curated neck sharing a scale length with an arbitrary preset id -
+ * every one of the 9 legacy `NECK_PRESETS` shares its exact `scaleLengthMm`
+ * with exactly one of the 4 `CURATED_NECK_PRESETS` by construction (that
+ * table is "one per real scale length in use"), so this reliably turns a
+ * legacy id into its curated equivalent. Falls back to the original id when
+ * nothing matches (a genuinely custom scale length) - the caller then keeps
+ * showing that id as-is, same as an already-open file naming a legacy id.
+ */
+function curatedNeckIdMatchingScaleLength(id: string): string {
+  const preset = NECK_PRESETS[id] ?? CURATED_NECK_PRESETS[id];
+  if (!preset) return id;
+  const match = Object.values(CURATED_NECK_PRESETS).find((n) => n.scaleLengthMm === preset.scaleLengthMm);
+  return match?.id ?? id;
+}
+
+/**
+ * The id/copy pair for starting a *new* project on `activeTemplateId` -
+ * creating a document, or Switch Template/reset-to-baseline. `nativeNeckId`
+ * is the template's own `neckPresetId`, one of the 9 legacy ids every
+ * bundled blueprint embeds; this remaps it to its curated equivalent first
+ * (so the Neck picker lands on one of the 4 offered choices, not a foreign
+ * 5th row) and then applies the same per-body correction as
+ * `neckPresetFieldsForTemplate` - which is a no-op here by construction,
+ * since a bundled template's own native pairing already reproduces its
+ * exact stored `nutToBodyEdgeMm`.
+ */
+export function neckPresetFieldsForNewTemplate(nativeNeckId: string, activeTemplateId: string): Required<NeckRef> {
+  return neckPresetFieldsForTemplate(curatedNeckIdMatchingScaleLength(nativeNeckId), activeTemplateId);
 }
 
 /** As neckPresetFields, for the bridge. */
