@@ -16,8 +16,9 @@
  *     that resolve, finite coordinates, positive pickup dimensions;
  *   - loading is a no-op: migrateProject() deep-equals the payload, so a
  *     current, fully-embedded file round-trips untouched;
- *   - the drawn body path equals anchorsToSVGPath() of the decoded payload —
- *     drawn geometry is the one thing plan §3 pins across implementations;
+ *   - the drawn body path equals anchorsToSVGPath() of the decoded payload;
+ *   - the Beveled/German-Carve inset path is byte-equal to the iOS writer's
+ *     path, pinning the flattening, intensity spline, and polygon offset;
  *   - saving is lossless: running this app's own writer over the decoded
  *     payload and re-reading it returns the same object, including keys this
  *     app has no model for (guideImage, which the iOS app persists and this
@@ -82,6 +83,10 @@ function drawnBodyPath(svg: string): string {
   return match![1];
 }
 
+function drawnBevelInsetPath(svg: string): string | null {
+  return svg.match(/<path class="edge-inset" d="([^"]*)"\s*\/>/)?.[1] ?? null;
+}
+
 function finite(n: unknown): n is number {
   return typeof n === 'number' && Number.isFinite(n);
 }
@@ -106,6 +111,7 @@ async function main() {
     // extractProjectFromSVG in the same module needs a DOMParser, and this
     // script does its own scanning rather than calling it.
     const exporter = await load('/src/utils/svgExporter.ts');
+    const bevelGeometry = await load('/src/utils/bevelIntensity.ts');
 
     invariant(existsSync(FIXTURE_DIR), `fixture directory missing: ${FIXTURE_DIR} — run the iOS repo's Scripts/sync-fixtures-to-web.sh`);
 
@@ -188,6 +194,15 @@ async function main() {
       check('drawn body path matches the decoded payload', () => {
         const expectedPath = bezier.anchorsToSVGPath(project.contour.anchors, project.contour.closed ?? true);
         deepStrictEqual(drawnBodyPath(svg), expectedPath);
+      });
+
+      check('bevel inset calculation and web export match the iOS drawing', () => {
+        const points = bevelGeometry.bevelInsetLoop(project);
+        const expectedPath = points ? bevelGeometry.closedPolylineToSVGPath(points) : null;
+        deepStrictEqual(drawnBevelInsetPath(svg), expectedPath);
+        const webSVG = exporter.exportProjectToSVG(project);
+        const webPath = webSVG.match(/<path d="([^"]*)" class="edge-inset"\s*\/>/)?.[1] ?? null;
+        deepStrictEqual(webPath, expectedPath);
       });
 
       // Loading is not where an iOS-only field gets lost — *saving* is. This

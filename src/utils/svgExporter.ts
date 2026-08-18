@@ -1,5 +1,6 @@
 import type { GuitarProject, LengthMm } from '../types/guitar';
 import { anchorsToSVGPath } from './bezier';
+import { bevelInsetLoop, closedPolylineToSVGPath } from './bevelIntensity';
 import {
   resolveBridgePreset,
   resolveNeckPreset,
@@ -161,6 +162,8 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
   const bridge = resolveBridgePreset(project);
 
   const bodyPath = anchorsToSVGPath(contour.anchors, contour.closed);
+  const bevelInset = bevelInsetLoop(project);
+  const bevelInsetPath = bevelInset ? closedPolylineToSVGPath(bevelInset) : '';
 
   // Scale-length geometry - identical to what the canvas draws
   const theoreticalSaddleY = getTheoreticalSaddleYMm(neck);
@@ -224,6 +227,7 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
 
   <style>
     .body-line { fill: none; stroke: #111111; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .edge-inset { fill: none; stroke: #555555; stroke-width: 0.3; stroke-dasharray: 3,2; }
     .neck-pocket { fill: none; stroke: #dc3545; stroke-width: 1.2; stroke-dasharray: 4,4; }
     .pickup-rout { fill: none; stroke: #28a745; stroke-width: 1.0; }
     .bridge-rout { fill: none; stroke: #007bff; stroke-width: 1.2; }
@@ -260,6 +264,7 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
 
     <!-- Outer Custom Body Profile -->
     <path d="${bodyPath}" class="body-line" />
+    ${bevelInsetPath ? `<path d="${bevelInsetPath}" class="edge-inset" />` : ''}
 
     <!-- Pickguard (translucent, above the body, under the hardware) -->
     ${(pickguards ?? [])

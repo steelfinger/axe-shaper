@@ -34,6 +34,8 @@ export interface PathAnchor {
    * geometric proximity, rather than requiring a migration.
    */
   mirrorId?: string;
+  /** Per-node Beveled/German-Carve scale. Absent means the unchanged 1.0 default. */
+  bevelIntensity?: number;
 }
 
 export interface BodyContour {
@@ -230,6 +232,18 @@ export interface ReferenceTemplate {
   defaultBackRoutes?: RoutedCavity[];
 }
 
+export interface EdgeProfile {
+  kind: string;
+  widthMm?: LengthMm;
+  angleDegrees?: number;
+  appliesTo?: string;
+  insetMm?: LengthMm;
+  dropMm?: LengthMm;
+  channelRadiusMm?: LengthMm;
+  previewFallback?: string;
+  [key: string]: unknown;
+}
+
 export interface GuitarProject {
   schemaVersion: number;
   appVersion: string;
@@ -241,6 +255,8 @@ export interface GuitarProject {
   settings: ProjectSettings;
   activeTemplateId: string;
   contour: BodyContour;
+  /** Optional for pre-edge-profile files; absent resolves to Slab. */
+  edgeProfile?: EdgeProfile;
   neckPresetId: string;
   bridgePresetId: string;
   /**

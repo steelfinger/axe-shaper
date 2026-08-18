@@ -12,6 +12,7 @@ import {
   updateAnchorHandle,
 } from '../utils/bezier';
 import { applyLiveSymmetry, withMirroredInsertion } from '../utils/symmetry';
+import { bevelInsetLoop, closedPolylineToSVGPath } from '../utils/bevelIntensity';
 import { type ActiveLayer, getActiveContour, withActiveContour } from '../utils/layerShapes';
 import {
   movingPickup,
@@ -241,6 +242,10 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   const ghostSVGPath = anchorsToSVGPath(activeTemplate.defaultAnchors, true);
   // Live body path data
   const bodySVGPath = anchorsToSVGPath(contour.anchors, contour.closed);
+  // The physical boundary between the flat top and a Beveled/German-Carve edge.
+  // This is the same flattened spline + Tiller-Hanson offset used by iOS.
+  const bevelInset = bevelInsetLoop(project);
+  const bevelInsetPath = bevelInset ? closedPolylineToSVGPath(bevelInset) : '';
   // The currently-editable contour's path - same as bodySVGPath when the body is active
   const activeSVGPath = isBodyActive ? bodySVGPath : anchorsToSVGPath(activeContour.anchors, activeContour.closed);
 
@@ -746,6 +751,17 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               shadowOpacity={isBodyActive ? 0.5 : 0}
               name={BODY_OUTLINE_NAME}
             />
+            {bevelInsetPath && (
+              <Path
+                data={bevelInsetPath}
+                fillEnabled={false}
+                stroke="#f59e0b"
+                strokeWidth={1.25 / zoom}
+                dash={[4 / zoom, 3 / zoom]}
+                opacity={isBodyActive ? 0.9 : 0.2}
+                listening={false}
+              />
+            )}
             {/* Pickguard - translucent, above the body, under the hardware/pickups */}
             {settings.showPickguard !== false &&
               pickguards
