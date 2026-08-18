@@ -67,6 +67,7 @@ const INITIAL_PROJECT: GuitarProject = {
     anchors: REFERENCE_TEMPLATES.s_style.defaultAnchors,
     closed: true,
   },
+  edgeProfile: REFERENCE_TEMPLATES.s_style.edgeProfile,
   ...neckPresetFieldsForNewTemplate(REFERENCE_TEMPLATES.s_style.neckPresetId, 's_style'),
   neckJointMechanism: defaultNeckJointMechanism('s_style'),
   ...bridgePresetFields(REFERENCE_TEMPLATES.s_style.bridgePresetId),
@@ -271,6 +272,12 @@ export function App(): React.JSX.Element {
         anchors: JSON.parse(JSON.stringify(template.defaultAnchors)),
         closed: true,
       },
+      // A blueprint's edge treatment belongs to its outline. This also
+      // restores every bevelIntensity embedded in defaultAnchors; selecting
+      // a blueprint with no profile explicitly returns the body to Slab.
+      edgeProfile: template.edgeProfile
+        ? JSON.parse(JSON.stringify(template.edgeProfile))
+        : undefined,
       pickups: JSON.parse(JSON.stringify(template.defaultPickups)),
       pickguards: JSON.parse(JSON.stringify(template.defaultPickguards ?? [])),
       frontRoutes: JSON.parse(JSON.stringify(template.defaultFrontRoutes ?? [])),

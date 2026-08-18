@@ -226,6 +226,8 @@ export interface ReferenceTemplate {
   neckPresetId: string;
   bridgePresetId: string;
   defaultAnchors: PathAnchor[];
+  /** Edge profile restored with the blueprint; absent means Slab. */
+  edgeProfile?: EdgeProfile;
   defaultPickups: PickupPlacement[];
   defaultPickguards?: PickguardPlacement[];
   defaultFrontRoutes?: RoutedCavity[];

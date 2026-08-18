@@ -46,6 +46,10 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
       neckPresetId: project.neckPresetId,
       bridgePresetId: project.bridgePresetId,
       defaultAnchors: project.contour.anchors,
+      // Keep the profile with the outline: per-anchor bevelIntensity values
+      // only have meaning against the blueprint's own Beveled/German-Carve
+      // dimensions. An absent profile deliberately means Slab.
+      edgeProfile: project.edgeProfile,
       defaultPickups: project.pickups,
       // `?? []` - no bundled blueprint carries these yet, and
       // extractProjectFromSVG does a raw JSON.parse with no field defaulting.

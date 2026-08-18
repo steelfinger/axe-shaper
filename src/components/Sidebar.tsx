@@ -98,6 +98,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       neckPresetId: project.neckPresetId,
       bridgePresetId: project.bridgePresetId,
       defaultAnchors: JSON.parse(JSON.stringify(project.contour.anchors)),
+      edgeProfile: project.edgeProfile
+        ? JSON.parse(JSON.stringify(project.edgeProfile))
+        : undefined,
       defaultPickups: JSON.parse(JSON.stringify(project.pickups)),
       defaultPickguards: JSON.parse(JSON.stringify(project.pickguards ?? [])),
       defaultFrontRoutes: JSON.parse(JSON.stringify(project.frontRoutes ?? [])),
