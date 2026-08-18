@@ -28,6 +28,9 @@ import {
 } from './utils/layerShapes';
 import { addingPickup, removingPickup } from './utils/pickupEditing';
 import { SaveInfoModal } from './components/SaveInfoModal';
+import { WelcomeModal } from './components/WelcomeModal';
+import { AboutModal } from './components/AboutModal';
+import { MarketingSite } from './components/MarketingSite';
 
 /** Matches the floor InspectorPanel's delete button enforces - a contour needs at least this many nodes to stay a sane shape. */
 export const MIN_ANCHOR_COUNT = 4;
@@ -107,8 +110,17 @@ const cloneDoc = (doc: EditorDoc): EditorDoc => ({
 });
 
 const UNDO_STEPS = 50;
+const WELCOME_STORAGE_KEY = 'axe-shaper:welcome-seen-v1';
 
-export function App(): React.JSX.Element {
+const shouldShowWelcome = (): boolean => {
+  try {
+    return window.localStorage.getItem(WELCOME_STORAGE_KEY) !== 'true';
+  } catch {
+    return true;
+  }
+};
+
+function EditorApp(): React.JSX.Element {
   const [project, setProject] = useState<GuitarProject>(INITIAL_PROJECT);
   const [selectedAnchorIds, setSelectedAnchorIds] = useState<Set<string>>(() => new Set());
   // The single selected anchor's id, when exactly one is selected - most
@@ -124,6 +136,8 @@ export function App(): React.JSX.Element {
   // behaves exactly as it did before this concept existed.
   const [activeLayer, setActiveLayer] = useState<ActiveLayer>({ kind: 'body' });
   const [isSaveInfoModalOpen, setIsSaveInfoModalOpen] = useState(false);
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(shouldShowWelcome);
+  const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   // In-memory only - reappears on reload, deliberately not persisted to localStorage.
   const hasSeenSaveInfoRef = useRef(false);
   const [guideImage, setGuideImage] = useState<GuideImageState>(INITIAL_GUIDE_IMAGE);
@@ -491,6 +505,37 @@ export function App(): React.JSX.Element {
     downloadProjectSVG();
   };
 
+  const handleShareProject = async () => {
+    const svgString = exportProjectToSVG(project);
+    const filename = buildProjectFilename(project.settings.name);
+    const file = new File([svgString], filename, { type: 'image/svg+xml' });
+
+    if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
+      try {
+        await navigator.share({
+          title: project.settings.name,
+          text: 'An electric guitar body design made with Axe Shaper.',
+          files: [file],
+        });
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+      }
+    }
+
+    downloadSVGFile(filename, svgString);
+    alert('This browser cannot share project files directly, so the .axe.svg was downloaded instead.');
+  };
+
+  const closeWelcome = () => {
+    try {
+      window.localStorage.setItem(WELCOME_STORAGE_KEY, 'true');
+    } catch {
+      // The guide can still close when storage is blocked.
+    }
+    setIsWelcomeModalOpen(false);
+  };
+
   const handleContinueFromSaveInfo = () => {
     hasSeenSaveInfoRef.current = true;
     setIsSaveInfoModalOpen(false);
@@ -519,6 +564,10 @@ export function App(): React.JSX.Element {
     reader.readAsText(file);
     e.target.value = '';
   };
+
+  useEffect(() => {
+    document.title = `${project.settings.name} — Axe Shaper Editor`;
+  }, [project.settings.name]);
 
   // Keyboard Shortcuts
   useEffect(() => {
@@ -559,6 +608,9 @@ export function App(): React.JSX.Element {
         onRedo={handleRedo}
         onResetTemplate={handleResetTemplate}
         onSave={handleSaveProject}
+        onShare={handleShareProject}
+        onShowWelcome={() => setIsWelcomeModalOpen(true)}
+        onShowAbout={() => setIsAboutModalOpen(true)}
         onOpenFile={handleOpenFile}
       />
 
@@ -622,6 +674,9 @@ export function App(): React.JSX.Element {
         activeLayer={activeLayer}
       />
 
+      <WelcomeModal isOpen={isWelcomeModalOpen} onClose={closeWelcome} />
+      <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} />
+
       <SaveInfoModal
         isOpen={isSaveInfoModalOpen}
         onClose={() => {
@@ -634,6 +689,12 @@ export function App(): React.JSX.Element {
       />
     </div>
   );
+}
+
+export function App(): React.JSX.Element {
+  const path = window.location.pathname.replace(/\/+$/, '') || '/';
+  if (path === '/app') return <EditorApp />;
+  return <MarketingSite path={path} />;
 }
 
 export default App;

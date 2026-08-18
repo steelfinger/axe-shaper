@@ -1,44 +1,297 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-09T00:00:00.000Z",
+  "generatedAt": "2026-08-18T09:00:00.000Z",
   "title": "Design System: Axe Shaper",
   "extensions": {
     "colorMeta": {
-      "bg-primary": { "role": "neutral", "displayName": "Void", "canonical": "#0f1117", "tonalRamp": ["#0b0c10", "#0f1117", "#161922", "#1e2230", "#282d3f", "#64748b", "#94a3b8", "#f0f4f8"] },
-      "bg-secondary": { "role": "neutral", "displayName": "Slate", "canonical": "#161922", "tonalRamp": ["#0b0c10", "#0f1117", "#161922", "#1e2230", "#282d3f", "#64748b", "#94a3b8", "#f0f4f8"] },
-      "bg-tertiary": { "role": "neutral", "displayName": "Slate Raised", "canonical": "#1e2230", "tonalRamp": ["#0b0c10", "#0f1117", "#161922", "#1e2230", "#282d3f", "#64748b", "#94a3b8", "#f0f4f8"] },
-      "bg-hover": { "role": "neutral", "displayName": "Slate Hover", "canonical": "#282d3f", "tonalRamp": ["#0b0c10", "#0f1117", "#161922", "#1e2230", "#282d3f", "#64748b", "#94a3b8", "#f0f4f8"] },
-      "panel-bg": { "role": "neutral", "displayName": "Panel Glass", "canonical": "rgba(22, 25, 34, 0.85)" },
-      "panel-border": { "role": "neutral", "displayName": "Hairline Border", "canonical": "rgba(255, 255, 255, 0.08)" },
-      "text-primary": { "role": "neutral", "displayName": "Fog", "canonical": "#f0f4f8", "tonalRamp": ["#0b0c10", "#0f1117", "#161922", "#1e2230", "#282d3f", "#64748b", "#94a3b8", "#f0f4f8"] },
-      "text-secondary": { "role": "neutral", "displayName": "Ash", "canonical": "#94a3b8", "tonalRamp": ["#0b0c10", "#0f1117", "#161922", "#1e2230", "#282d3f", "#64748b", "#94a3b8", "#f0f4f8"] },
-      "text-muted": { "role": "neutral", "displayName": "Slate Text", "canonical": "#64748b", "tonalRamp": ["#0b0c10", "#0f1117", "#161922", "#1e2230", "#282d3f", "#64748b", "#94a3b8", "#f0f4f8"] },
-      "accent-gold": { "role": "primary", "displayName": "Antique Gold", "canonical": "#d1a53d", "tonalRamp": ["#4a3710", "#6b4f13", "#8a6718", "#b3861f", "#d1a53d", "#dbb35c", "#e5c481", "#efd7a8"] },
-      "accent-blue": { "role": "secondary", "displayName": "Sky Blue", "canonical": "#38bdf8", "tonalRamp": ["#0c4a6e", "#075985", "#0369a1", "#0284c7", "#0ea5e9", "#38bdf8", "#7dd3fc", "#bae6fd"] },
-      "accent-green": { "role": "secondary", "displayName": "Emerald Green", "canonical": "#10b981", "tonalRamp": ["#064e3b", "#065f46", "#047857", "#059669", "#10b981", "#34d399", "#6ee7b7", "#a7f3d0"] },
-      "accent-red": { "role": "secondary", "displayName": "Signal Red", "canonical": "#ef4444", "tonalRamp": ["#7f1d1d", "#991b1b", "#b91c1c", "#dc2626", "#ef4444", "#f87171", "#fca5a5", "#fecaca"] },
-      "accent-purple": { "role": "tertiary", "displayName": "Violet Purple", "canonical": "#a855f7", "tonalRamp": ["#581c87", "#6b21a8", "#7e22ce", "#9333ea", "#a855f7", "#c084fc", "#d8b4fe", "#e9d5ff"] }
+      "bg-primary": {
+        "role": "neutral",
+        "displayName": "Void",
+        "canonical": "#0f1117",
+        "tonalRamp": [
+          "#0b0c10",
+          "#0f1117",
+          "#161922",
+          "#1e2230",
+          "#282d3f",
+          "#64748b",
+          "#94a3b8",
+          "#f0f4f8"
+        ]
+      },
+      "bg-secondary": {
+        "role": "neutral",
+        "displayName": "Slate",
+        "canonical": "#161922",
+        "tonalRamp": [
+          "#0b0c10",
+          "#0f1117",
+          "#161922",
+          "#1e2230",
+          "#282d3f",
+          "#64748b",
+          "#94a3b8",
+          "#f0f4f8"
+        ]
+      },
+      "bg-tertiary": {
+        "role": "neutral",
+        "displayName": "Slate Raised",
+        "canonical": "#1e2230",
+        "tonalRamp": [
+          "#0b0c10",
+          "#0f1117",
+          "#161922",
+          "#1e2230",
+          "#282d3f",
+          "#64748b",
+          "#94a3b8",
+          "#f0f4f8"
+        ]
+      },
+      "bg-hover": {
+        "role": "neutral",
+        "displayName": "Slate Hover",
+        "canonical": "#282d3f",
+        "tonalRamp": [
+          "#0b0c10",
+          "#0f1117",
+          "#161922",
+          "#1e2230",
+          "#282d3f",
+          "#64748b",
+          "#94a3b8",
+          "#f0f4f8"
+        ]
+      },
+      "panel-bg": {
+        "role": "neutral",
+        "displayName": "Panel Glass",
+        "canonical": "rgba(22, 25, 34, 0.85)"
+      },
+      "panel-border": {
+        "role": "neutral",
+        "displayName": "Hairline Border",
+        "canonical": "rgba(255, 255, 255, 0.08)"
+      },
+      "text-primary": {
+        "role": "neutral",
+        "displayName": "Fog",
+        "canonical": "#f0f4f8",
+        "tonalRamp": [
+          "#0b0c10",
+          "#0f1117",
+          "#161922",
+          "#1e2230",
+          "#282d3f",
+          "#64748b",
+          "#94a3b8",
+          "#f0f4f8"
+        ]
+      },
+      "text-secondary": {
+        "role": "neutral",
+        "displayName": "Ash",
+        "canonical": "#94a3b8",
+        "tonalRamp": [
+          "#0b0c10",
+          "#0f1117",
+          "#161922",
+          "#1e2230",
+          "#282d3f",
+          "#64748b",
+          "#94a3b8",
+          "#f0f4f8"
+        ]
+      },
+      "text-muted": {
+        "role": "neutral",
+        "displayName": "Slate Text",
+        "canonical": "#64748b",
+        "tonalRamp": [
+          "#0b0c10",
+          "#0f1117",
+          "#161922",
+          "#1e2230",
+          "#282d3f",
+          "#64748b",
+          "#94a3b8",
+          "#f0f4f8"
+        ]
+      },
+      "accent-gold": {
+        "role": "primary",
+        "displayName": "Antique Gold",
+        "canonical": "#d1a53d",
+        "tonalRamp": [
+          "#4a3710",
+          "#6b4f13",
+          "#8a6718",
+          "#b3861f",
+          "#d1a53d",
+          "#dbb35c",
+          "#e5c481",
+          "#efd7a8"
+        ]
+      },
+      "accent-blue": {
+        "role": "secondary",
+        "displayName": "Sky Blue",
+        "canonical": "#38bdf8",
+        "tonalRamp": [
+          "#0c4a6e",
+          "#075985",
+          "#0369a1",
+          "#0284c7",
+          "#0ea5e9",
+          "#38bdf8",
+          "#7dd3fc",
+          "#bae6fd"
+        ]
+      },
+      "accent-green": {
+        "role": "secondary",
+        "displayName": "Emerald Green",
+        "canonical": "#10b981",
+        "tonalRamp": [
+          "#064e3b",
+          "#065f46",
+          "#047857",
+          "#059669",
+          "#10b981",
+          "#34d399",
+          "#6ee7b7",
+          "#a7f3d0"
+        ]
+      },
+      "accent-red": {
+        "role": "secondary",
+        "displayName": "Signal Red",
+        "canonical": "#ef4444",
+        "tonalRamp": [
+          "#7f1d1d",
+          "#991b1b",
+          "#b91c1c",
+          "#dc2626",
+          "#ef4444",
+          "#f87171",
+          "#fca5a5",
+          "#fecaca"
+        ]
+      },
+      "accent-purple": {
+        "role": "tertiary",
+        "displayName": "Violet Purple",
+        "canonical": "#a855f7",
+        "tonalRamp": [
+          "#581c87",
+          "#6b21a8",
+          "#7e22ce",
+          "#9333ea",
+          "#a855f7",
+          "#c084fc",
+          "#d8b4fe",
+          "#e9d5ff"
+        ]
+      },
+      "paper-plan": {
+        "role": "neutral",
+        "displayName": "Plan Paper",
+        "canonical": "#f5f3eb",
+        "tonalRamp": [
+          "#312f29",
+          "#514e45",
+          "#77736a",
+          "#a19d93",
+          "#c9c5bc",
+          "#dedbd3",
+          "#f5f3eb",
+          "#ffffff"
+        ]
+      },
+      "paper-screen": {
+        "role": "neutral",
+        "displayName": "Screen Paper",
+        "canonical": "#eeece4",
+        "tonalRamp": [
+          "#302f2a",
+          "#4f4d46",
+          "#747169",
+          "#9d9991",
+          "#c3bfb7",
+          "#d9d6cf",
+          "#eeece4",
+          "#ffffff"
+        ]
+      }
     },
     "typographyMeta": {
-      "title": { "displayName": "Title", "purpose": "The Axe Shaper brand wordmark only." },
-      "body": { "displayName": "Body", "purpose": "Panel copy, template names, modal text, form labels." },
-      "label": { "displayName": "Section Label", "purpose": "Uppercase panel section headings and form labels." },
-      "mono": { "displayName": "Numeric / Mono", "purpose": "Any physical or numeric readout: zoom %, scale bar, coordinates." }
+      "title": {
+        "displayName": "Title",
+        "purpose": "The Axe Shaper brand wordmark only."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Panel copy, template names, modal text, form labels."
+      },
+      "label": {
+        "displayName": "Section Label",
+        "purpose": "Uppercase panel section headings and form labels."
+      },
+      "mono": {
+        "displayName": "Numeric / Mono",
+        "purpose": "Any physical or numeric readout: zoom %, scale bar, coordinates."
+      },
+      "marketing-display": {
+        "displayName": "Marketing Display",
+        "purpose": "Public-page thesis statements only; technical sans at physical scale."
+      }
     },
     "shadows": [
-      { "name": "shadow-lg", "value": "0 10px 25px -5px rgba(0,0,0,0.5), 0 8px 10px -6px rgba(0,0,0,0.5)", "purpose": "The only shadow token; used exclusively on floating/undocked surfaces (canvas toolbar, calibration card) per the Floating Glass Rule." },
-      { "name": "modal-shadow", "value": "0 20px 40px rgba(0,0,0,0.5)", "purpose": "Heavier one-off shadow for modals, the topmost floating layer." }
+      {
+        "name": "shadow-lg",
+        "value": "0 10px 25px -5px rgba(0,0,0,0.5), 0 8px 10px -6px rgba(0,0,0,0.5)",
+        "purpose": "The only shadow token; used exclusively on floating/undocked surfaces (canvas toolbar, calibration card) per the Floating Glass Rule."
+      },
+      {
+        "name": "modal-shadow",
+        "value": "0 20px 40px rgba(0,0,0,0.5)",
+        "purpose": "Heavier one-off shadow for modals, the topmost floating layer."
+      }
     ],
     "motion": [
-      { "name": "ease-standard", "value": "all 0.15s ease", "purpose": "Default transition for buttons, tabs, template cards, focus states." }
+      {
+        "name": "ease-standard",
+        "value": "all 0.15s ease",
+        "purpose": "Default transition for buttons, tabs, template cards, focus states."
+      },
+      {
+        "name": "settle-plan",
+        "value": "900ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The one authored public-site motion: the real plan settles onto the bench."
+      }
     ],
     "breakpoints": [
-      { "name": "none", "value": "n/a", "purpose": "The three-column app grid (320px / 1fr / 300px) does not currently respond to viewport width; this is a fixed desktop tool layout, not a responsive site." }
+      {
+        "name": "editor-fixed",
+        "value": "n/a",
+        "purpose": "The editor remains a fixed 320px / 1fr / 300px desktop tool."
+      },
+      {
+        "name": "marketing-stack",
+        "value": "980px",
+        "purpose": "Public two-column compositions stack."
+      },
+      {
+        "name": "marketing-mobile",
+        "value": "700px",
+        "purpose": "Public flows and actions become single-column."
+      }
     ]
   },
   "components": [
     {
-      "name": "Button — Default",
+      "name": "Button \u2014 Default",
       "kind": "button",
       "refersTo": "button-ghost",
       "description": "The neutral base every other button variant builds on; used for toolbar actions like Undo/Redo/Open/Reset.",
@@ -46,7 +299,7 @@
       "css": ".ds-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; font-size: 0.85rem; font-weight: 500; border-radius: 6px; border: 1px solid var(--panel-border); background: var(--bg-tertiary); color: var(--text-primary); cursor: pointer; transition: all 0.15s ease; } .ds-btn:hover { background: var(--bg-hover); border-color: rgba(255,255,255,0.2); } .ds-btn:disabled { opacity: 0.4; cursor: not-allowed; }"
     },
     {
-      "name": "Button — Primary",
+      "name": "Button \u2014 Primary",
       "kind": "button",
       "refersTo": "button-primary",
       "description": "The active state of a segmented toggle (MM/IN, Vertical/Horizontal), not a standalone CTA.",
@@ -54,15 +307,15 @@
       "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; font-size: 0.85rem; font-weight: 600; border-radius: 6px; border: 1px solid #3b82f6; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; cursor: pointer; transition: all 0.15s ease; } .ds-btn-primary:hover { background: linear-gradient(135deg, #1d4ed8, #1e40af); }"
     },
     {
-      "name": "Button — Accent (Save)",
+      "name": "Button \u2014 Accent (Save)",
       "kind": "button",
       "refersTo": "button-accent",
-      "description": "Reserved for the header's Save action — the only green button in the app.",
+      "description": "Reserved for the header's Save action \u2014 the only green button in the app.",
       "html": "<button class=\"ds-btn ds-btn-accent\">Save</button>",
       "css": ".ds-btn-accent { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; font-size: 0.85rem; font-weight: 600; border-radius: 6px; border: 1px solid var(--accent-green); background: linear-gradient(135deg, #059669, #047857); color: #fff; cursor: pointer; transition: all 0.15s ease; } .ds-btn-accent:hover { background: linear-gradient(135deg, #047857, #065f46); }"
     },
     {
-      "name": "Card — Panel Section",
+      "name": "Card \u2014 Panel Section",
       "kind": "card",
       "refersTo": "panel-section",
       "description": "Standard docked-panel card: flat, bordered, no shadow.",
@@ -70,7 +323,7 @@
       "css": ".ds-card { background: var(--bg-tertiary); border: 1px solid var(--panel-border); border-radius: 10px; padding: 14px; } .ds-card-title { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 12px; } .ds-card-body { font-size: 0.85rem; color: var(--text-primary); }"
     },
     {
-      "name": "Card — Template (selectable)",
+      "name": "Card \u2014 Template (selectable)",
       "kind": "card",
       "refersTo": "panel-section",
       "description": "A selectable list card; gold border + tint marks the active template, the same gold language as the active sidebar tab.",
@@ -78,7 +331,7 @@
       "css": ".ds-template-card { padding: 12px; border-radius: 6px; background: var(--bg-primary); border: 1px solid var(--panel-border); margin-bottom: 10px; cursor: pointer; transition: all 0.15s ease; } .ds-template-card--active { background: rgba(209, 165, 61, 0.12); border-color: var(--accent-gold); } .ds-template-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; } .ds-template-name { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); } .ds-template-tag { font-size: 0.7rem; color: var(--text-muted); background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; } .ds-template-desc { font-size: 0.78rem; color: var(--text-secondary); margin: 0; }"
     },
     {
-      "name": "Input — Text Field",
+      "name": "Input \u2014 Text Field",
       "kind": "input",
       "refersTo": "form-input",
       "description": "Reads as an inset well (one tone darker than its panel) with a blue focus border.",
@@ -86,7 +339,7 @@
       "css": ".ds-input { width: 100%; padding: 8px 12px; background: var(--bg-primary); border: 1px solid var(--panel-border); border-radius: 6px; color: var(--text-primary); font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; outline: none; transition: border-color 0.15s ease; } .ds-input:focus { border-color: var(--accent-blue); }"
     },
     {
-      "name": "Navigation — Sidebar Tabs",
+      "name": "Navigation \u2014 Sidebar Tabs",
       "kind": "nav",
       "refersTo": "sidebar-tabs",
       "description": "Equal-width tab row; active tab switches to gold text + underline + faint tint.",
@@ -94,41 +347,77 @@
       "css": ".ds-tabs { display: flex; border-bottom: 1px solid var(--panel-border); background: rgba(0,0,0,0.2); } .ds-tab { flex: 1; min-width: 0; padding: 12px 4px; font-size: 0.75rem; font-weight: 500; text-align: center; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s ease; } .ds-tab--active { color: var(--accent-gold); border-bottom-color: var(--accent-gold); background: rgba(209, 165, 61, 0.05); }"
     },
     {
-      "name": "Toolbar — Floating Canvas Toolbar",
+      "name": "Toolbar \u2014 Floating Canvas Toolbar",
       "kind": "custom",
       "refersTo": "canvas-toolbar",
       "description": "Signature floating control: the one surface allowed a full pill radius, with glass blur + shadow per the Floating Glass Rule.",
       "html": "<div class=\"ds-toolbar\"><button class=\"ds-toolbar-btn\">Pan</button><span class=\"ds-toolbar-zoom\">100%</span><button class=\"ds-toolbar-btn\">Fit</button></div>",
       "css": ".ds-toolbar { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--panel-bg); backdrop-filter: blur(12px); border: 1px solid var(--panel-border); border-radius: 30px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5), 0 8px 10px -6px rgba(0,0,0,0.5); } .ds-toolbar-btn { padding: 5px 10px; font-size: 0.78rem; font-weight: 500; border-radius: 6px; border: 1px solid var(--panel-border); background: var(--bg-tertiary); color: var(--text-primary); cursor: pointer; white-space: nowrap; } .ds-toolbar-zoom { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-secondary); min-width: 50px; text-align: center; }"
+    },
+    {
+      "name": "Button \u2014 Marketing Primary",
+      "kind": "button",
+      "refersTo": "button-marketing",
+      "description": "High-contrast public conversion action; contrast rather than a new accent color.",
+      "html": "<a class=\"ds-marketing-cta\" href=\"#\">Design in your browser</a>",
+      "css": ".ds-marketing-cta { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:10px 16px; border:1px solid var(--text-primary); border-radius:6px; background:var(--text-primary); color:var(--bg-primary); font-family:'Inter',system-ui,sans-serif; font-size:.86rem; font-weight:650; text-decoration:none; transition:transform 160ms ease-out,background 160ms ease-out; } .ds-marketing-cta:hover { transform:translateY(-1px); background:#fff; } .ds-marketing-cta:focus-visible { outline:2px solid var(--accent-blue); outline-offset:3px; }"
+    },
+    {
+      "name": "Brand Mark \u2014 Split Guitar/Axe",
+      "kind": "custom",
+      "description": "Transparent identity mark, simplified at chrome scale and textured at feature scale.",
+      "html": "<div class=\"ds-brand\"><img src=\"/brand/axe-shaper-mark.png\" alt=\"\"><strong>Axe Shaper</strong></div>",
+      "css": ".ds-brand { display:inline-flex; align-items:center; gap:10px; color:var(--text-primary); font-family:'Inter',system-ui,sans-serif; font-size:1rem; font-weight:700; letter-spacing:-.025em; } .ds-brand img { width:28px; height:28px; object-fit:contain; }"
     }
   ],
   "narrative": {
     "northStar": "The Luthier's Night Bench",
-    "overview": "Axe Shaper reads like a workshop after hours: a dark room, one warm antique-gold work-light, and precision instruments laid out on dark glass. The chrome around the canvas is quiet on purpose — near-black slate panels, hairline borders, no ornament — so the only thing asking for attention is the gold accent marking whatever is currently live: the active tab, the selected template, a locked anchor. The mood is precise, quiet, and technical, closer to a well-made measuring tool than a creative app; it should never read as playful or as generic SaaS chrome.",
+    "overview": "Axe Shaper reads like a workshop after hours: a dark room, one warm antique-gold work-light, and precision instruments laid out on dark glass. The chrome around the canvas is quiet on purpose \u2014 near-black slate panels, hairline borders, no ornament \u2014 so the only thing asking for attention is the gold accent marking whatever is currently live: the active tab, the selected template, a locked anchor. The mood is precise, quiet, and technical, closer to a well-made measuring tool than a creative app; it should never read as playful or as generic SaaS chrome.",
     "keyCharacteristics": [
-      "Near-black navy-slate surfaces (#0f1117 → #282d3f) with a single warm antique-gold accent (#d1a53d) reserved for \"this is active/current/locked.\" A cooler sky-blue and emerald green carry secondary, purpose-specific signals (focus/info, save/confirm) rather than competing for the same attention gold owns.",
+      "Near-black navy-slate surfaces (#0f1117 \u2192 #282d3f) with a single warm antique-gold accent (#d1a53d) reserved for \"this is active/current/locked.\" A cooler sky-blue and emerald green carry secondary, purpose-specific signals (focus/info, save/confirm) rather than competing for the same attention gold owns.",
       "Flat, bordered structural chrome; floating overlays get glass treatment. See the Floating Glass Rule.",
       "JetBrains Mono for every physical/numeric readout (zoom %, scale bar, coordinates), Inter for everything else.",
-      "Tactile, confident controls: buttons read as solid and clickable, sized for a tool used for long sessions, not a marketing surface."
+      "Tactile, confident controls: buttons read as solid and clickable, sized for a tool used for long sessions, not a marketing surface.",
+      "Public surfaces open the dark bench around one bright, physical artifact: the app\u2019s own printable plan. Paper is proof and content, never ambient decoration.",
+      "The split guitar/axe mark is the recognizable signature: simplified at chrome scale and materially textured when it has enough room to read."
     ],
     "rules": [
-      { "name": "The Gold Is Truth Rule", "body": "The antique-gold accent always means \"this is the current, active, or locked one.\" It is never used for a button that isn't the active state of a toggle, never for decoration.", "section": "colors" },
-      { "name": "The Mono-Means-Measured Rule", "body": "If a piece of text states a physical quantity the user could act on with a ruler or a router, it is set in JetBrains Mono. Everything else — labels, copy, names — is Inter.", "section": "typography" },
-      { "name": "The Floating Glass Rule", "body": "Blur and shadow are reserved for elements that float free of the layout's edges — toolbars, calibration cards, modals. Anything docked to a grid edge (header, sidebar, inspector) stays flat with a border only, regardless of whether it happens to sit visually over the canvas.", "section": "elevation" },
-      { "name": "The Toolbar Pill Rule", "body": "The bottom-centered canvas toolbar is the one element allowed a full pill radius; every other container uses the sm/md radius scale. A second pill-shaped surface anywhere else would read as a second toolbar.", "section": "shapes" }
+      {
+        "name": "The Gold Is Truth Rule",
+        "body": "The antique-gold accent always means \"this is the current, active, or locked one.\" It is never used for a button that isn't the active state of a toggle, never for decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Mono-Means-Measured Rule",
+        "body": "If a piece of text states a physical quantity the user could act on with a ruler or a router, it is set in JetBrains Mono. Everything else \u2014 labels, copy, names \u2014 is Inter.",
+        "section": "typography"
+      },
+      {
+        "name": "The Floating Glass Rule",
+        "body": "Blur and shadow are reserved for elements that float free of the layout's edges \u2014 toolbars, calibration cards, modals. Anything docked to a grid edge (header, sidebar, inspector) stays flat with a border only, regardless of whether it happens to sit visually over the canvas.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Toolbar Pill Rule",
+        "body": "The bottom-centered canvas toolbar is the one element allowed a full pill radius; every other container uses the sm/md radius scale. A second pill-shaped surface anywhere else would read as a second toolbar.",
+        "section": "shapes"
+      }
     ],
     "dos": [
-      "Do reserve the antique-gold accent exclusively for \"this is the active/current/locked one\" — never as a decorative accent.",
-      "Do keep docked structural chrome (header, sidebar, inspector) flat — border only, no shadow or blur.",
+      "Do reserve the antique-gold accent exclusively for \"this is the active/current/locked one\" \u2014 never as a decorative accent.",
+      "Do keep docked structural chrome (header, sidebar, inspector) flat \u2014 border only, no shadow or blur.",
       "Do set any physical/numeric readout in JetBrains Mono.",
-      "Do size lucide icons explicitly per context: 15px inside .btn-sm, 16–18px in headers and modals, 20px for the brand mark."
+      "Do size lucide icons explicitly per context: 15px inside .btn-sm, 16\u201318px in headers and modals, 20px for the brand mark.",
+      "Do use the app's own exported drawing when a public surface needs visual proof.",
+      "Do use credited documentary workshop photography to show the handoff from plan to wood."
     ],
     "donts": [
-      "Don't add a CSS background pattern to the canvas container to imply a grid — it won't scale with zoom and will misrepresent millimetres; the real grid is drawn on the canvas itself.",
-      "Don't introduce a new border token. SaveInfoModal.tsx currently styles itself with var(--border-color), which is not defined anywhere in src/styles/index.css and silently resolves to no border; the established token everywhere else is --panel-border.",
-      "Don't style a lucide icon with Tailwind-style class names (text-amber-500, w-5 h-5) — this project has no Tailwind installed, so those classes are inert. Header.tsx's brand icon and SaveInfoModal.tsx's info icon both carry these dead classes today and render unstyled as a result.",
-      "Don't give purple a second job — it's reserved for the live bridge/neck hardware preview overlay on canvas, nowhere else.",
-      "Don't reach for --radius-lg (14px) on a new container without a reason; nothing currently uses it, and the pill radius belongs to the canvas toolbar alone."
+      "Don't add a CSS background pattern to the canvas container to imply a grid \u2014 it won't scale with zoom and will misrepresent millimetres; the real grid is drawn on the canvas itself.",
+      "Don't give purple a second job \u2014 it's reserved for the live bridge/neck hardware preview overlay on canvas, nowhere else.",
+      "Don't introduce a new border token; --panel-border is the established hairline everywhere.",
+      "Don't style Lucide icons with Tailwind classes; this project has no Tailwind installed.",
+      "Don't use plan paper as a generic light section background; it denotes a real work surface.",
+      "Don't present the composite marketing illustration as an actual product screenshot; reserve it for social-preview artwork."
     ]
   }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Save, Upload, Undo2, Redo2, RotateCcw, Disc } from 'lucide-react';
+import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, CircleHelp, Info, Home } from 'lucide-react';
 import type { GuitarProject } from '../types/guitar';
 import { snapGridToUnit } from '../utils/units';
 
@@ -13,6 +13,9 @@ interface HeaderProps {
   onRedo: () => void;
   onResetTemplate: () => void;
   onSave: () => void;
+  onShare: () => void;
+  onShowWelcome: () => void;
+  onShowAbout: () => void;
   onOpenFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -26,6 +29,9 @@ export const Header: React.FC<HeaderProps> = ({
   onRedo,
   onResetTemplate,
   onSave,
+  onShare,
+  onShowWelcome,
+  onShowAbout,
   onOpenFile,
 }) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -33,7 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="app-header">
       <div className="brand-title">
-        <Disc size={20} style={{ color: 'var(--accent-gold)' }} />
+        <img className="brand-icon" src="/brand/axe-shaper-mark.png" alt="" aria-hidden="true" />
         <span>Axe Shaper</span>
         <span className="brand-badge">2D Luthier</span>
       </div>
@@ -138,6 +144,21 @@ export const Header: React.FC<HeaderProps> = ({
         <button className="btn btn-sm" onClick={() => fileInputRef.current?.click()} title="Open a .axe.svg project file">
           <Upload size={15} /> Open
         </button>
+
+        <button className="btn btn-sm" onClick={onShare} title="Share the current .axe.svg project file">
+          <Share2 size={15} /> Share
+        </button>
+
+        <details className="help-menu">
+          <summary className="btn btn-sm" aria-label="Help and product information">
+            <CircleHelp size={15} /> Help
+          </summary>
+          <div className="help-menu-popover">
+            <button onClick={onShowWelcome}><CircleHelp size={15} /> Welcome guide</button>
+            <button onClick={onShowAbout}><Info size={15} /> About Axe Shaper</button>
+            <a href="/"><Home size={15} /> Product site</a>
+          </div>
+        </details>
 
         <button className="btn btn-accent" onClick={onSave} title="Save as a 1:1 true-scale .axe.svg project file">
           <Save size={16} /> Save

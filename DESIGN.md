@@ -16,7 +16,15 @@ colors:
   accent-green: "#10b981"
   accent-red: "#ef4444"
   accent-purple: "#a855f7"
+  paper-plan: "#f5f3eb"
+  paper-screen: "#eeece4"
 typography:
+  marketing-display:
+    fontFamily: "Inter, system-ui, -apple-system, sans-serif"
+    fontSize: "clamp(3.5rem, 6.5vw, 6rem)"
+    fontWeight: 700
+    lineHeight: 0.94
+    letterSpacing: "-0.04em"
   title:
     fontFamily: "Inter, system-ui, -apple-system, sans-serif"
     fontSize: "1.15rem"
@@ -69,6 +77,11 @@ components:
     padding: "8px 14px"
   button-ghost-hover:
     backgroundColor: "{colors.bg-hover}"
+  button-marketing:
+    backgroundColor: "{colors.text-primary}"
+    textColor: "{colors.bg-primary}"
+    rounded: "{rounded.sm}"
+    padding: "10px 16px"
 ---
 
 # Design System: Axe Shaper
@@ -98,7 +111,11 @@ should never read as playful or as generic SaaS chrome.
   coordinates), Inter for everything else — the split makes measurement text
   visually distinct from UI copy at a glance.
 - Tactile, confident controls: buttons read as solid and clickable, sized for
-  a tool used for long sessions, not a marketing surface.
+  a tool used for long sessions.
+- Public surfaces open the dark bench around one bright, physical artifact: the
+  actual printable plan. The paper is proof and content, never ambient decoration.
+- The split guitar/axe mark is the recognizable brand signature: simplified at
+  chrome scale, materially textured when it has enough room to read.
 
 ## Colors
 
@@ -117,7 +134,8 @@ exactly one job.
 - **Emerald Green** (`#10b981`): the save/confirm action — the header's Save
   button gradient (`#059669`→`#047857`), default (unselected) Bezier handles.
 - **Signal Red** (`#ef4444`): destructive actions only — delete buttons on
-  saved templates and layer shapes.
+  saved templates and layer shapes. The deep figured crimson inside the brand
+  mark is identity artwork, not an additional interface status color.
 
 ### Tertiary
 - **Violet Purple** (`#a855f7`, canvas-drawn variant `#9333ea`): a rare
@@ -136,6 +154,9 @@ exactly one job.
   the system (`--panel-border`) — see the Don't about `--border-color` below.
 - **Fog / Ash / Slate Text** (`#f0f4f8` / `#94a3b8` / `#64748b`): primary,
   secondary, and muted text, in that order of emphasis.
+- **Plan Paper / Screen Paper** (`#f5f3eb` / `#eeece4`): the printable artifact
+  and its native-device preview. These warm near-whites belong only to a real
+  output or work surface; they are not alternate page backgrounds.
 
 ### Named Rules
 **The Gold Is Truth Rule.** The antique-gold accent always means "this is the
@@ -153,6 +174,9 @@ display face, no decorative headline type. Precision comes from restraint
 and the mono/sans split, not from typographic flourish.
 
 ### Hierarchy
+- **Marketing Display** (700, `clamp(3.5rem, 6.5vw, 6rem)`, 0.94, -0.04em):
+  public-page thesis statements only. It keeps the same technical sans voice
+  but uses physical scale rather than introducing a decorative display face.
 - **Title** (700, 1.15rem, -0.02em): the "Axe Shaper" brand wordmark — the
   only place this weight/size combination appears.
 - **Section Label** (600, 0.85rem, 0.05em, uppercase): panel section
@@ -181,6 +205,12 @@ collapses it. Panel interiors run a `16px` padding rhythm
 overlays center themselves independently of the grid (calibration card:
 top-centered; canvas toolbar: bottom-centered).
 
+Public pages use a separate responsive composition: a `1240px` maximum outer
+rail for navigation and the opening artifact, narrowing to `1120px` for reading
+sections. The first viewport is a two-part bench with copy and CTA beside one
+large print sheet; below `980px` it stacks, and below `700px` all flows become a
+single column. The public site changes the page layout, never the editor grid.
+
 ## Elevation & Depth
 
 Hybrid, split by **docking**, not by z-order or by what's underneath.
@@ -190,6 +220,9 @@ blur. Anything floating free of the grid — the canvas toolbar, the
 calibration card, modals — gets glass treatment: `var(--panel-bg)` at 85%
 opacity, `backdrop-filter: blur(12px)`, and `--shadow-lg`
 (`0 10px 25px -5px rgba(0,0,0,0.5), 0 8px 10px -6px rgba(0,0,0,0.5)`).
+On public pages, the physical plan and iPad mockup are literal objects on the
+bench and may cast deeper directional shadows; surrounding marketing sections
+remain flat and separated by hairlines.
 
 ### Shadow Vocabulary
 - **`--shadow-lg`** (`0 10px 25px -5px rgba(0,0,0,0.5), 0 8px 10px -6px rgba(0,0,0,0.5)`):
@@ -214,9 +247,10 @@ than a docked panel.
 
 ### Named Rules
 **The Toolbar Pill Rule.** The bottom-centered canvas toolbar is the one
-element allowed a full pill radius; every other container uses the sm/md
-radius scale. A second pill-shaped surface anywhere else would read as a
-second toolbar.
+element allowed a full pill radius; every other **interface container** uses
+the sm/md radius scale. A second pill-shaped control surface anywhere else
+would read as a second toolbar. Literal depicted hardware is exempt: the iPad
+mockup follows the device silhouette rather than the UI container scale.
 
 ## Components
 
@@ -235,6 +269,13 @@ second toolbar.
   icon-plus-label toolbar buttons.
 - **Disabled:** `opacity: 0.4`, cursor `not-allowed`; no color change.
 
+### Marketing CTA
+- **Primary:** fog-white fill on the dark bench with void text, 6px radius and
+  `10px 16px` padding. Public conversion uses contrast, not a new accent color.
+- **Secondary:** raised slate with the shared hairline border.
+- **Hover / Focus:** a one-pixel lift on hover and the shared sky-blue keyboard
+  focus outline.
+
 ### Cards / Containers
 - **Corner Style:** `--radius-md` (10px).
 - **Background:** `--bg-tertiary` on a `--bg-secondary` panel (one tone up
@@ -250,6 +291,14 @@ second toolbar.
   surrounding panel, reading as an inset well), `1px --panel-border`,
   `--radius-sm`.
 - **Focus:** border shifts to `--accent-blue`; no glow or outline ring.
+
+### Brand Mark
+- **Chrome scale:** use the transparent simplified mark at `24–28px` beside the
+  Axe Shaper name. Never place the opaque gray-backed small source asset there.
+- **Feature scale:** the textured transparent mark may reach `140–220px` when
+  bridging a digital artifact and a physical workshop image.
+- **Wordmark:** keep “Axe Shaper” as accessible HTML text. The supplied metallic
+  text image has an opaque gray field and is not the primary web wordmark.
 
 ### Navigation (Sidebar Tabs)
 - **Style:** flex row of equal-width tabs, `0.75rem` label, `--text-muted` at
@@ -294,24 +343,27 @@ color language, independent of the chrome palette above:
   Mono-Means-Measured Rule).
 - **Do** size lucide icons explicitly per context: `15px` inside `.btn-sm`,
   `16–18px` in headers and modals, `20px` for the brand mark.
+- **Do** use the app's own exported drawing when a public surface needs visual
+  proof; the printable artifact should be recognizable without marketing copy.
+- **Do** use documentary workshop photography to show the handoff from plan to
+  wood, with visible creator attribution and restrained dark treatment.
 
 ### Don't:
 - **Don't** add a CSS background pattern to the canvas container to imply a
   grid — it won't scale with zoom and will misrepresent millimetres; the real
   grid is drawn on the canvas itself (there's a comment to this effect in the
   code already).
-- **Don't** introduce a new border token. `SaveInfoModal.tsx` currently
-  styles itself with `var(--border-color)`, which is not defined anywhere in
-  `src/styles/index.css` and silently resolves to no border; the established
-  token everywhere else is `--panel-border`.
-- **Don't** style a lucide icon with Tailwind-style class names
-  (`text-amber-500`, `w-5 h-5`) — this project has no Tailwind installed, so
-  those classes are inert. `Header.tsx`'s brand icon and `SaveInfoModal.tsx`'s
-  info icon both carry these dead classes today and render unstyled as a
-  result; use an explicit `size={}` prop and `color`/`style`/CSS var instead,
-  the way every other icon in the codebase already does.
+- **Don't** introduce a new border token; `--panel-border` is the established
+  hairline everywhere.
+- **Don't** style a lucide icon with Tailwind-style class names — this project
+  has no Tailwind installed. Use an explicit `size={}` prop and CSS variables.
 - **Don't** give purple a second job — it's reserved for the live
   bridge/neck hardware preview overlay on canvas, nowhere else.
-- **Don't** reach for `--radius-lg` (14px) on a new container without a
-  reason; nothing currently uses it, and the pill radius belongs to the
-  canvas toolbar alone (The Toolbar Pill Rule).
+- **Don't** reach for `--radius-lg` (14px) on an interface container without a
+  reason; the pill radius belongs to the canvas toolbar alone (The Toolbar
+  Pill Rule). Literal device silhouettes are not interface containers.
+- **Don't** use plan paper as a generic light section background. It denotes a
+  real printable or editable work surface.
+- **Don't** present the composite marketing illustration as an actual product
+  screenshot; its interface is illustrative. It is reserved for social-preview
+  artwork until replaced by a verified product montage.

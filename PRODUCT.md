@@ -60,6 +60,7 @@ awareness that moving a curve also has to move the bridge.
 ## Brand Commitments
 
 - Name: Axe Shaper.
+- Canonical public domain: `axeshaper.com`; marketing, social previews, support, and App Store URLs should use it.
 - Existing README describes a "Dark Luthier Studio" dark glassmorphism visual
   style; treated as incumbent implementation evidence for design work, not a
   binding brief from this interview.
