@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2912" height="1440" viewBox="0 0 2912 1440">
+  <defs>
+    <linearGradient id="leftShade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#040609" stop-opacity=".46"/>
+      <stop offset=".36" stop-color="#040609" stop-opacity=".18"/>
+      <stop offset=".52" stop-color="#040609" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="edgeShade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#040609" stop-opacity=".40"/>
+      <stop offset=".28" stop-color="#040609" stop-opacity="0"/>
+      <stop offset=".74" stop-color="#040609" stop-opacity="0"/>
+      <stop offset="1" stop-color="#040609" stop-opacity=".50"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#000" flood-opacity=".48"/>
+    </filter>
+    <filter id="textShadow" x="-20%" y="-30%" width="150%" height="170%">
+      <feDropShadow dx="0" dy="5" stdDeviation="10" flood-color="#000" flood-opacity=".54"/>
+    </filter>
+    <clipPath id="screenClip">
+      <rect x="1361" y="255" width="1440" height="900" rx="12"/>
+    </clipPath>
+  </defs>
+
+  <rect width="2912" height="1440" fill="#0f1117"/>
+  <image x="0" y="0" width="2912" height="1440" preserveAspectRatio="xMidYMid slice" xlink:href="Marketing Image v2 background.png"/>
+  <rect width="2912" height="1440" fill="url(#leftShade)"/>
+  <rect width="2912" height="1440" fill="url(#edgeShade)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="80" y="70" width="522" height="102" rx="22" fill="#07090d" fill-opacity=".78" stroke="#fff" stroke-opacity=".12"/>
+  </g>
+  <image x="96" y="84" width="74" height="74" xlink:href="Axe Shaper Small Logo.png"/>
+  <text x="190" y="126" fill="#f5f7fa" font-family="Arial, sans-serif" font-size="40" font-weight="700" letter-spacing="-1.4">Axe Shaper</text>
+  <text x="190" y="157" fill="#d1a53d" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="3">2D LUTHIER</text>
+
+  <text x="94" y="286" fill="#d1a53d" font-family="Arial, sans-serif" font-size="27" font-weight="700" letter-spacing="4.6">FROM WORKBENCH TO BLUEPRINT</text>
+  <g filter="url(#textShadow)" fill="#f5f7fa" font-family="Arial, sans-serif" font-size="94" font-weight="700" letter-spacing="-4.5">
+    <text x="88" y="414">Keep the craft.</text>
+    <text x="88" y="510">Lose the guesswork.</text>
+  </g>
+  <text x="96" y="602" fill="#d6dbe2" font-family="Arial, sans-serif" font-size="34" font-weight="500" letter-spacing="-.5">Design a true-scale guitar body before the first cut.</text>
+
+  <text x="1342" y="187" fill="#c9cfd7" font-family="Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3.2">THE NEW WAY  ·  TRUE-SCALE, LINKED GEOMETRY</text>
+  <g filter="url(#shadow)">
+    <rect x="1328" y="220" width="1510" height="968" rx="30" fill="#05070a" fill-opacity=".78" stroke="#d1a53d" stroke-opacity=".58" stroke-width="2"/>
+  </g>
+  <image x="1361" y="255" width="1440" height="900" preserveAspectRatio="none" clip-path="url(#screenClip)" xlink:href="Axe Shaper Editor screenshot.png"/>
+
+  <g filter="url(#shadow)">
+    <rect x="92" y="1138" width="650" height="128" rx="18" fill="#07090d" fill-opacity=".80" stroke="#fff" stroke-opacity=".12"/>
+    <rect x="1358" y="1196" width="884" height="128" rx="18" fill="#07090d" fill-opacity=".88" stroke="#fff" stroke-opacity=".12"/>
+  </g>
+  <text x="122" y="1188" fill="#d1a53d" font-family="Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3">01  AT THE BENCH</text>
+  <text x="122" y="1232" fill="#f1f3f6" font-family="Arial, sans-serif" font-size="29" font-weight="600">Shape. Measure. Adjust.</text>
+  <text x="1390" y="1246" fill="#d1a53d" font-family="Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="3">02  IN AXE SHAPER</text>
+  <text x="1390" y="1290" fill="#f1f3f6" font-family="Arial, sans-serif" font-size="29" font-weight="600">Measure first. Shape with intent.</text>
+
+  <text x="96" y="1392" fill="#d9dde3" fill-opacity=".68" font-family="Arial, sans-serif" font-size="19" font-weight="500">Workshop photo: Alex Kalligas / Unsplash</text>
+</svg>
