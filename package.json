@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm run bridge:check && tsc -b && vite build",
     "build:zip": "rm -f axe-shaper-dist.zip && npm run build && cd dist && zip -r ../axe-shaper-dist.zip . && cd ..",
     "package": "npm run build:zip",
     "lint": "oxlint",
     "corpus": "node scripts/generate-golden-corpus.ts",
     "corpus:check": "node scripts/generate-golden-corpus.ts --check",
+    "bridge:check": "node scripts/check-bridge-drawing.ts",
     "fixtures:check": "node scripts/check-ios-fixtures.ts",
     "preview": "vite preview"
   },

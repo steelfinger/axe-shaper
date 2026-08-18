@@ -21,11 +21,14 @@ import {
 } from '../utils/pickupEditing';
 import { resolveBridgePreset, resolveNeckPreset, resolvePickupSpec } from '../utils/presets';
 import {
-  getBridgePlateTopYMm,
   getMountingPointOriginYMm,
-  getSaddlePlateTopYMm,
   getTheoreticalSaddleYMm,
 } from '../utils/scaleMath';
+import {
+  bridgeMountingPointsAreVisible,
+  bridgeReferenceLineXRange,
+  getBridgeDrawingGeometry,
+} from '../utils/bridgeDrawing';
 import { ZoomIn, ZoomOut, Maximize2, Hand, Spline } from 'lucide-react';
 import {
   SCALE_BAR_STEPS,
@@ -251,8 +254,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
   // Theoretical saddle & bridge Y mm (measured from body pocket entrance edge Y=0)
   const theoreticalSaddleY = getTheoreticalSaddleYMm(neck);
-  const bridgePlateTopY = getBridgePlateTopYMm(neck, bridge);
-  const saddlePlateTopY = getSaddlePlateTopYMm(neck, bridge);
+  const bridgeDrawing = getBridgeDrawingGeometry(neck, bridge);
+  const [bridgeReferenceMinX, bridgeReferenceMaxX] = bridgeReferenceLineXRange(bridgeDrawing);
   const mountingOriginY = getMountingPointOriginYMm(neck, bridge);
 
   // Wheel Zoom handler
@@ -814,37 +817,90 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                     />
                   ))}
 
-              {/* Bridge Plate & Saddle Plate - two real TOM parts, drawn the
-                  same way, at the uncompensated and compensated lines
-                  respectively - plus the theoretical scale-length reference
-                  line through the bridge plate. See ScaleMath.bridgePlateTopY's
-                  own doc comment (scaleMath.ts) for why these are two
-                  rectangles rather than a rectangle and a line. */}
+              {/* Recognisable bridge hardware at the scale-math-resolved
+                  position: the supplied F-style plate/housing/socket, a
+                  slanted capsule-ended TOM and straight tailpiece, or the
+                  defensive two-plate fallback for an unknown id. */}
               <Group>
-                <Rect
-                  x={-bridge.widthMm / 2}
-                  y={bridgePlateTopY}
-                  width={bridge.widthMm}
-                  height={bridge.lengthMm}
-                  fill="rgba(59, 130, 246, 0.15)"
-                  stroke="#3b82f6"
-                  strokeWidth={1.5 / zoom}
-                  cornerRadius={3 / zoom}
-                />
-                <Rect
-                  x={-bridge.widthMm / 2}
-                  y={saddlePlateTopY}
-                  width={bridge.widthMm}
-                  height={bridge.lengthMm}
-                  fill="rgba(59, 130, 246, 0.15)"
-                  stroke="#3b82f6"
-                  strokeWidth={1.5 / zoom}
-                  cornerRadius={3 / zoom}
-                />
+                {bridgeDrawing.kind === 'f-style' && (
+                  <>
+                    <Line
+                      points={bridgeDrawing.plateOutline.flatMap((point) => [point.x, point.y])}
+                      closed
+                      fill="rgba(59, 130, 246, 0.15)"
+                      stroke="#3b82f6"
+                      strokeWidth={1.5 / zoom}
+                    />
+                    <Rect
+                      x={bridgeDrawing.saddleHousing.center.x - bridgeDrawing.saddleHousing.widthMm / 2}
+                      y={bridgeDrawing.saddleHousing.center.y - bridgeDrawing.saddleHousing.heightMm / 2}
+                      width={bridgeDrawing.saddleHousing.widthMm}
+                      height={bridgeDrawing.saddleHousing.heightMm}
+                      fill="rgba(59, 130, 246, 0.15)"
+                      stroke="#3b82f6"
+                      strokeWidth={1.5 / zoom}
+                    />
+                    <Circle
+                      x={bridgeDrawing.armSocket.center.x}
+                      y={bridgeDrawing.armSocket.center.y}
+                      radius={bridgeDrawing.armSocket.radiusMm}
+                      fill="#0b0c10"
+                      stroke="#3b82f6"
+                      strokeWidth={1.5 / zoom}
+                    />
+                  </>
+                )}
+                {bridgeDrawing.kind === 'tom' && (
+                  <>
+                    <Group
+                      x={bridgeDrawing.bridgeBar.center.x}
+                      y={bridgeDrawing.bridgeBar.center.y}
+                      rotation={bridgeDrawing.bridgeBar.angleDegrees}
+                    >
+                      <Rect
+                        x={-bridgeDrawing.bridgeBar.widthMm / 2}
+                        y={-bridgeDrawing.bridgeBar.heightMm / 2}
+                        width={bridgeDrawing.bridgeBar.widthMm}
+                        height={bridgeDrawing.bridgeBar.heightMm}
+                        cornerRadius={bridgeDrawing.bridgeBar.cornerRadiusMm}
+                        fill="rgba(59, 130, 246, 0.15)"
+                        stroke="#3b82f6"
+                        strokeWidth={1.5 / zoom}
+                      />
+                    </Group>
+                    <Rect
+                      x={bridgeDrawing.tailpiece.center.x - bridgeDrawing.tailpiece.widthMm / 2}
+                      y={bridgeDrawing.tailpiece.center.y - bridgeDrawing.tailpiece.heightMm / 2}
+                      width={bridgeDrawing.tailpiece.widthMm}
+                      height={bridgeDrawing.tailpiece.heightMm}
+                      cornerRadius={bridgeDrawing.tailpiece.cornerRadiusMm}
+                      fill="rgba(59, 130, 246, 0.15)"
+                      stroke="#3b82f6"
+                      strokeWidth={1.5 / zoom}
+                    />
+                  </>
+                )}
+                {bridgeDrawing.kind === 'generic' && (
+                  <>
+                    {[bridgeDrawing.bridgePlate, bridgeDrawing.saddlePlate].map((plate, index) => (
+                      <Rect
+                        key={index}
+                        x={plate.center.x - plate.widthMm / 2}
+                        y={plate.center.y - plate.heightMm / 2}
+                        width={plate.widthMm}
+                        height={plate.heightMm}
+                        fill="rgba(59, 130, 246, 0.15)"
+                        stroke="#3b82f6"
+                        strokeWidth={1.5 / zoom}
+                        cornerRadius={plate.cornerRadiusMm / zoom}
+                      />
+                    ))}
+                  </>
+                )}
                 {/* Theoretical Scale-Length Line - exactly scaleLengthMm from
                     the nut, zero compensation, drawn through the bridge plate */}
                 <Line
-                  points={[-bridge.widthMm / 2 + 5, theoreticalSaddleY, bridge.widthMm / 2 - 5, theoreticalSaddleY]}
+                  points={[bridgeReferenceMinX, theoreticalSaddleY, bridgeReferenceMaxX, theoreticalSaddleY]}
                   stroke="#ef4444"
                   strokeWidth={2.0 / zoom}
                 />
@@ -853,7 +909,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                     inside render, which is a blank canvas rather than a
                     missing detail. See BridgePreset.mountingPoints. */}
                 <Group x={0} y={mountingOriginY}>
-                  {(bridge.mountingPoints ?? []).map((pt, idx) => (
+                  {bridgeMountingPointsAreVisible(bridgeDrawing) && (bridge.mountingPoints ?? []).map((pt, idx) => (
                     <Circle key={idx} x={pt.x} y={pt.y} radius={3 / zoom} fill="#3b82f6" />
                   ))}
                 </Group>

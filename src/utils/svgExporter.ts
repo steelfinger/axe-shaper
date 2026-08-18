@@ -1,4 +1,4 @@
-import type { GuitarProject, LengthMm } from '../types/guitar';
+import type { BridgePreset, GuitarProject, LengthMm } from '../types/guitar';
 import { anchorsToSVGPath } from './bezier';
 import { bevelInsetLoop, closedPolylineToSVGPath } from './bevelIntensity';
 import {
@@ -8,12 +8,18 @@ import {
   withEmbeddedPresets,
 } from './presets';
 import {
-  getBridgePlateTopYMm,
   getMountingPointOriginYMm,
-  getSaddlePlateTopYMm,
   getSaddleYMm,
   getTheoreticalSaddleYMm,
 } from './scaleMath';
+import {
+  bridgeDrawingBoundsPoints,
+  bridgeMountingPointsAreVisible,
+  bridgeReferenceLineXRange,
+  getBridgeDrawingGeometry,
+  type BridgeDrawingGeometry,
+  type BridgeDrawingRect,
+} from './bridgeDrawing';
 
 /** Namespace for the <project:*> metadata elements. Must be declared or the file is not well-formed XML. */
 const PROJECT_NS = 'https://axe-shaper.app/ns/project/1';
@@ -32,6 +38,53 @@ interface BoundsMm {
   minY: LengthMm;
   maxX: LengthMm;
   maxY: LengthMm;
+}
+
+function bridgeRectSVG(rectangle: BridgeDrawingRect): string {
+  const x = rectangle.center.x - rectangle.widthMm / 2;
+  const y = rectangle.center.y - rectangle.heightMm / 2;
+  const rotation = rectangle.angleDegrees === 0
+    ? ''
+    : ` transform="rotate(${rectangle.angleDegrees} ${rectangle.center.x.toFixed(2)} ${rectangle.center.y.toFixed(2)})"`;
+  return `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${rectangle.widthMm.toFixed(2)}" height="${rectangle.heightMm.toFixed(2)}" rx="${rectangle.cornerRadiusMm.toFixed(2)}" ry="${rectangle.cornerRadiusMm.toFixed(2)}" class="bridge-rout"${rotation} />`;
+}
+
+function bridgeHardwareSVG(
+  geometry: BridgeDrawingGeometry,
+  bridge: BridgePreset,
+  theoreticalSaddleY: number,
+  mountingOriginY: number
+): string {
+  let hardware: string;
+  switch (geometry.kind) {
+    case 'f-style': {
+      const path = geometry.plateOutline
+        .map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`)
+        .join(' ');
+      hardware = [
+        `<path d="${path} Z" class="bridge-rout" />`,
+        bridgeRectSVG(geometry.saddleHousing),
+        `<circle cx="${geometry.armSocket.center.x.toFixed(2)}" cy="${geometry.armSocket.center.y.toFixed(2)}" r="${geometry.armSocket.radiusMm.toFixed(2)}" class="bridge-rout" />`,
+      ].join('\n      ');
+      break;
+    }
+    case 'tom':
+      hardware = [bridgeRectSVG(geometry.bridgeBar), bridgeRectSVG(geometry.tailpiece)].join('\n      ');
+      break;
+    case 'generic':
+      hardware = [bridgeRectSVG(geometry.bridgePlate), bridgeRectSVG(geometry.saddlePlate)].join('\n      ');
+      break;
+  }
+
+  const [lineMinX, lineMaxX] = bridgeReferenceLineXRange(geometry);
+  const mountingPoints = bridgeMountingPointsAreVisible(geometry)
+    ? (bridge.mountingPoints ?? [])
+        .map((point) => `<circle cx="${point.x}" cy="${point.y}" r="2" fill="#007bff" />`)
+        .join('')
+    : '';
+  return `${hardware}
+      <line x1="${lineMinX.toFixed(2)}" y1="${theoreticalSaddleY.toFixed(2)}" x2="${lineMaxX.toFixed(2)}" y2="${theoreticalSaddleY.toFixed(2)}" stroke="#dc3545" stroke-width="1.2" />
+      <g transform="translate(0, ${mountingOriginY.toFixed(2)})">${mountingPoints}</g>`;
 }
 
 /** Escape a string for safe interpolation into XML text or attribute values. */
@@ -118,13 +171,9 @@ function getContentBoundsMm(project: GuitarProject): BoundsMm {
   add(-neck.jointWidthMm / 2, 0);
   add(neck.jointWidthMm / 2, neck.jointDepthMm);
 
-  // Bridge plate, saddle plate, theoretical scale-length line, mounting holes
-  const plateTopY = getBridgePlateTopYMm(neck, bridge);
-  const saddlePlateTopY = getSaddlePlateTopYMm(neck, bridge);
-  add(-bridge.widthMm / 2, plateTopY);
-  add(bridge.widthMm / 2, plateTopY + bridge.lengthMm);
-  add(-bridge.widthMm / 2, saddlePlateTopY);
-  add(bridge.widthMm / 2, saddlePlateTopY + bridge.lengthMm);
+  // Bridge silhouettes, theoretical scale-length line, mounting holes
+  const bridgeDrawing = getBridgeDrawingGeometry(neck, bridge);
+  for (const point of bridgeDrawingBoundsPoints(bridgeDrawing)) add(point.x, point.y);
   add(0, getTheoreticalSaddleYMm(neck));
   // `?? []` because an embedded bridge copy need not carry them — see the
   // note on BridgePreset.mountingPoints. Same defensive shape as
@@ -168,9 +217,9 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
   // Scale-length geometry - identical to what the canvas draws
   const theoreticalSaddleY = getTheoreticalSaddleYMm(neck);
   const saddleY = getSaddleYMm(neck, bridge);
-  const bridgePlateTopY = getBridgePlateTopYMm(neck, bridge);
-  const saddlePlateTopY = getSaddlePlateTopYMm(neck, bridge);
+  const bridgeDrawing = getBridgeDrawingGeometry(neck, bridge);
   const mountingOriginY = getMountingPointOriginYMm(neck, bridge);
+  const bridgeHardware = bridgeHardwareSVG(bridgeDrawing, bridge, theoreticalSaddleY, mountingOriginY);
 
   const isHorizontal = settings.canvasOrientation === 'horizontal';
 
@@ -305,17 +354,9 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
       .map((r) => `<path d="${anchorsToSVGPath(r.contour.anchors, r.contour.closed)}" class="front-route" />`)
       .join('')}
 
-    <!-- Bridge Plate, Saddle Plate (two real hardware parts) & the
-         theoretical scale-length reference line through the bridge -->
+    <!-- Family-specific bridge hardware and scale-length reference line -->
     <g id="bridge-hardware">
-      <rect x="${(-bridge.widthMm / 2).toFixed(2)}" y="${bridgePlateTopY.toFixed(2)}" width="${bridge.widthMm}" height="${bridge.lengthMm}" class="bridge-rout" />
-      <rect x="${(-bridge.widthMm / 2).toFixed(2)}" y="${saddlePlateTopY.toFixed(2)}" width="${bridge.widthMm}" height="${bridge.lengthMm}" class="bridge-rout" />
-      <line x1="${(-bridge.widthMm / 2 + 5).toFixed(2)}" y1="${theoreticalSaddleY.toFixed(2)}" x2="${(bridge.widthMm / 2 - 5).toFixed(2)}" y2="${theoreticalSaddleY.toFixed(2)}" stroke="#dc3545" stroke-width="1.2" />
-      <g transform="translate(0, ${mountingOriginY.toFixed(2)})">
-        ${(bridge.mountingPoints ?? [])
-          .map((pt) => `<circle cx="${pt.x}" cy="${pt.y}" r="2" fill="#007bff" />`)
-          .join('')}
-      </g>
+      ${bridgeHardware}
     </g>
   </g>
 
