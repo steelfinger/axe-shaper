@@ -22,6 +22,7 @@ import {
 } from '../utils/pickupEditing';
 import { withMirroredBevelIntensity } from '../utils/symmetry';
 import { formatLength } from '../utils/units';
+import { EdgeProfilePreview } from './EdgeProfilePreview';
 
 interface InspectorPanelProps {
   project: GuitarProject;
@@ -123,10 +124,11 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
     );
   };
 
-  // Whether the current edge profile actually draws a top-face boundary. The
+  // Whether the current edge profile draws a top-face boundary at all. The
   // per-node values are stored either way - every blueprint carries them, Slab
-  // ones included - so the slider stays available and says when it is inert
-  // rather than hiding data that is really in the file.
+  // ones included - but the control only appears for the two treatments it can
+  // actually change, so it reads as part of that choice rather than a slider
+  // that happens to do nothing today.
   const bevelIsDrawn = variableInsetWidthMm(project.edgeProfile) !== null;
 
   const bevelIntensityOf = (anchor: PathAnchor): number =>
@@ -286,7 +288,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               </select>
             </div>
 
-            {activeLayer.kind === 'body' && (
+            {activeLayer.kind === 'body' && bevelIsDrawn && (
               <div className="form-group" style={{ marginBottom: '12px' }}>
                 <label className="form-label">
                   Bevel Intensity: <strong>{bevelIntensityOf(selectedAnchor).toFixed(2)}&times;</strong>
@@ -312,12 +314,15 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
                   {isFixedNeckPocketAnchor(selectedAnchor)
                     ? 'The bevel always runs out to nothing at the neck pocket.'
-                    : !bevelIsDrawn
-                      ? 'Stored with the node, but the current edge style draws no bevel.'
-                      : mirrorsIntensity
-                        ? 'How far the bevel runs here, as a multiple of the edge width. Mirrored to the opposite node.'
-                        : 'How far the bevel runs here, as a multiple of the edge width.'}
+                    : mirrorsIntensity
+                      ? 'How far the bevel runs here, as a multiple of the edge width. Mirrored to the opposite node.'
+                      : 'How far the bevel runs here, as a multiple of the edge width.'}
                 </p>
+                <EdgeProfilePreview
+                  profile={project.edgeProfile}
+                  intensity={bevelIntensityOf(selectedAnchor)}
+                  unitDisplay={settings.unitDisplay}
+                />
               </div>
             )}
 
@@ -346,7 +351,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               <strong style={{ color: 'var(--text-primary)' }}>{selectedAnchorIds.size} nodes selected</strong>
             </div>
 
-            {activeLayer.kind === 'body' && (
+            {activeLayer.kind === 'body' && bevelIsDrawn && (
               <div className="form-group" style={{ marginBottom: '12px' }}>
                 <label className="form-label">
                   Bevel Intensity:{' '}
@@ -372,10 +377,15 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
                   style={{ width: '100%' }}
                 />
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                  {bevelIsDrawn
-                    ? `Sets every selected node at once${mirrorsIntensity ? ', and their opposite numbers' : ''}.`
-                    : 'Stored with the nodes, but the current edge style draws no bevel.'}
+                  {`Sets every selected node at once${mirrorsIntensity ? ', and their opposite numbers' : ''}.`}
                 </p>
+                {sharedBevelIntensity !== null && (
+                  <EdgeProfilePreview
+                    profile={project.edgeProfile}
+                    intensity={sharedBevelIntensity}
+                    unitDisplay={settings.unitDisplay}
+                  />
+                )}
               </div>
             )}
 
