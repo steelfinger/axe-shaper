@@ -193,7 +193,7 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
         <section className="workbench-section" id="workbench">
           <div className="workbench-collage">
             <figure className="workbench-photo workbench-photo-wide">
-              <img src="/photos/unfinished-guitar-body.webp" alt="Unfinished electric guitar body blanks on a padded luthier's workbench" loading="lazy" />
+              <img src="/photos/unfinished-guitar-body.webp" alt="An unfinished electric guitar body, its cavities already routed, on a padded luthier's workbench" loading="lazy" />
               <figcaption>Photo by <a href="https://unsplash.com/@alexkall?utm_source=axe_shaper&utm_medium=referral" {...external}>Alex Kalligas</a> on <a href="https://unsplash.com/photos/N_kSeJWM6xM?utm_source=axe_shaper&utm_medium=referral" {...external}>Unsplash</a></figcaption>
             </figure>
             <img className="workbench-mark" src="/brand/axe-shaper-mark-large.png" alt="" aria-hidden="true" loading="lazy" />
