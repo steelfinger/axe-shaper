@@ -203,7 +203,7 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
             </figure>
           </div>
           <div className="workbench-copy">
-            <h2>Designed on screen. Proven at the bench.</h2>
+            <h2>Drawn to be cut.</h2>
             <p>The drawing is not the destination. It becomes a paper pattern, a router guide, and eventually an instrument. Axe Shaper keeps the digital plan grounded in the measurements that survive that handoff.</p>
             <a className="marketing-button secondary" href="/app">Start a shop-ready plan <ArrowRight size={17} /></a>
           </div>

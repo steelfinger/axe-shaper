@@ -1319,8 +1319,11 @@ html.marketing-document {
 
 .workbench-mark {
   position: absolute;
-  right: 41%;
-  bottom: 2%;
+  /* Centred on the seam where the two photos overlap (~72% across), which is
+     the mark's job here: bridging the digital artifact and the workshop. Off
+     the seam it reads as a sticker dropped onto one photo. */
+  right: 12%;
+  bottom: 14%;
   z-index: 3;
   width: clamp(140px, 16vw, 220px);
   height: auto;
@@ -1750,8 +1753,11 @@ html.marketing-document {
     width: 42%;
   }
 
+  /* The collage reflows here (wide photo to 92%, tall photo from 58%), so the
+     seam moves to ~75% and the mark follows it. */
   .workbench-mark {
-    right: 23%;
+    right: 6%;
+    bottom: 16%;
     width: 130px;
   }
 

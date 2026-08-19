@@ -309,7 +309,9 @@ visitor can take away, so they belong to the paper, not to the copy column.
 - **Chrome scale:** use the transparent simplified mark at `24–28px` beside the
   Axe Shaper name. Never place the opaque gray-backed small source asset there.
 - **Feature scale:** the textured transparent mark may reach `140–220px` when
-  bridging a digital artifact and a physical workshop image.
+  bridging a digital artifact and a physical workshop image. Centre it on the
+  seam where the two images overlap; parked on one of them it stops bridging
+  anything and reads as a sticker.
 - **Wordmark:** keep “Axe Shaper” as accessible HTML text. The supplied metallic
   text image has an opaque gray field and is not the primary web wordmark.
 
@@ -394,6 +396,11 @@ color language, independent of the chrome palette above:
 - **Don't** let a decorative radial gradient fade inside a box narrower than its
   own stop radius - it clips to a hard vertical seam. Anchor the glow to the
   full page width so the fade completes on screen.
+- **Don't** let a headline next to documentary workshop photography claim an
+  outcome the project has not achieved. "Proven at the bench" beside photos of
+  real guitar bodies reads as a case study even with the stock-photo credit
+  attached; there are no builds to cite yet. Headlines over that photography
+  state design intent ("Drawn to be cut."), never validated results.
 - **Don't** present the composite marketing illustration as an actual product
   screenshot; its interface is illustrative. It is reserved for social-preview
   artwork until replaced by a verified product montage.
