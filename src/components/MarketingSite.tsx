@@ -5,20 +5,27 @@ import {
   Code2,
   Link2,
   Mail,
+  PenLine,
   Printer,
   Ruler,
   ShieldCheck,
-  Tablet,
 } from 'lucide-react';
 import blueprintUrl from '../constants/blueprints/s_style.axe.svg?url';
 
+/** Same geometry as blueprintUrl, restroked for screen. See scripts/build-marketing-plan.ts. */
+const PLAN_DISPLAY_URL = '/marketing/s-style-plan.svg';
+
 const GITHUB_URL = 'https://github.com/steelfinger/axe-shaper';
-const IPAD_MAILTO = 'mailto:tero.aarnio@gmail.com?subject=Axe%20Shaper%20for%20iPad%20updates&body=Please%20let%20me%20know%20when%20Axe%20Shaper%20for%20iPad%20is%20available.';
+const IPAD_EMAIL = 'tero.aarnio@gmail.com';
+const IPAD_MAILTO = `mailto:${IPAD_EMAIL}?subject=Axe%20Shaper%20for%20iPad%20updates&body=Please%20let%20me%20know%20when%20Axe%20Shaper%20for%20iPad%20is%20available.`;
+
+/** Every off-site link opens in a new tab so the page is never lost mid-evaluation. */
+const external = { target: '_blank', rel: 'noopener noreferrer' } as const;
 
 function Brand(): React.JSX.Element {
   return (
     <a className="marketing-brand" href="/" aria-label="Axe Shaper home">
-      <img src="/brand/axe-shaper-mark.png" alt="" aria-hidden="true" />
+      <img src="/brand/axe-shaper-mark.png" alt="" aria-hidden="true" width={28} height={28} />
       <span>Axe Shaper</span>
     </a>
   );
@@ -32,7 +39,7 @@ function Footer(): React.JSX.Element {
       <nav aria-label="Footer">
         <a href="/privacy">Privacy</a>
         <a href="/support">Support</a>
-        <a href={GITHUB_URL}>GitHub</a>
+        <a href={GITHUB_URL} {...external}>GitHub</a>
       </nav>
     </footer>
   );
@@ -64,7 +71,7 @@ function StaticPage({ kind }: { kind: 'privacy' | 'support' }): React.JSX.Elemen
           <div className="prose">
             <p>For bugs, feature requests, and questions about the open-source web editor, open an issue on GitHub. Include your browser, the steps that led to the problem, and a sample <code>.axe.svg</code> when it is safe to share.</p>
             <div className="static-actions">
-              <a className="marketing-button primary" href={`${GITHUB_URL}/issues`}><Code2 size={17} /> Open a GitHub issue</a>
+              <a className="marketing-button primary" href={`${GITHUB_URL}/issues`} {...external}><Code2 size={17} /> Open a GitHub issue</a>
               <a className="marketing-button secondary" href="mailto:tero.aarnio@gmail.com?subject=Axe%20Shaper%20support"><Mail size={17} /> Email support</a>
             </div>
             <h2>Before printing</h2>
@@ -105,9 +112,10 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
       <header className="marketing-nav">
         <Brand />
         <nav aria-label="Main navigation">
+          <a href="#linked-geometry">Linked geometry</a>
           <a href="#how-it-works">How it works</a>
           <a href="#ipad">iPad</a>
-          <a href={GITHUB_URL}>Open source</a>
+          <a href={GITHUB_URL} {...external}>Open source</a>
         </nav>
         <a className="marketing-nav-cta" href="/app">Open editor <ArrowRight size={15} /></a>
       </header>
@@ -115,63 +123,83 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
       <main>
         <section className="marketing-hero">
           <div className="hero-copy">
-            <h1>Shape the body.<br />Trust the blueprint.</h1>
+            <h1>Shape the body. Trust the blueprint.</h1>
             <p className="hero-lede">Design an electric guitar body with the neck, bridge, pickups, and scale length working as one measured system—then export a true-scale plan for the shop.</p>
             <div className="hero-actions">
               <a className="marketing-button primary" href="/app">Design in your browser <ArrowRight size={17} /></a>
-              <a className="marketing-button secondary" href={GITHUB_URL}><Code2 size={17} /> View source</a>
+              <a className="marketing-button secondary" href={GITHUB_URL} {...external}><Code2 size={17} /> View source</a>
             </div>
             <p className="hero-note"><ShieldCheck size={15} /> Free web editor · no account required · projects save to your device</p>
           </div>
 
-          <div className="blueprint-stage" aria-label="A real S-style plan exported by Axe Shaper">
-            <div className="sheet-tab"><span>S-STYLE STANDARD</span><span>647.7 mm SCALE</span></div>
+          <figure className="blueprint-stage">
+            <div className="sheet-tab"><span>S-Style Standard</span><span>647.7 mm scale</span></div>
             <div className="blueprint-sheet">
-              <img src={blueprintUrl} alt="True-scale S-style guitar body blueprint with hardware routes and calibration square" />
+              <img
+                src={PLAN_DISPLAY_URL}
+                alt="A true-scale S-style guitar body plan: body outline, three pickup routes, the bridge rout and saddle line, the centreline and neck-joint guides, and a 100 mm calibration square."
+                width={1377}
+                height={2481}
+              />
             </div>
-            <div className="bench-callout callout-scale"><Ruler size={16} /><span><strong>100 × 100 mm</strong> print check</span></div>
-            <div className="bench-callout callout-format"><Download size={16} /><span><strong>.axe.svg</strong> portable project</span></div>
-          </div>
+            <figcaption className="sheet-actions">
+              <a className="sheet-action" href={blueprintUrl} download="axe-shaper-s-style.axe.svg">
+                <Download size={15} /> Download this plan
+                <small>26 KB .axe.svg</small>
+              </a>
+              <a className="sheet-action" href="/app">
+                <PenLine size={15} /> Open it in the editor
+                <small>no account needed</small>
+              </a>
+            </figcaption>
+            <div className="bench-callout callout-scale">
+              <Ruler size={16} />
+              <span><strong>100 × 100 mm</strong>Measure this square after printing. If it is off, the print is scaled.</span>
+            </div>
+          </figure>
         </section>
 
-        <section className="proof-strip" aria-label="Core product guarantees">
-          <div><span className="proof-value">1:1</span><span>physical SVG output</span></div>
-          <div><span className="proof-value">mm</span><span>geometry at every step</span></div>
-          <div><span className="proof-value">50</span><span>undo steps</span></div>
-          <div><span className="proof-value">2</span><span>sibling workbenches</span></div>
+        <section className="proof-strip" aria-label="What the export guarantees">
+          <div><span className="proof-value">1:1</span><span>prints true to scale, with a calibration square to prove it</span></div>
+          <div><span className="proof-value">mm</span><span>every anchor stored in physical millimetres, never inches</span></div>
+          <div><span className="proof-value">8</span><span>reference body blueprints to start from, or trace your own</span></div>
+          <div><span className="proof-value">MIT</span><span>open source, free, and yours to fork</span></div>
         </section>
 
-        <section className="linked-section" id="how-it-works">
+        <section className="linked-section" id="linked-geometry">
           <div className="linked-copy">
             <h2>A guitar is not a pile of independent shapes.</h2>
             <p>Change the neck or scale and the saddle line must still land where the instrument can intonate. Axe Shaper keeps that relationship in the project instead of asking you to reconstruct it in a generic vector editor.</p>
           </div>
-          <div className="geometry-chain" aria-label="Linked geometry workflow">
-            <div className="chain-item"><span>NUT</span><strong>Scale length</strong><small>25.5 in</small></div>
-            <div className="chain-link"><Link2 size={20} /></div>
-            <div className="chain-item active"><span>JOINT</span><strong>Neck pocket</strong><small>55.56 mm</small></div>
-            <div className="chain-link"><Link2 size={20} /></div>
-            <div className="chain-item"><span>SADDLE</span><strong>Bridge line</strong><small>+ compensation</small></div>
-          </div>
+          <ol className="geometry-chain">
+            <li className="chain-item"><strong>Scale length</strong><small>647.7 mm</small><span>you choose it</span></li>
+            <li className="chain-link" aria-hidden="true"><Link2 size={20} /></li>
+            <li className="chain-item"><strong>Neck pocket</strong><small>55.56 mm wide</small><span>the joint follows</span></li>
+            <li className="chain-link" aria-hidden="true"><Link2 size={20} /></li>
+            <li className="chain-item"><strong>Saddle line</strong><small>+ 2.0 mm compensation</small><span>and the bridge lands here</span></li>
+          </ol>
         </section>
 
-        <section className="workflow-section">
-          <div className="workflow-rail" aria-hidden="true"><span /><span /><span /></div>
-          <article><Ruler size={24} /><h3>Start from measured geometry</h3><p>Choose a familiar body blueprint or trace a calibrated reference image. Every anchor stays in physical millimetres.</p></article>
-          <article><Printer size={24} /><h3>Export the thing you build from</h3><p>The project and printable drawing live in one standard SVG, with a calibration square that catches printer scaling.</p></article>
-          <article><Link2 size={24} /><h3>Carry the work forward</h3><p>Open the same <code>.axe.svg</code> later without giving up the project data embedded inside it.</p></article>
+        <section className="workflow-section" id="how-it-works">
+          <h2 className="section-heading">Plan, print, cut.</h2>
+          <div className="workflow-grid">
+            <div className="workflow-rail" aria-hidden="true"><span /><span /><span /></div>
+            <article><Ruler size={24} /><h3>Start from measured geometry</h3><p>Choose one of eight reference body blueprints or trace a calibrated photo of your own. Every anchor you drag stays in physical millimetres.</p></article>
+            <article><Printer size={24} /><h3>Export the thing you build from</h3><p>The project and the printable drawing live in one standard SVG, with a calibration square that catches printer scaling before you cut.</p></article>
+            <article><Link2 size={24} /><h3>Carry the work forward</h3><p>Reopen the same <code>.axe.svg</code> months later with every curve, preset and pickup still editable — the project data rides inside the drawing.</p></article>
+          </div>
         </section>
 
         <section className="workbench-section" id="workbench">
           <div className="workbench-collage">
             <figure className="workbench-photo workbench-photo-wide">
               <img src="/photos/unfinished-guitar-body.webp" alt="Unfinished electric guitar body blanks on a padded luthier's workbench" loading="lazy" />
-              <figcaption>Photo by <a href="https://unsplash.com/@alexkall?utm_source=axe_shaper&utm_medium=referral">Alex Kalligas</a> on <a href="https://unsplash.com/photos/N_kSeJWM6xM?utm_source=axe_shaper&utm_medium=referral">Unsplash</a></figcaption>
+              <figcaption>Photo by <a href="https://unsplash.com/@alexkall?utm_source=axe_shaper&utm_medium=referral" {...external}>Alex Kalligas</a> on <a href="https://unsplash.com/photos/N_kSeJWM6xM?utm_source=axe_shaper&utm_medium=referral" {...external}>Unsplash</a></figcaption>
             </figure>
             <img className="workbench-mark" src="/brand/axe-shaper-mark-large.png" alt="" aria-hidden="true" loading="lazy" />
             <figure className="workbench-photo workbench-photo-tall">
               <img src="/photos/guitar-body-workbench.webp" alt="An unfinished electric guitar body resting under a workshop lamp" loading="lazy" />
-              <figcaption>Photo by <a href="https://unsplash.com/@alexkall?utm_source=axe_shaper&utm_medium=referral">Alex Kalligas</a> on <a href="https://unsplash.com/photos/_AL_uONnBTg?utm_source=axe_shaper&utm_medium=referral">Unsplash</a></figcaption>
+              <figcaption>Photo by <a href="https://unsplash.com/@alexkall?utm_source=axe_shaper&utm_medium=referral" {...external}>Alex Kalligas</a> on <a href="https://unsplash.com/photos/_AL_uONnBTg?utm_source=axe_shaper&utm_medium=referral" {...external}>Unsplash</a></figcaption>
             </figure>
           </div>
           <div className="workbench-copy">
@@ -185,16 +213,15 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
           <div className="ipad-device" aria-hidden="true">
             <div className="ipad-screen">
               <div className="ipad-toolbar"><span /><span /><span /></div>
-              <img src={blueprintUrl} alt="" />
+              <img src={PLAN_DISPLAY_URL} alt="" />
               <div className="pencil-line" />
             </div>
           </div>
           <div className="ipad-copy">
-            <Tablet size={30} />
-            <h2>The same plan is coming to a Pencil-first workbench.</h2>
-            <p>Axe Shaper for iPad is a private, native build in development. It shares no UI code with the web editor; it shares the geometry corpus and the portable <code>.axe.svg</code> contract that matter.</p>
+            <h2>The same plan, coming to an Apple Pencil workbench.</h2>
+            <p>Axe Shaper for iPad is a native build in development. It is written from scratch rather than wrapped, and it stays honest against this editor the only way that counts: both are checked against the same frozen geometry corpus, and both read and write the same <code>.axe.svg</code>.</p>
             <a className="marketing-button primary" href={IPAD_MAILTO}><Mail size={17} /> Ask for iPad release updates</a>
-            <small>This opens your email app. No release date is promised.</small>
+            <small>Opens your email app — or write to <a href={IPAD_MAILTO}>{IPAD_EMAIL}</a>. No release date is promised.</small>
           </div>
         </section>
 

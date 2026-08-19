@@ -211,6 +211,12 @@ sections. The first viewport is a two-part bench with copy and CTA beside one
 large print sheet; below `980px` it stacks, and below `700px` all flows become a
 single column. The public site changes the page layout, never the editor grid.
 
+Public section rhythm is one token, `--section-pad`
+(`clamp(76px, 7.5vw, 112px)`), applied top and bottom to every public section.
+Hand-tuned per-section padding drifted to 150/150, 20/150, 80/170 and left a
+full screen of nothing between the proof strip and the next heading; a single
+step keeps the scroll cadence even.
+
 ## Elevation & Depth
 
 Hybrid, split by **docking**, not by z-order or by what's underneath.
@@ -275,6 +281,13 @@ mockup follows the device silhouette rather than the UI container scale.
 - **Secondary:** raised slate with the shared hairline border.
 - **Hover / Focus:** a one-pixel lift on hover and the shared sky-blue keyboard
   focus outline.
+
+### Artifact Actions (`.sheet-action`)
+The row of controls directly beneath the public print sheet: neutral raised
+slate at the same `44px` minimum height as every marketing CTA, with the action
+in Inter on the left and its measured detail (`26 KB .axe.svg`) in mono on the
+right. They are what turns the hero artifact from a picture into something a
+visitor can take away, so they belong to the paper, not to the copy column.
 
 ### Cards / Containers
 - **Corner Style:** `--radius-md` (10px).
@@ -345,6 +358,15 @@ color language, independent of the chrome palette above:
   `16–18px` in headers and modals, `20px` for the brand mark.
 - **Do** use the app's own exported drawing when a public surface needs visual
   proof; the printable artifact should be recognizable without marketing copy.
+- **Do** restroke that drawing for screen rather than shrinking the paper file.
+  Plan strokes are physical (`0.4mm` outline), so at hero scale they land near
+  `0.3` CSS px and the proof renders as a ghost.
+  `scripts/build-marketing-plan.ts` copies the geometry verbatim and scales only
+  stroke weights and label sizes; the download link still serves the real
+  `.axe.svg`.
+- **Do** size a container that holds the plan to the plan's own aspect
+  (`364.31 / 656.41`). A squarer box wastes ~40% of the sheet on blank margin
+  and shrinks the drawing to pay for it.
 - **Do** use documentary workshop photography to show the handoff from plan to
   wood, with visible creator attribution and restrained dark treatment.
 
@@ -364,6 +386,14 @@ color language, independent of the chrome palette above:
   Pill Rule). Literal device silhouettes are not interface containers.
 - **Don't** use plan paper as a generic light section background. It denotes a
   real printable or editable work surface.
+- **Don't** spend gold on public-page ambience. A page-wide gold glow, gold
+  trim on the sheet tab, and gold eyebrows on every chain item made gold read as
+  "Axe Shaper brand" and cancelled the one card actually marked current. The
+  bench lamp is a neutral warm white (`rgba(255,244,224,0.055)`); gold stays
+  reserved for state.
+- **Don't** let a decorative radial gradient fade inside a box narrower than its
+  own stop radius - it clips to a hard vertical seam. Anchor the glow to the
+  full page width so the fade completes on screen.
 - **Don't** present the composite marketing illustration as an actual product
   screenshot; its interface is illustrative. It is reserved for social-preview
   artwork until replaced by a verified product montage.
