@@ -1,21 +1,37 @@
 import React from 'react';
 import type { EdgeProfile } from '../types/guitar';
-import { BEVEL_INTENSITY_MAX } from '../constants/edgeProfiles';
+import { BEVEL_INTENSITY_MAX, EDGE_PROFILE_CONTROLS } from '../constants/edgeProfiles';
 import { variableInsetWidthMm } from '../utils/bevelIntensity';
 import { formatLength, unitLabel, type UnitDisplay } from '../utils/units';
 
 /**
  * How far down the section is drawn. A project carries no body thickness, so
  * the cut is simply clipped here rather than inventing one - everything above
- * this line is real geometry, and nothing below it is claimed.
+ * this line is real geometry, and nothing below it is claimed. Deep enough
+ * that the widest bevel the picker offers still falls inside it at full
+ * intensity 1, so the drop keeps growing with the width instead of flattening
+ * off against the bottom of the box partway along the slider.
  */
-const SECTION_DEPTH_MM = 22;
+const SECTION_DEPTH_MM = 26;
 
 /** Flat top face shown inboard of the treatment, and air outside the edge. */
 const BODY_MARGIN_MM = 12;
 const OUTSIDE_MARGIN_MM = 4;
 
 const DEFAULT_BEVEL_ANGLE_DEGREES = 45;
+
+/**
+ * The furthest inboard any editable profile can reach: the widest each kind's
+ * controls allow, at full intensity. Fixing the scale to this - rather than to
+ * the profile in front of you - is what makes widening the bevel draw a bigger
+ * cut. Scaling to the current profile cancels the change out, because the
+ * drawing grows and the ruler under it grows with it.
+ */
+const MAX_REACH_MM = BEVEL_INTENSITY_MAX * Math.max(
+  ...Object.values(EDGE_PROFILE_CONTROLS).map((controls) =>
+    controls.reduce((total, control) => total + control.maxMm, 0)
+  )
+);
 
 interface EdgeProfilePreviewProps {
   profile: EdgeProfile | undefined;
@@ -33,9 +49,10 @@ const mm = (value: number): string => Number(value.toFixed(3)).toString();
 /**
  * A cross-section through the edge at the selected node, in true proportion.
  *
- * The horizontal scale is pinned to the widest the profile can reach - its
- * base width at BEVEL_INTENSITY_MAX - so the cut visibly grows and shrinks
- * with the slider instead of the drawing rescaling to hide the change.
+ * The scale is fixed, and the same on both axes, so every change reads the way
+ * it does in the wood: a wider bevel, a deeper carve or a higher intensity all
+ * draw a bigger cut, and two profiles can be compared against each other
+ * because neither one moved the ruler.
  */
 export const EdgeProfilePreview: React.FC<EdgeProfilePreviewProps> = ({
   profile,
@@ -45,9 +62,11 @@ export const EdgeProfilePreview: React.FC<EdgeProfilePreviewProps> = ({
   const baseWidthMm = variableInsetWidthMm(profile);
   if (!profile || baseWidthMm === null || baseWidthMm <= 0) return null;
 
-  const maxReachMm = baseWidthMm * BEVEL_INTENSITY_MAX;
   const reachMm = baseWidthMm * intensity;
-  const innerX = -(maxReachMm + BODY_MARGIN_MM);
+  // Only a file written against wider limits than this build edits can exceed
+  // the fixed span; that one keeps its whole section rather than being cropped.
+  const spanMm = Math.max(MAX_REACH_MM, reachMm);
+  const innerX = -(spanMm + BODY_MARGIN_MM);
 
   // The top face, walked from deep inside the body out to the edge at x = 0.
   // y grows downward from the top face, matching the plan's own convention.
