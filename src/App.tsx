@@ -120,6 +120,20 @@ const shouldShowWelcome = (): boolean => {
   }
 };
 
+/**
+ * A plan for `/app?plan=...` to open on load, or null.
+ *
+ * Deliberately restricted to a same-origin absolute path. This fetches
+ * whatever it points at and loads it as the project, so allowing an off-site
+ * URL would let a crafted link drop arbitrary content into someone's editor.
+ * "/marketing/x.axe.svg" passes; "//host/x" and "https://host/x" do not.
+ */
+const planParamFromLocation = (): string | null => {
+  const raw = new URLSearchParams(window.location.search).get('plan');
+  if (!raw || !raw.startsWith('/') || raw.startsWith('//')) return null;
+  return raw;
+};
+
 function EditorApp(): React.JSX.Element {
   const [project, setProject] = useState<GuitarProject>(INITIAL_PROJECT);
   const [selectedAnchorIds, setSelectedAnchorIds] = useState<Set<string>>(() => new Set());
@@ -564,6 +578,48 @@ function EditorApp(): React.JSX.Element {
     reader.readAsText(file);
     e.target.value = '';
   };
+
+  /**
+   * Open the plan named by `?plan=`, so a link like the public page's "Open it
+   * in the editor" arrives with that drawing already on the canvas instead of
+   * the default project.
+   *
+   * Two details matter. The plan is set with `setProject`, not
+   * `handleUpdateProject`, so it becomes the baseline document rather than an
+   * undoable edit on top of a default nobody chose. And the parameter is
+   * stripped from the URL once it has been applied, so a later reload cannot
+   * silently throw away work by loading the plan a second time.
+   */
+  useEffect(() => {
+    const src = planParamFromLocation();
+    if (!src) return;
+    let cancelled = false;
+
+    void (async () => {
+      let imported: GuitarProject | null = null;
+      try {
+        const response = await fetch(src);
+        if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+        imported = extractProjectFromSVG(await response.text());
+      } catch {
+        imported = null;
+      }
+      if (cancelled) return;
+
+      if (imported?.contour && imported.settings) {
+        setProject(migrateProject(imported));
+        // They came to look at a specific drawing, not to be onboarded.
+        setIsWelcomeModalOpen(false);
+      } else {
+        alert('That plan could not be opened, so the editor started from the default project instead.');
+      }
+      window.history.replaceState(null, '', window.location.pathname);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     document.title = `${project.settings.name} — Axe Shaper Editor`;

@@ -75,6 +75,23 @@ also makes it a regression test here: it fails if curve evaluation, scale math
 or symmetry output changes. Regenerate deliberately, never to make the check
 pass. See `tests/golden/README.md`.
 
+## Opening a plan from a link
+
+`/app?plan=/marketing/foo.axe.svg` fetches that file and loads it as the
+project, which is how the public page's "Open it in the editor" works.
+
+Two things are load-bearing in `planParamFromLocation` / its effect in
+`src/App.tsx`:
+
+- The value must be a **same-origin absolute path**. It is fetched and loaded
+  as project data, so accepting `https://...` or protocol-relative `//host/...`
+  would let a crafted link drop arbitrary content into someone's editor.
+- The plan is applied with `setProject`, not `handleUpdateProject`, so it is
+  the baseline document rather than an undoable edit sitting on top of a
+  default nobody asked for. The parameter is then stripped with
+  `history.replaceState`, because otherwise a reload re-applies the plan and
+  silently discards whatever the user has drawn since.
+
 ## Where the real logic lives
 
 - `src/utils/scaleMath.ts` - single source of truth for saddle and bridge Y.

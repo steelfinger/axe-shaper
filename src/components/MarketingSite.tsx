@@ -155,7 +155,7 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
                 <Download size={15} /> Download this plan
                 <small>38 KB .axe.svg</small>
               </a>
-              <a className="sheet-action" href="/app">
+              <a className="sheet-action" href={`/app?plan=${encodeURIComponent(PLAN_PRINT_URL)}`}>
                 <PenLine size={15} /> Open it in the editor
                 <small>no account needed</small>
               </a>
