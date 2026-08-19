@@ -12,6 +12,7 @@
     "corpus": "node scripts/generate-golden-corpus.ts",
     "corpus:check": "node scripts/generate-golden-corpus.ts --check",
     "bridge:check": "node scripts/check-bridge-drawing.ts",
+    "marketing:plan": "node scripts/build-marketing-plan.ts",
     "fixtures:check": "node scripts/check-ios-fixtures.ts",
     "preview": "vite preview"
   },

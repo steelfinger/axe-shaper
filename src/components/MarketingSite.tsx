@@ -13,12 +13,15 @@ import {
 /**
  * A real project saved out of the editor - a custom S-style body rather than
  * one of the built-in reference blueprints, so the hero shows what someone
- * makes with this rather than what ships in the box. Its line weights were
- * thickened for legibility at display scale; the geometry and the embedded
- * schemaVersion 2 payload are untouched, so the same file this page hands out
- * opens back up as an editable project.
+ * makes with this rather than what ships in the box.
+ *
+ * Two files, because the screen and the printer want opposite things. The
+ * download is the plan at its true print weights, thin enough to cut to
+ * accurately. The display copy is the same geometry with heavier strokes, so
+ * it survives being scaled into the hero. See scripts/build-marketing-plan.ts.
  */
-const PLAN_URL = '/marketing/custom-s-style-plan.axe.svg';
+const PLAN_PRINT_URL = '/marketing/custom-s-style-plan.axe.svg';
+const PLAN_DISPLAY_URL = '/marketing/custom-s-style-plan-display.svg';
 
 const GITHUB_URL = 'https://github.com/steelfinger/axe-shaper';
 const IPAD_EMAIL = 'tero.aarnio@gmail.com';
@@ -141,16 +144,16 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
             <div className="sheet-tab"><span>Custom S-style body</span><span>647.7 mm scale</span></div>
             <div className="blueprint-sheet">
               <img
-                src={PLAN_URL}
+                src={PLAN_DISPLAY_URL}
                 alt="A true-scale plan for a custom S-style guitar body: the body outline and edge inset, a neck pocket, three single-coil pickup routes, front and back cavity routes, a pickguard, the centreline and neck-joint guides, a marked saddle line, and a 100 mm calibration box."
                 width={1633}
                 height={2542}
               />
             </div>
             <figcaption className="sheet-actions">
-              <a className="sheet-action" href={PLAN_URL} download="axe-shaper-custom-s-style.axe.svg">
+              <a className="sheet-action" href={PLAN_PRINT_URL} download="axe-shaper-custom-s-style.axe.svg">
                 <Download size={15} /> Download this plan
-                <small>40 KB .axe.svg</small>
+                <small>38 KB .axe.svg</small>
               </a>
               <a className="sheet-action" href="/app">
                 <PenLine size={15} /> Open it in the editor
@@ -218,7 +221,7 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
           <div className="ipad-device" aria-hidden="true">
             <div className="ipad-screen">
               <div className="ipad-toolbar"><span /><span /><span /></div>
-              <img src={PLAN_URL} alt="" />
+              <img src={PLAN_DISPLAY_URL} alt="" />
               <div className="pencil-line" />
             </div>
           </div>

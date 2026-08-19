@@ -381,10 +381,18 @@ color language, independent of the chrome palette above:
   `public/marketing/custom-s-style-plan.axe.svg` - a custom S-style body with
   its schemaVersion 2 payload intact, so the file the page hands out opens back
   up as an editable project.
+- **Do** keep the displayed plan and the downloadable one as separate files.
+  They want opposite things: the hero renders at roughly `0.8 px/mm`, so a
+  print-weight `0.4mm` outline lands near `0.3` CSS px and vanishes, while a
+  line heavy enough to read on screen is a line you cut to the middle of
+  inaccurately. The printable `.axe.svg` stays the source of truth;
+  `scripts/build-marketing-plan.ts` derives a display copy with heavier strokes
+  and no project payload. Geometry is identical between them.
 - **Do** check what a physical stroke actually measures on screen before
-  trusting it. Plan strokes are millimetres, so they shrink with the sheet: the
-  hero renders at roughly `0.8 px/mm`, which puts a `1.2mm` outline at about
-  `0.96` CSS px. Anything under `1px` is a hairline on a non-Retina display.
+  trusting it. At the hero's `0.804 px/mm` desktop and `0.68 px/mm` mobile, a
+  stroke needs about `1.25mm` to clear `1 CSS px` on both. Primary structure
+  should clear it; dashed secondary guides may sit just under, which reads as
+  hierarchy rather than as a defect.
 - **Do** size a container that holds a plan to that plan's own aspect
   (currently `432.07 / 672.59`). A squarer box wasted ~40% of the sheet on blank
   margin and shrank the drawing to pay for it; matched, it is ~9%.
