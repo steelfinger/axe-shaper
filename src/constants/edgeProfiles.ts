@@ -35,7 +35,7 @@ export const DEFAULT_EDGE_PROFILES: Record<EdgeProfileKind, EdgeProfile> = {
   slab: { kind: 'slab', easeMm: 0 },
   contoured: { kind: 'contoured', baseRadiusMm: 8 },
   beveled: { kind: 'beveled', widthMm: 15, angleDegrees: 45, appliesTo: 'top_and_back' },
-  german_carve: { kind: 'german_carve', insetMm: 10, dropMm: 4, channelRadiusMm: 10 },
+  german_carve: { kind: 'german_carve', insetMm: 10, dropMm: 8, channelRadiusMm: 10 },
 };
 
 export interface EdgeProfileControl {
