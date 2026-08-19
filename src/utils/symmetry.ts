@@ -52,22 +52,9 @@ export function applyLiveSymmetry(
 
   if (Math.abs(source.position.x) < CENTERLINE_EPSILON_MM) return anchors;
 
-  let working = anchors;
-  let mirrorId = source.mirrorId;
-
-  if (!mirrorId) {
-    const partner = findMirrorPartner(working, source);
-    if (!partner) return working; // nothing close enough to trust - move only this side
-    mirrorId = partner.id;
-    working = working.map((a) => {
-      if (a.id === source.id) return { ...a, mirrorId: partner.id };
-      if (a.id === partner.id) return { ...a, mirrorId: source.id };
-      return a;
-    });
-  }
-
-  const partnerIndex = working.findIndex((a) => a.id === mirrorId);
-  if (partnerIndex === -1) return working; // partner was since deleted - dangling link, nothing to mirror
+  const resolved = resolveMirrorPair(anchors, source);
+  if (!resolved) return anchors; // unpaired, or a dangling link - move only this side
+  const { working, partnerIndex } = resolved;
 
   const partner = working[partnerIndex];
   if (partner.locked) return working; // never let mirroring drag a locked node (e.g. the neck pocket)
@@ -87,6 +74,76 @@ export function applyLiveSymmetry(
     handleIn: mirroredHandleIn,
     handleOut: mirroredHandleOut,
   };
+  return result;
+}
+
+/**
+ * Resolve `source`'s partner, bootstrapping the `mirrorId` link on both
+ * anchors the first time they are paired. Returns the (possibly relinked)
+ * anchor list with the partner's index, or null when there is nothing close
+ * enough to trust or the stored link is dangling - in both of those cases the
+ * caller keeps the original list, since a bootstrap only ever happens when a
+ * partner was in fact found.
+ */
+function resolveMirrorPair(
+  anchors: PathAnchor[],
+  source: PathAnchor
+): { working: PathAnchor[]; partnerIndex: number } | null {
+  let working = anchors;
+  let mirrorId = source.mirrorId;
+
+  if (!mirrorId) {
+    const partner = findMirrorPartner(working, source);
+    if (!partner) return null;
+    mirrorId = partner.id;
+    working = working.map((a) => {
+      if (a.id === source.id) return { ...a, mirrorId: partner.id };
+      if (a.id === partner.id) return { ...a, mirrorId: source.id };
+      return a;
+    });
+  }
+
+  const partnerIndex = working.findIndex((a) => a.id === mirrorId);
+  return partnerIndex === -1 ? null : { working, partnerIndex };
+}
+
+/**
+ * Mirror one anchor's bevel intensity onto its partner.
+ *
+ * Unlike a position there is no sign to flip - intensity is a scalar
+ * multiplier on the edge width, so the partner takes the same number. Kept
+ * separate from `applyLiveSymmetry` because the two are driven by different
+ * gestures: that one runs on a drag, this one on the Node Inspector slider.
+ */
+export function withMirroredBevelIntensity(
+  anchors: PathAnchor[],
+  sourceId: string,
+  symmetry: SymmetryConfig
+): PathAnchor[] {
+  if (symmetry.mode !== 'live_centerline') return anchors;
+
+  const source = anchors.find((a) => a.id === sourceId);
+  if (!source) return anchors;
+
+  // A node on the centerline is its own mirror - there is no other side to
+  // copy to, and the bevel there is shared by both halves anyway.
+  if (Math.abs(source.position.x) < CENTERLINE_EPSILON_MM) return anchors;
+
+  const resolved = resolveMirrorPair(anchors, source);
+  if (!resolved) return anchors;
+  const { working, partnerIndex } = resolved;
+
+  const partner = working[partnerIndex];
+  if (partner.locked) return working; // the neck pocket's bevel is fixed at 0 regardless
+
+  const mirrored = { ...partner };
+  // Absent means the 1.0 default, so clear the key rather than writing
+  // `undefined` into a file that would otherwise not carry it at all.
+  if (source.bevelIntensity === undefined) delete mirrored.bevelIntensity;
+  else mirrored.bevelIntensity = source.bevelIntensity;
+
+  const result = [...working];
+  result[partnerIndex] = mirrored;
   return result;
 }
 

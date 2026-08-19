@@ -157,7 +157,8 @@ export class PeriodicMonotoneCubic {
   }
 }
 
-function isFixedNeckPocketAnchor(anchor: BodyContour['anchors'][number]): boolean {
+/** The neck pocket's bevel is pinned to 0: the top face runs flat into the joint. */
+export function isFixedNeckPocketAnchor(anchor: BodyContour['anchors'][number]): boolean {
   return anchor.locked === true
     && (anchor.semanticRole === 'neck_pocket_left' || anchor.semanticRole === 'neck_pocket_right');
 }
@@ -364,7 +365,8 @@ export function offsetPolygon(
   return { points: rawTillerHansonOffset(loop, limits, maxMiterScale), safeLimitsMm: limits };
 }
 
-function variableInsetWidthMm(profile?: EdgeProfile): number | null {
+/** The edge width an inset is drawn at, or null for a profile that draws none. */
+export function variableInsetWidthMm(profile?: EdgeProfile): number | null {
   if (!profile) return null;
   if (profile.kind === 'beveled' && typeof profile.widthMm === 'number') return profile.widthMm;
   if (profile.kind === 'german_carve'

@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
-import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, ChevronDown, ChevronRight, Bookmark, Plus, Zap } from 'lucide-react';
+import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, ChevronDown, ChevronRight, Bookmark, Plus, Zap, Scissors } from 'lucide-react';
 import { BRIDGE_PRESETS, CURATED_NECK_PRESETS, NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
+import {
+  DEFAULT_EDGE_PROFILES,
+  EDGE_PROFILE_CONTROLS,
+  EDGE_PROFILE_KINDS,
+  EDGE_PROFILE_LABELS,
+  edgeProfileKindOf,
+  edgeProfileValue,
+  isKnownEdgeProfileKind,
+  type EdgeProfileKind,
+} from '../constants/edgeProfiles';
 import type {
   GuitarProject,
   GuideImageState,
@@ -112,6 +122,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const handleDeleteUserTemplate = (id: string) => {
     setUserTemplates(deleteUserTemplate(id));
+  };
+
+  const edgeProfileKind = edgeProfileKindOf(project.edgeProfile);
+  const knownEdgeKind: EdgeProfileKind = isKnownEdgeProfileKind(edgeProfileKind) ? edgeProfileKind : 'slab';
+  const edgeProfileControls = isKnownEdgeProfileKind(edgeProfileKind)
+    ? EDGE_PROFILE_CONTROLS[edgeProfileKind]
+    : [];
+
+  /**
+   * Changing the kind replaces the profile outright rather than merging: the
+   * field sets don't overlap, so spreading would leave a beveled profile
+   * carrying the slab's easeMm. Per-anchor bevelIntensity is untouched either
+   * way - it lives on the contour, and those values are what make a bevel
+   * follow the outline instead of running at a constant width.
+   */
+  const handleEdgeProfileKindChange = (kind: string) => {
+    if (!isKnownEdgeProfileKind(kind)) return;
+    onUpdateProject((prev) => ({ ...prev, edgeProfile: { ...DEFAULT_EDGE_PROFILES[kind] } }));
+  };
+
+  /** Editing a dimension spreads, so keys this build has no model for survive. */
+  const handleEdgeProfileValueChange = (field: string, valueMm: number) => {
+    onUpdateProject(
+      (prev) => ({
+        ...prev,
+        edgeProfile: { ...(prev.edgeProfile ?? DEFAULT_EDGE_PROFILES[knownEdgeKind]), [field]: valueMm },
+      }),
+      `edgeProfile.${field}`
+    );
   };
 
   type LayerShapeKind = 'pickguard' | 'frontRoute' | 'backRoute';
@@ -444,6 +483,78 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </p>
                   </div>
                 ))
+              )}
+            </div>
+
+            <div className="panel-section">
+              <div className="section-title">
+                <Scissors size={16} /> Edge Style
+              </div>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
+                How the body edge is cut away from the flat top. Beveled and German Carve draw the
+                top-face boundary on the plan; the per-node bevel intensities saved with the outline
+                shape how far it runs at each node.
+              </p>
+
+              <div className="form-group">
+                <label className="form-label">Edge Treatment</label>
+                <select
+                  value={edgeProfileKind}
+                  onChange={(e) => handleEdgeProfileKindChange(e.target.value)}
+                  className="form-select"
+                >
+                  {!isKnownEdgeProfileKind(edgeProfileKind) && (
+                    <option value={edgeProfileKind}>{edgeProfileKind} (from file)</option>
+                  )}
+                  {EDGE_PROFILE_KINDS.map((kind) => (
+                    <option key={kind} value={kind}>
+                      {EDGE_PROFILE_LABELS[kind]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {edgeProfileControls.map((control) => {
+                const valueMm = edgeProfileValue(project.edgeProfile, control, knownEdgeKind);
+                // A file written by another build can carry a dimension wider than
+                // this slider edits. Show the real number rather than the clamped
+                // one, and say so, instead of quietly rewriting someone's plan the
+                // first time they touch the control.
+                const outOfRange = valueMm < control.minMm || valueMm > control.maxMm;
+                return (
+                  <div className="form-group" key={control.field} style={{ marginBottom: '12px' }}>
+                    <label className="form-label">
+                      {control.label}:{' '}
+                      <strong>
+                        {formatLength(valueMm, settings.unitDisplay, 1)} {unitLabel(settings.unitDisplay)}
+                      </strong>
+                    </label>
+                    <input
+                      type="range"
+                      min={control.minMm}
+                      max={control.maxMm}
+                      step={control.stepMm}
+                      value={valueMm}
+                      onChange={(e) => handleEdgeProfileValueChange(control.field, parseFloat(e.target.value))}
+                      onPointerUp={onEndEdit}
+                      onBlur={onEndEdit}
+                      style={{ width: '100%' }}
+                    />
+                    {outOfRange && (
+                      <p style={{ fontSize: '0.75rem', color: 'var(--accent-red)', marginTop: '4px' }}>
+                        Saved as {formatLength(valueMm, settings.unitDisplay, 1)}{' '}
+                        {unitLabel(settings.unitDisplay)}, outside the range editable here - moving
+                        the slider will clamp it.
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+
+              {edgeProfileKind === 'contoured' && (
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  A radiused edge has no hard top-face boundary, so nothing extra is drawn on the plan.
+                </p>
               )}
             </div>
 

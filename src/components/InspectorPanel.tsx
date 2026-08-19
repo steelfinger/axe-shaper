@@ -2,7 +2,14 @@ import React from 'react';
 import { MousePointer, Trash2, PlusCircle, Ruler, Spline, Slash, Zap, Crosshair } from 'lucide-react';
 import { MIN_ANCHOR_COUNT } from '../App';
 import { PICKUP_SPECIFICATIONS } from '../constants/hardware';
-import type { GuitarProject, HandleMode, PickupType, Vector2D } from '../types/guitar';
+import type { GuitarProject, HandleMode, PathAnchor, PickupType, Vector2D } from '../types/guitar';
+import {
+  BEVEL_INTENSITY_DEFAULT,
+  BEVEL_INTENSITY_MAX,
+  BEVEL_INTENSITY_MIN,
+  BEVEL_INTENSITY_STEP,
+} from '../constants/edgeProfiles';
+import { isFixedNeckPocketAnchor, variableInsetWidthMm } from '../utils/bevelIntensity';
 import { distanceVector, isSegmentStraight, updateAnchorHandle } from '../utils/bezier';
 import { type ActiveLayer, getActiveContour, withActiveContour } from '../utils/layerShapes';
 import {
@@ -13,6 +20,7 @@ import {
   settingPickupWidth,
   movingPickup,
 } from '../utils/pickupEditing';
+import { withMirroredBevelIntensity } from '../utils/symmetry';
 import { formatLength } from '../utils/units';
 
 interface InspectorPanelProps {
@@ -112,6 +120,56 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
       },
       // One step for the whole number you type, not one per digit
       `anchor.position:${selectedAnchorId}:${axis}`
+    );
+  };
+
+  // Whether the current edge profile actually draws a top-face boundary. The
+  // per-node values are stored either way - every blueprint carries them, Slab
+  // ones included - so the slider stays available and says when it is inert
+  // rather than hiding data that is really in the file.
+  const bevelIsDrawn = variableInsetWidthMm(project.edgeProfile) !== null;
+
+  const bevelIntensityOf = (anchor: PathAnchor): number =>
+    isFixedNeckPocketAnchor(anchor) ? 0 : anchor.bevelIntensity ?? BEVEL_INTENSITY_DEFAULT;
+
+  const mirrorsIntensity =
+    activeLayer.kind === 'body' && settings.symmetry.mode === 'live_centerline';
+
+  // The value a multi-selection shares, or null when they disagree - a slider
+  // that claims one number for nodes set to several would be a lie until it is
+  // touched.
+  const selectedIntensities = activeContour.anchors
+    .filter((a) => selectedAnchorIds.has(a.id))
+    .map(bevelIntensityOf);
+  const sharedBevelIntensity =
+    selectedIntensities.length > 0 && selectedIntensities.every((v) => v === selectedIntensities[0])
+      ? selectedIntensities[0]
+      : null;
+
+  /**
+   * Set one value across every selected node. Mirroring runs per node so a
+   * selection that already contains both halves of a pair just writes the same
+   * number twice, and it is confined to the body: a pickguard or route contour
+   * has no centerline symmetry, and no bevel either.
+   */
+  const handleBevelIntensityChange = (ids: string[], value: number, coalesceKey: string) => {
+    if (ids.length === 0) return;
+    onUpdateProject(
+      (prev) => {
+        const prevContour = getActiveContour(prev, activeLayer);
+        if (!prevContour) return prev;
+        const target = new Set(ids);
+        let anchors = prevContour.anchors.map((a) =>
+          target.has(a.id) && !isFixedNeckPocketAnchor(a) ? { ...a, bevelIntensity: value } : a
+        );
+        if (activeLayer.kind === 'body') {
+          for (const id of ids) {
+            anchors = withMirroredBevelIntensity(anchors, id, prev.settings.symmetry);
+          }
+        }
+        return withActiveContour(prev, activeLayer, { ...prevContour, anchors });
+      },
+      coalesceKey
     );
   };
 
@@ -228,6 +286,41 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               </select>
             </div>
 
+            {activeLayer.kind === 'body' && (
+              <div className="form-group" style={{ marginBottom: '12px' }}>
+                <label className="form-label">
+                  Bevel Intensity: <strong>{bevelIntensityOf(selectedAnchor).toFixed(2)}&times;</strong>
+                </label>
+                <input
+                  type="range"
+                  min={BEVEL_INTENSITY_MIN}
+                  max={BEVEL_INTENSITY_MAX}
+                  step={BEVEL_INTENSITY_STEP}
+                  disabled={isFixedNeckPocketAnchor(selectedAnchor)}
+                  value={bevelIntensityOf(selectedAnchor)}
+                  onChange={(e) =>
+                    handleBevelIntensityChange(
+                      [selectedAnchor.id],
+                      parseFloat(e.target.value),
+                      `anchor.bevelIntensity:${selectedAnchor.id}`
+                    )
+                  }
+                  onPointerUp={onEndEdit}
+                  onBlur={onEndEdit}
+                  style={{ width: '100%' }}
+                />
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                  {isFixedNeckPocketAnchor(selectedAnchor)
+                    ? 'The bevel always runs out to nothing at the neck pocket.'
+                    : !bevelIsDrawn
+                      ? 'Stored with the node, but the current edge style draws no bevel.'
+                      : mirrorsIntensity
+                        ? 'How far the bevel runs here, as a multiple of the edge width. Mirrored to the opposite node.'
+                        : 'How far the bevel runs here, as a multiple of the edge width.'}
+                </p>
+              </div>
+            )}
+
             <div style={{ display: 'flex', gap: '8px' }}>
               <button
                 className="btn btn-sm"
@@ -252,6 +345,40 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
             <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
               <strong style={{ color: 'var(--text-primary)' }}>{selectedAnchorIds.size} nodes selected</strong>
             </div>
+
+            {activeLayer.kind === 'body' && (
+              <div className="form-group" style={{ marginBottom: '12px' }}>
+                <label className="form-label">
+                  Bevel Intensity:{' '}
+                  <strong>
+                    {sharedBevelIntensity === null ? 'Mixed' : `${sharedBevelIntensity.toFixed(2)}\u00d7`}
+                  </strong>
+                </label>
+                <input
+                  type="range"
+                  min={BEVEL_INTENSITY_MIN}
+                  max={BEVEL_INTENSITY_MAX}
+                  step={BEVEL_INTENSITY_STEP}
+                  value={sharedBevelIntensity ?? BEVEL_INTENSITY_DEFAULT}
+                  onChange={(e) =>
+                    handleBevelIntensityChange(
+                      [...selectedAnchorIds],
+                      parseFloat(e.target.value),
+                      `anchor.bevelIntensity:${[...selectedAnchorIds].join(',')}`
+                    )
+                  }
+                  onPointerUp={onEndEdit}
+                  onBlur={onEndEdit}
+                  style={{ width: '100%' }}
+                />
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                  {bevelIsDrawn
+                    ? `Sets every selected node at once${mirrorsIntensity ? ', and their opposite numbers' : ''}.`
+                    : 'Stored with the nodes, but the current edge style draws no bevel.'}
+                </p>
+              </div>
+            )}
+
             <button
               className="btn btn-sm"
               style={{ borderColor: 'var(--accent-red)', color: 'var(--accent-red)' }}
