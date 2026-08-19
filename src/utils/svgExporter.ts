@@ -278,7 +278,7 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
   <style>
     .body-line { fill: none; stroke: #111111; stroke-width: ${PLAN_DRAWING_STYLE.print.bodyStrokeMm}; stroke-linecap: round; stroke-linejoin: round; }
     .edge-inset { fill: none; stroke: #555555; stroke-width: 0.3; stroke-dasharray: 3,2; }
-    .neck-pocket { fill: none; stroke: #dc3545; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; stroke-dasharray: 4,4; }
+    .neck-pocket { fill: ${PLAN_DRAWING_STYLE.print.neckPocketFill}; stroke: ${PLAN_DRAWING_STYLE.print.neckPocketStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.neckPocketStrokeMm}; }
     .pickup-rout { fill: none; stroke: #28a745; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
     .bridge-rout { fill: none; stroke: #007bff; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
     .back-route { fill: ${PLAN_DRAWING_STYLE.print.backRouteFill}; stroke: ${PLAN_DRAWING_STYLE.print.backRouteStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; stroke-dasharray: ${PLAN_DRAWING_STYLE.print.backRouteDashMm}; }
@@ -336,7 +336,13 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
       class="neck-pocket"
     />
 
-    <!-- Pickup Routing Cavities -->
+    <!-- Front Routed Cavities (control cavities, etc. - under pickup hardware) -->
+    ${(frontRoutes ?? [])
+      .filter((r) => r.visible !== false)
+      .map((r) => `<path d="${anchorsToSVGPath(r.contour.anchors, r.contour.closed)}" class="front-route" />`)
+      .join('')}
+
+    <!-- Pickup Routing Cavities (kept above filled front routes so they remain identifiable) -->
     ${pickups
       .map((p) => {
         const { widthMm: w, heightMm: h, cornerRadiusMm: rx } = resolvePickupSpec(p);
@@ -347,12 +353,6 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
           </g>
         `;
       })
-      .join('')}
-
-    <!-- Front Routed Cavities (control cavities, etc. - alongside the pickup routs) -->
-    ${(frontRoutes ?? [])
-      .filter((r) => r.visible !== false)
-      .map((r) => `<path d="${anchorsToSVGPath(r.contour.anchors, r.contour.closed)}" class="front-route" />`)
       .join('')}
 
     <!-- Family-specific bridge hardware and scale-length reference line -->

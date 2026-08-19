@@ -94,6 +94,16 @@ function drawnLayerPaths(svg: string, className: string): string[] {
     .map((match) => match[1]);
 }
 
+function rootFrame(svg: string) {
+  const tag = svg.match(/<svg\b([\s\S]*?)>/)?.[1] ?? '';
+  const attribute = (name: string) => tag.match(new RegExp(`\\b${name}="([^"]+)"`))?.[1] ?? null;
+  return {
+    width: attribute('width'),
+    height: attribute('height'),
+    viewBox: attribute('viewBox'),
+  };
+}
+
 function finite(n: unknown): n is number {
   return typeof n === 'number' && Number.isFinite(n);
 }
@@ -212,6 +222,42 @@ async function main() {
         deepStrictEqual(drawnLayerPaths(svg, 'back-route'), expectedPaths(project.backRoutes));
         invariant(svg.includes('.front-route{fill:#ccfbf1;stroke:#0f766e;stroke-width:0.30}'), 'front-route print style drifted');
         invariant(svg.includes('.back-route{fill:#f3e8ff;stroke:#7e22ce;stroke-width:0.30;stroke-dasharray:3.00 2.00}'), 'back-route print style drifted');
+        invariant(svg.includes('.neck-pocket{fill:#e5e7eb;stroke:#374151;stroke-width:0.40}'), 'neck-pocket print style drifted');
+      });
+
+      check('print framing, annotations and hardware layering match the web exporter', () => {
+        const webSVG = exporter.exportProjectToSVG(project);
+        // Current production documents embed both hardware presets. A few
+        // deliberately synthetic compatibility fixtures omit them; the web
+        // writer fills catalogue defaults while iOS correctly refuses to
+        // guess manufacturing geometry, so their page frames intentionally
+        // differ and are outside this visual parity assertion.
+        const hasProductionHardware = !SYNTHETIC_FIXTURES.includes(fileName)
+          && project.neckPreset
+          && project.bridgePreset;
+        if (hasProductionHardware) {
+          deepStrictEqual(rootFrame(svg), rootFrame(webSVG));
+        }
+        const markers = ['1:1 Scale Print Template', 'CALIBRATION BOX'];
+        if (hasProductionHardware) markers.push('Y=0 (Joint Line)', 'Scale Line (');
+        for (const marker of markers) {
+          invariant(svg.includes(marker), `iOS SVG is missing ${marker}`);
+          invariant(webSVG.includes(marker), `web SVG is missing ${marker}`);
+        }
+
+        const assertLayering = (drawing: string, frontMarker: string, pickupMarker: string, bridgeMarker: string) => {
+          const frontIndex = drawing.lastIndexOf(frontMarker);
+          const pickupIndex = drawing.indexOf(pickupMarker);
+          const bridgeIndex = drawing.indexOf(bridgeMarker);
+          if ((project.frontRoutes ?? []).some((route: any) => route.visible !== false) && (project.pickups ?? []).length > 0) {
+            invariant(frontIndex >= 0 && pickupIndex > frontIndex, 'pickup routs are hidden below a filled front route');
+          }
+          if ((project.pickups ?? []).length > 0) {
+            invariant(bridgeIndex > pickupIndex, 'bridge hardware is not the top printable hardware layer');
+          }
+        };
+        assertLayering(svg, 'class="front-route"', 'class="pickup-rout"', '<g id="bridge">');
+        assertLayering(webSVG, 'class="front-route"', 'class="pickup-rout"', '<g id="bridge-hardware">');
       });
 
       check('bevel inset calculation and web export match the iOS drawing', () => {

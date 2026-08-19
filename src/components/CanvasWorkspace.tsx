@@ -820,10 +820,9 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 y={0}
                 width={neck.jointWidthMm}
                 height={neck.jointDepthMm}
-                fill="rgba(239, 68, 68, 0.12)"
-                stroke="#ef4444"
-                strokeWidth={1.5 / zoom}
-                dash={[4 / zoom, 3 / zoom]}
+                fill={PLAN_DRAWING_STYLE.screen.neckPocketFill}
+                stroke={PLAN_DRAWING_STYLE.screen.neckPocketStroke}
+                strokeWidth={PLAN_DRAWING_STYLE.screen.neckPocketStrokePx / zoom}
                 cornerRadius={neck.jointCornerRadiusMm}
               />
 

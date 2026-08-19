@@ -80,11 +80,17 @@ try {
 
   const layerSVG = exporter.exportProjectToSVG(fixture);
   assert.match(layerSVG, /\.body-line \{[^}]*stroke-width: 0\.4;/);
+  assert.match(layerSVG, /\.neck-pocket \{ fill: #e5e7eb; stroke: #374151; stroke-width: 0\.4; \}/);
   assert.match(layerSVG, /\.front-route \{ fill: #ccfbf1; stroke: #0f766e; stroke-width: 0\.3;/);
   assert.match(layerSVG, /\.back-route \{ fill: #f3e8ff; stroke: #7e22ce; stroke-width: 0\.3; stroke-dasharray: 3,2;/);
   assert.equal((layerSVG.match(/class="pickguard"/g) ?? []).length, fixture.pickguards.length);
   assert.equal((layerSVG.match(/class="front-route"/g) ?? []).length, fixture.frontRoutes.length);
   assert.equal((layerSVG.match(/class="back-route"/g) ?? []).length, fixture.backRoutes.length);
+  const lastFrontRoute = layerSVG.lastIndexOf('class="front-route"');
+  const firstPickup = layerSVG.indexOf('class="pickup-rout"');
+  const bridgeHardware = layerSVG.indexOf('<g id="bridge-hardware">');
+  assert(lastFrontRoute >= 0 && firstPickup > lastFrontRoute, 'pickup routs must render above filled front routes');
+  assert(bridgeHardware > firstPickup, 'bridge hardware must remain the top printable hardware layer');
 
   const hiddenLayerSVG = exporter.exportProjectToSVG({
     ...fixture,
