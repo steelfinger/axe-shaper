@@ -27,6 +27,9 @@ interface EdgeProfilePreviewProps {
 const numberOr = (value: unknown, fallback: number): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : fallback;
 
+/** Keeps float noise out of the emitted path data - this is a drawing, not a spec. */
+const mm = (value: number): string => Number(value.toFixed(3)).toString();
+
 /**
  * A cross-section through the edge at the selected node, in true proportion.
  *
@@ -48,39 +51,51 @@ export const EdgeProfilePreview: React.FC<EdgeProfilePreviewProps> = ({
 
   // The top face, walked from deep inside the body out to the edge at x = 0.
   // y grows downward from the top face, matching the plan's own convention.
-  const topFace: string[] = [`M ${innerX} 0`];
+  const topFace: string[] = [`M ${mm(innerX)} 0`];
   let sideTopY = 0;
   let caption: string;
 
   if (profile.kind === 'german_carve') {
-    // Read from the three numbers the format carries: a flat lip at the rim,
-    // then a channel of `channelRadiusMm` scooped `dropMm` deep. Intensity
-    // scales the two widths, not the depth - it multiplies the edge width.
+    // The perimeter band is carved *down* and stays down - a German carve is a
+    // dished rim, not a gutter with the edge back at full height. The three
+    // numbers describe it exactly: the flat top stops `insetMm + channelRadiusMm`
+    // from the edge (the same boundary the plan draws dashed), a cove of
+    // `channelRadiusMm` falls away over `dropMm`, and the outer `insetMm` runs
+    // out to the rim at that lower level.
+    //
+    // The cove leaves the top face on a slope and arrives along the band: the
+    // crease where the flat top ends is the line the whole treatment is read
+    // by, and the outer end flows in rather than kinking. Intensity scales the
+    // two widths and not the depth - it multiplies the edge width.
     const insetMm = Math.max(numberOr(profile.insetMm, 0), 0) * intensity;
     const channelMm = Math.max(numberOr(profile.channelRadiusMm, 0), 0) * intensity;
     const dropMm = Math.max(numberOr(profile.dropMm, 0), 0);
-    const channelStart = -(insetMm + channelMm);
+    const coveStart = -(insetMm + channelMm);
 
-    topFace.push(`L ${channelStart} 0`);
+    topFace.push(`L ${mm(coveStart)} 0`);
     if (channelMm > 0 && dropMm > 0) {
-      // Quadratic control sits at twice the depth: the curve peaks at dropMm.
-      topFace.push(`Q ${channelStart + channelMm / 2} ${dropMm * 2} ${-insetMm} 0`);
+      // Control level with the band, half a cove in: tangent to the band at
+      // the outer end, sloping away from the top face at the inner one.
+      topFace.push(`Q ${mm(coveStart + channelMm / 2)} ${mm(dropMm)} ${mm(-insetMm)} ${mm(dropMm)}`);
+    } else {
+      topFace.push(`L ${mm(-insetMm)} ${mm(dropMm)}`);
     }
-    topFace.push('L 0 0');
-    caption = `${formatLength(numberOr(profile.insetMm, 0) + numberOr(profile.channelRadiusMm, 0), unitDisplay, 1)} ${unitLabel(unitDisplay)} carve, ${formatLength(reachMm, unitDisplay, 1)} ${unitLabel(unitDisplay)} here`;
+    topFace.push(`L 0 ${mm(dropMm)}`);
+    sideTopY = dropMm;
+    caption = `${formatLength(numberOr(profile.insetMm, 0) + numberOr(profile.channelRadiusMm, 0), unitDisplay, 1)} ${unitLabel(unitDisplay)} carve dropping ${formatLength(dropMm, unitDisplay, 1)} ${unitLabel(unitDisplay)}, ${formatLength(reachMm, unitDisplay, 1)} ${unitLabel(unitDisplay)} here`;
   } else {
     // Beveled: a chamfer running `reachMm` inward, falling at the profile's
     // own angle. Steep or wide enough and it leaves the bottom of the view,
     // so the face is cut where it crosses instead of overshooting the box.
     const angle = numberOr(profile.angleDegrees, DEFAULT_BEVEL_ANGLE_DEGREES);
     const dropMm = reachMm * Math.tan((angle * Math.PI) / 180);
-    topFace.push(`L ${-reachMm} 0`);
+    topFace.push(`L ${mm(-reachMm)} 0`);
     if (dropMm > SECTION_DEPTH_MM) {
       const crossX = -reachMm * (1 - SECTION_DEPTH_MM / dropMm);
-      topFace.push(`L ${crossX} ${SECTION_DEPTH_MM}`);
+      topFace.push(`L ${mm(crossX)} ${SECTION_DEPTH_MM}`);
       sideTopY = SECTION_DEPTH_MM;
     } else {
-      topFace.push(`L 0 ${dropMm}`);
+      topFace.push(`L 0 ${mm(dropMm)}`);
       sideTopY = dropMm;
     }
     caption = `${formatLength(baseWidthMm, unitDisplay, 1)} ${unitLabel(unitDisplay)} bevel at ${angle.toFixed(0)}°, ${formatLength(reachMm, unitDisplay, 1)} ${unitLabel(unitDisplay)} here`;
@@ -90,7 +105,7 @@ export const EdgeProfilePreview: React.FC<EdgeProfilePreviewProps> = ({
   const material = [
     ...topFace,
     `L 0 ${SECTION_DEPTH_MM}`,
-    `L ${innerX} ${SECTION_DEPTH_MM}`,
+    `L ${mm(innerX)} ${SECTION_DEPTH_MM}`,
     'Z',
   ].join(' ');
   const treatedFace = topFace.join(' ');
