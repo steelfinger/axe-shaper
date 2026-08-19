@@ -12,6 +12,8 @@ export const F_STYLE_PLATE_LENGTH_MM = 40;
 export const F_STYLE_LOCAL_X_OFFSET_MM = -36.5;
 export const F_STYLE_SADDLE_LINE_LOCAL_Y_MM = 6;
 export const F_STYLE_ARM_SOCKET_RADIUS_MM = 3.5;
+export const F_STYLE_SADDLE_HOUSING_WIDTH_MM = 71;
+export const F_STYLE_SADDLE_HOUSING_HEIGHT_MM = 34;
 export const TOM_BRIDGE_ANGLE_DEGREES = -3;
 
 export interface BridgeDrawingRect {
@@ -98,7 +100,11 @@ export function getBridgeDrawingGeometry(
     return {
       kind: 'f-style',
       plateOutline: fStyleLocalOutline.map((point) => fStylePoint(point, saddleY)),
-      saddleHousing: rect({ x: 0, y: saddleY + 17 }, 73, 34),
+      saddleHousing: rect(
+        { x: F_STYLE_LOCAL_X_OFFSET_MM + F_STYLE_SADDLE_HOUSING_WIDTH_MM / 2, y: saddleY + 17 },
+        F_STYLE_SADDLE_HOUSING_WIDTH_MM,
+        F_STYLE_SADDLE_HOUSING_HEIGHT_MM
+      ),
       armSocket: {
         center: fStylePoint({ x: 76, y: 27.5 }, saddleY),
         radiusMm: F_STYLE_ARM_SOCKET_RADIUS_MM,
@@ -181,6 +187,13 @@ export function bridgeDrawingBoundsPoints(geometry: BridgeDrawingGeometry): Vect
 }
 
 export function bridgeReferenceLineXRange(geometry: BridgeDrawingGeometry): [number, number] {
+  if (geometry.kind === 'f-style') {
+    // Keep the established 73 mm reference-line length, but centre it on the
+    // corrected local 0...71 mm saddle housing instead of the asymmetric
+    // plate/arm-tab bounds. This moves the complete line exactly 6 mm left.
+    const halfWidth = (F_STYLE_PLATE_WIDTH_MM - 10) / 2;
+    return [geometry.saddleHousing.center.x - halfWidth, geometry.saddleHousing.center.x + halfWidth];
+  }
   const points = bridgeDrawingBoundsPoints(geometry);
   const minX = Math.min(...points.map((point) => point.x));
   const maxX = Math.max(...points.map((point) => point.x));

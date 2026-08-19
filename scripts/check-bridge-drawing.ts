@@ -32,8 +32,10 @@ try {
   assert.equal(fStyle.kind, 'f-style');
   assert.equal(Math.min(...fStyle.plateOutline.map((p: any) => p.x)), -36.5);
   assert.equal(Math.max(...fStyle.plateOutline.map((p: any) => p.x)), 46.5);
-  assert.equal(fStyle.saddleHousing.widthMm, 73);
+  assert.equal(fStyle.saddleHousing.widthMm, 71);
   assert.equal(fStyle.saddleHousing.heightMm, 34);
+  assert.equal(fStyle.saddleHousing.center.x, -1);
+  assert.deepEqual(bridgeDrawing.bridgeReferenceLineXRange(fStyle), [-37.5, 35.5]);
   assert.equal(fStyle.armSocket.center.x, 39.5);
   assert.equal(fStyle.armSocket.radiusMm, 3.5);
 
