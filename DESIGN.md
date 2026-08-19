@@ -20,6 +20,8 @@ colors:
   route-front-print: "#ccfbf1"
   route-back-screen: "#d8b4fe"
   route-back-print: "#f3e8ff"
+  route-neck-screen: "#cbd5e1"
+  route-neck-print: "#e5e7eb"
   paper-plan: "#f5f3eb"
   paper-screen: "#eeece4"
 typography:
@@ -355,6 +357,10 @@ color language, independent of the chrome palette above:
   not decorative: it keeps front and back cavities identifiable on grayscale
   and monochrome prints. Both use the same 1.5px screen outline and 0.3mm
   physical print outline on web and iOS.
+- **Neck pocket:** this manufacturing-critical cavity uses a pale neutral-gray
+  fill (`#e5e7eb` on paper) with a dark solid outline. It carries the stronger
+  2px screen / 0.4mm print weight so it remains the primary rout in colour and
+  monochrome output without competing with the front/back route hues.
 
 ## Do's and Don'ts
 
@@ -370,15 +376,18 @@ color language, independent of the chrome palette above:
   `16–18px` in headers and modals, `20px` for the brand mark.
 - **Do** use the app's own exported drawing when a public surface needs visual
   proof; the printable artifact should be recognizable without marketing copy.
-- **Do** restroke that drawing for screen rather than shrinking the paper file.
-  Plan strokes are physical (`0.4mm` outline), so at hero scale they land near
-  `0.3` CSS px and the proof renders as a ghost.
-  `scripts/build-marketing-plan.ts` copies the geometry verbatim and scales only
-  stroke weights and label sizes; the download link still serves the real
-  `.axe.svg`.
-- **Do** size a container that holds the plan to the plan's own aspect
-  (`364.31 / 656.41`). A squarer box wastes ~40% of the sheet on blank margin
-  and shrinks the drawing to pay for it.
+- **Do** prefer a real saved project over a built-in reference blueprint when a
+  public surface shows a plan. The hero ships
+  `public/marketing/custom-s-style-plan.axe.svg` - a custom S-style body with
+  its schemaVersion 2 payload intact, so the file the page hands out opens back
+  up as an editable project.
+- **Do** check what a physical stroke actually measures on screen before
+  trusting it. Plan strokes are millimetres, so they shrink with the sheet: the
+  hero renders at roughly `0.8 px/mm`, which puts a `1.2mm` outline at about
+  `0.96` CSS px. Anything under `1px` is a hairline on a non-Retina display.
+- **Do** size a container that holds a plan to that plan's own aspect
+  (currently `432.07 / 672.59`). A squarer box wasted ~40% of the sheet on blank
+  margin and shrank the drawing to pay for it; matched, it is ~9%.
 - **Do** use documentary workshop photography to show the handoff from plan to
   wood, with visible creator attribution and restrained dark treatment.
 

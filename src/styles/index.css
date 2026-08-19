@@ -893,18 +893,18 @@ html.marketing-document {
   position: relative;
   --sheet-height: clamp(430px, 62vh, 640px);
   justify-self: end;
-  width: calc(var(--sheet-height) * 364.31 / 656.41);
+  width: calc(var(--sheet-height) * 432.07 / 672.59);
   max-width: 100%;
   margin: 0;
   perspective: 1400px;
 }
 
 /*
- * The sheet matches the plan's own proportions (364.31 x 656.41mm) so the
- * drawing fills the paper instead of floating in 42% blank margin. That alone
- * roughly doubles the rendered scale; the display SVG's heavier strokes do the
- * rest. Between them a 0.4mm outline that used to land at 0.31 CSS px now reads
- * as a confident line.
+ * The sheet matches the plan's own proportions (432.07 x 672.59mm) so the
+ * drawing fills the paper instead of floating in blank margin. That plus the
+ * plan's own thickened line weights is what keeps a physical 1.2mm outline
+ * above 1 CSS px at this size; a squarer box would shrink the drawing to pay
+ * for margin it does not need.
  */
 .blueprint-sheet {
   position: relative;
