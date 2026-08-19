@@ -38,6 +38,7 @@ import {
   toMm,
   unitLabel,
 } from '../utils/units';
+import { PLAN_DRAWING_STYLE, colorWithAlpha } from '../constants/planDrawingStyle';
 
 /**
  * The body Path's hit area is its fill, so a click a few pixels *outside* the
@@ -719,9 +720,10 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   <Path
                     key={r.id}
                     data={anchorsToSVGPath(r.contour.anchors, r.contour.closed)}
-                    stroke="#9333ea"
-                    strokeWidth={1.5 / zoom}
-                    dash={[4 / zoom, 3 / zoom]}
+                    fill={PLAN_DRAWING_STYLE.screen.backRouteFill}
+                    stroke={PLAN_DRAWING_STYLE.screen.backRouteStroke}
+                    strokeWidth={PLAN_DRAWING_STYLE.screen.layerStrokePx / zoom}
+                    dash={PLAN_DRAWING_STYLE.screen.backRouteDashPx.map((length) => length / zoom)}
                   />
                 ))}
             </Group>
@@ -748,7 +750,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               }
               opacity={isBodyActive ? settings.bodyFillOpacity ?? 0.35 : 1}
               stroke={isBodyActive ? '#f0f4f8' : '#9333ea'}
-              strokeWidth={2.5 / zoom}
+              strokeWidth={PLAN_DRAWING_STYLE.screen.bodyStrokePx / zoom}
               shadowColor="#000"
               shadowBlur={isBodyActive ? 20 : 0}
               shadowOpacity={isBodyActive ? 0.5 : 0}
@@ -773,15 +775,37 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   <Path
                     key={p.id}
                     data={anchorsToSVGPath(p.contour.anchors, p.contour.closed)}
-                    fill={p.colorHex ?? '#ffffff'}
-                    opacity={0.55}
-                    stroke="#9ca3af"
-                    strokeWidth={1 / zoom}
+                    fill={colorWithAlpha(
+                      p.colorHex ?? '#ffffff',
+                      PLAN_DRAWING_STYLE.screen.pickguardFillOpacity
+                    )}
+                    stroke={PLAN_DRAWING_STYLE.screen.pickguardStroke}
+                    strokeWidth={PLAN_DRAWING_STYLE.screen.layerStrokePx / zoom}
                     listening={false}
                   />
                 ))}
           </Group>
         </Layer>
+
+        {/* Front routes are their own construction layer. Their visibility is
+            independent of the hardware-cavity toggle, matching iOS. */}
+        {settings.showFrontRoutes !== false && frontRoutes.length > 0 && (
+          <Layer listening={false}>
+            <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
+              {frontRoutes
+                .filter((r) => r.visible !== false)
+                .map((r) => (
+                  <Path
+                    key={r.id}
+                    data={anchorsToSVGPath(r.contour.anchors, r.contour.closed)}
+                    fill={PLAN_DRAWING_STYLE.screen.frontRouteFill}
+                    stroke={PLAN_DRAWING_STYLE.screen.frontRouteStroke}
+                    strokeWidth={PLAN_DRAWING_STYLE.screen.layerStrokePx / zoom}
+                  />
+                ))}
+            </Group>
+          </Layer>
+        )}
 
         {/* LAYER 2: HARDWARE, ROUTS & PICKUPS - merged into one Layer (see LAYER 0
             above for why). Hardware/routs stay display-only via an explicit
@@ -802,20 +826,6 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 dash={[4 / zoom, 3 / zoom]}
                 cornerRadius={neck.jointCornerRadiusMm}
               />
-
-              {/* Front Routed Cavities - alongside the pickup routs */}
-              {settings.showFrontRoutes !== false &&
-                frontRoutes
-                  .filter((r) => r.visible !== false)
-                  .map((r) => (
-                    <Path
-                      key={r.id}
-                      data={anchorsToSVGPath(r.contour.anchors, r.contour.closed)}
-                      fill="rgba(147, 51, 234, 0.12)"
-                      stroke="#9333ea"
-                      strokeWidth={1.2 / zoom}
-                    />
-                  ))}
 
               {/* Recognisable bridge hardware at the scale-math-resolved
                   position: the supplied F-style plate/housing/socket, a

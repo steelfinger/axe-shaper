@@ -20,6 +20,7 @@ import {
   type BridgeDrawingGeometry,
   type BridgeDrawingRect,
 } from './bridgeDrawing';
+import { PLAN_DRAWING_STYLE } from '../constants/planDrawingStyle';
 
 /** Namespace for the <project:*> metadata elements. Must be declared or the file is not well-formed XML. */
 const PROJECT_NS = 'https://axe-shaper.app/ns/project/1';
@@ -83,7 +84,7 @@ function bridgeHardwareSVG(
         .join('')
     : '';
   return `${hardware}
-      <line x1="${lineMinX.toFixed(2)}" y1="${theoreticalSaddleY.toFixed(2)}" x2="${lineMaxX.toFixed(2)}" y2="${theoreticalSaddleY.toFixed(2)}" stroke="#dc3545" stroke-width="1.2" />
+      <line x1="${lineMinX.toFixed(2)}" y1="${theoreticalSaddleY.toFixed(2)}" x2="${lineMaxX.toFixed(2)}" y2="${theoreticalSaddleY.toFixed(2)}" stroke="#dc3545" stroke-width="${PLAN_DRAWING_STYLE.print.detailStrokeMm}" />
       <g transform="translate(0, ${mountingOriginY.toFixed(2)})">${mountingPoints}</g>`;
 }
 
@@ -275,17 +276,17 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
   </metadata>
 
   <style>
-    .body-line { fill: none; stroke: #111111; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .body-line { fill: none; stroke: #111111; stroke-width: ${PLAN_DRAWING_STYLE.print.bodyStrokeMm}; stroke-linecap: round; stroke-linejoin: round; }
     .edge-inset { fill: none; stroke: #555555; stroke-width: 0.3; stroke-dasharray: 3,2; }
-    .neck-pocket { fill: none; stroke: #dc3545; stroke-width: 1.2; stroke-dasharray: 4,4; }
-    .pickup-rout { fill: none; stroke: #28a745; stroke-width: 1.0; }
-    .bridge-rout { fill: none; stroke: #007bff; stroke-width: 1.2; }
-    .back-route { fill: none; stroke: #9333ea; stroke-width: 1.0; stroke-dasharray: 3,3; }
-    .front-route { fill: none; stroke: #9333ea; stroke-width: 1.0; }
-    .pickguard { fill: #ffffff; fill-opacity: 0.35; stroke: #6b7280; stroke-width: 1.0; }
-    .center-axis { fill: none; stroke: #6c757d; stroke-width: 0.5; stroke-dasharray: 6,4; opacity: 0.7; }
-    .calibration-box { fill: none; stroke: #d9534f; stroke-width: 0.8; stroke-dasharray: 3,3; }
-    .band-rule { fill: none; stroke: #adb5bd; stroke-width: 0.5; }
+    .neck-pocket { fill: none; stroke: #dc3545; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; stroke-dasharray: 4,4; }
+    .pickup-rout { fill: none; stroke: #28a745; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
+    .bridge-rout { fill: none; stroke: #007bff; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
+    .back-route { fill: ${PLAN_DRAWING_STYLE.print.backRouteFill}; stroke: ${PLAN_DRAWING_STYLE.print.backRouteStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; stroke-dasharray: ${PLAN_DRAWING_STYLE.print.backRouteDashMm}; }
+    .front-route { fill: ${PLAN_DRAWING_STYLE.print.frontRouteFill}; stroke: ${PLAN_DRAWING_STYLE.print.frontRouteStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
+    .pickguard { fill: #ffffff; fill-opacity: ${PLAN_DRAWING_STYLE.print.pickguardFillOpacity}; stroke: ${PLAN_DRAWING_STYLE.print.pickguardStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
+    .center-axis { fill: none; stroke: #6c757d; stroke-width: ${PLAN_DRAWING_STYLE.print.guideStrokeMm}; stroke-dasharray: 6,4; opacity: 0.7; }
+    .calibration-box { fill: none; stroke: #d9534f; stroke-width: ${PLAN_DRAWING_STYLE.print.bodyStrokeMm}; stroke-dasharray: 3,3; }
+    .band-rule { fill: none; stroke: #adb5bd; stroke-width: ${PLAN_DRAWING_STYLE.print.guideStrokeMm}; }
     .text-label { font-family: monospace, sans-serif; font-size: 5px; fill: #d9534f; }
     .disclaimer-label { font-family: monospace, sans-serif; font-size: 4.5px; font-style: italic; fill: #6c757d; }
     .axis-label { font-family: monospace, sans-serif; font-size: 5px; fill: #6c757d; }

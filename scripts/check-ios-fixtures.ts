@@ -17,6 +17,8 @@
  *   - loading is a no-op: migrateProject() deep-equals the payload, so a
  *     current, fully-embedded file round-trips untouched;
  *   - the drawn body path equals anchorsToSVGPath() of the decoded payload;
+ *   - every visible pickguard/front/back route has the same path as its
+ *     payload contour, and the printable route palette stays aligned;
  *   - the Beveled/German-Carve inset path is byte-equal to the iOS writer's
  *     path, pinning the flattening, intensity spline, and polygon offset;
  *   - saving is lossless: running this app's own writer over the decoded
@@ -85,6 +87,11 @@ function drawnBodyPath(svg: string): string {
 
 function drawnBevelInsetPath(svg: string): string | null {
   return svg.match(/<path class="edge-inset" d="([^"]*)"\s*\/>/)?.[1] ?? null;
+}
+
+function drawnLayerPaths(svg: string, className: string): string[] {
+  return [...svg.matchAll(new RegExp(`<path class="${className}"(?: style="[^"]*")? d="([^"]*)"\\s*/>`, 'g'))]
+    .map((match) => match[1]);
 }
 
 function finite(n: unknown): n is number {
@@ -194,6 +201,17 @@ async function main() {
       check('drawn body path matches the decoded payload', () => {
         const expectedPath = bezier.anchorsToSVGPath(project.contour.anchors, project.contour.closed ?? true);
         deepStrictEqual(drawnBodyPath(svg), expectedPath);
+      });
+
+      check('drawn construction layers match the decoded payload', () => {
+        const expectedPaths = (shapes: any[]) => (shapes ?? [])
+          .filter((shape) => shape.visible !== false)
+          .map((shape) => bezier.anchorsToSVGPath(shape.contour.anchors, shape.contour.closed ?? true));
+        deepStrictEqual(drawnLayerPaths(svg, 'pickguard'), expectedPaths(project.pickguards));
+        deepStrictEqual(drawnLayerPaths(svg, 'front-route'), expectedPaths(project.frontRoutes));
+        deepStrictEqual(drawnLayerPaths(svg, 'back-route'), expectedPaths(project.backRoutes));
+        invariant(svg.includes('.front-route{fill:#ccfbf1;stroke:#0f766e;stroke-width:0.30}'), 'front-route print style drifted');
+        invariant(svg.includes('.back-route{fill:#f3e8ff;stroke:#7e22ce;stroke-width:0.30;stroke-dasharray:3.00 2.00}'), 'back-route print style drifted');
       });
 
       check('bevel inset calculation and web export match the iOS drawing', () => {

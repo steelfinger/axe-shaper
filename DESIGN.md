@@ -16,6 +16,10 @@ colors:
   accent-green: "#10b981"
   accent-red: "#ef4444"
   accent-purple: "#a855f7"
+  route-front-screen: "#5eead4"
+  route-front-print: "#ccfbf1"
+  route-back-screen: "#d8b4fe"
+  route-back-print: "#f3e8ff"
   paper-plan: "#f5f3eb"
   paper-screen: "#eeece4"
 typography:
@@ -345,6 +349,12 @@ color language, independent of the chrome palette above:
   opacity as the faint "ghost" reference outline.
 - **Dimension/calibration overlays:** antique-gold dashed lines and tick
   marks.
+- **Editable route layers:** front routes use bright teal on the dark canvas
+  and pale teal (`#ccfbf1`) on paper; back routes use light lavender and pale
+  lavender (`#f3e8ff`) with a dashed outline. The dash difference is required,
+  not decorative: it keeps front and back cavities identifiable on grayscale
+  and monochrome prints. Both use the same 1.5px screen outline and 0.3mm
+  physical print outline on web and iOS.
 
 ## Do's and Don'ts
 

@@ -78,7 +78,27 @@ try {
   assert.match(bridgeGroup, /<circle cx="39\.50"[^>]*r="3\.50"/);
   assert.doesNotMatch(bridgeGroup, /cx="-21"/);
 
-  console.log('Bridge drawing geometry and SVG output are consistent.');
+  const layerSVG = exporter.exportProjectToSVG(fixture);
+  assert.match(layerSVG, /\.body-line \{[^}]*stroke-width: 0\.4;/);
+  assert.match(layerSVG, /\.front-route \{ fill: #ccfbf1; stroke: #0f766e; stroke-width: 0\.3;/);
+  assert.match(layerSVG, /\.back-route \{ fill: #f3e8ff; stroke: #7e22ce; stroke-width: 0\.3; stroke-dasharray: 3,2;/);
+  assert.equal((layerSVG.match(/class="pickguard"/g) ?? []).length, fixture.pickguards.length);
+  assert.equal((layerSVG.match(/class="front-route"/g) ?? []).length, fixture.frontRoutes.length);
+  assert.equal((layerSVG.match(/class="back-route"/g) ?? []).length, fixture.backRoutes.length);
+
+  const hiddenLayerSVG = exporter.exportProjectToSVG({
+    ...fixture,
+    frontRoutes: fixture.frontRoutes.map((route: any, index: number) => (
+      index === 0 ? { ...route, visible: false } : route
+    )),
+  });
+  assert.equal(
+    (hiddenLayerSVG.match(/class="front-route"/g) ?? []).length,
+    fixture.frontRoutes.length - 1,
+    'per-layer visibility must be preserved in printable SVG output'
+  );
+
+  console.log('Bridge geometry and printable layer SVG output are consistent.');
 } finally {
   await server.close();
 }
