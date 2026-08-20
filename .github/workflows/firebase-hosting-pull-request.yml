@@ -18,7 +18,13 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run build
+
+      # Builds this site and composes the pinned viewer3d bundle into
+      # dist/viewer3d. firebase.json has no predeploy hook, so this is the
+      # only build; a bare `firebase deploy` would ship whatever is in dist/.
+      - run: npm run build:site
+        env:
+          GH_TOKEN: ${{ secrets.VIEWER3D_RELEASE_TOKEN }}
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}

@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "npm run bridge:check && tsc -b && vite build",
+    "viewer3d:fetch": "node scripts/fetch-viewer3d.ts",
+    "build:site": "npm run build && npm run viewer3d:fetch",
+    "deploy": "npm run build:site && firebase deploy --only hosting",
     "build:zip": "rm -f axe-shaper-dist.zip && npm run build && cd dist && zip -r ../axe-shaper-dist.zip . && cd ..",
     "package": "npm run build:zip",
     "lint": "oxlint",

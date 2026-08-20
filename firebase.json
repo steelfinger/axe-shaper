@@ -1,6 +1,5 @@
 {
   "hosting": {
-    "predeploy": "npm run build",
     "public": "dist",
     "ignore": [
       "firebase.json",
@@ -8,6 +7,10 @@
       "**/node_modules/**"
     ],
     "rewrites": [
+      {
+        "source": "/viewer3d/**",
+        "destination": "/viewer3d/index.html"
+      },
       {
         "source": "**",
         "destination": "/index.html"
