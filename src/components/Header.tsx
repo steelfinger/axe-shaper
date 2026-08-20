@@ -1,5 +1,5 @@
 import React from 'react';
-import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, CircleHelp, Info, Home } from 'lucide-react';
+import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, Box, CircleHelp, Info, Home } from 'lucide-react';
 import type { GuitarProject } from '../types/guitar';
 import { snapGridToUnit } from '../utils/units';
 
@@ -14,6 +14,7 @@ interface HeaderProps {
   onResetTemplate: () => void;
   onSave: () => void;
   onShare: () => void;
+  onView3D: () => void;
   onShowWelcome: () => void;
   onShowAbout: () => void;
   onOpenFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -30,6 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
   onResetTemplate,
   onSave,
   onShare,
+  onView3D,
   onShowWelcome,
   onShowAbout,
   onOpenFile,
@@ -147,6 +149,10 @@ export const Header: React.FC<HeaderProps> = ({
 
         <button className="btn btn-sm" onClick={onShare} title="Share the current .axe.svg project file">
           <Share2 size={15} /> Share
+        </button>
+
+        <button className="btn btn-sm" onClick={onView3D} title="Open this design in the 3D viewer">
+          <Box size={15} /> View in 3D
         </button>
 
         <details className="help-menu">

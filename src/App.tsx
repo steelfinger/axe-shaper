@@ -10,7 +10,9 @@ import {
   defaultNeckJointMechanism,
   migrateProject,
   neckPresetFieldsForNewTemplate,
+  withEmbeddedPresets,
 } from './utils/presets';
+import { buildViewer3DPath } from './utils/viewer3dLink';
 import type { GuitarProject, GuideImageState, CalibrationState, Vector2D, PickupType } from './types/guitar';
 import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
@@ -541,6 +543,16 @@ function EditorApp(): React.JSX.Element {
     alert('This browser cannot share project files directly, so the .axe.svg was downloaded instead.');
   };
 
+  const handleView3D = async () => {
+    try {
+      const path = await buildViewer3DPath(withEmbeddedPresets(project));
+      const opened = window.open(path, '_blank', 'noopener');
+      if (!opened) window.location.href = path;
+    } catch {
+      alert('This browser can’t open the 3D view. Try updating it or use a different browser.');
+    }
+  };
+
   const closeWelcome = () => {
     try {
       window.localStorage.setItem(WELCOME_STORAGE_KEY, 'true');
@@ -665,6 +677,7 @@ function EditorApp(): React.JSX.Element {
         onResetTemplate={handleResetTemplate}
         onSave={handleSaveProject}
         onShare={handleShareProject}
+        onView3D={handleView3D}
         onShowWelcome={() => setIsWelcomeModalOpen(true)}
         onShowAbout={() => setIsAboutModalOpen(true)}
         onOpenFile={handleOpenFile}
