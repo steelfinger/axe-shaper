@@ -24,7 +24,7 @@ const PLAN_PRINT_URL = '/marketing/custom-s-style-plan.axe.svg';
 const PLAN_DISPLAY_URL = '/marketing/custom-s-style-plan-display.svg';
 
 const GITHUB_URL = 'https://github.com/steelfinger/axe-shaper';
-const IPAD_EMAIL = 'tero.aarnio@gmail.com';
+const IPAD_EMAIL = 'steelfinger@steelfinger.fi';
 const IPAD_MAILTO = `mailto:${IPAD_EMAIL}?subject=Axe%20Shaper%20for%20iPad%20updates&body=Please%20let%20me%20know%20when%20Axe%20Shaper%20for%20iPad%20is%20available.`;
 
 /** Every off-site link opens in a new tab so the page is never lost mid-evaluation. */
@@ -80,7 +80,7 @@ function StaticPage({ kind }: { kind: 'privacy' | 'support' }): React.JSX.Elemen
             <p>For bugs, feature requests, and questions about the open-source web editor, open an issue on GitHub. Include your browser, the steps that led to the problem, and a sample <code>.axe.svg</code> when it is safe to share.</p>
             <div className="static-actions">
               <a className="marketing-button primary" href={`${GITHUB_URL}/issues`} {...external}><Code2 size={17} /> Open a GitHub issue</a>
-              <a className="marketing-button secondary" href="mailto:tero.aarnio@gmail.com?subject=Axe%20Shaper%20support"><Mail size={17} /> Email support</a>
+              <a className="marketing-button secondary" href="mailto:steelfinger@steelfinger.fi?subject=Axe%20Shaper%20support"><Mail size={17} /> Email support</a>
             </div>
             <h2>Before printing</h2>
             <p>Print at 100% or Actual Size, then measure the exported 100 × 100 mm calibration square. Do not cut material until that square measures correctly.</p>
