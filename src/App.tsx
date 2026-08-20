@@ -544,11 +544,21 @@ function EditorApp(): React.JSX.Element {
   };
 
   const handleView3D = async () => {
+    // Open the tab synchronously, inside the click's user gesture, so
+    // popup blockers don't get involved - the URL isn't ready yet, so it
+    // starts blank and gets redirected below. `noopener` isn't used here
+    // because we need the handle back to set that URL, and the destination
+    // is our own first-party viewer, not third-party content.
+    const newTab = window.open('', '_blank');
     try {
       const path = await buildViewer3DPath(withEmbeddedPresets(project));
-      const opened = window.open(path, '_blank', 'noopener');
-      if (!opened) window.location.href = path;
+      if (newTab) {
+        newTab.location.href = path;
+      } else {
+        window.location.href = path;
+      }
     } catch {
+      newTab?.close();
       alert('This browser can’t open the 3D view. Try updating it or use a different browser.');
     }
   };
