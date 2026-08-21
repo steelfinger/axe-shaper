@@ -234,7 +234,7 @@
     },
     "pickupSpecifications": {
       "humbucker": {
-        "name": "Standard Humbucker (Covered)",
+        "name": "Standard Humbucker",
         "widthMm": 87.072,
         "heightMm": 40.171,
         "anchors": [
@@ -513,7 +513,7 @@
         ]
       },
       "mini_humbucker": {
-        "name": "Mini Humbucker (Firebird-Style)",
+        "name": "Mini Humbucker",
         "widthMm": 83.448,
         "heightMm": 29.878,
         "anchors": [
@@ -927,7 +927,7 @@
         ]
       },
       "lipstick": {
-        "name": "Lipstick Tube (Danelectro-Style)",
+        "name": "Lipstick Tube",
         "widthMm": 82.025,
         "heightMm": 17.974,
         "anchors": [
@@ -1348,7 +1348,7 @@
         ]
       },
       "tele_neck": {
-        "name": "Tele-Style Chrome Neck Pickup",
+        "name": "Tele-Style Neck Pickup",
         "widthMm": 79.635,
         "heightMm": 20.997,
         "anchors": [
@@ -1419,7 +1419,7 @@
         ]
       },
       "tele_bridge": {
-        "name": "Tele-Style Slanted Bridge Pickup",
+        "name": "Tele-Style Bridge Pickup",
         "widthMm": 74.776,
         "heightMm": 40.071,
         "defaultAngleDegrees": 15,

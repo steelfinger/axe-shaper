@@ -588,7 +588,7 @@ export const PICKUP_SPECIFICATIONS: Record<
   PickupRoutSpec & { name: string; defaultAngleDegrees?: number }
 > = {
   humbucker: {
-    name: 'Standard Humbucker (Covered)',
+    name: 'Standard Humbucker',
     widthMm: 87.072,
     heightMm: 40.171,
     anchors: [
@@ -615,7 +615,7 @@ export const PICKUP_SPECIFICATIONS: Record<
     ],
   },
   mini_humbucker: {
-    name: 'Mini Humbucker (Firebird-Style)',
+    name: 'Mini Humbucker',
     widthMm: 83.448,
     heightMm: 29.878,
     anchors: [
@@ -663,7 +663,7 @@ export const PICKUP_SPECIFICATIONS: Record<
     ],
   },
   lipstick: {
-    name: 'Lipstick Tube (Danelectro-Style)',
+    name: 'Lipstick Tube',
     widthMm: 82.025,
     heightMm: 17.974,
     anchors: [
@@ -718,7 +718,7 @@ export const PICKUP_SPECIFICATIONS: Record<
     ],
   },
   tele_neck: {
-    name: 'Tele-Style Chrome Neck Pickup',
+    name: 'Tele-Style Neck Pickup',
     widthMm: 79.635,
     heightMm: 20.997,
     // Not symmetric top-to-bottom - the coil sits 7.5mm from the top edge,
@@ -734,7 +734,7 @@ export const PICKUP_SPECIFICATIONS: Record<
     ],
   },
   tele_bridge: {
-    name: 'Tele-Style Slanted Bridge Pickup',
+    name: 'Tele-Style Bridge Pickup',
     widthMm: 74.776,
     heightMm: 40.071,
     // The only cavity that's actually installed at an angle - a Tele bridge

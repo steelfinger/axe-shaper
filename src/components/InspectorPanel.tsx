@@ -496,9 +496,9 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               themselves symmetric about it.
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '4px' }}>
               <div className="form-group">
-                <label className="form-label">Width ({unitLabel})</label>
+                <label className="form-label">Cavity Width ({unitLabel})</label>
                 <input
                   type="number"
                   step={isMm ? '0.5' : '0.05'}
@@ -514,7 +514,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Height ({unitLabel})</label>
+                <label className="form-label">Cavity Height ({unitLabel})</label>
                 <input
                   type="number"
                   step={isMm ? '0.5' : '0.05'}
@@ -530,6 +530,9 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
                 />
               </div>
             </div>
+            <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
+              The routed cavity, not the pickup's visible cover size.
+            </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', marginBottom: '12px' }}>
               <div className="form-group">
