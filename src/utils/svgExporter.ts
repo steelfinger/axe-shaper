@@ -345,10 +345,10 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
     <!-- Pickup Routing Cavities (kept above filled front routes so they remain identifiable) -->
     ${pickups
       .map((p) => {
-        const { widthMm: w, heightMm: h, cornerRadiusMm: rx } = resolvePickupSpec(p);
+        const { anchors } = resolvePickupSpec(p);
         return `
           <g transform="translate(${p.offsetXMm}, ${p.offsetYMm}) rotate(${p.angleDegrees})">
-            <rect x="${(-w / 2).toFixed(2)}" y="${(-h / 2).toFixed(2)}" width="${w}" height="${h}" rx="${rx}" ry="${rx}" class="pickup-rout" />
+            <path d="${anchorsToSVGPath(anchors, true)}" class="pickup-rout" />
             <circle cx="0" cy="0" r="1.5" fill="#28a745" />
           </g>
         `;

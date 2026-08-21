@@ -43,15 +43,23 @@ is a nanometre, so nothing that matters can hide under it.
 | `cases[]` | Per built-in blueprint: the input contour, the pickup routs, and the expected output of every geometry function. |
 
 Each case also carries `pickups[]`: the resolved rout for every pickup, plus
-its four corners already rotated into model space. The corners are there to pin
-down the rotation convention - **positive `angleDegrees` turns clockwise**,
-because Y grows downward, matching SVG's `rotate()`. Two blueprints have
-genuinely slanted pickups (10 and 11 degrees), so a port that rotates the wrong
-way fails here rather than silently routing a mirrored cavity.
+`routPath` - its real cavity shape (mounting ears and all, where the pickup
+has them; see `constants.pickupSpecifications`), already rotated and
+translated into model space. `routPath` is there to pin down the rotation
+convention - **positive `angleDegrees` turns clockwise**, because Y grows
+downward, matching SVG's `rotate()`. Two blueprints have genuinely slanted
+pickups (S-Style's bridge single coil at 10 degrees, T-Style's bridge pickup
+at its installed-canted 15 degrees), so a port that rotates the wrong way
+fails here rather than silently routing a mirrored cavity.
 
 Note that the rout comes from the *placement*, not from the pickup type -
-`type` only seeds the defaults when a pickup is created. Read
-`widthMm` / `heightMm` / `cornerRadiusMm` off the placement.
+`type` only seeds the defaults when a pickup is created. Read `widthMm` /
+`heightMm` / `anchors` off the placement - except a placement saved before
+`anchors` existed, whose widthMm/heightMm described a simplified pickup-cover
+outline rather than a real cavity measurement: `resolvePickupSpec` in
+`presets.ts` ignores that placement's own fields entirely and returns the
+type's real catalogue rout (size and shape together), never a value scaled
+to fit the old number.
 
 Each case carries `input` (the contour as authored) and `expected`:
 

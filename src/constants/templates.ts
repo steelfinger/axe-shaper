@@ -1,4 +1,5 @@
 import type { ReferenceTemplate } from '../types/guitar';
+import { withEmbeddedPickupSpecs } from '../utils/presets';
 import { extractProjectFromSVG } from '../utils/svgExporter';
 import { BLUEPRINT_MANIFEST, BLUEPRINT_ORDER } from './blueprintManifest';
 
@@ -50,7 +51,11 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
       // only have meaning against the blueprint's own Beveled/German-Carve
       // dimensions. An absent profile deliberately means Slab.
       edgeProfile: project.edgeProfile,
-      defaultPickups: project.pickups,
+      // Position (offsetXMm/offsetYMm/angleDegrees) is the blueprint's own;
+      // size/shape is resolved fresh against this build's catalogue, not
+      // read from the blueprint's own widthMm/heightMm - same reasoning as
+      // neckPresetFieldsForNewTemplate/bridgePresetFields just above.
+      defaultPickups: withEmbeddedPickupSpecs(project.pickups),
       // `?? []` - no bundled blueprint carries these yet, and
       // extractProjectFromSVG does a raw JSON.parse with no field defaulting.
       defaultPickguards: project.pickguards ?? [],

@@ -572,39 +572,190 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
 };
 
 /**
- * Default rout dimensions per pickup type. These seed a PickupPlacement when
- * one is created; the placement carries its own copy from then on, so editing
- * a spec here does not resize routs on existing designs.
+ * Real routed-cavity shapes per pickup type - traced outlines (mounting ears
+ * and all, where the real pickup has them), not idealized rounded rects.
+ * `anchors` is centered at (0,0) - the placement/rotation pivot, which for
+ * most types is the shape's own geometric center, but not for every type;
+ * see single_coil and tele_neck below - unrotated, sized to widthMm x
+ * heightMm. These seed a PickupPlacement's own `anchors`/widthMm/heightMm
+ * (and `angleDegrees`, via `defaultAngleDegrees`) when one is created; the
+ * placement carries its own copy from then on (see resolvePickupSpec in
+ * presets.ts), so editing a shape here does not change the rout on existing
+ * designs.
  */
-export const PICKUP_SPECIFICATIONS: Record<PickupType, PickupRoutSpec & { name: string }> = {
+export const PICKUP_SPECIFICATIONS: Record<
+  PickupType,
+  PickupRoutSpec & { name: string; defaultAngleDegrees?: number }
+> = {
   humbucker: {
     name: 'Standard Humbucker (Covered)',
-    widthMm: 70.0,
-    heightMm: 38.0,
-    cornerRadiusMm: 4.0,
+    widthMm: 87.072,
+    heightMm: 40.171,
+    anchors: [
+      { id: 'humbucker_a0', position: { x: -32.147, y: -19.988 }, handleOut: { x: -1.592, y: 0.086 }, handleMode: 'corner' },
+      { id: 'humbucker_a1', position: { x: -36.137, y: -17.556 }, handleIn: { x: 0.433, y: -1.748 }, handleMode: 'corner' },
+      { id: 'humbucker_a2', position: { x: -36.227, y: -7.487 }, handleOut: { x: -1.695, y: 0.087 }, handleMode: 'corner' },
+      { id: 'humbucker_a3', position: { x: -41.324, y: -7.251 }, handleIn: { x: 1.672, y: -0.307 }, handleOut: { x: -1.711, y: 0.568 }, handleMode: 'corner' },
+      { id: 'humbucker_a4', position: { x: -43.469, y: -3.016 }, handleIn: { x: -0.304, y: -1.666 }, handleOut: { x: 0.081, y: 2.451 }, handleMode: 'corner' },
+      { id: 'humbucker_a5', position: { x: -43.343, y: 4.343 }, handleIn: { x: -0.254, y: -2.439 }, handleOut: { x: 0.276, y: 1.584 }, handleMode: 'corner' },
+      { id: 'humbucker_a6', position: { x: -39.994, y: 7.331 }, handleIn: { x: -1.75, y: 0.21 }, handleOut: { x: 1.255, y: -0.044 }, handleMode: 'corner' },
+      { id: 'humbucker_a7', position: { x: -36.227, y: 7.308 }, handleIn: { x: -1.255, y: 0.002 }, handleMode: 'corner' },
+      { id: 'humbucker_a8', position: { x: -36.155, y: 16.313 }, handleOut: { x: 0.52, y: 2.316 }, handleMode: 'corner' },
+      { id: 'humbucker_a9', position: { x: -30.987, y: 20.0 }, handleIn: { x: -2.165, y: -0.226 }, handleMode: 'corner' },
+      { id: 'humbucker_a10', position: { x: 32.279, y: 20.085 }, handleOut: { x: 1.596, y: -0.051 }, handleMode: 'corner' },
+      { id: 'humbucker_a11', position: { x: 36.072, y: 17.48 }, handleIn: { x: -0.26, y: 1.775 }, handleMode: 'corner' },
+      { id: 'humbucker_a12', position: { x: 36.126, y: 7.308 }, handleOut: { x: 2.023, y: 0.004 }, handleMode: 'corner' },
+      { id: 'humbucker_a13', position: { x: 42.222, y: 6.954 }, handleIn: { x: -1.928, y: 0.797 }, handleOut: { x: 1.158, y: -0.619 }, handleMode: 'corner' },
+      { id: 'humbucker_a14', position: { x: 43.45, y: 3.69 }, handleIn: { x: 0.265, y: 1.203 }, handleOut: { x: -0.162, y: -2.98 }, handleMode: 'corner' },
+      { id: 'humbucker_a15', position: { x: 43.357, y: -5.258 }, handleIn: { x: 0.129, y: 2.98 }, handleOut: { x: -0.185, y: -1.432 }, handleMode: 'corner' },
+      { id: 'humbucker_a16', position: { x: 40.273, y: -7.546 }, handleIn: { x: 1.31, y: 0.095 }, handleOut: { x: -1.388, y: -0.003 }, handleMode: 'corner' },
+      { id: 'humbucker_a17', position: { x: 36.103, y: -7.511 }, handleIn: { x: 1.392, y: 0.032 }, handleMode: 'corner' },
+      { id: 'humbucker_a18', position: { x: 35.806, y: -16.806 }, handleOut: { x: -0.509, y: -2.161 }, handleMode: 'corner' },
+      { id: 'humbucker_a19', position: { x: 30.877, y: -20.085 }, handleIn: { x: 2.039, y: 0.073 }, handleMode: 'corner' },
+    ],
+  },
+  mini_humbucker: {
+    name: 'Mini Humbucker (Firebird-Style)',
+    widthMm: 83.448,
+    heightMm: 29.878,
+    anchors: [
+      { id: 'mini_humbucker_a0', position: { x: 29.534, y: -14.939 }, handleOut: { x: -0.123, y: 0.001 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a1', position: { x: 29.164, y: -14.918 }, handleIn: { x: 0.123, y: -0.013 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a2', position: { x: -30.109, y: -14.892 }, handleOut: { x: -2.371, y: 0.217 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a3', position: { x: -33.959, y: -9.925 }, handleIn: { x: -0.32, y: -2.332 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a4', position: { x: -33.959, y: -6.026 }, handleOut: { x: -1.916, y: 0.036 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a5', position: { x: -39.713, y: -5.914 }, handleIn: { x: 1.894, y: -0.212 }, handleOut: { x: -1.504, y: 0.421 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a6', position: { x: -41.685, y: -2.35 }, handleIn: { x: -0.214, y: -1.442 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a7', position: { x: -41.547, y: 4.076 }, handleOut: { x: 0.444, y: 1.472 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a8', position: { x: -37.997, y: 6.006 }, handleIn: { x: -1.431, y: 0.23 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a9', position: { x: -33.957, y: 6.006 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a10', position: { x: -33.774, y: 11.816 }, handleOut: { x: 0.633, y: 2.113 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a11', position: { x: -28.692, y: 14.896 }, handleIn: { x: -2.133, y: 0.296 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a12', position: { x: 29.975, y: 14.87 }, handleOut: { x: 2.403, y: -0.163 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a13', position: { x: 33.953, y: 9.928 }, handleIn: { x: 0.283, y: 2.36 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a14', position: { x: 33.953, y: 6.003 }, handleOut: { x: 1.93, y: -0.055 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a15', position: { x: 39.752, y: 5.867 }, handleIn: { x: -1.913, y: 0.283 }, handleOut: { x: 1.461, y: -0.459 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a16', position: { x: 41.679, y: 2.317 }, handleIn: { x: 0.237, y: 1.434 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a17', position: { x: 41.559, y: -4.035 }, handleOut: { x: -0.412, y: -1.468 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a18', position: { x: 38.075, y: -6.028 }, handleIn: { x: 1.437, y: -0.239 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a19', position: { x: 33.945, y: -6.028 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a20', position: { x: 33.727, y: -11.917 }, handleOut: { x: -0.565, y: -1.765 }, handleMode: 'corner' },
+      { id: 'mini_humbucker_a21', position: { x: 29.534, y: -14.939 }, handleIn: { x: 1.846, y: -0.017 }, handleMode: 'corner' },
+    ],
   },
   single_coil: {
     name: 'Strat-Style Single Coil',
-    widthMm: 70.0,
-    heightMm: 18.0,
-    cornerRadiusMm: 9.0,
+    widthMm: 86.041,
+    heightMm: 26.11,
+    // Not symmetric top-to-bottom - the coil sits 10mm from the top edge,
+    // not 13.055mm (half the height), so (0,0) - the placement/rotation
+    // pivot - is offset from the shape's own geometric center accordingly.
+    anchors: [
+      { id: 'single_coil_a0', position: { x: 33.615, y: -9.992 }, handleOut: { x: -22.541, y: 0.027 }, handleMode: 'corner' },
+      { id: 'single_coil_a1', position: { x: -34.01, y: -9.936 }, handleIn: { x: 22.54, y: -0.071 }, handleOut: { x: -5.343, y: 0.203 }, handleMode: 'corner' },
+      { id: 'single_coil_a2', position: { x: -42.986, y: 0.685 }, handleIn: { x: -0.457, y: -5.2 }, handleOut: { x: 0.079, y: 4.64 }, handleMode: 'corner' },
+      { id: 'single_coil_a3', position: { x: -34.505, y: 9.825 }, handleIn: { x: -4.579, y: -0.502 }, handleOut: { x: 9.192, y: 2.083 }, handleMode: 'corner' },
+      { id: 'single_coil_a4', position: { x: -6.928, y: 16.07 }, handleIn: { x: -9.194, y: -2.075 }, handleOut: { x: 4.5, y: -0.029 }, handleMode: 'corner' },
+      { id: 'single_coil_a5', position: { x: 6.582, y: 15.968 }, handleIn: { x: -4.481, y: 0.265 }, handleOut: { x: 9.803, y: -2.241 }, handleMode: 'corner' },
+      { id: 'single_coil_a6', position: { x: 35.996, y: 9.256 }, handleIn: { x: -9.778, y: 2.341 }, handleOut: { x: 4.94, y: -1.328 }, handleMode: 'corner' },
+      { id: 'single_coil_a7', position: { x: 42.7, y: -2.494 }, handleIn: { x: 1.363, y: 4.928 }, handleOut: { x: -0.895, y: -4.188 }, handleMode: 'corner' },
+      { id: 'single_coil_a8', position: { x: 33.615, y: -9.992 }, handleIn: { x: 4.427, y: -0.199 }, handleMode: 'corner' },
+    ],
   },
-  p90: {
+  lipstick: {
+    name: 'Lipstick Tube (Danelectro-Style)',
+    widthMm: 82.025,
+    heightMm: 17.974,
+    anchors: [
+      { id: 'lipstick_a0', position: { x: -31.193, y: -8.987 }, handleIn: { x: -6.83, y: 0.0 }, handleMode: 'corner' },
+      { id: 'lipstick_a1', position: { x: 31.193, y: -8.987 }, handleOut: { x: 6.83, y: 0.0 }, handleMode: 'corner' },
+      { id: 'lipstick_a2', position: { x: 41.012, y: 0.0 }, handleIn: { x: 0.0, y: -4.979 }, handleOut: { x: 0.0, y: 4.979 }, handleMode: 'corner' },
+      { id: 'lipstick_a3', position: { x: 31.193, y: 8.987 }, handleIn: { x: 6.83, y: 0.0 }, handleMode: 'corner' },
+      { id: 'lipstick_a4', position: { x: -31.193, y: 8.987 }, handleOut: { x: -6.83, y: 0.0 }, handleMode: 'corner' },
+      { id: 'lipstick_a5', position: { x: -41.012, y: 0.0 }, handleIn: { x: 0.0, y: 4.979 }, handleOut: { x: 0.0, y: -4.979 }, handleMode: 'corner' },
+    ],
+  },
+  p90_soapbar: {
     name: 'P-90 Soapbar',
-    widthMm: 85.0,
-    heightMm: 35.0,
-    cornerRadiusMm: 6.0,
+    widthMm: 74.389,
+    heightMm: 28.423,
+    anchors: [
+      { id: 'p90_soapbar_a0', position: { x: -29.311, y: -14.212 }, handleIn: { x: -4.368, y: 0.0 }, handleMode: 'corner' },
+      { id: 'p90_soapbar_a1', position: { x: 29.311, y: -14.212 }, handleOut: { x: 4.368, y: 0.0 }, handleMode: 'corner' },
+      { id: 'p90_soapbar_a2', position: { x: 37.194, y: -6.328 }, handleIn: { x: 0.0, y: -4.368 }, handleMode: 'corner' },
+      { id: 'p90_soapbar_a3', position: { x: 37.194, y: 6.328 }, handleOut: { x: 0.0, y: 4.368 }, handleMode: 'corner' },
+      { id: 'p90_soapbar_a4', position: { x: 29.311, y: 14.212 }, handleIn: { x: 4.368, y: 0.0 }, handleMode: 'corner' },
+      { id: 'p90_soapbar_a5', position: { x: -29.311, y: 14.212 }, handleOut: { x: -4.368, y: 0.0 }, handleMode: 'corner' },
+      { id: 'p90_soapbar_a6', position: { x: -37.194, y: 6.328 }, handleIn: { x: 0.0, y: 4.368 }, handleMode: 'corner' },
+      { id: 'p90_soapbar_a7', position: { x: -37.194, y: -6.328 }, handleOut: { x: 0.0, y: -4.368 }, handleMode: 'corner' },
+    ],
+  },
+  p90_dogear: {
+    name: 'P-90 Dog Ear',
+    widthMm: 105.843,
+    heightMm: 33.212,
+    anchors: [
+      { id: 'p90_dogear_a0', position: { x: -35.555, y: -16.606 }, handleOut: { x: -4.188, y: 0.0 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a1', position: { x: -43.115, y: -9.047 }, handleIn: { x: 0.0, y: -4.188 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a2', position: { x: -43.115, y: -6.956 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a3', position: { x: -48.385, y: -6.956 }, handleOut: { x: -2.513, y: 0.0 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a4', position: { x: -52.921, y: -2.42 }, handleIn: { x: 0.0, y: -2.513 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a5', position: { x: -52.921, y: 2.205 }, handleOut: { x: 0.0, y: 2.513 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a6', position: { x: -48.385, y: 6.741 }, handleIn: { x: -2.513, y: 0.0 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a7', position: { x: -43.115, y: 6.741 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a8', position: { x: -43.115, y: 9.046 }, handleOut: { x: 0.0, y: 4.188 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a9', position: { x: -35.555, y: 16.606 }, handleIn: { x: -4.188, y: 0.0 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a10', position: { x: 36.8, y: 16.606 }, handleOut: { x: 4.188, y: 0.0 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a11', position: { x: 44.36, y: 9.046 }, handleIn: { x: 0.0, y: 4.188 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a12', position: { x: 44.36, y: 6.741 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a13', position: { x: 48.385, y: 6.741 }, handleOut: { x: 2.513, y: 0.0 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a14', position: { x: 52.921, y: 2.205 }, handleIn: { x: 0.0, y: 2.513 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a15', position: { x: 52.921, y: -2.42 }, handleOut: { x: 0.0, y: -2.513 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a16', position: { x: 48.385, y: -6.956 }, handleIn: { x: 2.513, y: 0.0 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a17', position: { x: 44.36, y: -6.956 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a18', position: { x: 44.36, y: -9.047 }, handleOut: { x: 0.0, y: -4.188 }, handleMode: 'corner' },
+      { id: 'p90_dogear_a19', position: { x: 36.8, y: -16.606 }, handleIn: { x: 4.188, y: 0.0 }, handleMode: 'corner' },
+    ],
   },
   tele_neck: {
     name: 'Tele-Style Chrome Neck Pickup',
-    widthMm: 65.0,
-    heightMm: 15.0,
-    cornerRadiusMm: 7.5,
+    widthMm: 79.635,
+    heightMm: 20.997,
+    // Not symmetric top-to-bottom - the coil sits 7.5mm from the top edge,
+    // not 10.4985mm (half the height), so (0,0) - the placement/rotation
+    // pivot - is offset from the shape's own geometric center accordingly.
+    anchors: [
+      { id: 'tele_neck_a0', position: { x: -33.558, y: -7.477 }, handleOut: { x: -7.221, y: 0.002 }, handleMode: 'corner' },
+      { id: 'tele_neck_a1', position: { x: -36.507, y: 5.086 }, handleIn: { x: -5.232, y: -1.454 }, handleMode: 'corner' },
+      { id: 'tele_neck_a2', position: { x: -6.235, y: 13.498 }, handleMode: 'corner' },
+      { id: 'tele_neck_a3', position: { x: 6.618, y: 13.498 }, handleMode: 'corner' },
+      { id: 'tele_neck_a4', position: { x: 36.573, y: 5.285 }, handleOut: { x: 5.24, y: -1.437 }, handleMode: 'corner' },
+      { id: 'tele_neck_a5', position: { x: 34.837, y: -7.5 }, handleIn: { x: 5.488, y: -0.002 }, handleMode: 'corner' },
+    ],
   },
   tele_bridge: {
     name: 'Tele-Style Slanted Bridge Pickup',
-    widthMm: 73.0,
-    heightMm: 20.0,
-    cornerRadiusMm: 6.0,
+    widthMm: 74.776,
+    heightMm: 40.071,
+    // The only cavity that's actually installed at an angle - a Tele bridge
+    // plate cants the pickup, unlike every other type here.
+    defaultAngleDegrees: 15,
+    anchors: [
+      { id: 'tele_bridge_a0', position: { x: -0.296, y: -20.034 }, handleOut: { x: -9.23, y: 2.95 }, handleMode: 'corner' },
+      { id: 'tele_bridge_a1', position: { x: -27.893, y: -10.68 }, handleIn: { x: 9.182, y: -3.14 }, handleOut: { x: -2.641, y: 0.161 }, handleMode: 'corner' },
+      { id: 'tele_bridge_a2', position: { x: -34.81, y: -7.251 }, handleIn: { x: 1.737, y: -1.991 }, handleOut: { x: -1.692, y: 1.902 }, handleMode: 'corner' },
+      { id: 'tele_bridge_a3', position: { x: -37.379, y: -0.243 }, handleIn: { x: -0.119, y: -2.558 }, handleOut: { x: 0.099, y: 3.164 }, handleMode: 'corner' },
+      { id: 'tele_bridge_a4', position: { x: -34.076, y: 8.219 }, handleIn: { x: -1.892, y: -2.45 }, handleOut: { x: 2.985, y: 3.702 }, handleMode: 'corner' },
+      { id: 'tele_bridge_a5', position: { x: -25.122, y: 19.324 }, handleIn: { x: -2.985, y: -3.702 }, handleOut: { x: 0.321, y: 0.268 }, handleMode: 'corner' },
+      { id: 'tele_bridge_a6', position: { x: -23.951, y: 19.72 }, handleIn: { x: -0.425, y: 0.051 }, handleMode: 'corner' },
+      { id: 'tele_bridge_a7', position: { x: 23.566, y: 20.035 }, handleOut: { x: 0.412, y: -0.078 }, handleMode: 'corner' },
+      { id: 'tele_bridge_a8', position: { x: 24.616, y: 19.378 }, handleIn: { x: -0.23, y: 0.362 }, handleOut: { x: 3.157, y: -3.829 }, handleMode: 'corner' },
+      { id: 'tele_bridge_a9', position: { x: 34.085, y: 7.888 }, handleIn: { x: -3.152, y: 3.834 }, handleOut: { x: 1.349, y: -1.993 }, handleMode: 'corner' },
+      { id: 'tele_bridge_a10', position: { x: 37.171, y: 1.374 }, handleIn: { x: -0.489, y: 2.384 }, handleOut: { x: 0.49, y: -2.271 }, handleMode: 'corner' },
+      { id: 'tele_bridge_a11', position: { x: 36.172, y: -5.371 }, handleIn: { x: 1.149, y: 2.025 }, handleOut: { x: -1.866, y: -3.34 }, handleMode: 'corner' },
+      { id: 'tele_bridge_a12', position: { x: 27.347, y: -10.703 }, handleIn: { x: 3.585, y: 0.514 }, handleOut: { x: -9.099, y: -3.099 }, handleMode: 'corner' },
+      { id: 'tele_bridge_a13', position: { x: 0.049, y: -20.001 }, handleIn: { x: 9.099, y: 3.099 }, handleOut: { x: -0.114, y: -0.029 }, handleMode: 'corner' },
+      { id: 'tele_bridge_a14', position: { x: -0.296, y: -20.034 }, handleIn: { x: 0.117, y: -0.004 }, handleMode: 'corner' },
+    ],
   },
 };

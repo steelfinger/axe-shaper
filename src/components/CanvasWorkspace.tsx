@@ -930,7 +930,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 applied to pickups instead - see EditingController.ActiveLayer on iOS) */}
             <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               {pickups.map((p) => {
-                const { widthMm: w, heightMm: h, cornerRadiusMm } = resolvePickupSpec(p);
+                const { anchors } = resolvePickupSpec(p);
                 const isSelected = p.id === selectedPickupId;
                 const handlePos = pickupRotationHandlePosition(p);
                 return (
@@ -966,15 +966,11 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                       }
                       onDragEnd={onEndEdit}
                     >
-                      <Rect
-                        x={-w / 2}
-                        y={-h / 2}
-                        width={w}
-                        height={h}
+                      <Path
+                        data={anchorsToSVGPath(anchors, true)}
                         fill={isSelected ? 'rgba(56, 189, 248, 0.22)' : 'rgba(10, 185, 129, 0.15)'}
                         stroke={isSelected ? '#38bdf8' : '#10b981'}
                         strokeWidth={(isSelected ? 2.2 : 1.2) / zoom}
-                        cornerRadius={cornerRadiusMm}
                       />
                       <Circle x={0} y={0} radius={2 / zoom} fill={isSelected ? '#38bdf8' : '#10b981'} />
                     </Group>

@@ -205,21 +205,53 @@ export function bridgePresetFields(id: string): Required<BridgeRef> {
  * read was the one nothing used. Reading the placement first collapses that to
  * one answer, and leaves room for a per-pickup size override later.
  *
+ * A placement saved before `anchors` existed is a different case, not just a
+ * missing field: its widthMm/heightMm described a simplified pickup-cover
+ * outline, never a real cavity measurement, so there is no "declared size" of
+ * the rout worth preserving - use the type's real catalogue rout entirely
+ * (size and shape together) rather than reading a widthMm/heightMm that was
+ * never the rout size to begin with, or scaling the real shape down to fit
+ * it. This is the one place that decision has to live: every reader (canvas,
+ * SVG export, the golden corpus) calls this function, not all of them go
+ * through withEmbeddedPickupSpecs first.
+ *
  * Defensive against missing fields despite the types: decoded JSON is not
  * checked at runtime, and a rout is a hole cut in a finished body.
  */
 export function resolvePickupSpec(placement: PickupPlacement): PickupRoutSpec {
   const defaults = PICKUP_SPECIFICATIONS[placement.type] ?? PICKUP_SPECIFICATIONS[DEFAULT_PICKUP_TYPE];
+  if (!placement.anchors || placement.anchors.length === 0) {
+    return { widthMm: defaults.widthMm, heightMm: defaults.heightMm, anchors: defaults.anchors };
+  }
   return {
     widthMm: placement.widthMm ?? defaults.widthMm,
     heightMm: placement.heightMm ?? defaults.heightMm,
-    cornerRadiusMm: placement.cornerRadiusMm ?? defaults.cornerRadiusMm,
+    anchors: placement.anchors,
   };
 }
 
-/** Stamp each placement with its resolved rout, leaving existing values alone. */
+/**
+ * Pre-split files used a single generic `'p90'` type. The rout survived
+ * unchanged - widthMm/heightMm/anchors are the placement's own fields,
+ * resolved above before any type-keyed default - but the type string itself
+ * needs remapping to a real PickupType, or the inspector's dropdown has no
+ * matching option to show selected. `'p90'` was always the soapbar shape
+ * (see the old PICKUP_SPECIFICATIONS.p90 name).
+ */
+const LEGACY_PICKUP_TYPES: Record<string, PickupPlacement['type']> = {
+  p90: 'p90_soapbar',
+};
+
+function migratedPickupType(type: string): PickupPlacement['type'] {
+  return LEGACY_PICKUP_TYPES[type] ?? (type as PickupPlacement['type']);
+}
+
+/** Stamp each placement with its resolved rout and a current type string, leaving existing values alone. */
 export function withEmbeddedPickupSpecs(pickups: PickupPlacement[]): PickupPlacement[] {
-  return pickups.map((p) => ({ ...p, ...resolvePickupSpec(p) }));
+  return pickups.map((p) => {
+    const type = migratedPickupType(p.type);
+    return { ...p, type, ...structuredClone(resolvePickupSpec({ ...p, type })) };
+  });
 }
 
 /**

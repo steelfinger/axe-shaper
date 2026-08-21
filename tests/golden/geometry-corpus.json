@@ -235,33 +235,1420 @@
     "pickupSpecifications": {
       "humbucker": {
         "name": "Standard Humbucker (Covered)",
-        "widthMm": 70,
-        "heightMm": 38,
-        "cornerRadiusMm": 4
+        "widthMm": 87.072,
+        "heightMm": 40.171,
+        "anchors": [
+          {
+            "id": "humbucker_a0",
+            "position": {
+              "x": -32.147,
+              "y": -19.988
+            },
+            "handleOut": {
+              "x": -1.592,
+              "y": 0.086
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a1",
+            "position": {
+              "x": -36.137,
+              "y": -17.556
+            },
+            "handleIn": {
+              "x": 0.433,
+              "y": -1.748
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a2",
+            "position": {
+              "x": -36.227,
+              "y": -7.487
+            },
+            "handleOut": {
+              "x": -1.695,
+              "y": 0.087
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a3",
+            "position": {
+              "x": -41.324,
+              "y": -7.251
+            },
+            "handleIn": {
+              "x": 1.672,
+              "y": -0.307
+            },
+            "handleOut": {
+              "x": -1.711,
+              "y": 0.568
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a4",
+            "position": {
+              "x": -43.469,
+              "y": -3.016
+            },
+            "handleIn": {
+              "x": -0.304,
+              "y": -1.666
+            },
+            "handleOut": {
+              "x": 0.081,
+              "y": 2.451
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a5",
+            "position": {
+              "x": -43.343,
+              "y": 4.343
+            },
+            "handleIn": {
+              "x": -0.254,
+              "y": -2.439
+            },
+            "handleOut": {
+              "x": 0.276,
+              "y": 1.584
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a6",
+            "position": {
+              "x": -39.994,
+              "y": 7.331
+            },
+            "handleIn": {
+              "x": -1.75,
+              "y": 0.21
+            },
+            "handleOut": {
+              "x": 1.255,
+              "y": -0.044
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a7",
+            "position": {
+              "x": -36.227,
+              "y": 7.308
+            },
+            "handleIn": {
+              "x": -1.255,
+              "y": 0.002
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a8",
+            "position": {
+              "x": -36.155,
+              "y": 16.313
+            },
+            "handleOut": {
+              "x": 0.52,
+              "y": 2.316
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a9",
+            "position": {
+              "x": -30.987,
+              "y": 20
+            },
+            "handleIn": {
+              "x": -2.165,
+              "y": -0.226
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a10",
+            "position": {
+              "x": 32.279,
+              "y": 20.085
+            },
+            "handleOut": {
+              "x": 1.596,
+              "y": -0.051
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a11",
+            "position": {
+              "x": 36.072,
+              "y": 17.48
+            },
+            "handleIn": {
+              "x": -0.26,
+              "y": 1.775
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a12",
+            "position": {
+              "x": 36.126,
+              "y": 7.308
+            },
+            "handleOut": {
+              "x": 2.023,
+              "y": 0.004
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a13",
+            "position": {
+              "x": 42.222,
+              "y": 6.954
+            },
+            "handleIn": {
+              "x": -1.928,
+              "y": 0.797
+            },
+            "handleOut": {
+              "x": 1.158,
+              "y": -0.619
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a14",
+            "position": {
+              "x": 43.45,
+              "y": 3.69
+            },
+            "handleIn": {
+              "x": 0.265,
+              "y": 1.203
+            },
+            "handleOut": {
+              "x": -0.162,
+              "y": -2.98
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a15",
+            "position": {
+              "x": 43.357,
+              "y": -5.258
+            },
+            "handleIn": {
+              "x": 0.129,
+              "y": 2.98
+            },
+            "handleOut": {
+              "x": -0.185,
+              "y": -1.432
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a16",
+            "position": {
+              "x": 40.273,
+              "y": -7.546
+            },
+            "handleIn": {
+              "x": 1.31,
+              "y": 0.095
+            },
+            "handleOut": {
+              "x": -1.388,
+              "y": -0.003
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a17",
+            "position": {
+              "x": 36.103,
+              "y": -7.511
+            },
+            "handleIn": {
+              "x": 1.392,
+              "y": 0.032
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a18",
+            "position": {
+              "x": 35.806,
+              "y": -16.806
+            },
+            "handleOut": {
+              "x": -0.509,
+              "y": -2.161
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "humbucker_a19",
+            "position": {
+              "x": 30.877,
+              "y": -20.085
+            },
+            "handleIn": {
+              "x": 2.039,
+              "y": 0.073
+            },
+            "handleMode": "corner"
+          }
+        ]
+      },
+      "mini_humbucker": {
+        "name": "Mini Humbucker (Firebird-Style)",
+        "widthMm": 83.448,
+        "heightMm": 29.878,
+        "anchors": [
+          {
+            "id": "mini_humbucker_a0",
+            "position": {
+              "x": 29.534,
+              "y": -14.939
+            },
+            "handleOut": {
+              "x": -0.123,
+              "y": 0.001
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a1",
+            "position": {
+              "x": 29.164,
+              "y": -14.918
+            },
+            "handleIn": {
+              "x": 0.123,
+              "y": -0.013
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a2",
+            "position": {
+              "x": -30.109,
+              "y": -14.892
+            },
+            "handleOut": {
+              "x": -2.371,
+              "y": 0.217
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a3",
+            "position": {
+              "x": -33.959,
+              "y": -9.925
+            },
+            "handleIn": {
+              "x": -0.32,
+              "y": -2.332
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a4",
+            "position": {
+              "x": -33.959,
+              "y": -6.026
+            },
+            "handleOut": {
+              "x": -1.916,
+              "y": 0.036
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a5",
+            "position": {
+              "x": -39.713,
+              "y": -5.914
+            },
+            "handleIn": {
+              "x": 1.894,
+              "y": -0.212
+            },
+            "handleOut": {
+              "x": -1.504,
+              "y": 0.421
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a6",
+            "position": {
+              "x": -41.685,
+              "y": -2.35
+            },
+            "handleIn": {
+              "x": -0.214,
+              "y": -1.442
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a7",
+            "position": {
+              "x": -41.547,
+              "y": 4.076
+            },
+            "handleOut": {
+              "x": 0.444,
+              "y": 1.472
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a8",
+            "position": {
+              "x": -37.997,
+              "y": 6.006
+            },
+            "handleIn": {
+              "x": -1.431,
+              "y": 0.23
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a9",
+            "position": {
+              "x": -33.957,
+              "y": 6.006
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a10",
+            "position": {
+              "x": -33.774,
+              "y": 11.816
+            },
+            "handleOut": {
+              "x": 0.633,
+              "y": 2.113
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a11",
+            "position": {
+              "x": -28.692,
+              "y": 14.896
+            },
+            "handleIn": {
+              "x": -2.133,
+              "y": 0.296
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a12",
+            "position": {
+              "x": 29.975,
+              "y": 14.87
+            },
+            "handleOut": {
+              "x": 2.403,
+              "y": -0.163
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a13",
+            "position": {
+              "x": 33.953,
+              "y": 9.928
+            },
+            "handleIn": {
+              "x": 0.283,
+              "y": 2.36
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a14",
+            "position": {
+              "x": 33.953,
+              "y": 6.003
+            },
+            "handleOut": {
+              "x": 1.93,
+              "y": -0.055
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a15",
+            "position": {
+              "x": 39.752,
+              "y": 5.867
+            },
+            "handleIn": {
+              "x": -1.913,
+              "y": 0.283
+            },
+            "handleOut": {
+              "x": 1.461,
+              "y": -0.459
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a16",
+            "position": {
+              "x": 41.679,
+              "y": 2.317
+            },
+            "handleIn": {
+              "x": 0.237,
+              "y": 1.434
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a17",
+            "position": {
+              "x": 41.559,
+              "y": -4.035
+            },
+            "handleOut": {
+              "x": -0.412,
+              "y": -1.468
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a18",
+            "position": {
+              "x": 38.075,
+              "y": -6.028
+            },
+            "handleIn": {
+              "x": 1.437,
+              "y": -0.239
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a19",
+            "position": {
+              "x": 33.945,
+              "y": -6.028
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a20",
+            "position": {
+              "x": 33.727,
+              "y": -11.917
+            },
+            "handleOut": {
+              "x": -0.565,
+              "y": -1.765
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "mini_humbucker_a21",
+            "position": {
+              "x": 29.534,
+              "y": -14.939
+            },
+            "handleIn": {
+              "x": 1.846,
+              "y": -0.017
+            },
+            "handleMode": "corner"
+          }
+        ]
       },
       "single_coil": {
         "name": "Strat-Style Single Coil",
-        "widthMm": 70,
-        "heightMm": 18,
-        "cornerRadiusMm": 9
+        "widthMm": 86.041,
+        "heightMm": 26.11,
+        "anchors": [
+          {
+            "id": "single_coil_a0",
+            "position": {
+              "x": 33.615,
+              "y": -9.992
+            },
+            "handleOut": {
+              "x": -22.541,
+              "y": 0.027
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "single_coil_a1",
+            "position": {
+              "x": -34.01,
+              "y": -9.936
+            },
+            "handleIn": {
+              "x": 22.54,
+              "y": -0.071
+            },
+            "handleOut": {
+              "x": -5.343,
+              "y": 0.203
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "single_coil_a2",
+            "position": {
+              "x": -42.986,
+              "y": 0.685
+            },
+            "handleIn": {
+              "x": -0.457,
+              "y": -5.2
+            },
+            "handleOut": {
+              "x": 0.079,
+              "y": 4.64
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "single_coil_a3",
+            "position": {
+              "x": -34.505,
+              "y": 9.825
+            },
+            "handleIn": {
+              "x": -4.579,
+              "y": -0.502
+            },
+            "handleOut": {
+              "x": 9.192,
+              "y": 2.083
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "single_coil_a4",
+            "position": {
+              "x": -6.928,
+              "y": 16.07
+            },
+            "handleIn": {
+              "x": -9.194,
+              "y": -2.075
+            },
+            "handleOut": {
+              "x": 4.5,
+              "y": -0.029
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "single_coil_a5",
+            "position": {
+              "x": 6.582,
+              "y": 15.968
+            },
+            "handleIn": {
+              "x": -4.481,
+              "y": 0.265
+            },
+            "handleOut": {
+              "x": 9.803,
+              "y": -2.241
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "single_coil_a6",
+            "position": {
+              "x": 35.996,
+              "y": 9.256
+            },
+            "handleIn": {
+              "x": -9.778,
+              "y": 2.341
+            },
+            "handleOut": {
+              "x": 4.94,
+              "y": -1.328
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "single_coil_a7",
+            "position": {
+              "x": 42.7,
+              "y": -2.494
+            },
+            "handleIn": {
+              "x": 1.363,
+              "y": 4.928
+            },
+            "handleOut": {
+              "x": -0.895,
+              "y": -4.188
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "single_coil_a8",
+            "position": {
+              "x": 33.615,
+              "y": -9.992
+            },
+            "handleIn": {
+              "x": 4.427,
+              "y": -0.199
+            },
+            "handleMode": "corner"
+          }
+        ]
       },
-      "p90": {
+      "lipstick": {
+        "name": "Lipstick Tube (Danelectro-Style)",
+        "widthMm": 82.025,
+        "heightMm": 17.974,
+        "anchors": [
+          {
+            "id": "lipstick_a0",
+            "position": {
+              "x": -31.193,
+              "y": -8.987
+            },
+            "handleIn": {
+              "x": -6.83,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "lipstick_a1",
+            "position": {
+              "x": 31.193,
+              "y": -8.987
+            },
+            "handleOut": {
+              "x": 6.83,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "lipstick_a2",
+            "position": {
+              "x": 41.012,
+              "y": 0
+            },
+            "handleIn": {
+              "x": 0,
+              "y": -4.979
+            },
+            "handleOut": {
+              "x": 0,
+              "y": 4.979
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "lipstick_a3",
+            "position": {
+              "x": 31.193,
+              "y": 8.987
+            },
+            "handleIn": {
+              "x": 6.83,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "lipstick_a4",
+            "position": {
+              "x": -31.193,
+              "y": 8.987
+            },
+            "handleOut": {
+              "x": -6.83,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "lipstick_a5",
+            "position": {
+              "x": -41.012,
+              "y": 0
+            },
+            "handleIn": {
+              "x": 0,
+              "y": 4.979
+            },
+            "handleOut": {
+              "x": 0,
+              "y": -4.979
+            },
+            "handleMode": "corner"
+          }
+        ]
+      },
+      "p90_soapbar": {
         "name": "P-90 Soapbar",
-        "widthMm": 85,
-        "heightMm": 35,
-        "cornerRadiusMm": 6
+        "widthMm": 74.389,
+        "heightMm": 28.423,
+        "anchors": [
+          {
+            "id": "p90_soapbar_a0",
+            "position": {
+              "x": -29.311,
+              "y": -14.212
+            },
+            "handleIn": {
+              "x": -4.368,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_soapbar_a1",
+            "position": {
+              "x": 29.311,
+              "y": -14.212
+            },
+            "handleOut": {
+              "x": 4.368,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_soapbar_a2",
+            "position": {
+              "x": 37.194,
+              "y": -6.328
+            },
+            "handleIn": {
+              "x": 0,
+              "y": -4.368
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_soapbar_a3",
+            "position": {
+              "x": 37.194,
+              "y": 6.328
+            },
+            "handleOut": {
+              "x": 0,
+              "y": 4.368
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_soapbar_a4",
+            "position": {
+              "x": 29.311,
+              "y": 14.212
+            },
+            "handleIn": {
+              "x": 4.368,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_soapbar_a5",
+            "position": {
+              "x": -29.311,
+              "y": 14.212
+            },
+            "handleOut": {
+              "x": -4.368,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_soapbar_a6",
+            "position": {
+              "x": -37.194,
+              "y": 6.328
+            },
+            "handleIn": {
+              "x": 0,
+              "y": 4.368
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_soapbar_a7",
+            "position": {
+              "x": -37.194,
+              "y": -6.328
+            },
+            "handleOut": {
+              "x": 0,
+              "y": -4.368
+            },
+            "handleMode": "corner"
+          }
+        ]
+      },
+      "p90_dogear": {
+        "name": "P-90 Dog Ear",
+        "widthMm": 105.843,
+        "heightMm": 33.212,
+        "anchors": [
+          {
+            "id": "p90_dogear_a0",
+            "position": {
+              "x": -35.555,
+              "y": -16.606
+            },
+            "handleOut": {
+              "x": -4.188,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a1",
+            "position": {
+              "x": -43.115,
+              "y": -9.047
+            },
+            "handleIn": {
+              "x": 0,
+              "y": -4.188
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a2",
+            "position": {
+              "x": -43.115,
+              "y": -6.956
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a3",
+            "position": {
+              "x": -48.385,
+              "y": -6.956
+            },
+            "handleOut": {
+              "x": -2.513,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a4",
+            "position": {
+              "x": -52.921,
+              "y": -2.42
+            },
+            "handleIn": {
+              "x": 0,
+              "y": -2.513
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a5",
+            "position": {
+              "x": -52.921,
+              "y": 2.205
+            },
+            "handleOut": {
+              "x": 0,
+              "y": 2.513
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a6",
+            "position": {
+              "x": -48.385,
+              "y": 6.741
+            },
+            "handleIn": {
+              "x": -2.513,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a7",
+            "position": {
+              "x": -43.115,
+              "y": 6.741
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a8",
+            "position": {
+              "x": -43.115,
+              "y": 9.046
+            },
+            "handleOut": {
+              "x": 0,
+              "y": 4.188
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a9",
+            "position": {
+              "x": -35.555,
+              "y": 16.606
+            },
+            "handleIn": {
+              "x": -4.188,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a10",
+            "position": {
+              "x": 36.8,
+              "y": 16.606
+            },
+            "handleOut": {
+              "x": 4.188,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a11",
+            "position": {
+              "x": 44.36,
+              "y": 9.046
+            },
+            "handleIn": {
+              "x": 0,
+              "y": 4.188
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a12",
+            "position": {
+              "x": 44.36,
+              "y": 6.741
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a13",
+            "position": {
+              "x": 48.385,
+              "y": 6.741
+            },
+            "handleOut": {
+              "x": 2.513,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a14",
+            "position": {
+              "x": 52.921,
+              "y": 2.205
+            },
+            "handleIn": {
+              "x": 0,
+              "y": 2.513
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a15",
+            "position": {
+              "x": 52.921,
+              "y": -2.42
+            },
+            "handleOut": {
+              "x": 0,
+              "y": -2.513
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a16",
+            "position": {
+              "x": 48.385,
+              "y": -6.956
+            },
+            "handleIn": {
+              "x": 2.513,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a17",
+            "position": {
+              "x": 44.36,
+              "y": -6.956
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a18",
+            "position": {
+              "x": 44.36,
+              "y": -9.047
+            },
+            "handleOut": {
+              "x": 0,
+              "y": -4.188
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "p90_dogear_a19",
+            "position": {
+              "x": 36.8,
+              "y": -16.606
+            },
+            "handleIn": {
+              "x": 4.188,
+              "y": 0
+            },
+            "handleMode": "corner"
+          }
+        ]
       },
       "tele_neck": {
         "name": "Tele-Style Chrome Neck Pickup",
-        "widthMm": 65,
-        "heightMm": 15,
-        "cornerRadiusMm": 7.5
+        "widthMm": 79.635,
+        "heightMm": 20.997,
+        "anchors": [
+          {
+            "id": "tele_neck_a0",
+            "position": {
+              "x": -33.558,
+              "y": -7.477
+            },
+            "handleOut": {
+              "x": -7.221,
+              "y": 0.002
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_neck_a1",
+            "position": {
+              "x": -36.507,
+              "y": 5.086
+            },
+            "handleIn": {
+              "x": -5.232,
+              "y": -1.454
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_neck_a2",
+            "position": {
+              "x": -6.235,
+              "y": 13.498
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_neck_a3",
+            "position": {
+              "x": 6.618,
+              "y": 13.498
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_neck_a4",
+            "position": {
+              "x": 36.573,
+              "y": 5.285
+            },
+            "handleOut": {
+              "x": 5.24,
+              "y": -1.437
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_neck_a5",
+            "position": {
+              "x": 34.837,
+              "y": -7.5
+            },
+            "handleIn": {
+              "x": 5.488,
+              "y": -0.002
+            },
+            "handleMode": "corner"
+          }
+        ]
       },
       "tele_bridge": {
         "name": "Tele-Style Slanted Bridge Pickup",
-        "widthMm": 73,
-        "heightMm": 20,
-        "cornerRadiusMm": 6
+        "widthMm": 74.776,
+        "heightMm": 40.071,
+        "defaultAngleDegrees": 15,
+        "anchors": [
+          {
+            "id": "tele_bridge_a0",
+            "position": {
+              "x": -0.296,
+              "y": -20.034
+            },
+            "handleOut": {
+              "x": -9.23,
+              "y": 2.95
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_bridge_a1",
+            "position": {
+              "x": -27.893,
+              "y": -10.68
+            },
+            "handleIn": {
+              "x": 9.182,
+              "y": -3.14
+            },
+            "handleOut": {
+              "x": -2.641,
+              "y": 0.161
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_bridge_a2",
+            "position": {
+              "x": -34.81,
+              "y": -7.251
+            },
+            "handleIn": {
+              "x": 1.737,
+              "y": -1.991
+            },
+            "handleOut": {
+              "x": -1.692,
+              "y": 1.902
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_bridge_a3",
+            "position": {
+              "x": -37.379,
+              "y": -0.243
+            },
+            "handleIn": {
+              "x": -0.119,
+              "y": -2.558
+            },
+            "handleOut": {
+              "x": 0.099,
+              "y": 3.164
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_bridge_a4",
+            "position": {
+              "x": -34.076,
+              "y": 8.219
+            },
+            "handleIn": {
+              "x": -1.892,
+              "y": -2.45
+            },
+            "handleOut": {
+              "x": 2.985,
+              "y": 3.702
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_bridge_a5",
+            "position": {
+              "x": -25.122,
+              "y": 19.324
+            },
+            "handleIn": {
+              "x": -2.985,
+              "y": -3.702
+            },
+            "handleOut": {
+              "x": 0.321,
+              "y": 0.268
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_bridge_a6",
+            "position": {
+              "x": -23.951,
+              "y": 19.72
+            },
+            "handleIn": {
+              "x": -0.425,
+              "y": 0.051
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_bridge_a7",
+            "position": {
+              "x": 23.566,
+              "y": 20.035
+            },
+            "handleOut": {
+              "x": 0.412,
+              "y": -0.078
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_bridge_a8",
+            "position": {
+              "x": 24.616,
+              "y": 19.378
+            },
+            "handleIn": {
+              "x": -0.23,
+              "y": 0.362
+            },
+            "handleOut": {
+              "x": 3.157,
+              "y": -3.829
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_bridge_a9",
+            "position": {
+              "x": 34.085,
+              "y": 7.888
+            },
+            "handleIn": {
+              "x": -3.152,
+              "y": 3.834
+            },
+            "handleOut": {
+              "x": 1.349,
+              "y": -1.993
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_bridge_a10",
+            "position": {
+              "x": 37.171,
+              "y": 1.374
+            },
+            "handleIn": {
+              "x": -0.489,
+              "y": 2.384
+            },
+            "handleOut": {
+              "x": 0.49,
+              "y": -2.271
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_bridge_a11",
+            "position": {
+              "x": 36.172,
+              "y": -5.371
+            },
+            "handleIn": {
+              "x": 1.149,
+              "y": 2.025
+            },
+            "handleOut": {
+              "x": -1.866,
+              "y": -3.34
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_bridge_a12",
+            "position": {
+              "x": 27.347,
+              "y": -10.703
+            },
+            "handleIn": {
+              "x": 3.585,
+              "y": 0.514
+            },
+            "handleOut": {
+              "x": -9.099,
+              "y": -3.099
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_bridge_a13",
+            "position": {
+              "x": 0.049,
+              "y": -20.001
+            },
+            "handleIn": {
+              "x": 9.099,
+              "y": 3.099
+            },
+            "handleOut": {
+              "x": -0.114,
+              "y": -0.029
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "tele_bridge_a14",
+            "position": {
+              "x": -0.296,
+              "y": -20.034
+            },
+            "handleIn": {
+              "x": 0.117,
+              "y": -0.004
+            },
+            "handleMode": "corner"
+          }
+        ]
       }
     }
   },
@@ -801,16 +2188,10 @@
           "offsetYMm": 108.957752,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 70,
-            "heightMm": 38,
-            "cornerRadiusMm": 4
+            "widthMm": 87.072,
+            "heightMm": 40.171
           },
-          "corners": [
-            [-35, 89.957752],
-            [35, 89.957752],
-            [35, 127.957752],
-            [-35, 127.957752]
-          ]
+          "routPath": "M -32.15 88.97 C -33.74 89.06, -35.70 89.65, -36.14 91.40 C -36.14 91.40, -36.23 101.47, -36.23 101.47 C -37.92 101.56, -39.65 101.40, -41.32 101.71 C -43.03 102.27, -43.77 104.28, -43.47 105.94 C -43.39 108.39, -43.60 110.86, -43.34 113.30 C -43.07 114.88, -41.74 116.50, -39.99 116.29 C -38.74 116.24, -37.48 116.27, -36.23 116.27 C -36.23 116.27, -36.16 125.27, -36.16 125.27 C -35.63 127.59, -33.15 128.73, -30.99 128.96 C -30.99 128.96, 32.28 129.04, 32.28 129.04 C 33.88 128.99, 35.81 128.21, 36.07 126.44 C 36.07 126.44, 36.13 116.27, 36.13 116.27 C 38.15 116.27, 40.29 116.71, 42.22 115.91 C 43.38 115.29, 43.72 113.85, 43.45 112.65 C 43.29 109.67, 43.49 106.68, 43.36 103.70 C 43.17 102.27, 41.58 101.51, 40.27 101.41 C 38.89 101.41, 37.50 101.48, 36.10 101.45 C 36.10 101.45, 35.81 92.15, 35.81 92.15 C 35.30 89.99, 32.92 88.95, 30.88 88.87 C 30.88 88.87, -32.15 88.97, -32.15 88.97 Z"
         },
         {
           "id": "p_bridge",
@@ -819,16 +2200,10 @@
           "offsetYMm": 215.363477,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 70,
-            "heightMm": 38,
-            "cornerRadiusMm": 4
+            "widthMm": 87.072,
+            "heightMm": 40.171
           },
-          "corners": [
-            [-35, 196.363477],
-            [35, 196.363477],
-            [35, 234.363477],
-            [-35, 234.363477]
-          ]
+          "routPath": "M -32.15 195.38 C -33.74 195.46, -35.70 196.06, -36.14 197.81 C -36.14 197.81, -36.23 207.88, -36.23 207.88 C -37.92 207.96, -39.65 207.81, -41.32 208.11 C -43.03 208.68, -43.77 210.68, -43.47 212.35 C -43.39 214.80, -43.60 217.27, -43.34 219.71 C -43.07 221.29, -41.74 222.90, -39.99 222.69 C -38.74 222.65, -37.48 222.67, -36.23 222.67 C -36.23 222.67, -36.16 231.68, -36.16 231.68 C -35.63 233.99, -33.15 235.14, -30.99 235.36 C -30.99 235.36, 32.28 235.45, 32.28 235.45 C 33.88 235.40, 35.81 234.62, 36.07 232.84 C 36.07 232.84, 36.13 222.67, 36.13 222.67 C 38.15 222.68, 40.29 223.11, 42.22 222.32 C 43.38 221.70, 43.72 220.26, 43.45 219.05 C 43.29 216.07, 43.49 213.09, 43.36 210.11 C 43.17 208.67, 41.58 207.91, 40.27 207.82 C 38.89 207.81, 37.50 207.88, 36.10 207.85 C 36.10 207.85, 35.81 198.56, 35.81 198.56 C 35.30 196.40, 32.92 195.35, 30.88 195.28 C 30.88 195.28, -32.15 195.38, -32.15 195.38 Z"
         }
       ],
       "expected": {
@@ -3650,16 +5025,10 @@
           "offsetYMm": 95.799895,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 70,
-            "heightMm": 38,
-            "cornerRadiusMm": 4
+            "widthMm": 87.072,
+            "heightMm": 40.171
           },
-          "corners": [
-            [-35, 76.799895],
-            [35, 76.799895],
-            [35, 114.799895],
-            [-35, 114.799895]
-          ]
+          "routPath": "M -32.15 75.81 C -33.74 75.90, -35.70 76.50, -36.14 78.24 C -36.14 78.24, -36.23 88.31, -36.23 88.31 C -37.92 88.40, -39.65 88.24, -41.32 88.55 C -43.03 89.12, -43.77 91.12, -43.47 92.78 C -43.39 95.23, -43.60 97.70, -43.34 100.14 C -43.07 101.73, -41.74 103.34, -39.99 103.13 C -38.74 103.09, -37.48 103.11, -36.23 103.11 C -36.23 103.11, -36.16 112.11, -36.16 112.11 C -35.63 114.43, -33.15 115.57, -30.99 115.80 C -30.99 115.80, 32.28 115.88, 32.28 115.88 C 33.88 115.83, 35.81 115.05, 36.07 113.28 C 36.07 113.28, 36.13 103.11, 36.13 103.11 C 38.15 103.11, 40.29 103.55, 42.22 102.75 C 43.38 102.13, 43.72 100.69, 43.45 99.49 C 43.29 96.51, 43.49 93.52, 43.36 90.54 C 43.17 89.11, 41.58 88.35, 40.27 88.25 C 38.89 88.25, 37.50 88.32, 36.10 88.29 C 36.10 88.29, 35.81 78.99, 35.81 78.99 C 35.30 76.83, 32.92 75.79, 30.88 75.71 C 30.88 75.71, -32.15 75.81, -32.15 75.81 Z"
         },
         {
           "id": "p_bridge",
@@ -3668,16 +5037,10 @@
           "offsetYMm": 184.503585,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 70,
-            "heightMm": 38,
-            "cornerRadiusMm": 4
+            "widthMm": 87.072,
+            "heightMm": 40.171
           },
-          "corners": [
-            [-35, 165.503585],
-            [35, 165.503585],
-            [35, 203.503585],
-            [-35, 203.503585]
-          ]
+          "routPath": "M -32.15 164.52 C -33.74 164.60, -35.70 165.20, -36.14 166.95 C -36.14 166.95, -36.23 177.02, -36.23 177.02 C -37.92 177.10, -39.65 176.95, -41.32 177.25 C -43.03 177.82, -43.77 179.82, -43.47 181.49 C -43.39 183.94, -43.60 186.41, -43.34 188.85 C -43.07 190.43, -41.74 192.04, -39.99 191.83 C -38.74 191.79, -37.48 191.81, -36.23 191.81 C -36.23 191.81, -36.16 200.82, -36.16 200.82 C -35.63 203.13, -33.15 204.28, -30.99 204.50 C -30.99 204.50, 32.28 204.59, 32.28 204.59 C 33.88 204.54, 35.81 203.76, 36.07 201.98 C 36.07 201.98, 36.13 191.81, 36.13 191.81 C 38.15 191.82, 40.29 192.25, 42.22 191.46 C 43.38 190.84, 43.72 189.40, 43.45 188.19 C 43.29 185.21, 43.49 182.23, 43.36 179.25 C 43.17 177.81, 41.58 177.05, 40.27 176.96 C 38.89 176.95, 37.50 177.02, 36.10 176.99 C 36.10 176.99, 35.81 167.70, 35.81 167.70 C 35.30 165.54, 32.92 164.49, 30.88 164.42 C 30.88 164.42, -32.15 164.52, -32.15 164.52 Z"
         }
       ],
       "expected": {
@@ -7611,16 +8974,10 @@
           "offsetYMm": 100.186847,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 70,
-            "heightMm": 18,
-            "cornerRadiusMm": 9
+            "widthMm": 86.041,
+            "heightMm": 26.11
           },
-          "corners": [
-            [-35, 91.186847],
-            [35, 91.186847],
-            [35, 109.186847],
-            [-35, 109.186847]
-          ]
+          "routPath": "M 33.62 90.19 C 11.07 90.22, -11.47 90.18, -34.01 90.25 C -39.35 90.45, -43.44 95.67, -42.99 100.87 C -42.91 105.51, -39.08 109.51, -34.51 110.01 C -25.31 112.09, -16.12 114.18, -6.93 116.26 C -2.43 116.23, 2.10 116.42, 6.58 116.15 C 16.39 113.91, 26.22 111.78, 36.00 109.44 C 40.94 108.11, 44.06 102.62, 42.70 97.69 C 41.80 93.50, 38.04 90.00, 33.62 90.19 C 33.62 90.19, 33.62 90.19, 33.62 90.19 Z"
         },
         {
           "id": "p_middle",
@@ -7629,16 +8986,10 @@
           "offsetYMm": 160.439055,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 70,
-            "heightMm": 18,
-            "cornerRadiusMm": 9
+            "widthMm": 86.041,
+            "heightMm": 26.11
           },
-          "corners": [
-            [-35, 151.439055],
-            [35, 151.439055],
-            [35, 169.439055],
-            [-35, 169.439055]
-          ]
+          "routPath": "M 33.62 150.45 C 11.07 150.47, -11.47 150.43, -34.01 150.50 C -39.35 150.71, -43.44 155.92, -42.99 161.12 C -42.91 165.76, -39.08 169.76, -34.51 170.26 C -25.31 172.35, -16.12 174.43, -6.93 176.51 C -2.43 176.48, 2.10 176.67, 6.58 176.41 C 16.39 174.17, 26.22 172.04, 36.00 169.70 C 40.94 168.37, 44.06 162.87, 42.70 157.95 C 41.80 153.76, 38.04 150.25, 33.62 150.45 C 33.62 150.45, 33.62 150.45, 33.62 150.45 Z"
         },
         {
           "id": "p_bridge",
@@ -7647,16 +8998,10 @@
           "offsetYMm": 216.287811,
           "angleDegrees": 10,
           "rout": {
-            "widthMm": 70,
-            "heightMm": 18,
-            "cornerRadiusMm": 9
+            "widthMm": 86.041,
+            "heightMm": 26.11
           },
-          "corners": [
-            [-32.905438, 201.346855],
-            [36.031105, 213.502228],
-            [32.905438, 231.228767],
-            [-36.031105, 219.073395]
-          ]
+          "routPath": "M 34.84 212.28 C 12.64 208.40, -9.56 204.44, -31.77 200.60 C -37.07 199.87, -42.00 204.30, -42.45 209.50 C -43.18 214.08, -40.11 218.68, -35.69 219.97 C -27.00 223.62, -18.31 227.27, -9.61 230.91 C -5.18 231.66, -0.75 232.64, 3.71 233.16 C 13.75 232.65, 23.81 232.26, 33.84 231.65 C 38.94 231.20, 42.97 226.34, 42.48 221.25 C 42.33 216.97, 39.23 212.86, 34.84 212.28 C 34.84 212.28, 34.84 212.28, 34.84 212.28 Z"
         }
       ],
       "expected": {
@@ -11237,34 +12582,22 @@
           "offsetYMm": 98.971138,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 65,
-            "heightMm": 15,
-            "cornerRadiusMm": 7.5
+            "widthMm": 79.635,
+            "heightMm": 20.997
           },
-          "corners": [
-            [-32.5, 91.471138],
-            [32.5, 91.471138],
-            [32.5, 106.471138],
-            [-32.5, 106.471138]
-          ]
+          "routPath": "M -33.56 91.49 C -40.78 91.50, -41.74 102.60, -36.51 104.06 C -36.51 104.06, -6.24 112.47, -6.24 112.47 C -6.24 112.47, 6.62 112.47, 6.62 112.47 C 6.62 112.47, 36.57 104.26, 36.57 104.26 C 41.81 102.82, 40.33 91.47, 34.84 91.47 C 34.84 91.47, -33.56 91.49, -33.56 91.49 Z"
         },
         {
           "id": "p_bridge",
           "type": "tele_bridge",
           "offsetXMm": 0,
           "offsetYMm": 219.683503,
-          "angleDegrees": 20,
+          "angleDegrees": 15,
           "rout": {
-            "widthMm": 73,
-            "heightMm": 20,
-            "cornerRadiusMm": 6
+            "widthMm": 74.776,
+            "heightMm": 40.071
           },
-          "corners": [
-            [-30.878579, 197.802842],
-            [37.718982, 222.770312],
-            [30.878579, 241.564165],
-            [-37.718982, 216.596694]
-          ]
+          "routPath": "M 4.90 200.26 C -4.78 200.72, -14.50 201.49, -24.18 202.15 C -26.77 201.62, -29.55 202.20, -31.75 203.67 C -33.87 205.07, -35.50 207.27, -36.04 209.77 C -36.77 212.86, -36.24 215.95, -35.04 218.80 C -33.12 223.15, -31.19 227.50, -29.27 231.85 C -29.03 232.19, -28.66 232.47, -28.24 232.53 C -28.24 232.53, 17.58 245.14, 17.58 245.14 C 18.00 245.17, 18.45 245.06, 18.76 244.77 C 22.80 241.89, 26.85 239.01, 30.88 236.12 C 32.70 234.55, 34.46 232.81, 35.55 230.63 C 36.61 228.56, 36.92 226.11, 36.33 223.86 C 35.39 220.15, 32.52 217.85, 29.19 216.42 C 21.20 211.07, 13.21 205.73, 5.22 200.38 C 5.12 200.32, 5.01 200.28, 4.90 200.26 C 4.90 200.26, 4.90 200.26, 4.90 200.26 Z"
         }
       ],
       "expected": {
@@ -14691,16 +16024,10 @@
           "offsetYMm": 98.7,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 70,
-            "heightMm": 38,
-            "cornerRadiusMm": 4
+            "widthMm": 87.072,
+            "heightMm": 40.171
           },
-          "corners": [
-            [-35, 79.7],
-            [35, 79.7],
-            [35, 117.7],
-            [-35, 117.7]
-          ]
+          "routPath": "M -32.15 78.71 C -33.74 78.80, -35.70 79.40, -36.14 81.14 C -36.14 81.14, -36.23 91.21, -36.23 91.21 C -37.92 91.30, -39.65 91.14, -41.32 91.45 C -43.03 92.02, -43.77 94.02, -43.47 95.68 C -43.39 98.13, -43.60 100.60, -43.34 103.04 C -43.07 104.63, -41.74 106.24, -39.99 106.03 C -38.74 105.99, -37.48 106.01, -36.23 106.01 C -36.23 106.01, -36.16 115.01, -36.16 115.01 C -35.63 117.33, -33.15 118.47, -30.99 118.70 C -30.99 118.70, 32.28 118.78, 32.28 118.78 C 33.88 118.73, 35.81 117.96, 36.07 116.18 C 36.07 116.18, 36.13 106.01, 36.13 106.01 C 38.15 106.01, 40.29 106.45, 42.22 105.65 C 43.38 105.03, 43.72 103.59, 43.45 102.39 C 43.29 99.41, 43.49 96.42, 43.36 93.44 C 43.17 92.01, 41.58 91.25, 40.27 91.15 C 38.89 91.15, 37.50 91.22, 36.10 91.19 C 36.10 91.19, 35.81 81.89, 35.81 81.89 C 35.30 79.73, 32.92 78.69, 30.88 78.62 C 30.88 78.62, -32.15 78.71, -32.15 78.71 Z"
         },
         {
           "id": "p_bridge",
@@ -14709,16 +16036,10 @@
           "offsetYMm": 207.2,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 70,
-            "heightMm": 38,
-            "cornerRadiusMm": 4
+            "widthMm": 87.072,
+            "heightMm": 40.171
           },
-          "corners": [
-            [-35, 188.2],
-            [35, 188.2],
-            [35, 226.2],
-            [-35, 226.2]
-          ]
+          "routPath": "M -32.15 187.21 C -33.74 187.30, -35.70 187.90, -36.14 189.64 C -36.14 189.64, -36.23 199.71, -36.23 199.71 C -37.92 199.80, -39.65 199.64, -41.32 199.95 C -43.03 200.52, -43.77 202.52, -43.47 204.18 C -43.39 206.64, -43.60 209.10, -43.34 211.54 C -43.07 213.13, -41.74 214.74, -39.99 214.53 C -38.74 214.49, -37.48 214.51, -36.23 214.51 C -36.23 214.51, -36.16 223.51, -36.16 223.51 C -35.63 225.83, -33.15 226.97, -30.99 227.20 C -30.99 227.20, 32.28 227.29, 32.28 227.29 C 33.88 227.23, 35.81 226.46, 36.07 224.68 C 36.07 224.68, 36.13 214.51, 36.13 214.51 C 38.15 214.51, 40.29 214.95, 42.22 214.15 C 43.38 213.54, 43.72 212.09, 43.45 210.89 C 43.29 207.91, 43.49 204.92, 43.36 201.94 C 43.17 200.51, 41.58 199.75, 40.27 199.65 C 38.89 199.65, 37.50 199.72, 36.10 199.69 C 36.10 199.69, 35.81 190.39, 35.81 190.39 C 35.30 188.23, 32.92 187.19, 30.88 187.12 C 30.88 187.12, -32.15 187.21, -32.15 187.21 Z"
         }
       ],
       "expected": {
@@ -18925,16 +20246,10 @@
           "offsetYMm": 107,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 70,
-            "heightMm": 38,
-            "cornerRadiusMm": 4
+            "widthMm": 87.072,
+            "heightMm": 40.171
           },
-          "corners": [
-            [-35, 88],
-            [35, 88],
-            [35, 126],
-            [-35, 126]
-          ]
+          "routPath": "M -32.15 87.01 C -33.74 87.10, -35.70 87.70, -36.14 89.44 C -36.14 89.44, -36.23 99.51, -36.23 99.51 C -37.92 99.60, -39.65 99.44, -41.32 99.75 C -43.03 100.32, -43.77 102.32, -43.47 103.98 C -43.39 106.43, -43.60 108.90, -43.34 111.34 C -43.07 112.93, -41.74 114.54, -39.99 114.33 C -38.74 114.29, -37.48 114.31, -36.23 114.31 C -36.23 114.31, -36.16 123.31, -36.16 123.31 C -35.63 125.63, -33.15 126.77, -30.99 127.00 C -30.99 127.00, 32.28 127.09, 32.28 127.09 C 33.88 127.03, 35.81 126.26, 36.07 124.48 C 36.07 124.48, 36.13 114.31, 36.13 114.31 C 38.15 114.31, 40.29 114.75, 42.22 113.95 C 43.38 113.33, 43.72 111.89, 43.45 110.69 C 43.29 107.71, 43.49 104.72, 43.36 101.74 C 43.17 100.31, 41.58 99.55, 40.27 99.45 C 38.89 99.45, 37.50 99.52, 36.10 99.49 C 36.10 99.49, 35.81 90.19, 35.81 90.19 C 35.30 88.03, 32.92 86.99, 30.88 86.91 C 30.88 86.91, -32.15 87.01, -32.15 87.01 Z"
         },
         {
           "id": "p_bridge",
@@ -18943,16 +20258,10 @@
           "offsetYMm": 191,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 70,
-            "heightMm": 38,
-            "cornerRadiusMm": 4
+            "widthMm": 87.072,
+            "heightMm": 40.171
           },
-          "corners": [
-            [-35, 172],
-            [35, 172],
-            [35, 210],
-            [-35, 210]
-          ]
+          "routPath": "M -32.15 171.01 C -33.74 171.10, -35.70 171.70, -36.14 173.44 C -36.14 173.44, -36.23 183.51, -36.23 183.51 C -37.92 183.60, -39.65 183.44, -41.32 183.75 C -43.03 184.32, -43.77 186.32, -43.47 187.98 C -43.39 190.44, -43.60 192.90, -43.34 195.34 C -43.07 196.93, -41.74 198.54, -39.99 198.33 C -38.74 198.29, -37.48 198.31, -36.23 198.31 C -36.23 198.31, -36.16 207.31, -36.16 207.31 C -35.63 209.63, -33.15 210.77, -30.99 211.00 C -30.99 211.00, 32.28 211.09, 32.28 211.09 C 33.88 211.03, 35.81 210.25, 36.07 208.48 C 36.07 208.48, 36.13 198.31, 36.13 198.31 C 38.15 198.31, 40.29 198.75, 42.22 197.95 C 43.38 197.34, 43.72 195.89, 43.45 194.69 C 43.29 191.71, 43.49 188.72, 43.36 185.74 C 43.17 184.31, 41.58 183.55, 40.27 183.45 C 38.89 183.45, 37.50 183.52, 36.10 183.49 C 36.10 183.49, 35.81 174.19, 35.81 174.19 C 35.30 172.03, 32.92 170.99, 30.88 170.91 C 30.88 170.91, -32.15 171.01, -32.15 171.01 Z"
         }
       ],
       "expected": {
@@ -23388,16 +24697,10 @@
           "offsetYMm": 104.307512,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 70,
-            "heightMm": 38,
-            "cornerRadiusMm": 4
+            "widthMm": 87.072,
+            "heightMm": 40.171
           },
-          "corners": [
-            [-35, 85.307512],
-            [35, 85.307512],
-            [35, 123.307512],
-            [-35, 123.307512]
-          ]
+          "routPath": "M -32.15 84.32 C -33.74 84.41, -35.70 85.00, -36.14 86.75 C -36.14 86.75, -36.23 96.82, -36.23 96.82 C -37.92 96.91, -39.65 96.75, -41.32 97.06 C -43.03 97.62, -43.77 99.63, -43.47 101.29 C -43.39 103.74, -43.60 106.21, -43.34 108.65 C -43.07 110.23, -41.74 111.85, -39.99 111.64 C -38.74 111.59, -37.48 111.62, -36.23 111.62 C -36.23 111.62, -36.16 120.62, -36.16 120.62 C -35.63 122.94, -33.15 124.08, -30.99 124.31 C -30.99 124.31, 32.28 124.39, 32.28 124.39 C 33.88 124.34, 35.81 123.56, 36.07 121.79 C 36.07 121.79, 36.13 111.62, 36.13 111.62 C 38.15 111.62, 40.29 112.06, 42.22 111.26 C 43.38 110.64, 43.72 109.20, 43.45 108.00 C 43.29 105.02, 43.49 102.03, 43.36 99.05 C 43.17 97.62, 41.58 96.86, 40.27 96.76 C 38.89 96.76, 37.50 96.83, 36.10 96.80 C 36.10 96.80, 35.81 87.50, 35.81 87.50 C 35.30 85.34, 32.92 84.30, 30.88 84.22 C 30.88 84.22, -32.15 84.32, -32.15 84.32 Z"
         },
         {
           "id": "p_bridge",
@@ -23406,16 +24709,10 @@
           "offsetYMm": 205.636351,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 70,
-            "heightMm": 38,
-            "cornerRadiusMm": 4
+            "widthMm": 87.072,
+            "heightMm": 40.171
           },
-          "corners": [
-            [-35, 186.636351],
-            [35, 186.636351],
-            [35, 224.636351],
-            [-35, 224.636351]
-          ]
+          "routPath": "M -32.15 185.65 C -33.74 185.73, -35.70 186.33, -36.14 188.08 C -36.14 188.08, -36.23 198.15, -36.23 198.15 C -37.92 198.24, -39.65 198.08, -41.32 198.39 C -43.03 198.95, -43.77 200.95, -43.47 202.62 C -43.39 205.07, -43.60 207.54, -43.34 209.98 C -43.07 211.56, -41.74 213.18, -39.99 212.97 C -38.74 212.92, -37.48 212.95, -36.23 212.94 C -36.23 212.94, -36.16 221.95, -36.16 221.95 C -35.63 224.27, -33.15 225.41, -30.99 225.64 C -30.99 225.64, 32.28 225.72, 32.28 225.72 C 33.88 225.67, 35.81 224.89, 36.07 223.12 C 36.07 223.12, 36.13 212.94, 36.13 212.94 C 38.15 212.95, 40.29 213.39, 42.22 212.59 C 43.38 211.97, 43.72 210.53, 43.45 209.33 C 43.29 206.35, 43.49 203.36, 43.36 200.38 C 43.17 198.95, 41.58 198.19, 40.27 198.09 C 38.89 198.09, 37.50 198.16, 36.10 198.13 C 36.10 198.13, 35.81 188.83, 35.81 188.83 C 35.30 186.67, 32.92 185.62, 30.88 185.55 C 30.88 185.55, -32.15 185.65, -32.15 185.65 Z"
         }
       ],
       "expected": {
@@ -25971,16 +27268,10 @@
           "offsetYMm": 97.938552,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 70,
-            "heightMm": 18,
-            "cornerRadiusMm": 9
+            "widthMm": 86.041,
+            "heightMm": 26.11
           },
-          "corners": [
-            [-35, 88.938552],
-            [35, 88.938552],
-            [35, 106.938552],
-            [-35, 106.938552]
-          ]
+          "routPath": "M 33.62 87.95 C 11.07 87.97, -11.47 87.93, -34.01 88.00 C -39.35 88.21, -43.44 93.42, -42.99 98.62 C -42.91 103.26, -39.08 107.26, -34.51 107.76 C -25.31 109.85, -16.12 111.93, -6.93 114.01 C -2.43 113.98, 2.10 114.17, 6.58 113.91 C 16.39 111.67, 26.22 109.54, 36.00 107.19 C 40.94 105.87, 44.06 100.37, 42.70 95.44 C 41.80 91.26, 38.04 87.75, 33.62 87.95 C 33.62 87.95, 33.62 87.95, 33.62 87.95 Z"
         },
         {
           "id": "p_middle",
@@ -25989,16 +27280,10 @@
           "offsetYMm": 200.158935,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 70,
-            "heightMm": 18,
-            "cornerRadiusMm": 9
+            "widthMm": 86.041,
+            "heightMm": 26.11
           },
-          "corners": [
-            [-35, 191.158935],
-            [35, 191.158935],
-            [35, 209.158935],
-            [-35, 209.158935]
-          ]
+          "routPath": "M 33.62 190.17 C 11.07 190.19, -11.47 190.15, -34.01 190.22 C -39.35 190.43, -43.44 195.64, -42.99 200.84 C -42.91 205.48, -39.08 209.48, -34.51 209.98 C -25.31 212.07, -16.12 214.15, -6.93 216.23 C -2.43 216.20, 2.10 216.39, 6.58 216.13 C 16.39 213.89, 26.22 211.76, 36.00 209.41 C 40.94 208.09, 44.06 202.59, 42.70 197.66 C 41.80 193.48, 38.04 189.97, 33.62 190.17 C 33.62 190.17, 33.62 190.17, 33.62 190.17 Z"
         }
       ],
       "expected": {

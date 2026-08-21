@@ -216,6 +216,24 @@ export function anchorsToSVGPath(anchors: PathAnchor[], closed: boolean = true):
   return parts.join(' ');
 }
 
+/**
+ * Scale every anchor's position and handles about the origin. For a shape
+ * already centered at (0,0) this is exactly "resize to a new width/height" -
+ * used to fit a pickup's catalogue cavity shape to a placement's own
+ * widthMm/heightMm (see resolvePickupSpec / settingPickupWidth in
+ * presets.ts and pickupEditing.ts).
+ */
+export function scaleAnchors(anchors: PathAnchor[], scaleX: number, scaleY: number): PathAnchor[] {
+  const scaleVec = (v?: Vector2D): Vector2D | undefined =>
+    v ? { x: v.x * scaleX, y: v.y * scaleY } : undefined;
+  return anchors.map((a) => ({
+    ...a,
+    position: { x: a.position.x * scaleX, y: a.position.y * scaleY },
+    handleIn: scaleVec(a.handleIn),
+    handleOut: scaleVec(a.handleOut),
+  }));
+}
+
 /** Number of segments in an anchor list: one per gap, plus the closing gap. */
 export function segmentCount(anchors: PathAnchor[], closed: boolean): number {
   if (anchors.length < 2) return 0;

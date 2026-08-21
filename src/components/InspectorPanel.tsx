@@ -14,7 +14,6 @@ import { distanceVector, isSegmentStraight, updateAnchorHandle } from '../utils/
 import { type ActiveLayer, getActiveContour, withActiveContour } from '../utils/layerShapes';
 import {
   settingPickupAngle,
-  settingPickupCornerRadius,
   settingPickupHeight,
   settingPickupType,
   settingPickupWidth,
@@ -532,23 +531,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
-              <div className="form-group">
-                <label className="form-label">Corner Radius ({unitLabel})</label>
-                <input
-                  type="number"
-                  step={isMm ? '0.5' : '0.05'}
-                  className="form-input"
-                  value={((selectedPickup.cornerRadiusMm ?? 0) * factor).toFixed(2)}
-                  onChange={(e) =>
-                    onUpdateProject(
-                      (prev) => settingPickupCornerRadius(prev, selectedPickup.id, mmFromInput(e.target.value)),
-                      `pickup.radius:${selectedPickup.id}`
-                    )
-                  }
-                  onBlur={onEndEdit}
-                />
-              </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', marginBottom: '12px' }}>
               <div className="form-group">
                 <label className="form-label">Angle (deg)</label>
                 <input

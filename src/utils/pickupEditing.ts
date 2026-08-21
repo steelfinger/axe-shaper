@@ -1,5 +1,6 @@
 import { PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import type { GuitarProject, PickupPlacement, PickupType, Vector2D } from '../types/guitar';
+import { scaleAnchors } from './bezier';
 import { DEFAULT_PICKUP_TYPE, resolvePickupSpec } from './presets';
 
 /**
@@ -33,10 +34,10 @@ export function addingPickup(project: GuitarProject, type: PickupType): { projec
     type,
     offsetXMm: DEFAULT_POSITION.x,
     offsetYMm: DEFAULT_POSITION.y,
-    angleDegrees: 0,
+    angleDegrees: spec.defaultAngleDegrees ?? 0,
     widthMm: spec.widthMm,
     heightMm: spec.heightMm,
-    cornerRadiusMm: spec.cornerRadiusMm,
+    anchors: structuredClone(spec.anchors),
   };
   return { project: { ...project, pickups: [...project.pickups, pickup] }, id };
 }
@@ -106,21 +107,43 @@ export function rotatingPickupToward(project: GuitarProject, id: string, touchPo
   return settingPickupAngle(project, id, snapped);
 }
 
+/** Resizes the actual routed shape to match, not just the reported number - see resolvePickupSpec in presets.ts for the same scaling applied to legacy files that predate embedded anchors. */
 export function settingPickupWidth(project: GuitarProject, id: string, widthMm: number): GuitarProject {
-  return updatingPickup(project, id, (p) => ({ ...p, widthMm }));
+  return updatingPickup(project, id, (p) => {
+    const current = resolvePickupSpec(p);
+    const scaleX = current.widthMm !== 0 ? widthMm / current.widthMm : 1;
+    return { ...p, widthMm, anchors: scaleAnchors(current.anchors, scaleX, 1) };
+  });
 }
 
 export function settingPickupHeight(project: GuitarProject, id: string, heightMm: number): GuitarProject {
-  return updatingPickup(project, id, (p) => ({ ...p, heightMm }));
+  return updatingPickup(project, id, (p) => {
+    const current = resolvePickupSpec(p);
+    const scaleY = current.heightMm !== 0 ? heightMm / current.heightMm : 1;
+    return { ...p, heightMm, anchors: scaleAnchors(current.anchors, 1, scaleY) };
+  });
 }
 
-export function settingPickupCornerRadius(project: GuitarProject, id: string, cornerRadiusMm: number): GuitarProject {
-  return updatingPickup(project, id, (p) => ({ ...p, cornerRadiusMm }));
-}
-
-/** Relabels the rout only - `type` seeds dimensions once, at creation, and is never consulted again (see resolvePickupSpec in presets.ts). */
+/**
+ * Also reseeds width/height/anchors/angle to the new type's catalogue rout -
+ * picking a different pickup type here means "I have a different pickup
+ * now", so the cavity that actually gets routed should change with it, not
+ * just its label. Angle only matters for the one type that's installed
+ * canted (see defaultAngleDegrees on tele_bridge); every other type defaults
+ * to 0. The fields stay independently editable afterwards (see
+ * settingPickupWidth/Height above), so this is a starting point for the new
+ * type, not a lock.
+ */
 export function settingPickupType(project: GuitarProject, id: string, type: PickupType): GuitarProject {
-  return updatingPickup(project, id, (p) => ({ ...p, type }));
+  const spec = PICKUP_SPECIFICATIONS[type] ?? PICKUP_SPECIFICATIONS[DEFAULT_PICKUP_TYPE];
+  return updatingPickup(project, id, (p) => ({
+    ...p,
+    type,
+    widthMm: spec.widthMm,
+    heightMm: spec.heightMm,
+    anchors: structuredClone(spec.anchors),
+    angleDegrees: spec.defaultAngleDegrees ?? 0,
+  }));
 }
 
 function rotatePoint(point: Vector2D, center: Vector2D, degrees: number): Vector2D {
@@ -133,10 +156,19 @@ function rotatePoint(point: Vector2D, center: Vector2D, degrees: number): Vector
   };
 }
 
-/** Where the rotation handle sits for `pickup`: beyond the middle of its top edge, rotated along with it. A value read back via `angleDegreesOf` feeds straight into `rotatingPickupToward`/`settingPickupAngle`. */
+/**
+ * Where the rotation handle sits for `pickup`: beyond its top edge, rotated
+ * along with it. Reads the top edge from the anchors themselves rather than
+ * assuming heightMm/2 above center - some cavities (single_coil, tele_neck)
+ * aren't symmetric about their own placement/rotation origin, so the top
+ * edge can sit closer to (or farther from) center than half the height. A
+ * value read back via `angleDegreesOf` feeds straight into
+ * `rotatingPickupToward`/`settingPickupAngle`.
+ */
 export function pickupRotationHandlePosition(pickup: PickupPlacement): Vector2D {
-  const { heightMm } = resolvePickupSpec(pickup);
+  const { anchors } = resolvePickupSpec(pickup);
+  const topOffsetY = Math.min(...anchors.map((a) => a.position.y));
   const center = { x: pickup.offsetXMm, y: pickup.offsetYMm };
-  const restPoint = { x: center.x, y: center.y - heightMm / 2 - PICKUP_ROTATION_GRIP_DISTANCE_MM };
+  const restPoint = { x: center.x, y: center.y + topOffsetY - PICKUP_ROTATION_GRIP_DISTANCE_MM };
   return rotatePoint(restPoint, center, pickup.angleDegrees);
 }

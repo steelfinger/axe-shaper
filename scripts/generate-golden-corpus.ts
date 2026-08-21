@@ -102,25 +102,26 @@ function serializeAnchor(a: any) {
 const serializeAnchors = (anchors: any[]) => anchors.map(serializeAnchor);
 
 /**
- * The four corners of a pickup rout in model space, rotated about the
- * placement origin. Pins down the rotation convention, which is the easy thing
- * to get backwards when porting: positive angleDegrees turns clockwise,
- * because Y grows downward - matching SVG's rotate() and Konva's rotation.
+ * A pickup rout's anchors (already centered at origin and scaled to the
+ * placement's own widthMm/heightMm) carried into model space: rotated about
+ * the placement origin, then translated to it. Pins down the rotation
+ * convention, which is the easy thing to get backwards when porting:
+ * positive angleDegrees turns clockwise, because Y grows downward - matching
+ * SVG's rotate() and Konva's rotation. Handles are offsets relative to their
+ * own anchor, so they rotate but never translate.
  */
-function routCorners(p: any, spec: { widthMm: number; heightMm: number }) {
+function routWorldAnchors(p: any, spec: { anchors: any[] }) {
   const rad = (p.angleDegrees * Math.PI) / 180;
   const cos = Math.cos(rad);
   const sin = Math.sin(rad);
-  const hw = spec.widthMm / 2;
-  const hh = spec.heightMm / 2;
-  return [
-    [-hw, -hh],
-    [hw, -hh],
-    [hw, hh],
-    [-hw, hh],
-  ].map(([x, y]) =>
-    vec({ x: p.offsetXMm + x * cos - y * sin, y: p.offsetYMm + x * sin + y * cos })
-  );
+  const rotate = (v: { x: number; y: number }) => ({ x: v.x * cos - v.y * sin, y: v.x * sin + v.y * cos });
+  return spec.anchors.map((a: any) => {
+    const pos = rotate(a.position);
+    const out: any = { position: { x: p.offsetXMm + pos.x, y: p.offsetYMm + pos.y } };
+    if (a.handleIn) out.handleIn = rotate(a.handleIn);
+    if (a.handleOut) out.handleOut = rotate(a.handleOut);
+    return out;
+  });
 }
 
 function anchorBounds(anchors: any[]) {
@@ -289,9 +290,8 @@ async function build() {
           rout: {
             widthMm: round(spec.widthMm),
             heightMm: round(spec.heightMm),
-            cornerRadiusMm: round(spec.cornerRadiusMm),
           },
-          corners: routCorners(p, spec),
+          routPath: bezier.anchorsToSVGPath(routWorldAnchors(p, spec), true),
         };
       }),
       expected: {

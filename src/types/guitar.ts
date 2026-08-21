@@ -106,13 +106,22 @@ export interface BridgePreset {
   saddleOffsetYMm?: LengthMm; // Distance from top edge of plate to saddle line
 }
 
-export type PickupType = 'humbucker' | 'single_coil' | 'p90' | 'tele_neck' | 'tele_bridge';
+export type PickupType =
+  | 'humbucker'
+  | 'mini_humbucker'
+  | 'single_coil'
+  | 'lipstick'
+  | 'p90_soapbar'
+  | 'p90_dogear'
+  | 'tele_neck'
+  | 'tele_bridge';
 
-/** The rectangle actually routed for a pickup. */
+/** The real shape actually routed for a pickup - a traced cavity outline (mounting ears and all, where the real pickup has them), not a plain rectangle. */
 export interface PickupRoutSpec {
   widthMm: LengthMm;
   heightMm: LengthMm;
-  cornerRadiusMm: LengthMm;
+  /** Centered at (0,0), unrotated, sized to widthMm x heightMm. */
+  anchors: PathAnchor[];
 }
 
 export interface PickupPlacement {
@@ -127,13 +136,18 @@ export interface PickupPlacement {
    * it is not re-consulted afterwards, so a file whose type this build has
    * never heard of still routs the right hole. See resolvePickupSpec() in
    * src/utils/presets.ts.
-   *
-   * cornerRadiusMm is optional only because schemaVersion 1 files predate it;
-   * migrateProject() backfills it from the type.
    */
   widthMm: LengthMm;
   heightMm: LengthMm;
-  cornerRadiusMm?: LengthMm;
+  /**
+   * The actual routed cavity outline, centered at (0,0) and already scaled
+   * to widthMm x heightMm - not the type's catalogue shape, a copy of it.
+   * Optional only because files saved before this shape existed predate it;
+   * resolvePickupSpec() backfills by scaling the type's catalogue shape to
+   * fit this placement's own widthMm/heightMm, so an old file's declared
+   * size is preserved exactly and only the missing shape detail is added.
+   */
+  anchors?: PathAnchor[];
 }
 
 export interface PickguardPlacement {
