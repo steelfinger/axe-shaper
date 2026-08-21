@@ -200,12 +200,34 @@ async function main() {
           const spec = presets.resolvePickupSpec(p);
           invariant(finite(p.offsetXMm) && finite(p.offsetYMm), `pickup ${p.id} has a non-finite centre`);
           invariant(spec.widthMm > 0 && spec.heightMm > 0, `pickup ${p.id} routs a non-positive hole`);
-          invariant(spec.widthMm === p.widthMm && spec.heightMm === p.heightMm, `pickup ${p.id} fell back to the type table`);
+          // Current-format placements (carrying their own anchors) must
+          // resolve from themselves - "embedded copy wins", same as
+          // neck/bridge presets. A placement saved before anchors existed is
+          // the one documented exception: resolvePickupSpec ignores its
+          // stale widthMm/heightMm entirely and returns the type's real
+          // catalogue rout instead (presets.ts, tests/golden/README.md), so
+          // it's expected to disagree with the placement's own numbers here -
+          // the iOS-written fixtures predate the anchors field.
+          if (p.anchors && p.anchors.length > 0) {
+            invariant(
+              spec.widthMm === p.widthMm && spec.heightMm === p.heightMm,
+              `pickup ${p.id} fell back to the type table despite carrying its own anchors`
+            );
+          }
         }
       });
 
       check('loading is a no-op for a current file', () => {
-        deepStrictEqual(presets.migrateProject(project), project);
+        // Pickups carry the one documented exception to "no-op": a placement
+        // saved before anchors existed gets backfilled with its type's real
+        // catalogue rout on load (resolvePickupSpec/withEmbeddedPickupSpecs
+        // in presets.ts) rather than round-tripping its stale numbers -
+        // exactly what these iOS-written fixtures still have. Comparing
+        // against that same production helper (rather than the raw payload)
+        // keeps this a no-op check for every other field while still
+        // catching any pickup drift migrateProject doesn't account for.
+        const expected = { ...project, pickups: presets.withEmbeddedPickupSpecs(project.pickups ?? []) };
+        deepStrictEqual(presets.migrateProject(project), expected);
       });
 
       check('drawn body path matches the decoded payload', () => {
