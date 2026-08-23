@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ArrowRight,
   Download,
@@ -36,6 +36,39 @@ function Brand(): React.JSX.Element {
       <img src="/brand/axe-shaper-mark.png" alt="" aria-hidden="true" width={28} height={28} />
       <span>Axe Shaper</span>
     </a>
+  );
+}
+
+/**
+ * Runs the swing-in once, then swaps to the idle sway class on that
+ * animation's `animationend` rather than letting a delayed second CSS
+ * animation pick up where it left off. The two-animation-with-delay version
+ * matched at every value we sampled, but real playback still showed a
+ * handoff hiccup - starting the sway fresh, only once the entrance is fully
+ * gone from the element, avoids relying on the browser to hand off two
+ * concurrent animations on the same property cleanly.
+ */
+function BetaPlate(): React.JSX.Element {
+  const [settled, setSettled] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (settled) return;
+    const el = ref.current;
+    if (!el) return;
+    const onEnd = (event: AnimationEvent) => {
+      if (event.animationName === 'beta-plate-swing-in') setSettled(true);
+    };
+    el.addEventListener('animationend', onEnd);
+    return () => el.removeEventListener('animationend', onEnd);
+  }, [settled]);
+
+  return (
+    <div ref={ref} className={`beta-plate ${settled ? 'beta-plate--sway' : 'beta-plate--enter'}`}>
+      <img src="/badges/still-in-beta-plate.png" alt="Still in beta" width={480} height={480} />
+    </div>
   );
 }
 
@@ -131,7 +164,10 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
       <main>
         <section className="marketing-hero">
           <div className="hero-copy">
-            <h1>Shape the body. Trust the blueprint.</h1>
+            <div className="hero-title-row">
+              <h1>Shape the body. Trust the blueprint.</h1>
+              <BetaPlate />
+            </div>
             <p className="hero-lede">Design an electric guitar body with the neck, bridge, pickups, and scale length working as one measured system—then export a true-scale plan for the shop.</p>
             <div className="hero-actions">
               <a className="marketing-button primary" href="/app">Design in your browser <ArrowRight size={17} /></a>

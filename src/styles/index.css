@@ -1060,6 +1060,102 @@ html.marketing-document {
   to { transform: translateY(0) rotate(2.6deg); filter: blur(0); }
 }
 
+/*
+ * The h1's own box is nearly as wide as the column (max-width: 15ch is a cap,
+ * not the rendered glyph width, and text-wrap: balance leaves the right side
+ * of that box empty) - so a flex sibling just wraps onto its own line instead
+ * of sitting next to visible text, and a plain px/vw offset only lines up at
+ * one viewport width. Giving the plate the same font-size clamp as the h1
+ * (for em/ch sizing only - it renders no text) keeps both the offset and the
+ * plate's own size tracking the title's actual scale instead of the column's.
+ * It is a rusty plate pinned by its single top-right bolt hole, swung in on
+ * load and left hanging tilted - the way a sign actually settles when it is
+ * fixed at only one corner. transform-origin sits on that bolt hole (~91%, 9%
+ * of the square image), not the element centre, so the rotation reads as
+ * pivoting from the pin rather than spinning in place. It has to be the
+ * top-right hole specifically: the settle keeps the negative (counter-
+ * clockwise) rotation below, and with that direction a top-left pivot lifts
+ * the opposite corner above the pin - which a plate hanging from one screw
+ * can never do. Pivoting from the top-right instead keeps every other corner
+ * below the pin, the way gravity would actually leave it.
+ */
+.hero-title-row {
+  position: relative;
+}
+
+.beta-plate {
+  position: absolute;
+  top: -0.14em;
+  /* 15ch matches the h1's own max-width, so this sits at the title's box
+     edge - past every possible wrapped line - rather than guessing which
+     words end up on line one. */
+  left: calc(15ch + 0.4em);
+  z-index: 3;
+  font-size: clamp(3rem, 4.6vw, 4.4rem);
+  width: 1.65em;
+  pointer-events: none;
+  transform-origin: 91% 9%;
+}
+
+/*
+ * The entrance and the idle sway are two separate declarations - running
+ * both with a matching delay/fill so the second picks up where the first
+ * ends looked right in every value sample, but real playback still showed a
+ * handoff hiccup, which points at the browser's own animation-to-animation
+ * compositing rather than the numbers. MarketingSite swaps this class for
+ * .beta-plate--sway on the entrance's `animationend`, so the sway keyframes
+ * only ever start fresh once the entrance is fully gone from the element,
+ * instead of two animations overlapping on the same property.
+ */
+.beta-plate--enter {
+  animation: beta-plate-swing-in 1200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.beta-plate--sway {
+  animation: beta-plate-sway 4.5s ease-in-out infinite;
+}
+
+.beta-plate img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.55));
+}
+
+/*
+ * Every keyframe restates translateY, not just rotate - transform is one
+ * value, not independently-animated components, so a keyframe that only sets
+ * rotate() silently zeroes the translate and the plate snaps. That was the
+ * "jerk": a bounce baked into the keyframes on top of this curve's own
+ * overshoot. One overshoot (60%, past -13deg to -17deg) is enough on its own.
+ */
+@keyframes beta-plate-swing-in {
+  0% { transform: translateY(-160%) rotate(-75deg); opacity: 0; }
+  60% { transform: translateY(0%) rotate(-17deg); opacity: 1; }
+  100% { transform: translateY(0%) rotate(-13deg); }
+}
+
+@keyframes beta-plate-sway {
+  0%, 100% { transform: rotate(-13deg); }
+  50% { transform: rotate(-9deg); }
+}
+
+/*
+ * Below 700px the h1's 15ch cap exceeds the column, so the box (and its
+ * wrapped lines) fill the full width instead of stopping at 15ch - there is
+ * no safe "just past the cap" offset left of the viewport edge. Anchor from
+ * the right edge of the row instead, back to a fixed size like the original
+ * corner badge.
+ */
+@media (max-width: 700px) {
+  .beta-plate {
+    top: -16px;
+    left: auto;
+    right: -6px;
+    width: clamp(47px, 13.5vw, 61px);
+  }
+}
+
 .proof-strip {
   position: relative;
   z-index: 2;
@@ -1817,6 +1913,12 @@ html.marketing-document {
 
   .blueprint-sheet {
     animation: none;
+  }
+
+  .beta-plate--enter,
+  .beta-plate--sway {
+    animation: none;
+    transform: rotate(-13deg);
   }
 
   .marketing-button {
