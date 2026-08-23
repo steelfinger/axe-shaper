@@ -14,8 +14,18 @@ function viewer3dDevFallback(): Plugin {
   return {
     name: 'viewer3d-dev-fallback',
     configureServer(server) {
-      server.middlewares.use((req, _res, next) => {
-        if (req.url?.startsWith('/viewer3d/') && !req.url.slice('/viewer3d/'.length).includes('.')) {
+      server.middlewares.use((req, res, next) => {
+        if (!req.url) { next(); return; }
+        // The bare path (no trailing slash) is outside the /viewer3d/**
+        // glob Firebase Hosting rewrites in production too, so a canonical
+        // redirect matches real behavior rather than papering over a
+        // dev-only gap.
+        if (req.url === '/viewer3d' || req.url.startsWith('/viewer3d?')) {
+          res.writeHead(308, { Location: req.url.replace('/viewer3d', '/viewer3d/') });
+          res.end();
+          return;
+        }
+        if (req.url.startsWith('/viewer3d/') && !req.url.slice('/viewer3d/'.length).includes('.')) {
           req.url = '/viewer3d/index.html';
         }
         next();
