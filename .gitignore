@@ -14,6 +14,12 @@ dist-ssr
 *.zip
 preview_*
 
+# Local-only composed 3D viewer for `npm run dev` (production composes this
+# from a pinned GitHub release into dist/viewer3d instead - see
+# scripts/fetch-viewer3d.ts). Rebuild with the sibling repo's `npm run build`
+# and copy its dist/ here to test the editor -> 3D viewer link locally.
+public/viewer3d/
+
 # Editor directories and files
 .claude/
 .agents/

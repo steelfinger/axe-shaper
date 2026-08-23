@@ -260,6 +260,11 @@ export interface EdgeProfile {
   [key: string]: unknown;
 }
 
+export interface BindingParams {
+  appliesTo: string;
+  [key: string]: unknown;
+}
+
 export interface GuitarProject {
   schemaVersion: number;
   appVersion: string;
@@ -273,6 +278,10 @@ export interface GuitarProject {
   contour: BodyContour;
   /** Optional for pre-edge-profile files; absent resolves to Slab. */
   edgeProfile?: EdgeProfile;
+  /** A thin trim strip glued around the body's edge (Les Paul binding).
+   *  Absent means no binding - the 3D preview is the only surface that
+   *  currently draws it; this app just carries the field through. */
+  binding?: BindingParams;
   neckPresetId: string;
   bridgePresetId: string;
   /**

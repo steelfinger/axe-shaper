@@ -308,6 +308,10 @@ function EditorApp(): React.JSX.Element {
       edgeProfile: template.edgeProfile
         ? JSON.parse(JSON.stringify(template.edgeProfile))
         : undefined,
+      // No blueprint or user template carries a binding choice yet - reset
+      // explicitly rather than via the `...prev` spread above, so a binding
+      // picked on the previous body doesn't linger on an unrelated new one.
+      binding: undefined,
       pickups: JSON.parse(JSON.stringify(template.defaultPickups)),
       pickguards: JSON.parse(JSON.stringify(template.defaultPickguards ?? [])),
       frontRoutes: JSON.parse(JSON.stringify(template.defaultFrontRoutes ?? [])),

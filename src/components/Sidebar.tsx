@@ -12,6 +12,7 @@ import {
   isKnownEdgeProfileKind,
   type EdgeProfileKind,
 } from '../constants/edgeProfiles';
+import { BINDING_KINDS, BINDING_LABELS, bindingKindOf, bindingParamsFor, type BindingKind } from '../constants/binding';
 import type {
   GuitarProject,
   GuideImageState,
@@ -140,6 +141,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const handleEdgeProfileKindChange = (kind: string) => {
     if (!isKnownEdgeProfileKind(kind)) return;
     onUpdateProject((prev) => ({ ...prev, edgeProfile: { ...DEFAULT_EDGE_PROFILES[kind] } }));
+  };
+
+  const bindingKind = bindingKindOf(project.binding);
+
+  const handleBindingKindChange = (kind: BindingKind) => {
+    onUpdateProject((prev) => ({ ...prev, binding: bindingParamsFor(kind) }));
   };
 
   /** Editing a dimension spreads, so keys this build has no model for survive. */
@@ -512,6 +519,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Binding</label>
+                <select
+                  value={bindingKind}
+                  onChange={(e) => handleBindingKindChange(e.target.value as BindingKind)}
+                  className="form-select"
+                >
+                  <option value="none">{BINDING_LABELS.none}</option>
+                  {BINDING_KINDS.map((kind) => (
+                    <option key={kind} value={kind}>
+                      {BINDING_LABELS[kind]}
+                    </option>
+                  ))}
+                </select>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                  A thin trim strip glued around the body's edge. 3D-preview only for now - a fixed
+                  white strip, top edge or top and back.
+                </p>
               </div>
 
               {edgeProfileControls.map((control) => {
