@@ -263,6 +263,37 @@ body, html, #root {
   border-color: var(--accent-blue);
 }
 
+.fabrication-advisory {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: var(--radius-sm);
+  background: rgba(56, 189, 248, 0.08);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.fabrication-advisory > svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--accent-blue);
+}
+
+.fabrication-advisory strong {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--text-primary);
+  font-size: 0.78rem;
+}
+
+.fabrication-advisory p {
+  margin: 0;
+}
+
 .toggle-row {
   display: flex;
   align-items: center;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, ChevronDown, ChevronRight, Bookmark, Plus, Zap, Scissors } from 'lucide-react';
+import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, ChevronDown, ChevronRight, Bookmark, Plus, Zap, Scissors, Info } from 'lucide-react';
 import { BRIDGE_PRESETS, CURATED_NECK_PRESETS, NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import {
@@ -144,6 +144,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const bindingKind = bindingKindOf(project.binding);
+  const showsAdvancedBindingAdvisory = bindingKind !== 'none' && edgeProfileKind !== 'slab';
 
   const handleBindingKindChange = (kind: BindingKind) => {
     onUpdateProject((prev) => ({ ...prev, binding: bindingParamsFor(kind) }));
@@ -504,8 +505,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </p>
 
               <div className="form-group">
-                <label className="form-label">Edge Treatment</label>
+                <label className="form-label" htmlFor="edge-treatment-select">Edge Treatment</label>
                 <select
+                  id="edge-treatment-select"
                   value={edgeProfileKind}
                   onChange={(e) => handleEdgeProfileKindChange(e.target.value)}
                   className="form-select"
@@ -522,11 +524,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
 
               <div className="form-group">
-                <label className="form-label">Binding</label>
+                <label className="form-label" htmlFor="binding-select">Binding</label>
                 <select
+                  id="binding-select"
                   value={bindingKind}
                   onChange={(e) => handleBindingKindChange(e.target.value as BindingKind)}
                   className="form-select"
+                  aria-describedby={showsAdvancedBindingAdvisory ? 'binding-help binding-advisory' : 'binding-help'}
                 >
                   <option value="none">{BINDING_LABELS.none}</option>
                   {BINDING_KINDS.map((kind) => (
@@ -535,10 +539,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </option>
                   ))}
                 </select>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                  A thin trim strip glued around the body's edge. 3D-preview only for now - a fixed
-                  white strip, top edge or top and back.
+                <p id="binding-help" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                  Adds binding to the top edge or both edges. Binding is currently preview-only.
                 </p>
+                {showsAdvancedBindingAdvisory && (
+                  <div
+                    id="binding-advisory"
+                    className="fabrication-advisory"
+                    role="status"
+                    aria-live="polite"
+                    aria-atomic="true"
+                  >
+                    <Info size={16} aria-hidden="true" />
+                    <div>
+                      <strong>Advanced binding</strong>
+                      <p>
+                        Axe Shaper previews this binding but does not generate or validate its routing
+                        channel. This edge may require a custom jig or CNC toolpath. Verify the routing
+                        setup before cutting.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {edgeProfileControls.map((control) => {
