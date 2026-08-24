@@ -3,6 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>
+      // Firebase's web.app hostname is useful for infrastructure, but it is
+      // not a public URL. Redirect before the app loads while retaining a
+      // shared route, query, or hash.
+      if (window.location.hostname === 'axe-shaper-web.web.app') {
+        window.location.replace(`https://axeshaper.com${window.location.pathname}${window.location.search}${window.location.hash}`);
+      } else {
+        // All SPA routes share this document, so canonicalize the actual path
+        // rather than declaring every page to be the home page.
+        document.write(`<link rel="canonical" href="https://axeshaper.com${window.location.pathname}" />`);
+      }
+    </script>
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
