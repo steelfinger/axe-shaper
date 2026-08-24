@@ -7,6 +7,7 @@ import {
   resolvePickupSpec,
   withEmbeddedPresets,
 } from './presets';
+import { PICKUP_COVER_OUTLINES } from '../constants/hardware';
 import {
   getMountingPointOriginYMm,
   getSaddleYMm,
@@ -279,7 +280,8 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
     .body-line { fill: none; stroke: #111111; stroke-width: ${PLAN_DRAWING_STYLE.print.bodyStrokeMm}; stroke-linecap: round; stroke-linejoin: round; }
     .edge-inset { fill: none; stroke: #555555; stroke-width: 0.3; stroke-dasharray: 3,2; }
     .neck-pocket { fill: ${PLAN_DRAWING_STYLE.print.neckPocketFill}; stroke: ${PLAN_DRAWING_STYLE.print.neckPocketStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.neckPocketStrokeMm}; }
-    .pickup-rout { fill: none; stroke: #28a745; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
+    .pickup-rout { fill: ${PLAN_DRAWING_STYLE.print.frontRouteFill}; stroke: ${PLAN_DRAWING_STYLE.print.frontRouteStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
+    .pickup-cover { fill: none; stroke: #111111; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
     .bridge-rout { fill: none; stroke: #007bff; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
     .back-route { fill: ${PLAN_DRAWING_STYLE.print.backRouteFill}; stroke: ${PLAN_DRAWING_STYLE.print.backRouteStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; stroke-dasharray: ${PLAN_DRAWING_STYLE.print.backRouteDashMm}; }
     .front-route { fill: ${PLAN_DRAWING_STYLE.print.frontRouteFill}; stroke: ${PLAN_DRAWING_STYLE.print.frontRouteStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
@@ -342,13 +344,18 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
       .map((r) => `<path d="${anchorsToSVGPath(r.contour.anchors, r.contour.closed)}" class="front-route" />`)
       .join('')}
 
-    <!-- Pickup Routing Cavities (kept above filled front routes so they remain identifiable) -->
+    <!-- Pickup routing cavities and visible cover cut lines (above front routes) -->
     ${pickups
       .map((p) => {
         const { anchors } = resolvePickupSpec(p);
+        const cover = PICKUP_COVER_OUTLINES[p.type];
+        const coverOutline = cover
+          ? `<rect x="${(-cover.widthMm / 2).toFixed(2)}" y="${(-cover.heightMm / 2).toFixed(2)}" width="${cover.widthMm.toFixed(2)}" height="${cover.heightMm.toFixed(2)}" rx="${cover.cornerRadiusMm.toFixed(2)}" ry="${cover.cornerRadiusMm.toFixed(2)}" class="pickup-cover" />`
+          : '';
         return `
           <g transform="translate(${p.offsetXMm}, ${p.offsetYMm}) rotate(${p.angleDegrees})">
             <path d="${anchorsToSVGPath(anchors, true)}" class="pickup-rout" />
+            ${coverOutline}
             <circle cx="0" cy="0" r="1.5" fill="#28a745" />
           </g>
         `;

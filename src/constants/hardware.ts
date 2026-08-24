@@ -759,3 +759,23 @@ export const PICKUP_SPECIFICATIONS: Record<
     ],
   },
 };
+
+/**
+ * Visible pickup-cover footprints, used only on the printable plan. The rout
+ * and cover are deliberately separate: a pickguard can require the smaller
+ * cover opening while the body still needs the larger mounting-ear cavity.
+ * Lipstick tubes are omitted because their cover and rout nearly coincide.
+ */
+export const PICKUP_COVER_OUTLINES: Partial<Record<PickupType, {
+  widthMm: LengthMm;
+  heightMm: LengthMm;
+  cornerRadiusMm: LengthMm;
+}>> = {
+  humbucker: { widthMm: 70, heightMm: 38, cornerRadiusMm: 4 },
+  mini_humbucker: { widthMm: 70, heightMm: 25, cornerRadiusMm: 4 },
+  single_coil: { widthMm: 70, heightMm: 18, cornerRadiusMm: 9 },
+  p90_soapbar: { widthMm: 85, heightMm: 35, cornerRadiusMm: 6 },
+  p90_dogear: { widthMm: 85, heightMm: 35, cornerRadiusMm: 6 },
+  tele_neck: { widthMm: 65, heightMm: 15, cornerRadiusMm: 7.5 },
+  tele_bridge: { widthMm: 73, heightMm: 20, cornerRadiusMm: 6 },
+};
