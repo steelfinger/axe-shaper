@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:with-viewer": "node scripts/dev-with-viewer3d.ts",
     "build": "npm run bridge:check && tsc -b && vite build",
     "viewer3d:fetch": "node scripts/fetch-viewer3d.ts",
     "build:site": "npm run build && npm run viewer3d:fetch",
