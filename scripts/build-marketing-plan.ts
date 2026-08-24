@@ -44,6 +44,7 @@ const DISPLAY_STROKE_MM: Record<string, number> = {
   'edge-inset': 1.2,
   'neck-pocket': 1.5,
   'pickup-rout': 1.4,
+  'pickup-cover': 1.1,
   'bridge-rout': 1.5,
   'back-route': 1.2,
   'front-route': 1.3,
