@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { PanelLeft, SlidersHorizontal, X } from 'lucide-react';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { InspectorPanel } from './components/InspectorPanel';
@@ -154,6 +155,7 @@ function EditorApp(): React.JSX.Element {
   const [isSaveInfoModalOpen, setIsSaveInfoModalOpen] = useState(false);
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(shouldShowWelcome);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
+  const [mobilePanel, setMobilePanel] = useState<'tools' | 'inspector' | null>(null);
   // In-memory only - reappears on reload, deliberately not persisted to localStorage.
   const hasSeenSaveInfoRef = useRef(false);
   const [guideImage, setGuideImage] = useState<GuideImageState>(INITIAL_GUIDE_IMAGE);
@@ -679,7 +681,7 @@ function EditorApp(): React.JSX.Element {
   }, [selectedAnchorIds, selectedPickupId, canUndo, canRedo]);
 
   return (
-    <div className="app-container">
+    <div className={`app-container${mobilePanel ? ` mobile-panel-${mobilePanel}` : ''}`}>
       <Header
         project={project}
         onUpdateProject={handleUpdateProject}
@@ -697,6 +699,31 @@ function EditorApp(): React.JSX.Element {
         onOpenFile={handleOpenFile}
       />
 
+      <nav className="mobile-editor-nav" aria-label="Editor panels">
+        <button
+          className={`mobile-editor-nav-button ${mobilePanel === 'tools' ? 'active' : ''}`}
+          onClick={() => setMobilePanel((panel) => (panel === 'tools' ? null : 'tools'))}
+          aria-expanded={mobilePanel === 'tools'}
+          aria-controls="editor-tools"
+        >
+          {mobilePanel === 'tools' ? <X size={18} /> : <PanelLeft size={18} />}
+          Tools
+        </button>
+        <button
+          className={`mobile-editor-nav-button ${mobilePanel === 'inspector' ? 'active' : ''}`}
+          onClick={() => setMobilePanel((panel) => (panel === 'inspector' ? null : 'inspector'))}
+          aria-expanded={mobilePanel === 'inspector'}
+          aria-controls="editor-inspector"
+        >
+          {mobilePanel === 'inspector' ? <X size={18} /> : <SlidersHorizontal size={18} />}
+          Inspect
+        </button>
+      </nav>
+
+      <div id="editor-tools" className="responsive-panel-wrap tools-panel-wrap">
+      <button className="responsive-panel-close" onClick={() => setMobilePanel(null)} aria-label="Close tools panel">
+        <X size={18} /> Close tools
+      </button>
       <Sidebar
         project={project}
         onUpdateProject={handleUpdateProject}
@@ -720,6 +747,7 @@ function EditorApp(): React.JSX.Element {
         onAddPickup={handleAddPickup}
         onDeletePickup={handleDeletePickup}
       />
+      </div>
 
       <CanvasWorkspace
         project={project}
@@ -742,6 +770,10 @@ function EditorApp(): React.JSX.Element {
         activeLayer={activeLayer}
       />
 
+      <div id="editor-inspector" className="responsive-panel-wrap inspector-panel-wrap">
+      <button className="responsive-panel-close" onClick={() => setMobilePanel(null)} aria-label="Close inspector panel">
+        <X size={18} /> Close inspector
+      </button>
       <InspectorPanel
         project={project}
         selectedAnchorIds={selectedAnchorIds}
@@ -756,6 +788,7 @@ function EditorApp(): React.JSX.Element {
         onDeleteSelectedPickup={handleDeleteSelectedPickup}
         activeLayer={activeLayer}
       />
+      </div>
 
       <WelcomeModal isOpen={isWelcomeModalOpen} onClose={closeWelcome} />
       <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} />

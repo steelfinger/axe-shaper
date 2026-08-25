@@ -1,5 +1,5 @@
 import React from 'react';
-import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, Box, CircleHelp, Info, Home } from 'lucide-react';
+import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, Box, CircleHelp, Info, Menu } from 'lucide-react';
 import type { GuitarProject } from '../types/guitar';
 import { snapGridToUnit } from '../utils/units';
 
@@ -40,13 +40,13 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="app-header">
-      <div className="brand-title">
+      <a className="brand-title" href="/" aria-label="Axe Shaper product site">
         <img className="brand-icon" src="/brand/axe-shaper-mark.png" alt="" aria-hidden="true" />
         <span>Axe Shaper</span>
         <span className="brand-badge">2D Luthier</span>
-      </div>
+      </a>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div className="header-project-controls">
         <input
           type="text"
           value={project.settings.name}
@@ -63,7 +63,7 @@ export const Header: React.FC<HeaderProps> = ({
           placeholder="Project Name..."
         />
 
-        <div style={{ display: 'flex', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', padding: '2px' }}>
+        <div className="header-unit-controls" style={{ display: 'flex', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', padding: '2px' }}>
           <button
             className={`btn btn-sm ${project.settings.unitDisplay === 'mm' ? 'btn-primary' : ''}`}
             onClick={() =>
@@ -96,7 +96,7 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </div>
 
-        <div style={{ display: 'flex', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', padding: '2px' }}>
+        <div className="header-orientation-controls" style={{ display: 'flex', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', padding: '2px' }}>
           <button
             className={`btn btn-sm ${project.settings.canvasOrientation === 'vertical' ? 'btn-primary' : ''}`}
             title="Vertical Layout (Neck at Top)"
@@ -132,7 +132,7 @@ export const Header: React.FC<HeaderProps> = ({
           <Redo2 size={15} />
         </button>
 
-        <button className="btn btn-sm" onClick={onResetTemplate} title="Reset to baseline blueprint">
+        <button className="btn btn-sm header-secondary-action" onClick={onResetTemplate} title="Reset to baseline blueprint">
           <RotateCcw size={15} /> Reset
         </button>
 
@@ -143,26 +143,111 @@ export const Header: React.FC<HeaderProps> = ({
           accept=".axe.svg,.svg"
           onChange={onOpenFile}
         />
-        <button className="btn btn-sm" onClick={() => fileInputRef.current?.click()} title="Open a .axe.svg project file">
+        <button className="btn btn-sm header-secondary-action" onClick={() => fileInputRef.current?.click()} title="Open a .axe.svg project file">
           <Upload size={15} /> Open
         </button>
 
-        <button className="btn btn-sm" onClick={onShare} title="Share the current .axe.svg project file">
+        <button className="btn btn-sm header-secondary-action" onClick={onShare} title="Share the current .axe.svg project file">
           <Share2 size={15} /> Share
         </button>
 
-        <button className="btn btn-sm" onClick={onView3D} title="Open this design in the 3D viewer">
+        <button className="btn btn-sm header-secondary-action" onClick={onView3D} title="Open this design in the 3D viewer">
           <Box size={15} /> View in 3D
         </button>
 
-        <details className="help-menu">
+        <details className="help-menu header-secondary-action">
           <summary className="btn btn-sm" aria-label="Help and product information">
             <CircleHelp size={15} /> Help
           </summary>
           <div className="help-menu-popover">
             <button onClick={onShowWelcome}><CircleHelp size={15} /> Welcome guide</button>
             <button onClick={onShowAbout}><Info size={15} /> About Axe Shaper</button>
-            <a href="/"><Home size={15} /> Product site</a>
+          </div>
+        </details>
+
+        <details className="header-overflow">
+          <summary className="btn btn-sm" aria-label="Open editor menu" title="Editor menu"><Menu size={18} /></summary>
+          <div className="header-overflow-popover">
+            <div className="header-overflow-settings">
+              <label htmlFor="mobile-project-name">Project name</label>
+              <input
+                id="mobile-project-name"
+                type="text"
+                value={project.settings.name}
+                onChange={(e) =>
+                  onUpdateProject(
+                    (prev) => ({ ...prev, settings: { ...prev.settings, name: e.target.value } }),
+                    'settings.name'
+                  )
+                }
+                onBlur={onEndEdit}
+                className="form-input"
+              />
+              <span>Units</span>
+              <div className="header-overflow-toggle">
+                <button
+                  className={project.settings.unitDisplay === 'mm' ? 'active' : ''}
+                  onClick={() =>
+                    onUpdateProject((prev) => ({
+                      ...prev,
+                      settings: {
+                        ...prev.settings,
+                        unitDisplay: 'mm',
+                        gridSizeMm: snapGridToUnit(prev.settings.gridSizeMm, 'mm'),
+                      },
+                    }))
+                  }
+                >
+                  mm
+                </button>
+                <button
+                  className={project.settings.unitDisplay === 'inches' ? 'active' : ''}
+                  onClick={() =>
+                    onUpdateProject((prev) => ({
+                      ...prev,
+                      settings: {
+                        ...prev.settings,
+                        unitDisplay: 'inches',
+                        gridSizeMm: snapGridToUnit(prev.settings.gridSizeMm, 'inches'),
+                      },
+                    }))
+                  }
+                >
+                  in
+                </button>
+              </div>
+              <span>Canvas orientation</span>
+              <div className="header-overflow-toggle">
+                <button
+                  className={project.settings.canvasOrientation === 'vertical' ? 'active' : ''}
+                  onClick={() =>
+                    onUpdateProject((prev) => ({
+                      ...prev,
+                      settings: { ...prev.settings, canvasOrientation: 'vertical' },
+                    }))
+                  }
+                >
+                  Vertical
+                </button>
+                <button
+                  className={project.settings.canvasOrientation === 'horizontal' ? 'active' : ''}
+                  onClick={() =>
+                    onUpdateProject((prev) => ({
+                      ...prev,
+                      settings: { ...prev.settings, canvasOrientation: 'horizontal' },
+                    }))
+                  }
+                >
+                  Horizontal
+                </button>
+              </div>
+            </div>
+            <button onClick={onResetTemplate}><RotateCcw size={15} /> Reset blueprint</button>
+            <button onClick={() => fileInputRef.current?.click()}><Upload size={15} /> Open project</button>
+            <button onClick={onShare}><Share2 size={15} /> Share project</button>
+            <button onClick={onView3D}><Box size={15} /> View in 3D</button>
+            <button onClick={onShowWelcome}><CircleHelp size={15} /> Welcome guide</button>
+            <button onClick={onShowAbout}><Info size={15} /> About Axe Shaper</button>
           </div>
         </details>
 

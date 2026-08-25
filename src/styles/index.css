@@ -57,6 +57,25 @@ body, html, #root {
     "sidebar canvas inspector";
   width: 100vw;
   height: 100vh;
+  height: 100svh;
+}
+
+.tools-panel-wrap {
+  grid-area: sidebar;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.inspector-panel-wrap {
+  grid-area: inspector;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.responsive-panel-close {
+  display: none;
 }
 
 /* Header */
@@ -78,6 +97,11 @@ body, html, #root {
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.brand-title:hover {
   color: var(--text-primary);
 }
 
@@ -101,6 +125,108 @@ body, html, #root {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.header-project-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.header-overflow {
+  display: none;
+  position: relative;
+}
+
+.header-overflow summary {
+  list-style: none;
+}
+
+.header-overflow summary::-webkit-details-marker {
+  display: none;
+}
+
+.header-overflow-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 210px;
+  padding: 6px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 40;
+}
+
+.header-overflow-popover button,
+.header-overflow-popover a {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.82rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.header-overflow-popover button:hover,
+.header-overflow-popover a:hover {
+  background: var(--bg-hover);
+}
+
+.header-overflow-settings {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--panel-border);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.header-overflow-settings .form-input {
+  padding: 8px;
+}
+
+.header-overflow-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.header-overflow-popover .header-overflow-toggle button {
+  justify-content: center;
+  padding: 8px 6px;
+  background: var(--bg-primary);
+  text-align: center;
+}
+
+.header-overflow-popover .header-overflow-toggle button.active {
+  background: rgba(56, 189, 248, 0.16);
+  color: var(--accent-blue);
+}
+
+/* The workspace remains three columns down to 1200px, but the header runs
+   out of useful room first. Move secondary actions into the hamburger at
+   1440px without changing either docked panel. */
+@media (max-width: 1440px) {
+  .app-header .header-secondary-action {
+    display: none;
+  }
+
+  .header-overflow {
+    display: block;
+  }
 }
 
 .btn {
@@ -163,6 +289,8 @@ body, html, #root {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  height: 100%;
+  min-height: 0;
   z-index: 10;
 }
 
@@ -193,6 +321,7 @@ body, html, #root {
 
 .sidebar-content {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 16px;
 }
@@ -207,6 +336,257 @@ body, html, #root {
   overflow-y: auto;
   padding: 16px;
   z-index: 10;
+}
+
+.mobile-editor-nav {
+  display: none;
+}
+
+@media (max-width: 1199px) {
+  .app-container {
+    grid-template-columns: 280px minmax(0, 1fr);
+    grid-template-areas:
+      "header header"
+      "sidebar canvas";
+  }
+
+  .inspector-panel-wrap {
+    position: fixed;
+    top: 56px;
+    right: 0;
+    bottom: 0;
+    width: min(360px, calc(100vw - 280px));
+    transform: translateX(100%);
+    transition: transform 0.18s ease-out;
+    z-index: 30;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .mobile-panel-inspector .inspector-panel-wrap {
+    transform: translateX(0);
+  }
+
+  .responsive-panel-wrap {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .responsive-panel-wrap > .app-sidebar,
+  .responsive-panel-wrap > .app-inspector {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .responsive-panel-close {
+    display: inline-flex;
+    flex: 0 0 44px;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px;
+    border: 0;
+    border-bottom: 1px solid var(--panel-border);
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    font: 600 0.78rem var(--font-sans);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .tools-panel-wrap .responsive-panel-close {
+    display: none;
+  }
+
+  .header-project-controls {
+    gap: 8px;
+  }
+
+  .header-project-controls .form-input {
+    width: 160px !important;
+  }
+
+  .header-actions {
+    gap: 6px;
+  }
+
+  .header-secondary-action {
+    display: none;
+  }
+
+  .header-overflow {
+    display: block;
+  }
+
+  .mobile-editor-nav {
+    display: flex;
+    position: fixed;
+    right: 16px;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    padding: 4px;
+    gap: 4px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 30px;
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(12px);
+    z-index: 35;
+  }
+
+  /* At tablet widths the tools sidebar is already docked, so only expose the
+     inspector drawer trigger. A Tools control here would look interactive but
+     have nothing additional to open. */
+  .mobile-editor-nav-button:first-child {
+    display: none;
+  }
+
+  .mobile-editor-nav-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 22px;
+    background: transparent;
+    color: var(--text-secondary);
+    font: 600 0.78rem var(--font-sans);
+    cursor: pointer;
+  }
+
+  .mobile-editor-nav-button:first-child {
+    display: inline-flex;
+  }
+
+  .mobile-editor-nav-button.active {
+    background: rgba(209, 165, 61, 0.14);
+    color: var(--accent-gold);
+  }
+}
+
+/* The inspector has already become a drawer at this width. Keep the title and
+   project name readable, and let the hamburger own secondary layout settings. */
+@media (max-width: 919px) {
+  .header-unit-controls,
+  .header-orientation-controls {
+    display: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .tools-panel-wrap .responsive-panel-close {
+    display: inline-flex;
+  }
+
+  .app-container {
+    grid-template-rows: 56px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "header"
+      "canvas";
+  }
+
+  .app-header {
+    padding: 0 max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left));
+  }
+
+  .brand-title {
+    gap: 7px;
+    font-size: 1rem;
+  }
+
+  .brand-badge,
+  .header-project-controls {
+    display: none;
+  }
+
+  .header-actions {
+    margin-left: auto;
+  }
+
+  .header-actions > .btn:not(.btn-accent) {
+    display: none;
+  }
+
+  .header-actions .btn-accent {
+    min-height: 40px;
+    padding: 8px 12px;
+  }
+
+  .tools-panel-wrap,
+  .inspector-panel-wrap {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    width: auto;
+    height: min(68svh, 620px);
+    max-height: calc(100svh - 72px);
+    transform: translateY(110%);
+    border: 1px solid var(--panel-border);
+    border-bottom: 0;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    background: var(--bg-secondary);
+    box-shadow: var(--shadow-lg);
+    z-index: 30;
+    transition: transform 0.18s ease-out;
+    overflow: hidden;
+  }
+
+  .mobile-panel-tools .tools-panel-wrap,
+  .mobile-panel-inspector .inspector-panel-wrap {
+    transform: translateY(0);
+  }
+
+  .app-sidebar,
+  .app-inspector {
+    height: 100%;
+    border: 0;
+  }
+
+  .sidebar-tabs {
+    overflow-x: auto;
+    flex: 0 0 auto;
+  }
+
+  .sidebar-tab {
+    flex: 0 0 auto;
+    min-width: 72px;
+    min-height: 44px;
+    padding-inline: 12px;
+  }
+
+  .sidebar-content,
+  .app-inspector {
+    padding: 12px;
+  }
+
+  .mobile-editor-nav {
+    left: 50%;
+    right: auto;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+  }
+
+  .mobile-editor-nav-button {
+    min-height: 44px;
+    padding-inline: 16px;
+  }
+
+  .canvas-toolbar {
+    bottom: 72px;
+    max-width: calc(100% - 24px);
+    overflow-x: auto;
+  }
+
+  .canvas-scalebar {
+    bottom: 78px;
+    left: 12px;
+  }
+
+  .calibration-card {
+    top: 12px;
+    width: min(340px, calc(100% - 24px));
+  }
 }
 
 /* Section Cards */
@@ -2258,5 +2638,93 @@ html.marketing-document {
 
   .marketing-button {
     transition: none;
+  }
+}
+
+/* Editor responsive controls deliberately live at the viewport edge rather
+   than competing with the canvas toolbar. The text reads upward, like the
+   pull on a physical tool drawer, and leaves the drawing surface intact. */
+@media (max-width: 1199px) {
+  .mobile-editor-nav {
+    display: contents;
+    position: static;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    transform: none;
+  }
+
+  .mobile-editor-nav-button {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    z-index: 35;
+    display: inline-flex;
+    min-height: 112px;
+    padding: 12px 8px;
+    border: 1px solid var(--panel-border);
+    border-right: 0;
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+    background: var(--panel-bg);
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(12px);
+    color: var(--text-secondary);
+    writing-mode: vertical-rl;
+    transform: translateY(-50%) rotate(180deg);
+  }
+
+  .mobile-editor-nav-button.active {
+    color: var(--accent-gold);
+  }
+
+  .mobile-editor-nav-button:first-child {
+    display: none;
+  }
+
+  .mobile-panel-inspector .mobile-editor-nav-button:nth-child(2) {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .canvas-toolbar {
+    bottom: 20px;
+  }
+
+  .canvas-scalebar {
+    bottom: 22px;
+  }
+
+  .calibration-card {
+    top: 12px;
+    width: min(340px, calc(100% - 24px));
+  }
+
+  .mobile-editor-nav-button {
+    min-height: 112px;
+  }
+
+  .mobile-editor-nav-button:first-child {
+    display: inline-flex;
+    right: auto;
+    left: 0;
+    border-right: 1px solid var(--panel-border);
+    border-left: 0;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+
+  .mobile-panel-tools .mobile-editor-nav-button:first-child,
+  .mobile-panel-inspector .mobile-editor-nav-button:nth-child(2) {
+    display: none;
+  }
+
+  /* An open sheet owns the whole edge-to-edge work area. Its close row is the
+     only panel control shown, so the opposite handle cannot sit on top of its
+     content. */
+  .mobile-panel-tools .mobile-editor-nav-button,
+  .mobile-panel-inspector .mobile-editor-nav-button {
+    display: none;
   }
 }
