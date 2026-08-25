@@ -21,6 +21,11 @@ import { withMirroredInsertion } from './utils/symmetry';
 import { buildProjectFilename, downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
 import { getUserTemplate } from './utils/userTemplates';
 import {
+  loadHandleAngleSnapPreference,
+  saveHandleAngleSnapPreference,
+  type HandleAngleSnapPreference,
+} from './utils/handleAngleSnap';
+import {
   type ActiveLayer,
   addingBackRoute,
   addingFrontRoute,
@@ -152,6 +157,7 @@ function EditorApp(): React.JSX.Element {
   // so every existing file and every session that never opens the Layers tab
   // behaves exactly as it did before this concept existed.
   const [activeLayer, setActiveLayer] = useState<ActiveLayer>({ kind: 'body' });
+  const [handleAngleSnap, setHandleAngleSnap] = useState<HandleAngleSnapPreference>(loadHandleAngleSnapPreference);
   const [isSaveInfoModalOpen, setIsSaveInfoModalOpen] = useState(false);
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(shouldShowWelcome);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
@@ -746,6 +752,11 @@ function EditorApp(): React.JSX.Element {
         onSelectPickup={handleSelectPickup}
         onAddPickup={handleAddPickup}
         onDeletePickup={handleDeletePickup}
+        handleAngleSnap={handleAngleSnap}
+        onHandleAngleSnapChange={(preference) => {
+          setHandleAngleSnap(preference);
+          saveHandleAngleSnapPreference(preference);
+        }}
       />
       </div>
 
@@ -768,6 +779,7 @@ function EditorApp(): React.JSX.Element {
         onApplyCalibration={handleApplyCalibration}
         onCancelCalibration={handleCancelCalibration}
         activeLayer={activeLayer}
+        handleAngleSnapIncrementDegrees={handleAngleSnap.enabled ? handleAngleSnap.incrementDegrees : null}
       />
 
       <div id="editor-inspector" className="responsive-panel-wrap inspector-panel-wrap">

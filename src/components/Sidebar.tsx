@@ -34,6 +34,7 @@ import { type ActiveLayer, activeLayersEqual } from '../utils/layerShapes';
 import { getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 import { GRID_PRESETS, formatLength, gridMinorDivisor, toMm, unitLabel } from '../utils/units';
 import { deleteUserTemplate, loadUserTemplates, saveUserTemplate, type UserTemplate } from '../utils/userTemplates';
+import type { HandleAngleSnapPreference } from '../utils/handleAngleSnap';
 
 interface SidebarProps {
   project: GuitarProject;
@@ -61,6 +62,8 @@ interface SidebarProps {
   onSelectPickup: (id: string | null) => void;
   onAddPickup: (type: PickupType) => void;
   onDeletePickup: (id: string) => void;
+  handleAngleSnap: HandleAngleSnapPreference;
+  onHandleAngleSnapChange: (preference: HandleAngleSnapPreference) => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -85,6 +88,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectPickup,
   onAddPickup,
   onDeletePickup,
+  handleAngleSnap,
+  onHandleAngleSnapChange,
 }) => {
   const [activeTab, setActiveTab] = useState<'templates' | 'hardware' | 'guide' | 'finishes' | 'layers'>('templates');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -1232,6 +1237,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {formatLength(settings.gridSizeMm / gridMinorDivisor(settings.unitDisplay), settings.unitDisplay, 1)}{' '}
                   {unitLabel(settings.unitDisplay)} increments.
                 </p>
+              )}
+
+              <div className="toggle-row" style={{ marginTop: '12px' }}>
+                <span style={{ fontSize: '0.85rem' }}>Snap Handle Angles</span>
+                <input
+                  type="checkbox"
+                  checked={handleAngleSnap.enabled}
+                  onChange={(e) => onHandleAngleSnapChange({ ...handleAngleSnap, enabled: e.target.checked })}
+                  aria-label="Snap Handle Angles"
+                  aria-describedby="handle-angle-snap-description"
+                />
+              </div>
+              {handleAngleSnap.enabled && (
+                <div className="form-group" style={{ marginTop: '12px' }}>
+                  <label className="form-label" htmlFor="handle-angle-snap-increment">Handle Angle</label>
+                  <select
+                    id="handle-angle-snap-increment"
+                    value={handleAngleSnap.incrementDegrees}
+                    onChange={(e) => onHandleAngleSnapChange({
+                      ...handleAngleSnap,
+                      incrementDegrees: Number(e.target.value) === 30 ? 30 : 15,
+                    })}
+                    className="form-select"
+                  >
+                    <option value={15}>15°</option>
+                    <option value={30}>30°</option>
+                  </select>
+                  <p id="handle-angle-snap-description" style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                    Keeps dragged Bézier handles on {handleAngleSnap.incrementDegrees}° increments. Stored in this browser only.
+                  </p>
+                </div>
               )}
 
               <div className="toggle-row" style={{ marginTop: '12px' }}>

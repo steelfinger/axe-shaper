@@ -39,6 +39,7 @@ import {
   unitLabel,
 } from '../utils/units';
 import { PLAN_DRAWING_STYLE, colorWithAlpha } from '../constants/planDrawingStyle';
+import { snapHandleAngle } from '../utils/handleAngleSnap';
 
 /**
  * The body Path's hit area is its fill, so a click a few pixels *outside* the
@@ -88,6 +89,8 @@ interface CanvasWorkspaceProps {
   onCancelCalibration: () => void;
   /** Which contour a gesture on this canvas edits - the body by default. */
   activeLayer: ActiveLayer;
+  /** Browser-local input preference, never written into the project. */
+  handleAngleSnapIncrementDegrees: number | null;
 }
 
 
@@ -110,6 +113,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   onApplyCalibration,
   onCancelCalibration,
   activeLayer,
+  handleAngleSnapIncrementDegrees,
 }) => {
   const [knownDistanceInput, setKnownDistanceInput] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -359,7 +363,11 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
       const prevContour = getActiveContour(prev, activeLayer);
       if (!prevContour) return prev;
       const updatedAnchors = [...prevContour.anchors];
-      const target = updateAnchorHandle(anchor, handleType, { x: offsetX, y: offsetY });
+      const target = updateAnchorHandle(
+        anchor,
+        handleType,
+        snapHandleAngle({ x: offsetX, y: offsetY }, handleAngleSnapIncrementDegrees)
+      );
 
       updatedAnchors[index] = target;
       const finalAnchors = isBodyActive
