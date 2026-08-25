@@ -1,0 +1,417 @@
+# Bass body design — web milestones
+
+## Outcome
+
+Axe Shaper supports two deliberately separate design modes: six-string
+electric guitar and four-string electric bass. A new design begins by choosing
+the instrument and an exact blueprint on one screen. Once the editor opens,
+every template and hardware control is constrained to that instrument; an
+instrument change starts a new design rather than mutating the open one.
+
+This plan covers the React/web repository. The matching native work is scoped
+as `axe-shaper-ios/docs/m24-bass-body-design.md`. The `.axe.svg` payload and
+fixture tests are the shared contract; implementation code remains separate.
+
+## Product decisions
+
+- The first release supports **four-string, single-scale, solid-body electric
+  basses only**. Five-string, multiscale, left-handed, acoustic and hollow-body
+  construction are explicit follow-ups.
+- `instrumentType` is a project-level fact with wire values `guitar` and
+  `bass`. `stringCount` is also project-level; v3 writes `6` for guitar and `4`
+  for bass. Hardware compatibility is derived from both values.
+- This is a schema v3 feature. v1/v2 projects migrate to `guitar` and `6`.
+  Future-version projects must not be silently edited by the web app.
+- Keep the existing `GuitarProject` source type name during this program. A
+  repository-wide rename adds risk without changing the file format or user
+  experience; it can be handled separately after both apps support v3.
+- The type is selected only while creating a design. Inside the editor it is
+  displayed as project context, not exposed as a live Guitar/Bass toggle.
+- The startup chooser replaces the current first-run S-style welcome action.
+  Opening a saved file or `/app?plan=...` bypasses it.
+- Manual blueprint authoring happens after the schema, catalogs and validation
+  are complete. Until then, synthetic fixtures exercise bass dimensions.
+
+## The 4 + 4 bass catalog
+
+“4 + 4” means four curated reference blueprints and four additional
+blueprints, mirroring the guitar library's current reference/extra tiers.
+
+Naming follows one pattern, `<Archetype>-Style Bass`, for every entry. Note
+that this is a *new* policy rather than a description of the shipped guitar
+library: `BLUEPRINT_MANIFEST` already ships `gibson_firebird`,
+`gretsch_thunderbird` and `gibson_flying_v` with categories like “Firebird”
+and “Thunderbird”, and descriptions naming Gibson and Gretsch outright. This
+plan does not retro-rename those; it only commits the bass entries to the
+reviewed-name pattern going forward. If the guitar names are to change, that
+is separate work with its own manifest/blueprint-id migration.
+
+| Tier | Shared id | Shipping name | Historical archetype used for research | Nominal scale to verify | Why it belongs |
+| --- | --- | --- | --- | ---: | --- |
+| Reference | `p_bass_style` | P-Style Bass | Fender Precision Bass | 34 in | Foundational split-coil, bolt-on bass |
+| Reference | `j_bass_style` | J-Style Bass | Fender Jazz Bass | 34 in | Offset body and dual J pickups |
+| Reference | `mm_bass_style` | MM-Style Bass | Music Man StingRay | 34 in | Large bridge humbucker and distinct pickguard |
+| Reference | `r_bass_style` | R-Style Bass | Rickenbacker 4001/4003 | 33.25 in | Neck-through archetype and distinct hardware |
+| Extra | `thunderbird_bass_style` | Thunderbird-Style Bass | Gibson Thunderbird | 34 in | Reverse offset, long body and dual bass humbuckers |
+| Extra | `mustang_bass_style` | Mustang-Style Bass | Fender Mustang Bass | 30 in | Canonical short-scale solid body |
+| Extra | `sg_bass_style` | SG-Style Bass | Gibson EB-3 / SG Bass | 30.5 in | Short scale and glued-neck construction |
+| Extra | `streamer_bass_style` | Streamer-Style Bass | Warwick Streamer | 34 in | Modern sculpted-body archetype and soapbar option |
+
+The scale values above seed research; they are not blueprint evidence. Every
+neck joint, rout, bridge reference and body dimension must be verified while
+the corresponding blueprint is authored.
+
+The **Shared id** column is contract, not UI: it is the `activeTemplateId`
+written into every saved file and the key for `BLUEPRINT_MANIFEST`,
+`FINGERBOARD_OVERHANG_MM` and `DEFAULT_NECK_JOINT_MECHANISM` on both
+platforms. `thunderbird_bass_style` was renamed from `thunderbird_bass` for
+consistency here; any further change to this column must land in
+`axe-shaper-ios/docs/m24-bass-body-design.md` in the same change. The
+Shipping-name column is UI only and can move freely.
+
+## Shared wire contract
+
+Schema v3 adds these required project fields:
+
+```json
+{
+  "schemaVersion": 3,
+  "instrumentType": "bass",
+  "stringCount": 4
+}
+```
+
+Rules:
+
+- v1/v2 decode as `instrumentType: "guitar"`, `stringCount: 6`, then migrate.
+- `instrumentType` is authoritative. Do not duplicate it inside each embedded
+  neck or bridge, where mismatched copies could disagree.
+- Catalog-only compatibility metadata may wrap a preset in memory, but the
+  embedded preset remains the physical source of truth.
+- Reject a known type with an invalid count in v3. The supported matrix for
+  this release is Guitar/6 and Bass/4.
+- Continue embedding the complete resolved neck, bridge and pickup rout data.
+- Add bass pickup vocabulary only where a distinct rout or presentation is
+  real: split-coil, J single-coil, bass humbucker and bass soapbar at minimum.
+  Blueprint-specific pickup types may be added rather than disguising a
+  different rout under a generic name.
+- Add a web future-version policy before writing v3: a payload newer than this
+  build may be viewed/exported only if that is proven safe, never edited and
+  rewritten as if it were understood. Today there is no such gate at all:
+  `extractProjectFromSVG` (`src/utils/svgExporter.ts`) does a bare
+  `JSON.parse` with no version check, and `migrateProject`
+  (`src/utils/presets.ts`) unconditionally stamps `PROJECT_SCHEMA_VERSION`, so
+  a v4 file opened today is accepted, edited and re-saved as v2. Those two
+  functions are the fix site.
+- **String spacing is a v3 field, not a W2 implementation detail — and web is
+  already behind iOS on it.** `BridgePreset` here carries only `widthMm`,
+  `lengthMm`, `compensationMm` and `saddleOffsetYMm`. iOS already models
+  `BridgePreset.stringSpacingMm`, `BridgePreset.heightMm` and
+  `NeckPreset.nutStringSpacingMm` — but as optionals it never writes, so every
+  fixture in `tests/fixtures/ios-written` omits all three and `StringGeometry`
+  falls back to constants. Bass makes them load-bearing. Web adds all three
+  under **exactly those names**; both sides start writing them at v3.
+- **`stringSpacingMm` is the total spread across all strings, not per-string
+  pitch.** iOS spends it as `-totalMm / 2 + (index - 1) * (totalMm / 5)`, and
+  its `fallbackStringSpacingMm = 52.5` is six strings at 10.5 mm pitch. Write
+  the bass value the same way — four strings at ~19 mm pitch is a spread of
+  ~57 mm, not `19`. Getting this backwards would draw four strings 6.3 mm
+  apart in the native preview while the printed plan still looked right, which
+  is the “two facts competing” failure this codebase has documented twice
+  already. Pin the definition in the format doc before either side writes it.
+- **The fingerboard-overhang reference fret stays 22 for every instrument.**
+  `FINGERBOARD_OVERHANG_MM` (`src/constants/hardware.ts`) stores, per
+  blueprint, how far past Y=0 that body's 22nd fret sits, and
+  `neckPresetFieldsForTemplate` recomputes `nutToBodyEdgeMm` as
+  `getFretDistanceFromNutMm(22, scale) - overhang` with 22 hardcoded. iOS
+  mirrors the same constant as `BlueprintCosmetics.fingerboardOverhangMm`.
+  Basses have 19–21 frets, so for a bass the “22nd fret” is a point past the
+  end of the fingerboard — it remains a well-defined geometric convention, and
+  it is only correct while *both* platforms use 22. Anyone who “corrects” this
+  to a bass's real fret count on one platform slides the whole body along the
+  neck and drags the bridge and pickups with it (see CLAUDE.md, “Coordinate
+  system”). Treat 22 as instrument-independent and pin it in the iOS doc too.
+
+### Catalog tables and the golden corpus
+
+`scripts/generate-golden-corpus.ts` iterates **every** `NECK_PRESETS` ×
+`BRIDGE_PRESETS` pair and embeds `NECK_PRESETS`, `BRIDGE_PRESETS` and
+`PICKUP_SPECIFICATIONS` verbatim under `constants`. `npm run corpus:check`
+pins those key sets exactly. Adding bass hardware to those three dictionaries
+therefore:
+
+- fails `corpus:check` the moment it lands, in **W2** — not W7;
+- grows the scale-math matrix from 9 × 4 = 36 rows to roughly 13 × 7 = 91, of
+  which about 40 are meaningless pairings (a 34" bass neck against an F-style
+  tremolo) that every port is then contractually obliged to reproduce.
+
+The precedent for this exact problem is already in the tree and documented:
+`CURATED_NECK_PRESETS` is a separate table from `NECK_PRESETS` *specifically*
+because adding ids to the corpus-pinned dictionary “would fail the check
+outright,” and `axe-shaper-ios`'s `PresetCatalogue.curatedNecks` is split from
+its corpus-pinned `necks` for the same reason.
+
+Decide before W1 code lands, because it is a cross-platform decision and iOS
+must make the same one:
+
+1. **Separate bass tables** (`BASS_NECK_PRESETS` / `BASS_BRIDGE_PRESETS`),
+   resolved through the same `??` chain as `CURATED_NECK_PRESETS`, corpus
+   untouched — cheapest, but bass scale math then has no corpus coverage and
+   needs its own section adding deliberately; or
+2. **One set of tables, compatibility-filtered cross-product** — the generator
+   skips pairs whose instrument types disagree. Existing guitar rows stay
+   byte-identical, bass gets real coverage, and both generators change in
+   lockstep; or
+3. **One set of tables, full cross-product, regenerated deliberately** —
+   simplest code, largest corpus, and it asks ports to match nonsense pairs.
+
+Option 2 is the recommendation. Whichever is chosen, the guitar half of
+`scaleMathMatrix` must be asserted unchanged rather than eyeballed after
+regeneration.
+
+## Web milestone W1 — contract and migration
+
+Work:
+
+- Add `InstrumentType` and `stringCount` to the project model and schema v3.
+- Add pure migration/validation helpers and make all new-project construction
+  pass through one factory instead of the current module-level S-style value
+  (`INITIAL_PROJECT` in `src/App.tsx`, evaluated at import — which also means
+  its `metadata.created` is the timestamp of page load, not of the project;
+  the factory fixes that in passing).
+- Add catalog compatibility metadata without weakening “embedded copy wins.”
+- Tag built-in and user templates with their instrument type; legacy browser
+  templates default to Guitar/6. `UserTemplate` (`src/utils/userTemplates.ts`)
+  has no version field and stores preset **ids only**, with no embedded copy —
+  so this is a default-when-absent read on load, not a migration, and it is
+  the one place in the app where an unknown id cannot fall back to embedded
+  physical values.
+- Add `stringSpacingMm` and `heightMm` to `BridgePreset` and
+  `nutStringSpacingMm` to `NeckPreset`, matching iOS's existing spellings and
+  its total-spread semantics (see the wire contract above), and decide whether
+  existing guitar presets get backfilled values or the fields stay optional.
+- Choose and implement the corpus/catalog-table option from “Catalog tables
+  and the golden corpus”, in the same change on both platforms.
+- Extend SVG metadata/payload encoding and import policy.
+- Confirm that `steelfinger/axe-shape-3D-viewer` tolerates `schemaVersion: 3`
+  **before** this milestone ships. The v3 bump is not a bass-only event: once
+  the web app writes v3, every existing *guitar* project also reaches the
+  viewer and iOS as v3. `buildViewer3DPath` serializes the whole project into
+  the fragment, so the new fields travel there automatically.
+
+Exit criteria:
+
+- v1 and v2 fixtures become semantically identical Guitar/6 v3 projects.
+- A synthetic Bass/4 fixture round-trips without changing geometry or type.
+- Wrong known combinations fail validation with a useful error.
+- Unknown future schema versions cannot enter the editable project path.
+- iOS-written v3 fixture decoding has a test placeholder ready for M24.
+- All three readers — web, iOS and the 3D viewer — open a v3 *guitar* project
+  written by this build without warnings or fallback geometry.
+- `npm run corpus:check` passes, and the pre-existing guitar rows of
+  `scaleMathMatrix` are identical to the committed baseline.
+
+## Web milestone W2 — bass hardware foundations
+
+Work:
+
+- Add verified 30, 30.5, 33.25 and 34 inch bass neck presets. Keep all stored
+  measurements in millimetres.
+- Add compatible four-string bridge presets, including string spacing,
+  compensation, footprint and reference-line behavior.
+- Add bass pickup rout specifications with embedded outlines and dimensions.
+- **Give `GENERIC_POCKET_SPEC` an instrument axis.** It is currently keyed only
+  by `NeckJointMechanism` and is explicitly “independent of which neck or body
+  it's attached to”, with `bolt_on` at 55.56 mm — the real Fender *guitar*
+  pocket. A P-Bass pocket is roughly 63.5 mm. Left alone, every bass project
+  silently routs a guitar-width pocket. Either the spec gains an
+  instrument/string-count axis or bass necks resolve their pocket elsewhere;
+  either way iOS's `PresetCatalogue.genericPocketSpec(for:)` changes to match.
+- **Decide each bass blueprint's `NeckJointMechanism` explicitly.**
+  `DEFAULT_NECK_JOINT_MECHANISM` is keyed by blueprint id and falls back to
+  `bolt_on` for anything unrecognized, so all eight bass entries default to
+  bolt-on unless added. The enum has only `bolt_on | glued`, and this catalog
+  lists R-Style as a neck-through archetype and Thunderbird as neck-through in
+  reality. Follow the existing Firebird/Thunderbird precedent — map them to
+  `glued` as the closer of the two buckets, with the same comment stating that
+  this is a modeling choice and not a construction claim. A third
+  neck-through mechanism is deferred (see “Explicitly deferred”).
+- Update add/change-pickup logic, bridge drawing and preset resolution so a
+  catalog lookup never substitutes guitar hardware into a bass project.
+- Add pure selectors for compatible templates, necks, bridges and pickups.
+- Regenerate the golden corpus **in this milestone**, per the option chosen at
+  W1 — the check fails as soon as the new hardware ids land, and regenerating
+  it here is deliberate rather than a way to make a red check go green.
+- Seed synthetic bass projects for tests; do not wait for traced bodies.
+
+Exit criteria:
+
+- The scale/compensation matrix covers every bass neck × bass bridge pairing.
+- Each bass pickup can be created, resized, saved, reloaded and deleted.
+- Every selector returns only entries compatible with the active type/count.
+- A bass project's neck pocket is a bass pocket, verified against the
+  blueprint's own measured pocket rather than against `bolt_on`'s guitar value.
+- Existing guitar corpus output is byte-for-byte or tolerance-identical where
+  the test contract requires it, asserted by test rather than by inspection of
+  the regenerated diff.
+
+## Web milestone W3 — New Design screen
+
+Replace `WelcomeModal` as the startup decision surface with one “New Design”
+screen:
+
+1. Guitar/Bass selector at the top.
+2. Compatible reference blueprint cards, followed by a collapsed Extra group.
+3. A clear selected card and one **Open editor** action.
+4. **Open existing project** remains available on the same surface.
+
+Behavior:
+
+- Guitar is initially selected for continuity, with the first Guitar blueprint
+  selected; Bass updates the grid immediately and selects its first reference.
+- Template preview, name, category, scale and construction are visible before
+  committing. Instrument selection and card selection are keyboard-operable
+  controls, not click handlers on generic containers.
+- The app shell creates `EditorWorkspace` only after a project has been chosen,
+  avoiding `GuitarProject | null` checks throughout the editor.
+- Imported files and same-origin `?plan=` links enter the editor directly.
+- Header **New…** returns to this screen after an unsaved-change confirmation.
+- First-run educational copy moves below the choices or into contextual help;
+  it must not compete with the creation decision.
+
+Exit criteria:
+
+- A keyboard-only user can choose type/template and open the editor.
+- Reload/new/open/deep-link paths each land on the intended surface.
+- Choosing Bass cannot briefly render or initialize the S-style project.
+- Desktop and narrow layouts remain usable without horizontal overflow.
+
+## Web milestone W4 — isolated editor mode
+
+Work:
+
+- Filter the sidebar's blueprints, necks, bridges and pickups by the project's
+  type/count. Update labels such as “guitar blueprint” to “instrument” or the
+  active type.
+- Show the project type as quiet context in the header or Templates tab.
+- Restrict **Switch Blueprint** to the current instrument. To change Guitar ↔
+  Bass, use **New…**, because that replaces the contour and hardware.
+- Preserve type/count in saved user templates and prevent applying a template
+  from the other instrument. Records already in `localStorage` carry neither
+  field and have no version to migrate on, so reads default an untagged
+  template to Guitar/6; and because `UserTemplate` stores ids without an
+  embedded preset copy, a bass user template resolves its hardware purely
+  through the catalog — the one path where “embedded copy wins” cannot save a
+  wrong lookup.
+- Audit guide-image, export, print, About and marketing copy for guitar-only
+  wording without making unsupported product claims.
+
+Exit criteria:
+
+- There is no route through the UI that offers guitar hardware in Bass/4.
+- Imported Bass/4 projects open in Bass mode even when their preset ids are
+  unknown; embedded physical values still win.
+- Undo/redo never crosses a New Design boundary.
+- Existing Guitar projects behave as before apart from the new creation flow.
+
+## Web milestone W5 — output and 3D handoff
+
+Work:
+
+- Make SVG titles, descriptions, labels and download names type-aware.
+- Verify 1:1 export bounds for the longer bass body/scale range and both canvas
+  orientations; avoid clipping the bridge or calibration marks.
+- Send `instrumentType` and `stringCount` unchanged through the standalone 3D
+  viewer link. This is nearly free — `buildViewer3DPath` serializes the whole
+  project — so the work here is the Bass/4 *rendering* gate below, not the
+  transport. The viewer's tolerance of `schemaVersion: 3` is a W1 gate.
+- Coordinate a separate update in `steelfinger/axe-shape-3D-viewer`; until its
+  Bass/4 rendering is verified, hide or explain the 3D action for bass rather
+  than showing a six-string guitar preview.
+
+Exit criteria:
+
+- Bass output prints at 100% with a correct calibration square and no clipping.
+- Save → web load → iOS load preserves type, count and all physical geometry.
+- The Bass/4 3D action is either accurate or deliberately unavailable.
+
+## Web milestone W6 — author the eight bass blueprints
+
+Create each blueprint manually in the app and save it as a real `.axe.svg`,
+then add its curation metadata and order to the manifest. Two other
+blueprint-keyed tables need one new entry each, and neither is optional:
+
+- `FINGERBOARD_OVERHANG_MM` — `fret22Distance(scale) - nutToBodyEdgeMm` for
+  that body's own native neck, computed by hand exactly as the existing eight
+  were (the table is deliberately literal to avoid an import cycle). Same
+  value must be added to iOS's `BlueprintCosmetics.fingerboardOverhangMm`.
+  Reference fret stays 22 regardless of the bass's real fret count — see the
+  wire contract.
+- `DEFAULT_NECK_JOINT_MECHANISM` — omitting an entry silently yields bolt-on.
+
+Author the four reference blueprints first; complete and validate them before
+starting Extra.
+
+Each blueprint's evidence packet must record:
+
+- measurement sources and confidence, without bundling third-party plan scans;
+- body outline calibration and body bounds;
+- scale length, nut-to-body/joint relationship and neck construction;
+- pocket/rout dimensions, bridge reference, compensation and string spacing;
+- pickup rout shapes/positions, pickguard and front/back routes;
+- body thickness and edge treatment where confidently known;
+- any approximation made because no reliable dimension was available.
+
+Per-blueprint acceptance gate:
+
+- closed, non-self-intersecting contour with intentional centerline behavior;
+- bridge and saddle positions recomputed from the embedded neck/bridge data;
+- all manufacturing-critical geometry survives save/reload in both apps;
+- true-scale SVG and iOS PDF render without clipping;
+- iOS 3D mesh builds without empty, inverted or degenerate parts;
+- `FINGERBOARD_OVERHANG_MM` and `DEFAULT_NECK_JOINT_MECHANISM` entries exist on
+  both platforms and agree, with the body landing at the same Y on each;
+- a human visual comparison is completed after numerical checks.
+
+## Web milestone W7 — cross-platform release gate
+
+- Add all eight blueprints to the geometry and fixture corpora deliberately.
+  The *hardware* half of the corpus was already settled at W2; this milestone
+  adds the per-blueprint cases only.
+- Generate web-written and iOS-written v3 fixtures and run both readers over
+  both sets.
+- Assert semantic round-trip, payload compatibility, deterministic local
+  output, unknown-field preservation and 1e-6 mm geometry agreement where the
+  shared contract requires it.
+- Run existing build, typecheck, lint and corpus checks; record unrelated
+  pre-existing failures rather than regenerating baselines to hide them.
+- Manually test New/Open/Deep link, Guitar and Bass, each blueprint tier,
+  switching within a type, export, tiled print and 3D gating. Note that tiled
+  print is separate in-flight work (`src/utils/tiledPrint.ts`), not part of
+  this program — if it has not landed, drop it from the gate rather than
+  blocking on it.
+- Update product/marketing counts only after all eight blueprints ship.
+
+## Explicitly deferred
+
+- Five- and six-string basses, multiscale/fanned frets and per-string scale.
+- Left-handed hardware mirroring.
+- Acoustic/semi-hollow construction and internal bracing.
+- Model-specific bass headstock editing.
+- A third `NeckJointMechanism` for neck-through construction. R-Style and
+  Thunderbird are modeled as `glued`, following the Firebird precedent.
+- Retro-renaming the shipped guitar blueprints to the reviewed-name pattern.
+- Live conversion of an open guitar project into a bass project.
+- A broad `GuitarProject` → `InstrumentProject` source rename.
+
+## Suggested delivery order
+
+W1 and iOS M24 contract work land together, and the 3D viewer's v3 tolerance
+is part of that same gate — the version bump reaches the viewer through every
+existing guitar project, not just through bass. The corpus/catalog-table
+decision is made at W1 and executed at W2, so W2 carries a deliberate corpus
+regeneration in both repositories. W2 can then proceed independently
+in both repositories. W3/W4 may be developed against synthetic bass fixtures.
+W5 must be complete before claiming Bass support. W6 is intentionally the last
+production step and is likely the largest calendar variable despite requiring
+little new application code.

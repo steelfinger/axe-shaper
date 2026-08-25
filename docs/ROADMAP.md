@@ -2,6 +2,11 @@
 
 This document outlines the development phases, technical architecture milestones, and feature roadmap for **Axe Shaper**.
 
+> The coordinated Guitar/Bass expansion is scoped separately in
+> [Bass body design — web milestones](BASS_BODY_DESIGN_MILESTONES.md). That
+> plan supersedes this roadmap wherever the older guitar-only assumptions
+> conflict with the shared web/iOS schema.
+
 ---
 
 ## 🎯 Phase Overview
