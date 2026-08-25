@@ -1,5 +1,6 @@
 import React from 'react';
-import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, Box, CircleHelp, Info, Menu } from 'lucide-react';
+import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, Box, CircleHelp, Info, Menu, Printer } from 'lucide-react';
+import type { PrintPaper } from '../utils/tiledPrint';
 import type { GuitarProject } from '../types/guitar';
 import { snapGridToUnit } from '../utils/units';
 
@@ -15,6 +16,7 @@ interface HeaderProps {
   onSave: () => void;
   onShare: () => void;
   onView3D: () => void;
+  onPrintTiled: (paper: PrintPaper) => void;
   onShowWelcome: () => void;
   onShowAbout: () => void;
   onOpenFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -32,6 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSave,
   onShare,
   onView3D,
+  onPrintTiled,
   onShowWelcome,
   onShowAbout,
   onOpenFile,
@@ -156,6 +159,16 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         <details className="help-menu header-secondary-action">
+          <summary className="btn btn-sm" aria-label="Print or save a tiled PDF">
+            <Printer size={15} /> Print
+          </summary>
+          <div className="help-menu-popover">
+            <button onClick={() => onPrintTiled('a4')}><Printer size={15} /> Tiled PDF / print (A4)</button>
+            <button onClick={() => onPrintTiled('letter')}><Printer size={15} /> Tiled PDF / print (Letter)</button>
+          </div>
+        </details>
+
+        <details className="help-menu header-secondary-action">
           <summary className="btn btn-sm" aria-label="Help and product information">
             <CircleHelp size={15} /> Help
           </summary>
@@ -246,6 +259,8 @@ export const Header: React.FC<HeaderProps> = ({
             <button onClick={() => fileInputRef.current?.click()}><Upload size={15} /> Open project</button>
             <button onClick={onShare}><Share2 size={15} /> Share project</button>
             <button onClick={onView3D}><Box size={15} /> View in 3D</button>
+            <button onClick={() => onPrintTiled('a4')}><Printer size={15} /> Print tiled PDF (A4)</button>
+            <button onClick={() => onPrintTiled('letter')}><Printer size={15} /> Print tiled PDF (Letter)</button>
             <button onClick={onShowWelcome}><CircleHelp size={15} /> Welcome guide</button>
             <button onClick={onShowAbout}><Info size={15} /> About Axe Shaper</button>
           </div>

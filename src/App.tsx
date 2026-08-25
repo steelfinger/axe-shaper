@@ -20,6 +20,7 @@ import { HistoryManager } from './utils/history';
 import { withMirroredInsertion } from './utils/symmetry';
 import { buildProjectFilename, downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
 import { getUserTemplate } from './utils/userTemplates';
+import { printTiledProject } from './utils/tiledPrint';
 import {
   loadHandleAngleSnapPreference,
   saveHandleAngleSnapPreference,
@@ -700,6 +701,7 @@ function EditorApp(): React.JSX.Element {
         onSave={handleSaveProject}
         onShare={handleShareProject}
         onView3D={handleView3D}
+        onPrintTiled={(paper) => printTiledProject(project, paper)}
         onShowWelcome={() => setIsWelcomeModalOpen(true)}
         onShowAbout={() => setIsAboutModalOpen(true)}
         onOpenFile={handleOpenFile}
