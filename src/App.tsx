@@ -768,6 +768,7 @@ function EditorApp(): React.JSX.Element {
         onApplyCalibration={handleApplyCalibration}
         onCancelCalibration={handleCancelCalibration}
         activeLayer={activeLayer}
+        onSelectLayer={handleSetActiveLayer}
       />
 
       <div id="editor-inspector" className="responsive-panel-wrap inspector-panel-wrap">
