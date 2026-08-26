@@ -605,10 +605,19 @@ function EditorApp({ initialProject, onNewDesign }: EditorAppProps): React.JSX.E
       // cannot draw - with a message written to be shown as-is.
       const result = loadProject(extractProjectFromSVG(text));
       if (result.ok) {
-        handleUpdateProject(() => result.project);
-        // The document now matches a file that exists on disk, so leaving for
-        // a new design would lose nothing - even though the open itself is an
-        // undoable step.
+        // Not handleUpdateProject: opening a file is not an edit on top of
+        // the document that was showing, it replaces it - the same relation
+        // a fresh EditorApp session has to whatever was open before it. Going
+        // through handleUpdateProject pushed the prior document onto the
+        // undo stack and then immediately called it clean (setIsDirty(false)
+        // right after), so Undo could silently bring back a possibly-unsaved
+        // prior design while every "is there unsaved work" check kept
+        // reporting none - New... wouldn't confirm, and the design was one
+        // Undo away from being discarded for real. Resetting history instead
+        // means there is nothing behind this document to undo back to.
+        historyRef.current.reset();
+        updateHistoryState();
+        setProject(result.project);
         setIsDirty(false);
         setSelectedAnchorIds(new Set());
         setSelectedSegmentIndex(null);

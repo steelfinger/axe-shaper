@@ -40,6 +40,18 @@ export class HistoryManager<T> {
     this.openKey = null;
   }
 
+  /**
+   * Discard all undo/redo history. For a document swap that isn't an edit
+   * on top of what was open before - opening a different file into an
+   * already-mounted editor - where the prior document must not be reachable
+   * via Undo once it has been replaced.
+   */
+  public reset(): void {
+    this.past = [];
+    this.future = [];
+    this.openKey = null;
+  }
+
   public canUndo(): boolean {
     return this.past.length > 0;
   }
