@@ -65,6 +65,7 @@ async function main() {
     const bridgeDrawing = await load('/src/utils/bridgeDrawing.ts');
     const exporter = await load('/src/utils/svgExporter.ts');
     const manifest = await load('/src/constants/blueprintManifest.ts');
+    const bezier = await load('/src/utils/bezier.ts');
 
     const bassNecks = presets.offeredNeckPresets('bass');
     const bassBridges = presets.offeredBridgePresets('bass');
@@ -339,6 +340,56 @@ async function main() {
       deepStrictEqual(a.neckPreset.nutToBodyEdgeMm, b.neckPreset.nutToBodyEdgeMm);
     });
 
+    console.log('the eight bass blueprints (milestone W6)');
+
+    check('every bass blueprint decodes, is non-self-intersecting, and exports without clipping', () => {
+      // The bundled files themselves, not a synthetic stand-in - the same
+      // segment-intersection sweep the geometry is verified with elsewhere,
+      // plus the real assertNoClipping run against each file's own real
+      // contour/hardware/pickups, both orientations.
+      const bassBlueprintIds = Object.keys(hardware.DEFAULT_NECK_JOINT_MECHANISM).filter((id) =>
+        id.includes('bass')
+      );
+      invariant(bassBlueprintIds.length === 8, `expected 8 bass blueprint ids, found ${bassBlueprintIds.length}`);
+
+      const segmentsIntersect = (p1: any, p2: any, p3: any, p4: any) => {
+        const d = (a: any, b: any, c: any) => (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+        const d1 = d(p3, p4, p1), d2 = d(p3, p4, p2), d3 = d(p1, p2, p3), d4 = d(p1, p2, p4);
+        return (d1 > 0 && d2 < 0 || d1 < 0 && d2 > 0) && (d3 > 0 && d4 < 0 || d3 < 0 && d4 > 0);
+      };
+
+      for (const id of bassBlueprintIds) {
+        const raw = readFileSync(join(ROOT, 'src', 'constants', 'blueprints', `${id}.axe.svg`), 'utf8');
+        const match = raw.match(/<project:data>([\s\S]*?)<\/project:data>/);
+        invariant(match, `${id}: no <project:data> in the blueprint file`);
+        const project = JSON.parse(Buffer.from(match![1].trim(), 'base64').toString('utf8'));
+        invariant(project.instrumentType === 'bass' && project.stringCount === 4, `${id}: not tagged Bass/4`);
+
+        const anchors = project.contour.anchors;
+        const closed = project.contour.closed;
+        const count = bezier.segmentCount(anchors, closed);
+        const poly: any[] = [];
+        for (let i = 0; i < count; i++) {
+          const cps = bezier.getSegmentControlPoints(anchors, i, closed);
+          for (let s = 0; s < 30; s++) poly.push(bezier.evaluateCubicBezier(cps[0], cps[1], cps[2], cps[3], s / 30));
+        }
+        const n = poly.length;
+        for (let i = 0; i < n; i++) {
+          for (let j = i + 2; j < n; j++) {
+            if (i === 0 && j === n - 1) continue;
+            invariant(
+              !segmentsIntersect(poly[i], poly[(i + 1) % n], poly[j], poly[(j + 1) % n]),
+              `${id}: contour self-intersects between sample ${i} and ${j}`
+            );
+          }
+        }
+
+        for (const orientation of ['vertical', 'horizontal'] as const) {
+          assertNoClipping({ ...project, settings: { ...project.settings, canvasOrientation: orientation } }, `${id}/${orientation}`);
+        }
+      }
+    });
+
     console.log('an imported Bass/4 project stays a bass');
 
     check('opens in bass mode even when every preset id is unknown', () => {
@@ -380,9 +431,11 @@ async function main() {
       deepStrictEqual(instrument.neckPresetInstrument('some_future_bass_neck'), undefined);
     });
 
-    check('no bundled blueprint is applicable to a bass project', () => {
-      // Until W6 bundles bass bodies, Switch Blueprint in a bass project has
-      // nothing to offer - and must offer nothing rather than a guitar body.
+    check('every blueprint is offered to its own instrument only (W6: 8 guitar, 8 bass)', () => {
+      // W4's version of this check asserted no bass blueprint was offered to
+      // a bass project, because none existed. W6 bundles eight; this is the
+      // same cross-instrument guard, both directions, now that there is
+      // something on each side to get wrong.
       //
       // Read from BLUEPRINT_MANIFEST rather than REFERENCE_TEMPLATES: the
       // manifest is where the instrument tag actually lives, and
@@ -391,18 +444,19 @@ async function main() {
       const bassDoc = { instrumentType: 'bass', stringCount: 4 };
       const guitarDoc = { instrumentType: 'guitar', stringCount: 6 };
       const entries = Object.entries<any>(manifest.BLUEPRINT_MANIFEST);
-      invariant(entries.length > 0, 'the blueprint manifest is empty');
+      const byInstrument = { guitar: 0, bass: 0 };
       for (const [id, entry] of entries) {
         const template = {
           instrumentType: entry.instrumentType,
           stringCount: instrument.defaultStringCount(entry.instrumentType),
         };
-        invariant(!presets.isTemplateCompatible(template, bassDoc), `blueprint ${id} is offered to a bass project`);
-        invariant(
-          presets.isTemplateCompatible(template, guitarDoc),
-          `blueprint ${id} is no longer offered to a guitar project`
-        );
+        const ownDoc = entry.instrumentType === 'bass' ? bassDoc : guitarDoc;
+        const otherDoc = entry.instrumentType === 'bass' ? guitarDoc : bassDoc;
+        invariant(presets.isTemplateCompatible(template, ownDoc), `blueprint ${id} is not offered to its own instrument`);
+        invariant(!presets.isTemplateCompatible(template, otherDoc), `blueprint ${id} is offered to the other instrument`);
+        byInstrument[entry.instrumentType as 'guitar' | 'bass']++;
       }
+      deepStrictEqual(byInstrument, { guitar: 8, bass: 8 });
     });
 
     console.log('no clipping in the printable export, at bass scale lengths');

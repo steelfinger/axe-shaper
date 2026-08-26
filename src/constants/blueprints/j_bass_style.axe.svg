@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:project="https://axe-shaper.app/ns/project/1"
+  width="451.33mm"
+  height="805.45mm"
+  viewBox="-194.60 -97.47 451.33 805.45"
+>
+  <metadata>
+    <project:name>J-Style Bass</project:name>
+    <project:units>millimeters</project:units>
+    <project:schemaVersion>3</project:schemaVersion>
+    <project:instrumentType>bass</project:instrumentType>
+    <project:stringCount>4</project:stringCount>
+    <project:appVersion>1.0.0</project:appVersion>
+    <project:data>eyJzY2hlbWFWZXJzaW9uIjozLCJhcHBWZXJzaW9uIjoiMS4wLjAiLCJpbnN0cnVtZW50VHlwZSI6ImJhc3MiLCJzdHJpbmdDb3VudCI6NCwibWV0YWRhdGEiOnsiY3JlYXRlZCI6IjIwMjYtMDgtMjZUMTI6MDQ6MzMuMDE3WiIsIm1vZGlmaWVkIjoiMjAyNi0wOC0yNlQxMjowNDozMy4wMTdaIiwiYXV0aG9yIjoiQXhlIFNoYXBlciBMdXRoaWVyIn0sInNldHRpbmdzIjp7Im5hbWUiOiJKLVN0eWxlIEJhc3MiLCJ1bml0RGlzcGxheSI6Im1tIiwiY2FudmFzT3JpZW50YXRpb24iOiJ2ZXJ0aWNhbCIsInN5bW1ldHJ5Ijp7Im1vZGUiOiJub25lIiwic291cmNlU2lkZSI6ImxlZnQifSwic2hvd0NlbnRlckF4aXMiOnRydWUsInNob3dHaG9zdEd1aWRlIjp0cnVlLCJzaG93SGFyZHdhcmVDYXZpdGllcyI6dHJ1ZSwic2hvd0RpbWVuc2lvbnMiOnRydWUsInNob3dHcmlkIjp0cnVlLCJncmlkU2l6ZU1tIjo1MCwic25hcFRvR3JpZEVuYWJsZWQiOmZhbHNlLCJmaW5pc2hTdHlsZSI6InN1bmJ1cnN0IiwiYm9keUNvbG9yIjoiIzNiODJmNiIsInNlY29uZGFyeUNvbG9yIjoiI2Y1OWUwYiIsImJvZHlGaWxsT3BhY2l0eSI6MC4xNSwicGlja2d1YXJkRW5hYmxlZCI6ZmFsc2UsInBpY2tndWFyZENvbG9yIjoiI2ZmZmZmZiJ9LCJhY3RpdmVUZW1wbGF0ZUlkIjoial9iYXNzX3N0eWxlIiwiY29udG91ciI6eyJjbG9zZWQiOnRydWUsImFuY2hvcnMiOlt7ImlkIjoic19wb2NrZXRfbGVmdCIsInBvc2l0aW9uIjp7IngiOi0zMS43NSwieSI6MH0sImhhbmRsZUluIjp7IngiOjI3LjkyNiwieSI6LTAuMzA1fSwiaGFuZGxlT3V0Ijp7IngiOjAuMzEzLCJ5IjoxMy4wMDF9LCJoYW5kbGVNb2RlIjoiY29ybmVyIiwic2VtYW50aWNSb2xlIjoibmVja19wb2NrZXRfbGVmdCJ9LHsiaWQiOiJzX2hvcm5fc2Nvb3BfbGVmdCIsInBvc2l0aW9uIjp7IngiOi01Ni45NTEsInkiOjI1LjAxM30sImhhbmRsZUluIjp7IngiOjIwLjA0NSwieSI6MS4wOTN9LCJoYW5kbGVPdXQiOnsieCI6LTE2LjMwOCwieSI6LTAuODg5fSwiaGFuZGxlTW9kZSI6InNtb290aCJ9LHsiaWQiOiJhbmNob3JfMTc4NTA3NjA3ODA1N19zZjFqNyIsInBvc2l0aW9uIjp7IngiOi05OS4yNzcsInkiOi0xNi43NjZ9LCJoYW5kbGVJbiI6eyJ4Ijo3LjcyMiwieSI6MjUuMzMyfSwiaGFuZGxlT3V0Ijp7IngiOi04LjgwNiwieSI6LTI4Ljg4Nn0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImlkIjoic191cHBlcl9ob3JuX3RpcCIsInBvc2l0aW9uIjp7IngiOi0xMTcuNDgyLCJ5IjotNzguMjIyfSwiaGFuZGxlSW4iOnsieCI6MjAuOTA2LCJ5IjozLjA1M30sImhhbmRsZU91dCI6eyJ4IjotMjkuMDc5LCJ5IjotNC4yNDd9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwic2VtYW50aWNSb2xlIjoidXBwZXJfaG9ybl9sZWZ0In0seyJpZCI6InNfdXBwZXJfYm91dF9vdXRlcl9sZWZ0IiwicG9zaXRpb24iOnsieCI6LTE1NS40MDQsInkiOjE5Ljg2M30sImhhbmRsZUluIjp7IngiOi0zLjM5NCwieSI6LTQ0LjUxOX0sImhhbmRsZU91dCI6eyJ4Ijo0LjU0MywieSI6NTkuNTl9LCJoYW5kbGVNb2RlIjoic21vb3RoIn0seyJpZCI6InNfd2Fpc3RfbGVmdCIsInBvc2l0aW9uIjp7IngiOi0xMjYuNTc5LCJ5IjoxNzAuNDYzfSwiaGFuZGxlSW4iOnsieCI6MC41MzIsInkiOi00Ny44OTh9LCJoYW5kbGVPdXQiOnsieCI6LTAuNTQ0LCJ5Ijo0OS4wMTR9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwic2VtYW50aWNSb2xlIjoid2Fpc3RfbGVmdCJ9LHsiaWQiOiJzX2xvd2VyX2JvdXRfbGVmdCIsInBvc2l0aW9uIjp7IngiOi0xNzkuNTQxLCJ5IjozODMuOTE0fSwiaGFuZGxlSW4iOnsieCI6LTAuMDYzLCJ5IjotODEuMjA3fSwiaGFuZGxlT3V0Ijp7IngiOjAuMDI3LCJ5IjozNS4yMzZ9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwic2VtYW50aWNSb2xlIjoibG93ZXJfYm91dF9sZWZ0In0seyJpZCI6ImFuY2hvcl8xNzg2MDUyNjgwMTYwXzc3NThrIiwicG9zaXRpb24iOnsieCI6LTE0MS45NjIsInkiOjQ3Ni44OTZ9LCJoYW5kbGVJbiI6eyJ4IjotMjkuODY0LCJ5IjotMjIuNzAzfSwiaGFuZGxlT3V0Ijp7IngiOjQyLjkzOSwieSI6MzIuNjQyfSwiaGFuZGxlTW9kZSI6InNtb290aCIsInNlbWFudGljUm9sZSI6ImN1c3RvbSJ9LHsiaWQiOiJzX3RhaWxfY2VudGVyIiwicG9zaXRpb24iOnsieCI6Mi4xNywieSI6NTExfSwiaGFuZGxlSW4iOnsieCI6LTc0LjcyNywieSI6LTAuOTU5fSwiaGFuZGxlT3V0Ijp7IngiOjc2LjM4OCwieSI6MC45ODF9LCJoYW5kbGVNb2RlIjoic3ltbWV0cmljIiwic2VtYW50aWNSb2xlIjoidGFpbF9jZW50ZXIifSx7ImlkIjoiYW5jaG9yXzE3ODYwNTI3MDg0MThfNTk1dWsiLCJwb3NpdGlvbiI6eyJ4IjoxNDAuMzkxLCJ5Ijo0NzkuMjI3fSwiaGFuZGxlSW4iOnsieCI6LTMyLjQ3MywieSI6MjguMDc1fSwiaGFuZGxlT3V0Ijp7IngiOjI4LjQyNCwieSI6LTI0LjU3NX0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImlkIjoic19sb3dlcl9ib3V0X3JpZ2h0IiwicG9zaXRpb24iOnsieCI6MTc2LjA1OSwieSI6Mzg1LjA1NH0sImhhbmRsZUluIjp7IngiOjAuNjcxLCJ5IjozMS4wMDh9LCJoYW5kbGVPdXQiOnsieCI6LTEuNzk1LCJ5IjotODIuOTk3fSwiaGFuZGxlTW9kZSI6InNtb290aCIsInNlbWFudGljUm9sZSI6Imxvd2VyX2JvdXRfcmlnaHQifSx7ImlkIjoic193YWlzdF9yaWdodCIsInBvc2l0aW9uIjp7IngiOjEyNS45MzQsInkiOjE4OS45NzZ9LCJoYW5kbGVJbiI6eyJ4IjotMC43MjIsInkiOjMzLjYxMX0sImhhbmRsZU91dCI6eyJ4IjowLjk5NywieSI6LTQ2LjQwOX0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJ3YWlzdF9yaWdodCJ9LHsiaWQiOiJzX3VwcGVyX2JvdXRfb3V0ZXJfcmlnaHQiLCJwb3NpdGlvbiI6eyJ4IjoxNTQuMjkyLCJ5Ijo2My4xOTl9LCJoYW5kbGVJbiI6eyJ4IjotMS4yNDMsInkiOjU2LjcxOX0sImhhbmRsZU91dCI6eyJ4IjowLjU5OSwieSI6LTI3LjMyM30sImhhbmRsZU1vZGUiOiJzbW9vdGgifSx7ImlkIjoic190cmVibGVfaG9ybl90aXAiLCJwb3NpdGlvbiI6eyJ4IjoxMjUuNzgsInkiOjUuOTY0fSwiaGFuZGxlSW4iOnsieCI6MjMuNjE2LCJ5IjotMC43NDF9LCJoYW5kbGVPdXQiOnsieCI6LTI0Ljg0NiwieSI6MC43OH0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJzZW1hbnRpY1JvbGUiOiJ1cHBlcl9ob3JuX3JpZ2h0In0seyJpZCI6ImFuY2hvcl8xNzg1MDc1OTcxNTAxXzZuYTV6IiwicG9zaXRpb24iOnsieCI6ODguMjM5LCJ5Ijo3NC41NjV9LCJoYW5kbGVJbiI6eyJ4IjozMi42NzQsInkiOi0yNi4zMTh9LCJoYW5kbGVPdXQiOnsieCI6LTE5LjQ2MiwieSI6MTUuNjc2fSwiaGFuZGxlTW9kZSI6InNtb290aCIsInNlbWFudGljUm9sZSI6ImN1c3RvbSJ9LHsiaWQiOiJzX2hvcm5fc2Nvb3BfcmlnaHQiLCJwb3NpdGlvbiI6eyJ4IjozMS42NjcsInkiOjY3LjM1NX0sImhhbmRsZUluIjp7IngiOjEwLjM0NCwieSI6MTUuMjY1fSwiaGFuZGxlTW9kZSI6ImNvcm5lciJ9LHsiaWQiOiJzX3BvY2tldF9yaWdodCIsInBvc2l0aW9uIjp7IngiOjMxLjc1LCJ5IjowfSwiaGFuZGxlT3V0Ijp7IngiOi0yMy4xOTcsInkiOjAuMzIyfSwiaGFuZGxlTW9kZSI6ImNvcm5lciIsInNlbWFudGljUm9sZSI6Im5lY2tfcG9ja2V0X3JpZ2h0In1dfSwibmVja1ByZXNldElkIjoiYmFzc19sb25nXzM0IiwibmVja1ByZXNldCI6eyJpZCI6ImJhc3NfbG9uZ18zNCIsIm5hbWUiOiJCYXNzIExvbmcgU2NhbGUgKDM0XCIgU2NhbGUsIDIwIEZyZXRzKSIsInNjYWxlTGVuZ3RoTW0iOjg2My42LCJudXRUb0JvZHlFZGdlTW0iOjU0MC4xMTU1LCJudXRUb0pvaW50TW0iOjU5Ni41ODMsImZyZXRzIjoyMCwiam9pbnRXaWR0aE1tIjo2My41LCJqb2ludERlcHRoTW0iOjk4LjQyNSwiam9pbnRDb3JuZXJSYWRpdXNNbSI6Ni4zNSwicG9ja2V0V2lkdGhNbSI6NjMuNSwicG9ja2V0RGVwdGhNbSI6OTguNDI1LCJwb2NrZXRDb3JuZXJSYWRpdXNNbSI6Ni4zNSwibnV0U3RyaW5nU3BhY2luZ01tIjozMCwic3R5bGUiOiJmZW5kZXJfc3R5bGUifSwibmVja0pvaW50TWVjaGFuaXNtIjoiYm9sdF9vbiIsImJyaWRnZVByZXNldElkIjoiYmFzc192aW50YWdlX3BsYXRlIiwiYnJpZGdlUHJlc2V0Ijp7ImlkIjoiYmFzc192aW50YWdlX3BsYXRlIiwibmFtZSI6IkJhc3MgVmludGFnZSBQbGF0ZSAoNC1TdHJpbmcpIiwic2NhbGVSZWZlcmVuY2UiOiJzYWRkbGVfbGluZSIsImNvbXBlbnNhdGlvbk1tIjp7InRyZWJsZSI6My4yLCJiYXNzIjo5LjV9LCJ3aWR0aE1tIjo4MS4wMywibGVuZ3RoTW0iOjUzLjA5LCJzYWRkbGVPZmZzZXRZTW0iOjI2LjUsInN0cmluZ1NwYWNpbmdNbSI6NTcuMTUsImhlaWdodE1tIjoxMn0sInBpY2t1cHMiOlt7ImlkIjoial9iYXNzX3N0eWxlX3BpY2t1cF8wIiwidHlwZSI6ImJhc3Nfal9zaW5nbGVfY29pbCIsIm9mZnNldFhNbSI6MCwib2Zmc2V0WU1tIjoyMjAsImFuZ2xlRGVncmVlcyI6MCwid2lkdGhNbSI6OTMuNCwiaGVpZ2h0TW0iOjIxLjMsImFuY2hvcnMiOlt7ImlkIjoiYmFzc19qX3NpbmdsZV9jb2lsX2EwIiwicG9zaXRpb24iOnsieCI6LTQzLjUyNSwieSI6LTEwLjY1fSwiaGFuZGxlSW4iOnsieCI6LTEuNzU0LCJ5IjowfSwiaGFuZGxlTW9kZSI6ImNvcm5lciJ9LHsiaWQiOiJiYXNzX2pfc2luZ2xlX2NvaWxfYTEiLCJwb3NpdGlvbiI6eyJ4Ijo0My41MjUsInkiOi0xMC42NX0sImhhbmRsZU91dCI6eyJ4IjoxLjc1NCwieSI6MH0sImhhbmRsZU1vZGUiOiJjb3JuZXIifSx7ImlkIjoiYmFzc19qX3NpbmdsZV9jb2lsX2EyIiwicG9zaXRpb24iOnsieCI6NDYuNywieSI6LTcuNDc1fSwiaGFuZGxlSW4iOnsieCI6MCwieSI6LTEuNzU0fSwiaGFuZGxlTW9kZSI6ImNvcm5lciJ9LHsiaWQiOiJiYXNzX2pfc2luZ2xlX2NvaWxfYTMiLCJwb3NpdGlvbiI6eyJ4Ijo0Ni43LCJ5Ijo3LjQ3NX0sImhhbmRsZU91dCI6eyJ4IjowLCJ5IjoxLjc1NH0sImhhbmRsZU1vZGUiOiJjb3JuZXIifSx7ImlkIjoiYmFzc19qX3NpbmdsZV9jb2lsX2E0IiwicG9zaXRpb24iOnsieCI6NDMuNTI1LCJ5IjoxMC42NX0sImhhbmRsZUluIjp7IngiOjEuNzU0LCJ5IjowfSwiaGFuZGxlTW9kZSI6ImNvcm5lciJ9LHsiaWQiOiJiYXNzX2pfc2luZ2xlX2NvaWxfYTUiLCJwb3NpdGlvbiI6eyJ4IjotNDMuNTI1LCJ5IjoxMC42NX0sImhhbmRsZU91dCI6eyJ4IjotMS43NTQsInkiOjB9LCJoYW5kbGVNb2RlIjoiY29ybmVyIn0seyJpZCI6ImJhc3Nfal9zaW5nbGVfY29pbF9hNiIsInBvc2l0aW9uIjp7IngiOi00Ni43LCJ5Ijo3LjQ3NX0sImhhbmRsZUluIjp7IngiOjAsInkiOjEuNzU0fSwiaGFuZGxlTW9kZSI6ImNvcm5lciJ9LHsiaWQiOiJiYXNzX2pfc2luZ2xlX2NvaWxfYTciLCJwb3NpdGlvbiI6eyJ4IjotNDYuNywieSI6LTcuNDc1fSwiaGFuZGxlT3V0Ijp7IngiOjAsInkiOi0xLjc1NH0sImhhbmRsZU1vZGUiOiJjb3JuZXIifV19LHsiaWQiOiJqX2Jhc3Nfc3R5bGVfcGlja3VwXzEiLCJ0eXBlIjoiYmFzc19qX3NpbmdsZV9jb2lsIiwib2Zmc2V0WE1tIjowLCJvZmZzZXRZTW0iOjMyMCwiYW5nbGVEZWdyZWVzIjowLCJ3aWR0aE1tIjo5My40LCJoZWlnaHRNbSI6MjEuMywiYW5jaG9ycyI6W3siaWQiOiJiYXNzX2pfc2luZ2xlX2NvaWxfYTAiLCJwb3NpdGlvbiI6eyJ4IjotNDMuNTI1LCJ5IjotMTAuNjV9LCJoYW5kbGVJbiI6eyJ4IjotMS43NTQsInkiOjB9LCJoYW5kbGVNb2RlIjoiY29ybmVyIn0seyJpZCI6ImJhc3Nfal9zaW5nbGVfY29pbF9hMSIsInBvc2l0aW9uIjp7IngiOjQzLjUyNSwieSI6LTEwLjY1fSwiaGFuZGxlT3V0Ijp7IngiOjEuNzU0LCJ5IjowfSwiaGFuZGxlTW9kZSI6ImNvcm5lciJ9LHsiaWQiOiJiYXNzX2pfc2luZ2xlX2NvaWxfYTIiLCJwb3NpdGlvbiI6eyJ4Ijo0Ni43LCJ5IjotNy40NzV9LCJoYW5kbGVJbiI6eyJ4IjowLCJ5IjotMS43NTR9LCJoYW5kbGVNb2RlIjoiY29ybmVyIn0seyJpZCI6ImJhc3Nfal9zaW5nbGVfY29pbF9hMyIsInBvc2l0aW9uIjp7IngiOjQ2LjcsInkiOjcuNDc1fSwiaGFuZGxlT3V0Ijp7IngiOjAsInkiOjEuNzU0fSwiaGFuZGxlTW9kZSI6ImNvcm5lciJ9LHsiaWQiOiJiYXNzX2pfc2luZ2xlX2NvaWxfYTQiLCJwb3NpdGlvbiI6eyJ4Ijo0My41MjUsInkiOjEwLjY1fSwiaGFuZGxlSW4iOnsieCI6MS43NTQsInkiOjB9LCJoYW5kbGVNb2RlIjoiY29ybmVyIn0seyJpZCI6ImJhc3Nfal9zaW5nbGVfY29pbF9hNSIsInBvc2l0aW9uIjp7IngiOi00My41MjUsInkiOjEwLjY1fSwiaGFuZGxlT3V0Ijp7IngiOi0xLjc1NCwieSI6MH0sImhhbmRsZU1vZGUiOiJjb3JuZXIifSx7ImlkIjoiYmFzc19qX3NpbmdsZV9jb2lsX2E2IiwicG9zaXRpb24iOnsieCI6LTQ2LjcsInkiOjcuNDc1fSwiaGFuZGxlSW4iOnsieCI6MCwieSI6MS43NTR9LCJoYW5kbGVNb2RlIjoiY29ybmVyIn0seyJpZCI6ImJhc3Nfal9zaW5nbGVfY29pbF9hNyIsInBvc2l0aW9uIjp7IngiOi00Ni43LCJ5IjotNy40NzV9LCJoYW5kbGVPdXQiOnsieCI6MCwieSI6LTEuNzU0fSwiaGFuZGxlTW9kZSI6ImNvcm5lciJ9XX1dLCJwaWNrZ3VhcmRzIjpbXSwiZnJvbnRSb3V0ZXMiOltdLCJiYWNrUm91dGVzIjpbXX0=</project:data>
+  </metadata>
+
+  <style>
+    .body-line { fill: none; stroke: #111111; stroke-width: 0.4; stroke-linecap: round; stroke-linejoin: round; }
+    .edge-inset { fill: none; stroke: #555555; stroke-width: 0.3; stroke-dasharray: 3,2; }
+    .neck-pocket { fill: #e5e7eb; stroke: #374151; stroke-width: 0.4; }
+    .pickup-rout { fill: #ccfbf1; stroke: #0f766e; stroke-width: 0.3; }
+    .pickup-cover { fill: none; stroke: #111111; stroke-width: 0.3; }
+    .bridge-rout { fill: none; stroke: #007bff; stroke-width: 0.3; }
+    .back-route { fill: #f3e8ff; stroke: #7e22ce; stroke-width: 0.3; stroke-dasharray: 3,2; }
+    .front-route { fill: #ccfbf1; stroke: #0f766e; stroke-width: 0.3; }
+    .pickguard { fill: #ffffff; fill-opacity: 0.35; stroke: #6b7280; stroke-width: 0.3; }
+    .center-axis { fill: none; stroke: #6c757d; stroke-width: 0.2; stroke-dasharray: 6,4; opacity: 0.7; }
+    .calibration-box { fill: none; stroke: #d9534f; stroke-width: 0.4; stroke-dasharray: 3,3; }
+    .band-rule { fill: none; stroke: #adb5bd; stroke-width: 0.2; }
+    .text-label { font-family: monospace, sans-serif; font-size: 5px; fill: #d9534f; }
+    .disclaimer-label { font-family: monospace, sans-serif; font-size: 4.5px; font-style: italic; fill: #6c757d; }
+    .axis-label { font-family: monospace, sans-serif; font-size: 5px; fill: #6c757d; }
+    .title-label { font-family: sans-serif; font-size: 10px; font-weight: bold; fill: #222222; }
+  </style>
+
+  <!-- Bass Geometry Group -->
+  <g>
+    <!-- Centerline Alignment Axis (X = 0) -->
+    <line x1="0" y1="-97.47" x2="0" y2="526.98" class="center-axis" />
+
+    <!-- Joint Line Marker (Y = 0) -->
+    <line x1="-194.60" y1="0" x2="176.73" y2="0" class="center-axis" />
+    <text x="180.73" y="3" class="axis-label">Y=0 (Joint Line)</text>
+
+    <!-- Theoretical Saddle Line Marker -->
+    <line x1="-194.60" y1="323.48" x2="176.73" y2="323.48" class="center-axis" stroke="#007bff" />
+    <text x="180.73" y="326.48" class="axis-label" fill="#007bff">Scale Line (323.5mm)</text>
+
+    <!-- Back Routed Cavities (drawn under the body so a front view can't see them) -->
+    
+
+    <!-- Outer Custom Body Profile -->
+    <path d="M -31.75 0.00 C -31.44 13.00, -36.91 26.11, -56.95 25.01 C -73.26 24.12, -91.56 8.57, -99.28 -16.77 C -108.08 -45.65, -96.58 -75.17, -117.48 -78.22 C -146.56 -82.47, -158.80 -24.66, -155.40 19.86 C -150.86 79.45, -126.05 122.56, -126.58 170.46 C -127.12 219.48, -179.60 302.71, -179.54 383.91 C -179.51 419.15, -171.83 454.19, -141.96 476.90 C -99.02 509.54, -72.56 510.04, 2.17 511.00 C 78.56 511.98, 107.92 507.30, 140.39 479.23 C 168.81 454.65, 176.73 416.06, 176.06 385.05 C 174.26 302.06, 125.21 223.59, 125.93 189.98 C 126.93 143.57, 153.05 119.92, 154.29 63.20 C 154.89 35.88, 149.40 5.22, 125.78 5.96 C 100.93 6.74, 120.91 48.25, 88.24 74.56 C 68.78 90.24, 42.01 82.62, 31.67 67.36 C 31.67 67.36, 31.75 0.00, 31.75 0.00 C 8.55 0.32, -3.82 -0.30, -31.75 0.00 Z" class="body-line" />
+    
+
+    <!-- Pickguard (translucent, above the body, under the hardware) -->
+    
+
+    <!-- Immutable Neck Pocket Cavity -->
+    <rect
+      x="-31.75"
+      y="0"
+      width="63.5"
+      height="98.425"
+      rx="6.35"
+      ry="6.35"
+      class="neck-pocket"
+    />
+
+    <!-- Front Routed Cavities (control cavities, etc. - under pickup hardware) -->
+    
+
+    <!-- Pickup routing cavities and visible cover cut lines (above front routes) -->
+    
+          <g transform="translate(0, 220) rotate(0)">
+            <path d="M -43.52 -10.65 C -43.52 -10.65, 43.52 -10.65, 43.52 -10.65 C 45.28 -10.65, 46.70 -9.23, 46.70 -7.47 C 46.70 -7.47, 46.70 7.47, 46.70 7.47 C 46.70 9.23, 45.28 10.65, 43.52 10.65 C 43.52 10.65, -43.52 10.65, -43.52 10.65 C -45.28 10.65, -46.70 9.23, -46.70 7.47 C -46.70 7.47, -46.70 -7.47, -46.70 -7.47 C -46.70 -9.23, -45.28 -10.65, -43.52 -10.65 Z" class="pickup-rout" />
+            
+            <circle cx="0" cy="0" r="1.5" fill="#28a745" />
+          </g>
+        
+          <g transform="translate(0, 320) rotate(0)">
+            <path d="M -43.52 -10.65 C -43.52 -10.65, 43.52 -10.65, 43.52 -10.65 C 45.28 -10.65, 46.70 -9.23, 46.70 -7.47 C 46.70 -7.47, 46.70 7.47, 46.70 7.47 C 46.70 9.23, 45.28 10.65, 43.52 10.65 C 43.52 10.65, -43.52 10.65, -43.52 10.65 C -45.28 10.65, -46.70 9.23, -46.70 7.47 C -46.70 7.47, -46.70 -7.47, -46.70 -7.47 C -46.70 -9.23, -45.28 -10.65, -43.52 -10.65 Z" class="pickup-rout" />
+            
+            <circle cx="0" cy="0" r="1.5" fill="#28a745" />
+          </g>
+        
+
+    <!-- Family-specific bridge hardware and scale-length reference line -->
+    <g id="bridge-hardware">
+      <rect x="-40.52" y="296.98" width="81.03" height="53.09" rx="3.00" ry="3.00" class="bridge-rout" />
+      <rect x="-40.52" y="300.18" width="81.03" height="53.09" rx="3.00" ry="3.00" class="bridge-rout" />
+      <line x1="-35.52" y1="323.48" x2="35.52" y2="323.48" stroke="#dc3545" stroke-width="0.3" />
+      <g transform="translate(0, 326.68)"></g>
+    </g>
+  </g>
+
+  <!-- Title, Specs & Calibration Band (page space - never rotated) -->
+  <g>
+    <line x1="-194.60" y1="526.98" x2="256.73" y2="526.98" class="band-rule" />
+    <text x="-182.60" y="546.98" class="title-label">J-Style Bass - 1:1 Scale Print Template</text>
+    <text x="-182.60" y="559.98" class="text-label">Scale: 863.6mm (34.00") | Joint: 63.5mm W x 98.425mm D | Saddle Y: 326.7mm</text>
+    <text x="-182.60" y="569.98" class="text-label">Date: 2026-08-26 | Printable 100% True Scale (Do Not Scale Page)</text>
+    <text x="-182.60" y="582.98" class="disclaimer-label">Editing this file in another app will not update Axe Shaper - re-importing it may discard your changes.</text>
+
+    <!-- 100mm x 100mm Ruler Calibration Box -->
+    <g transform="translate(-182.60, 594.98)">
+      <rect x="0" y="0" width="100" height="100" class="calibration-box" />
+      <text x="5" y="15" class="text-label" font-weight="bold">CALIBRATION BOX</text>
+      <text x="5" y="30" class="text-label">100 mm x 100 mm</text>
+      <text x="5" y="45" class="text-label">Measure with ruler</text>
+      <text x="5" y="60" class="text-label">to verify 100% print</text>
+    </g>
+  </g>
+</svg>

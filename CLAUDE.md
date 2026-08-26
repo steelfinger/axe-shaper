@@ -127,6 +127,22 @@ number, no upper bound) but reads neither `instrumentType` nor `stringCount`
 `handleView3D` itself refuses independently of the button) until the
 viewer's own Bass/4 rendering is verified. See `docs/AXE_SVG_FORMAT.md`.
 
+## The bass blueprints are first drafts, not final shapes
+
+The eight `*_bass_style.axe.svg` files are structurally correct (real
+hardware, real neck pocket, non-self-intersecting contours - see
+`npm run bass:check`) but their body outlines are affine-scaled donor guitar
+shapes, not photo-traced replicas. That was a deliberate call, not a
+shortcut: an AI agent cannot produce a well-optimised bezier trace of a
+reference photo the way a person can, so these exist to be hand-refined once
+opened, not treated as finished. `docs/bass-blueprint-evidence/` records
+what each is built from and what to check first; `r_bass_style` and
+`streamer_bass_style` are the weakest matches and the priority order to fix.
+
+Never rerun `scripts/generate-bass-blueprint-drafts.ts` on a blueprint a
+person has started editing - it overwrites the file from scratch and would
+silently discard their work.
+
 ## Regenerating the golden corpus is guarded
 
 `npm run corpus` refuses to write if it would change a `scaleMathMatrix` row

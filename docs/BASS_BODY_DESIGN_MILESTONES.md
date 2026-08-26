@@ -61,6 +61,10 @@ The scale values above seed research; they are not blueprint evidence. Every
 neck joint, rout, bridge reference and body dimension must be verified while
 the corresponding blueprint is authored.
 
+**All eight ids above exist as of W6**, as first-draft bodies - see that
+milestone's status and `docs/bass-blueprint-evidence/` for what shipped and
+what is still owed per blueprint.
+
 The **Shared id** column is contract, not UI: it is the `activeTemplateId`
 written into every saved file and the key for `BLUEPRINT_MANIFEST`,
 `FINGERBOARD_OVERHANG_MM` and `DEFAULT_NECK_JOINT_MECHANISM` on both
@@ -670,6 +674,47 @@ Exit criteria:
 
 ## Web milestone W6 — author the eight bass blueprints
 
+**Status: complete as a first-draft pass, deliberately not as a final one.**
+A product decision made mid-milestone changes what "author manually" means
+here:
+
+> All final blueprint shapes were created by hand. An AI agent can't really
+> create good enough optimised bezier curves matching bitmap
+> blueprints/photos. The initial blueprint files exist so a person can
+> manually fix them once the UI is built, so Bass designs can be easily
+> edited.
+
+So this milestone shipped eight structurally-correct, immediately-editable
+starting shapes rather than eight photo-traced final ones. Full rationale,
+methodology and per-blueprint sourcing is in
+`docs/bass-blueprint-evidence/` (a `README.md` covering the shared method,
+plus one file per blueprint) - not duplicated here.
+
+Method, in short: each body starts from an **existing shipped guitar
+contour** (already a valid, smooth, non-self-intersecting closed curve) -
+`sg_style` for SG-Style Bass and `gretsch_thunderbird` for Thunderbird-Style
+Bass are genuine real-world analogs, independently documented as sharing
+their named archetype's actual body; the other six use the closest available
+family resemblance. Each is affine-scaled to the bass's own sourced overall
+envelope (body width, joint-line-to-tail length), with the neck pocket then
+snapped to the exact bass hardware width independent of that scale - not
+proportional to it, since an earlier version of the generator scaled the
+pocket ratio instead and produced a body up to 200mm too wide for the two
+narrow-mortise donor shapes. `scripts/generate-bass-blueprint-drafts.ts`
+documents the transform and that specific mistake.
+
+Envelope dimensions are genuinely sourced (published body width/length) for
+six of the eight; R-Style and Streamer-Style have the weakest grounding - see
+their own evidence files, which say so explicitly rather than presenting an
+estimate as a measurement. R-Style's donor shape also does not resemble a
+Rickenbacker's cresting-wave silhouette at all; it is the single highest-
+priority file for hand refinement.
+
+No pickguard, front/back route, or edge profile is authored for any of the
+eight - deliberately left absent rather than guessed, per the same standard
+the rest of this codebase holds hardware numbers to.
+
+
 Create each blueprint manually in the app and save it as a real `.axe.svg`,
 then add its curation metadata and order to the manifest. Two other
 blueprint-keyed tables need one new entry each, and neither is optional:
@@ -696,16 +741,36 @@ Each blueprint's evidence packet must record:
 - body thickness and edge treatment where confidently known;
 - any approximation made because no reliable dimension was available.
 
-Per-blueprint acceptance gate:
+Per-blueprint acceptance gate - status against what shipped (all eight, see
+`docs/bass-blueprint-evidence/README.md` for the full table):
 
-- closed, non-self-intersecting contour with intentional centerline behavior;
-- bridge and saddle positions recomputed from the embedded neck/bridge data;
-- all manufacturing-critical geometry survives save/reload in both apps;
-- true-scale SVG and iOS PDF render without clipping;
-- iOS 3D mesh builds without empty, inverted or degenerate parts;
-- `FINGERBOARD_OVERHANG_MM` and `DEFAULT_NECK_JOINT_MECHANISM` entries exist on
-  both platforms and agree, with the body landing at the same Y on each;
-- a human visual comparison is completed after numerical checks.
+- ✅ closed, non-self-intersecting contour with intentional centerline
+  behavior - verified for all eight bundled files by `bass:check` (a real
+  segment-intersection sweep, not just "it looked fine in the browser").
+- ✅ bridge and saddle positions recomputed from the embedded neck/bridge
+  data - real `presets.ts`/`scaleMath.ts`, not hand-placed numbers.
+- ✅ all manufacturing-critical geometry survives save/reload - every file
+  was produced by this app's own `exportProjectToSVG`, so reloading it is the
+  same code path any other file uses; the iOS half is not testable until iOS
+  has a bass decoder (its own Step 1).
+- ✅ true-scale SVG renders without clipping, both orientations - verified
+  by `bass:check` against each file's own real contour/hardware. iOS PDF
+  rendering is not testable yet, same reason as above.
+- ⚠️ iOS 3D mesh builds without empty, inverted or degenerate parts - not
+  applicable yet; no iOS bass rendering exists until its own M24 work lands.
+- ⚠️ `FINGERBOARD_OVERHANG_MM` and `DEFAULT_NECK_JOINT_MECHANISM` agree on
+  both platforms - web-side values are set (this milestone); matching iOS
+  entries are recorded as follow-up work on branch
+  `bass-body/m24-web-w1-contract`, to land when iOS's own catalogue does.
+- ⚠️ a human visual comparison is completed after numerical checks -
+  **partial**: reviewed by the agent that authored these drafts, screenshotted
+  and checked for a plausible resemblance to the named archetype, but against
+  no photographic reference (none was available - see the AXE_SVG_FORMAT.md-
+  style reasoning in `docs/bass-blueprint-evidence/README.md` for why). The
+  real comparison against reference material is the refinement step these
+  drafts exist to be a starting point for, not something this milestone could
+  complete on its own.
+
 
 ## Web milestone W7 — cross-platform release gate
 

@@ -150,15 +150,27 @@ async function main() {
 
     invariant(existsSync(FIXTURE_DIR), `fixture directory missing: ${FIXTURE_DIR} — run the iOS repo's Scripts/sync-fixtures-to-web.sh`);
 
+    // Guitar blueprints only. iOS syncs a fixture per BLUEPRINT_ORDER entry
+    // it can actually write, and its own bass catalogue (M24) does not exist
+    // yet - the eight bass ids below are real on this side (milestone W6)
+    // but have nothing to sync from until iOS's own Step 2 lands. That is
+    // reported as a pending gap, the same way the ios-written-v3 section
+    // below reports schema v3 itself as pending, not failed - a fixture set
+    // missing only bass ids is not this repository's bug to fix.
+    const bassBlueprintIds = new Set(
+      Object.entries(manifest.BLUEPRINT_MANIFEST)
+        .filter(([, entry]: [string, any]) => entry.instrumentType === 'bass')
+        .map(([id]) => id)
+    );
     const expected = new Set([
-      ...manifest.BLUEPRINT_ORDER.map((id: string) => `${id}.axe.svg`),
+      ...manifest.BLUEPRINT_ORDER.filter((id: string) => !bassBlueprintIds.has(id)).map((id: string) => `${id}.axe.svg`),
       ...SYNTHETIC_FIXTURES,
     ]);
     const present = new Set(
       readdirSync(FIXTURE_DIR).filter((f) => f.endsWith('.axe.svg'))
     );
 
-    check('fixture set is complete', () => {
+    check('fixture set is complete for guitar', () => {
       const missing = [...expected].filter((f) => !present.has(f));
       const extra = [...present].filter((f) => !expected.has(f));
       invariant(
@@ -166,6 +178,17 @@ async function main() {
         `missing: ${missing.join(', ') || 'none'}; unexpected: ${extra.join(', ') || 'none'}`
       );
     });
+
+    const bassFixtureNames = [...bassBlueprintIds].map((id) => `${id}.axe.svg`);
+    const bassFixturesPresent = bassFixtureNames.filter((f) => present.has(f));
+    if (bassFixturesPresent.length === 0) {
+      console.log(`  pending  no iOS-written bass fixtures yet - sync them into ${FIXTURE_DIR} when iOS M24 Step 2 lands`);
+    } else {
+      check('bass fixture set is complete', () => {
+        const missing = bassFixtureNames.filter((f) => !present.has(f));
+        invariant(missing.length === 0, `missing: ${missing.join(', ')}`);
+      });
+    }
 
     for (const fileName of [...present].sort()) {
       console.log(fileName);

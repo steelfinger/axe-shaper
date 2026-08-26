@@ -499,7 +499,22 @@ export const FINGERBOARD_OVERHANG_MM: Record<string, LengthMm> = {
   gretsch_thunderbird: 73.0011, // gretsch_thunderbird_22
   gibson_flying_v: 74.0011, // gibson_flying_v_22
   jag_style: 70.9045, // jaguar_22
-  // Bass bodies (milestone W6) go here, computed with reference fret 20.
+
+  // Bass bodies (milestone W6), reference fret 20. Each bass body's "native
+  // neck" is simply the curated bass neck matching its own scale length -
+  // there is no separate per-body bass neck table the way NECK_PRESETS has
+  // 9 body-specific guitar entries - so every value below is exactly
+  // fret20Distance(scale) - fret17Distance(scale) for that scale (see
+  // FINGERBOARD_REFERENCE_FRET's own comment in utils/instrument.ts): a
+  // fixed offset per scale length, reused across every body sharing it.
+  p_bass_style: 51.4675, // bass_long_34, 34" scale
+  j_bass_style: 51.4675, // bass_long_34, 34" scale
+  mm_bass_style: 51.4675, // bass_long_34, 34" scale
+  r_bass_style: 50.3322, // bass_medium_33_25, 33.25" scale
+  thunderbird_bass_style: 51.4675, // bass_long_34, 34" scale
+  mustang_bass_style: 45.4125, // bass_short_30, 30" scale
+  sg_bass_style: 46.1694, // bass_short_30_5, 30.5" scale
+  streamer_bass_style: 51.4675, // bass_long_34, 34" scale
 };
 
 /**
