@@ -20,6 +20,17 @@ interface HeaderProps {
   onSave: () => void;
   onShare: () => void;
   onView3D: () => void;
+  /**
+   * Whether the 3D action can be trusted for this project. False for
+   * Bass/4: the pinned `steelfinger/axe-shape-3D-viewer` bundle draws a
+   * fixed six-string layout (six strings, six headstock posts,
+   * `evenSpread` divided by a literal 5) with no instrument awareness at
+   * all, so opening it on a bass design would render a six-string preview
+   * of it - silently wrong, not merely unfinished. Disabled and explained
+   * rather than hidden, so the option doesn't just disappear without
+   * saying why (docs/BASS_BODY_DESIGN_MILESTONES.md, W5).
+   */
+  view3DAvailable: boolean;
   onPrintTiled: (paper: PrintPaper) => void;
   onShowWelcome: () => void;
   onShowAbout: () => void;
@@ -39,6 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSave,
   onShare,
   onView3D,
+  view3DAvailable,
   onPrintTiled,
   onShowWelcome,
   onShowAbout,
@@ -172,7 +184,16 @@ export const Header: React.FC<HeaderProps> = ({
           <Share2 size={15} /> Share
         </button>
 
-        <button className="btn btn-sm header-secondary-action" onClick={onView3D} title="Open this design in the 3D viewer">
+        <button
+          className="btn btn-sm header-secondary-action"
+          onClick={onView3D}
+          disabled={!view3DAvailable}
+          title={
+            view3DAvailable
+              ? 'Open this design in the 3D viewer'
+              : "The 3D viewer doesn't render bass bodies accurately yet - a six-string preview would misrepresent this design."
+          }
+        >
           <Box size={15} /> View in 3D
         </button>
 
@@ -277,7 +298,13 @@ export const Header: React.FC<HeaderProps> = ({
             <button onClick={onResetTemplate}><RotateCcw size={15} /> Reset blueprint</button>
             <button onClick={() => fileInputRef.current?.click()}><Upload size={15} /> Open project</button>
             <button onClick={onShare}><Share2 size={15} /> Share project</button>
-            <button onClick={onView3D}><Box size={15} /> View in 3D</button>
+            <button
+              onClick={onView3D}
+              disabled={!view3DAvailable}
+              title={view3DAvailable ? undefined : "The 3D viewer doesn't render bass bodies accurately yet"}
+            >
+              <Box size={15} /> View in 3D
+            </button>
             <button onClick={() => onPrintTiled('a4')}><Printer size={15} /> Print tiled PDF (A4)</button>
             <button onClick={() => onPrintTiled('letter')}><Printer size={15} /> Print tiled PDF (Letter)</button>
             <button onClick={onShowWelcome}><CircleHelp size={15} /> Welcome guide</button>

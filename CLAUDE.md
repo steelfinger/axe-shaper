@@ -118,6 +118,15 @@ clearance) or approximated, the comment says that too, and the approximation
 is listed in `docs/BASS_BODY_DESIGN_MILESTONES.md` for the blueprint evidence
 packet to settle.
 
+## The 3D viewer doesn't know about instruments yet
+
+`steelfinger/axe-shape-3D-viewer` tolerates schema v3 (any `schemaVersion`
+number, no upper bound) but reads neither `instrumentType` nor `stringCount`
+- string count, pole spacing and headstock posts are fixed at six. **View in
+3D** is disabled and explained for Bass/4 (`Header`'s `view3DAvailable`, and
+`handleView3D` itself refuses independently of the button) until the
+viewer's own Bass/4 rendering is verified. See `docs/AXE_SVG_FORMAT.md`.
+
 ## Regenerating the golden corpus is guarded
 
 `npm run corpus` refuses to write if it would change a `scaleMathMatrix` row

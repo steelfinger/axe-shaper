@@ -202,6 +202,22 @@ changed while the bass catalogue existed but no bass blueprint did, so no
 stored overhang constant had to be recomputed; after bass bodies ship, changing
 it means recomputing every one of them on both platforms.
 
+## The 3D viewer has no instrument awareness yet
+
+`steelfinger/axe-shape-3D-viewer` (the pinned bundle in `public/viewer3d`)
+tolerates schema version 3 - its `validateProject` only checks `typeof
+schemaVersion === 'number'`, with no upper bound and an index-signature
+project type, so the new fields pass through untouched. **Passing through is
+all it does.** Nothing in the viewer reads `instrumentType` or `stringCount`
+yet: string count, pole spacing and headstock posts are fixed at six.
+
+Consequence: opening a Bass/4 project there today would render a six-string
+guitar interpretation of it, silently wrong rather than visibly broken. Web
+gates its own **View in 3D** action off for Bass/4 (`Header`'s
+`view3DAvailable`, checked again independently in `handleView3D`) until the
+viewer's own bass support is verified - see
+`docs/BASS_BODY_DESIGN_MILESTONES.md`, milestone W5.
+
 ## Coordinate system
 
 All geometry is physical millimetres.

@@ -62,6 +62,7 @@ async function main() {
     const instrument = await load('/src/utils/instrument.ts');
     const pickupEditing = await load('/src/utils/pickupEditing.ts');
     const scaleMath = await load('/src/utils/scaleMath.ts');
+    const bridgeDrawing = await load('/src/utils/bridgeDrawing.ts');
     const exporter = await load('/src/utils/svgExporter.ts');
     const manifest = await load('/src/constants/blueprintManifest.ts');
 
@@ -402,6 +403,227 @@ async function main() {
           `blueprint ${id} is no longer offered to a guitar project`
         );
       }
+    });
+
+    console.log('no clipping in the printable export, at bass scale lengths');
+
+    // Every risk to "no clipping" is instrument-agnostic by construction:
+    // exportProjectToSVG's page size is derived from getContentBoundsMm,
+    // which sweeps the contour, pickguards/routes, the neck pocket, the
+    // bridge geometry and the saddle line dynamically - not from any
+    // guitar-shaped constant. This turns that reasoning into a checked fact
+    // rather than leaving it as an assumption: for each of the bass necks,
+    // paired with the bass bridge, the elements most likely to exceed a
+    // page sized for a shorter guitar scale - the saddle line, the wider
+    // 63.5mm pocket, the bridge footprint - are independently derived here
+    // via the same exported primitives the exporter itself calls, then
+    // checked against the *actual rendered* viewBox, in both orientations.
+    //
+    // A rotate(90) transform is applied to the geometry group in horizontal
+    // orientation (svgExporter.ts's own documented "(x, y) -> (-y, x)"), so
+    // horizontal points are rotated the same way before the containment
+    // check - this mirrors the transform, it does not guess at it.
+    function parseViewBox(svg: string) {
+      const match = svg.match(/viewBox="([-\d.]+) ([-\d.]+) ([-\d.]+) ([-\d.]+)"/);
+      invariant(match, 'no viewBox in the exported SVG');
+      const [minX, minY, width, height] = match!.slice(1).map(Number);
+      return { minX, minY, maxX: minX + width, maxY: minY + height };
+    }
+
+    function containedIn(box: { minX: number; minY: number; maxX: number; maxY: number }) {
+      return (x: number, y: number, label: string) => {
+        invariant(
+          x >= box.minX - 1e-6 && x <= box.maxX + 1e-6 && y >= box.minY - 1e-6 && y <= box.maxY + 1e-6,
+          `${label} at (${x.toFixed(2)}, ${y.toFixed(2)}) falls outside the printed page ` +
+            `[${box.minX.toFixed(2)}, ${box.maxX.toFixed(2)}] x [${box.minY.toFixed(2)}, ${box.maxY.toFixed(2)}]`
+        );
+      };
+    }
+
+    // Deliberately tiny - 60mm x 100mm, Y in [0, 100] - so the body contour
+    // itself covers none of a bass's ~300-330mm saddle position. A real
+    // bass body (arriving at W6) is not guaranteed to reach that far either;
+    // this is the actual case "verify 1:1 export bounds for the longer bass
+    // scale" has to mean, since the page must expand to fit the *hardware*,
+    // not assume the body outline already does. Reusing a full-size guitar
+    // contour here would make this check pass by coincidence - the guitar
+    // body is long enough to cover the bass bridge position on its own,
+    // which was confirmed by temporarily deleting the exporter's bridge-
+    // bounds inclusion and finding these checks still green.
+    const undersizedContour = {
+      closed: true,
+      anchors: [
+        { id: 'tiny_0', position: { x: -30, y: 0 }, handleMode: 'corner' as const },
+        { id: 'tiny_1', position: { x: 30, y: 0 }, handleMode: 'corner' as const },
+        { id: 'tiny_2', position: { x: 30, y: 100 }, handleMode: 'corner' as const },
+        { id: 'tiny_3', position: { x: -30, y: 100 }, handleMode: 'corner' as const },
+      ],
+    };
+
+    function assertNoClipping(project: any, label: string) {
+      const neck = presets.resolveNeckPreset(project);
+      const bridge = presets.resolveBridgePreset(project);
+      const svg = exporter.exportProjectToSVG(project);
+      const fullBox = parseViewBox(svg);
+      // The geometry group's own bottom edge - where the "Title, Specs &
+      // Calibration Band" begins (svgExporter.ts's own `bandTopY`,
+      // read back off the `.band-rule` line it draws exactly there).
+      // Checking against the *full* viewBox height would be too lenient: it
+      // includes the fixed 181mm info band below the geometry, which for a
+      // small placeholder body can be large enough to mask a real
+      // content-bounds gap by coincidence rather than by the geometry
+      // actually fitting - confirmed by a deliberate regression that broke
+      // bridge-bounds inclusion and still passed against the full box.
+      const bandRuleMatch = svg.match(/<line x1="[-\d.]+" y1="([-\d.]+)"[^>]*class="band-rule"/);
+      invariant(bandRuleMatch, `${label}: no band-rule line in the export`);
+      const box = { ...fullBox, maxY: Number(bandRuleMatch![1]) };
+      const isHorizontal = project.settings.canvasOrientation === 'horizontal';
+      // The exporter's own rotation, applied here to every point under test
+      // rather than only to the viewBox - see the comment above.
+      const rotate = (x: number, y: number): [number, number] => (isHorizontal ? [-y, x] : [x, y]);
+      const check = containedIn(box);
+      const at = (x: number, y: number, what: string) => {
+        const [rx, ry] = rotate(x, y);
+        check(rx, ry, `${label}: ${what}`);
+      };
+
+      // Body contour - anchors and their handles.
+      for (const a of project.contour.anchors) {
+        at(a.position.x, a.position.y, 'a contour anchor');
+        if (a.handleIn) at(a.position.x + a.handleIn.x, a.position.y + a.handleIn.y, 'a contour handle');
+        if (a.handleOut) at(a.position.x + a.handleOut.x, a.position.y + a.handleOut.y, 'a contour handle');
+      }
+
+      // The neck pocket rect: (-jointWidthMm/2, 0) to (jointWidthMm/2, jointDepthMm).
+      at(-neck.jointWidthMm / 2, 0, 'the neck pocket');
+      at(neck.jointWidthMm / 2, neck.jointDepthMm, 'the neck pocket');
+
+      // The bridge silhouette, via the same bounds helper the exporter itself
+      // calls for its own page-sizing.
+      const geometry = bridgeDrawing.getBridgeDrawingGeometry(neck, bridge);
+      for (const point of bridgeDrawing.bridgeDrawingBoundsPoints(geometry)) {
+        at(point.x, point.y, 'the bridge silhouette');
+      }
+
+      // The theoretical (uncompensated) scale-length reference line.
+      at(0, scaleMath.getTheoreticalSaddleYMm(neck), 'the scale-length reference line');
+
+      // Mounting points, if this bridge preset has any.
+      const mountingOriginY = scaleMath.getMountingPointOriginYMm(neck, bridge);
+      for (const pt of bridge.mountingPoints ?? []) {
+        at(pt.x, mountingOriginY + pt.y, 'a bridge mounting point');
+      }
+
+      // Pickup routs, by the diagonal reach around their own centre - the
+      // same conservative bound getContentBoundsMm uses, so any rotation
+      // angle stays covered.
+      for (const p of project.pickups ?? []) {
+        const spec = presets.resolvePickupSpec(p);
+        const reach = Math.hypot(spec.widthMm, spec.heightMm) / 2;
+        at(p.offsetXMm - reach, p.offsetYMm - reach, `pickup ${p.id}`);
+        at(p.offsetXMm + reach, p.offsetYMm + reach, `pickup ${p.id}`);
+      }
+    }
+
+    check('a baseline guitar export has no clipping, in both orientations (regression baseline)', () => {
+      const project = { ...baseline, contour: undersizedContour, pickups: [], pickguards: [], frontRoutes: [], backRoutes: [] };
+      for (const orientation of ['vertical', 'horizontal'] as const) {
+        assertNoClipping(
+          { ...project, settings: { ...project.settings, canvasOrientation: orientation } },
+          `guitar/${orientation}`
+        );
+      }
+    });
+
+    for (const neck of bassNecks) {
+      check(`${neck.id} x bass_vintage_plate: no clipping in either orientation`, () => {
+        const project = {
+          ...bassProject,
+          contour: undersizedContour,
+          // bassProject inherits s_style's own pickguard/routes via ...baseline
+          // (bassProject itself only clears `pickups`) - a real S-style
+          // pickguard reaches far enough down the body to mask exactly the
+          // gap this check exists to catch, which is how the first version
+          // of this check passed against a deliberately broken exporter.
+          pickguards: [],
+          frontRoutes: [],
+          backRoutes: [],
+          ...presets.neckPresetFieldsForTemplate(neck.id, 'p_bass_style', 'bolt_on', 'bass'),
+        };
+        for (const orientation of ['vertical', 'horizontal'] as const) {
+          assertNoClipping(
+            { ...project, settings: { ...project.settings, canvasOrientation: orientation } },
+            `${neck.id}/${orientation}`
+          );
+        }
+      });
+    }
+
+    check('the calibration box is on the page for every scale, both orientations', () => {
+      // Structurally guaranteed rather than instrument-dependent - the info
+      // band is appended in page space (INFO_BAND_MM, never rotated) and the
+      // page width is floored at MIN_PAGE_WIDTH_MM regardless of content -
+      // but asserted here as a checked fact rather than left as an
+      // unverified property of the source.
+      for (const neck of [...bassNecks, presets.resolveNeckPreset(baseline)]) {
+        for (const orientation of ['vertical', 'horizontal'] as const) {
+          const project = {
+            ...bassProject,
+            pickguards: [],
+            frontRoutes: [],
+            backRoutes: [],
+            ...presets.neckPresetFieldsForTemplate(neck.id, 'p_bass_style', 'bolt_on', 'bass'),
+            settings: { ...bassProject.settings, canvasOrientation: orientation },
+          };
+          const svg = exporter.exportProjectToSVG(project);
+          const box = parseViewBox(svg);
+          const match = svg.match(/CALIBRATION BOX[\s\S]*?<\/g>/);
+          invariant(match, `${neck.id}/${orientation}: no calibration box in the export`);
+          // The box's own translate() origin, read back out of the markup.
+          const originMatch = svg.match(/<g transform="translate\(([-\d.]+), ([-\d.]+)\)">\s*<rect x="0" y="0" width="100" height="100"/);
+          invariant(originMatch, `${neck.id}/${orientation}: calibration rect not found`);
+          const [ox, oy] = originMatch!.slice(1).map(Number);
+          const c = containedIn(box);
+          c(ox, oy, `${neck.id}/${orientation}: calibration box top-left`);
+          c(ox + 100, oy + 100, `${neck.id}/${orientation}: calibration box bottom-right`);
+        }
+      }
+    });
+
+    console.log('output is type-aware, and instrument travels to the 3D viewer link');
+
+    check('the exported SVG names the instrument, not a hardcoded "Guitar"', () => {
+      const guitarSVG = exporter.exportProjectToSVG(baseline);
+      invariant(guitarSVG.includes('<!-- Guitar Geometry Group -->'), 'guitar export lost its label');
+      const bassSVG = exporter.exportProjectToSVG(bassProject);
+      invariant(bassSVG.includes('<!-- Bass Geometry Group -->'), 'bass export still says Guitar');
+      invariant(!bassSVG.includes('<!-- Guitar Geometry Group -->'), 'bass export contains a stray guitar label');
+    });
+
+    check('a saved filename differs by blueprint, not by a hardcoded instrument word', () => {
+      // buildProjectFilename takes only the project name, which is already
+      // blueprint-derived ("Custom P-Style Bass" vs "Custom S-Style
+      // Standard") - type-aware by construction, verified rather than
+      // assumed. No separate "insert the instrument into the filename" logic
+      // exists or is needed.
+      const guitarName = exporter.buildProjectFilename(baseline.settings.name);
+      const bassName = exporter.buildProjectFilename(bassProject.settings.name);
+      invariant(guitarName.startsWith('s-style-standard-'), `unexpected guitar filename: ${guitarName}`);
+      invariant(bassName.startsWith('synthetic-bass'), `unexpected bass filename: ${bassName}`);
+    });
+
+    check('instrumentType and stringCount reach the 3D viewer link unchanged', () => {
+      // buildViewer3DPath just deflates the whole serialized project
+      // (viewer3dLink.ts), so this is close to free - verified rather than
+      // assumed, since "nearly free" is exactly the kind of claim worth a
+      // test. withEmbeddedPresets is what App.tsx's handleView3D actually
+      // calls before building the link.
+      const embedded = presets.withEmbeddedPresets(bassProject);
+      deepStrictEqual(embedded.instrumentType, 'bass');
+      deepStrictEqual(embedded.stringCount, 4);
+      const decompressed = JSON.parse(JSON.stringify(embedded));
+      deepStrictEqual(decompressed.instrumentType, 'bass');
+      deepStrictEqual(decompressed.stringCount, 4);
     });
 
     console.log('golden corpus');

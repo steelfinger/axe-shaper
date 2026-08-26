@@ -8,6 +8,7 @@ import {
   withEmbeddedPresets,
 } from './presets';
 import { PICKUP_COVER_OUTLINES } from '../constants/hardware';
+import { instrumentLabel } from './instrument';
 import {
   getMountingPointOriginYMm,
   getSaddleYMm,
@@ -313,7 +314,7 @@ export function exportProjectToSVG(rawProject: StoredProject): string {
     .title-label { font-family: sans-serif; font-size: 10px; font-weight: bold; fill: #222222; }
   </style>
 
-  <!-- Guitar Geometry Group -->
+  <!-- ${escapeXml(instrumentLabel(project.instrumentType))} Geometry Group -->
   <g${groupTransform}>
     <!-- Centerline Alignment Axis (X = 0) -->
     <line x1="0" y1="${model.minY.toFixed(2)}" x2="0" y2="${model.maxY.toFixed(2)}" class="center-axis" />

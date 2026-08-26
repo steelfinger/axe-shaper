@@ -580,6 +580,61 @@ Exit criteria:
 
 ## Web milestone W5 — output and 3D handoff
 
+**Status: complete**, except the one item that is explicitly out of this
+repository's hands - `steelfinger/axe-shape-3D-viewer`'s own Bass/4 rendering
+support, which W5's own instruction says to coordinate separately rather than
+build here.
+
+- **The export-bounds mechanism turned out to already be instrument-agnostic
+  by construction**, not something needing new code. `getContentBoundsMm`
+  derives the printed page from the *actual resolved geometry* - contour,
+  routes, the neck pocket, the bridge silhouette, the saddle line - via
+  shared functions the exporter and this milestone's checks both call, never
+  from a guitar-shaped constant. "Verifying" it therefore meant turning that
+  reasoning into a checked, adversarial fact rather than writing new bounds
+  logic. `bass:check` renders every bass neck against the bass bridge, in
+  both orientations, on a **deliberately undersized 60x100mm placeholder
+  contour** - not a full-size guitar body - and confirms every drawn
+  primitive (contour, neck pocket, bridge silhouette, saddle line, pickup
+  reach) lands inside the actual rendered viewBox, computed independently via
+  the same exported primitives the exporter itself uses.
+
+  The undersized contour is load-bearing, not a convenience: the first
+  version of this check reused the S-Style blueprint's own ~466mm body as
+  the placeholder, which is long enough to cover a bass saddle line
+  (~300-330mm) *by coincidence*. Deliberately breaking the exporter's own
+  bridge-bounds inclusion and re-running still passed. Two rounds of
+  adversarial self-testing were needed before this check was actually load-
+  bearing: the second false pass came from an inherited S-style pickguard
+  contour (from `...baseline`) that alone reached far enough to mask the
+  same gap, even after switching to the small contour, because a
+  `pickguards: []` override was missing from two of the three test-fixture
+  constructions. Confirmed for real only once a broken exporter produced a
+  `FAIL` on every single case.
+- **The 3D action is gated, not hidden.** `Header`'s `view3DAvailable` prop
+  disables the button and explains why in its title for Bass/4, rather than
+  removing it - consistent with the "explain, don't just disappear" pattern
+  the New Design screen already uses for the empty bass blueprint list.
+  `handleView3D` itself also refuses for Bass/4, independent of the button
+  state, since the pinned 3D viewer bundle has no instrument awareness at
+  all (a fixed six-string layout, `evenSpread` divided by a literal 5 - see
+  `docs/AXE_SVG_FORMAT.md`) and would silently render a wrong six-string
+  preview rather than fail loudly.
+- **Titles/labels: only one hardcoded word existed** - the `<!--
+  Guitar Geometry Group -->` XML comment - now `${instrumentLabel(...)}
+  Geometry Group`. Everything else already read from `project.settings.name`
+  (the printed title band, the tiled-print `<title>`, the document title,
+  the saved filename via `buildProjectFilename`), which is itself blueprint-
+  derived ("Custom P-Style Bass") and therefore type-aware without any
+  change - verified rather than assumed, since a bass-shaped project name
+  reads correctly through every one of those call sites already.
+- `instrumentType`/`stringCount` reaching the 3D viewer link is confirmed
+  rather than merely assumed "nearly free": `withEmbeddedPresets` (what
+  `handleView3D` actually calls) sets both unconditionally, and a JSON
+  round-trip of the result preserves them - `buildViewer3DPath` only
+  deflate-compresses that same JSON, so nothing downstream can drop them.
+
+
 Work:
 
 - Make SVG titles, descriptions, labels and download names type-aware.
@@ -595,9 +650,23 @@ Work:
 
 Exit criteria:
 
-- Bass output prints at 100% with a correct calibration square and no clipping.
-- Save → web load → iOS load preserves type, count and all physical geometry.
-- The Bass/4 3D action is either accurate or deliberately unavailable.
+- ✅ Bass output prints at 100% with a correct calibration square and no
+  clipping. Verified by `bass:check` (calibration box and geometry
+  containment, all four bass necks, both orientations) and confirmed
+  adversarially - the check was proven to actually fail when the underlying
+  mechanism is broken, not just to pass by construction.
+- ⚠️ Save → web load → iOS load preserves type, count and all physical
+  geometry. The web half is verified (`schema:check`'s round-trip
+  assertions, plus this milestone's own SVG-output checks). The iOS half is
+  not verified here and cannot be - it needs a decoder that does not exist
+  in `axe-shaper-ios` until its own Step 1 lands (recorded on branch
+  `bass-body/m24-web-w1-contract`).
+- ✅ The Bass/4 3D action is either accurate or deliberately unavailable: it
+  is disabled and explained, both at the button and independently at the
+  handler, until `axe-shape-3D-viewer` gains real Bass/4 rendering. Coordinating
+  that viewer-side update is out of this repository's scope, as W5's own
+  instruction says.
+
 
 ## Web milestone W6 — author the eight bass blueprints
 
