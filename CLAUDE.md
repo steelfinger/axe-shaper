@@ -14,10 +14,11 @@ npm run lint       # oxlint
 npm run corpus     # regenerate tests/golden/geometry-corpus.json
 npm run corpus:check  # fail if the committed corpus is stale
 npm run schema:check  # schema v3 contract: migration, round-trip, rejections
+npm run bass:check    # bass catalogue: pocket, selectors, pickups, corpus pairs
 npm run fixtures:check # iOS-written payloads decode, load and re-save intact
 ```
 
-`corpus:check`, `schema:check` and `fixtures:check` are not in CI (which only
+`corpus:check`, `schema:check`, `bass:check` and `fixtures:check` are not in CI (which only
 runs `build`, and therefore `bridge:check`). Run them by hand before
 committing anything that touches the file format, the hardware tables or the
 geometry utils.
@@ -74,6 +75,30 @@ question the project already answers.
 anything a second implementation reads. In particular `stringSpacingMm` /
 `nutStringSpacingMm` are a **total spread across all strings**, not a
 per-string pitch.
+
+## The bass catalogue
+
+Bass hardware lives in the same `NECK_PRESETS` / `BRIDGE_PRESETS` /
+`PICKUP_SPECIFICATIONS` tables as guitar hardware, with
+`NECK_PRESET_INSTRUMENT` and friends saying which is which. Two consequences:
+
+- **The pickers go through the selectors in `utils/presets.ts`**
+  (`offeredNeckPresets` / `offeredBridgePresets` / `offeredPickupTypes`),
+  never over the tables directly. Iterating a table is how a bass project
+  gets offered a guitar tremolo.
+- `GENERIC_POCKET_SPEC` is keyed **instrument first, then mechanism**. A
+  four-string bass heel is 63.5mm against the guitar's 55.56mm; before the
+  instrument axis existed every bass project routed a guitar pocket. Pass the
+  project's own `instrumentType` to `neckPresetFieldsForTemplate`.
+
+Bass necks have no legacy/curated split - the guitar side has one only
+because its nine per-body necks predate the four scale-length ones.
+
+The measurements are sourced, not eyeballed; each entry's comment says what
+from. Where a number is derived (a pickup rout taken as the pickup plus
+clearance) or approximated, the comment says that too, and the approximation
+is listed in `docs/BASS_BODY_DESIGN_MILESTONES.md` for the blueprint evidence
+packet to settle.
 
 ## Regenerating the golden corpus is guarded
 

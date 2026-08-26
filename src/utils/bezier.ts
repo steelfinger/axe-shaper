@@ -224,13 +224,18 @@ export function anchorsToSVGPath(anchors: PathAnchor[], closed: boolean = true):
  * presets.ts and pickupEditing.ts).
  */
 export function scaleAnchors(anchors: PathAnchor[], scaleX: number, scaleY: number): PathAnchor[] {
-  const scaleVec = (v?: Vector2D): Vector2D | undefined =>
-    v ? { x: v.x * scaleX, y: v.y * scaleY } : undefined;
+  const scaleVec = (v: Vector2D): Vector2D => ({ x: v.x * scaleX, y: v.y * scaleY });
+  // A missing handle stays *missing*, rather than becoming a key holding
+  // `undefined`. The two are the same shape to read - both mean "straight" -
+  // but only one of them survives a save: JSON.stringify drops an undefined
+  // value, so a resized rout was not deep-equal to its own reloaded copy,
+  // which is exactly the "a save is lossless" equality
+  // scripts/check-ios-fixtures.ts pins for everything else.
   return anchors.map((a) => ({
     ...a,
     position: { x: a.position.x * scaleX, y: a.position.y * scaleY },
-    handleIn: scaleVec(a.handleIn),
-    handleOut: scaleVec(a.handleOut),
+    ...(a.handleIn ? { handleIn: scaleVec(a.handleIn) } : {}),
+    ...(a.handleOut ? { handleOut: scaleVec(a.handleOut) } : {}),
   }));
 }
 

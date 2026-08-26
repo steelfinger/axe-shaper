@@ -147,6 +147,17 @@ export interface BridgePreset {
   heightMm?: LengthMm;
 }
 
+/**
+ * Every rout this build can cut. Bass types are prefixed `bass_` and were
+ * added at schema version 3 - see `PICKUP_TYPE_INSTRUMENT` in
+ * `constants/hardware.ts` for which instrument each belongs to.
+ *
+ * A type exists only where the *rout* is genuinely different, not to give a
+ * familiar pickup a familiar name: a bass humbucker gets its own entry
+ * because its cavity is 103.7 x 50.5mm and a guitar humbucker's is
+ * 87.1 x 40.2mm, while a hypothetical "bass P90" would not, because nothing
+ * about the hole would change.
+ */
 export type PickupType =
   | 'humbucker'
   | 'mini_humbucker'
@@ -155,7 +166,11 @@ export type PickupType =
   | 'p90_soapbar'
   | 'p90_dogear'
   | 'tele_neck'
-  | 'tele_bridge';
+  | 'tele_bridge'
+  | 'bass_split_coil'
+  | 'bass_j_single_coil'
+  | 'bass_humbucker'
+  | 'bass_soapbar';
 
 /** The real shape actually routed for a pickup - a traced cavity outline (mounting ears and all, where the real pickup has them), not a plain rectangle. */
 export interface PickupRoutSpec {

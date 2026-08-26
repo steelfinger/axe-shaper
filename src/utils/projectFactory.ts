@@ -112,7 +112,7 @@ export function createProject(options: CreateProjectOptions = {}): GuitarProject
       closed: true,
     },
     edgeProfile: template.edgeProfile ? structuredClone(template.edgeProfile) : undefined,
-    ...neckPresetFieldsForNewTemplate(template.neckPresetId, templateId),
+    ...neckPresetFieldsForNewTemplate(template.neckPresetId, templateId, template.instrumentType),
     neckJointMechanism: defaultNeckJointMechanism(templateId),
     ...bridgePresetFields(template.bridgePresetId),
     pickups: structuredClone(template.defaultPickups),

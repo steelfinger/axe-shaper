@@ -256,6 +256,104 @@ export const NECK_PRESETS: Record<string, NeckPreset> = {
     pocketCornerRadiusMm: 12.7,
     style: 'baritone',
   },
+
+  // --- Four-string bass necks ------------------------------------------------
+  //
+  // Scale-length-only entries, like CURATED_NECK_PRESETS is for guitar - one
+  // per scale in the bass catalogue (docs/BASS_BODY_DESIGN_MILESTONES.md),
+  // not one per body. They live here rather than in a separate table because
+  // `scripts/generate-golden-corpus.ts` iterates this dictionary and the bass
+  // scale/compensation matrix has to be part of the contract; the
+  // compatibility filter there stops them pairing with guitar bridges.
+  //
+  // Shared, sourced measurements:
+  //
+  // - Scale lengths are exact inch conversions (30", 30.5", 33.25", 34").
+  // - `nutToBodyEdgeMm` is the **fret-17 distance** for that scale. Fender
+  //   puts a bass neck's body joint at the 17th fret and uses it as the
+  //   reference point in its own setup instructions, the same way the guitar
+  //   entries above use fret 16. As with CURATED_NECK_PRESETS, this stored
+  //   value only reaches the drawing for a custom/unrecognised body -
+  //   `neckPresetFieldsForTemplate` recomputes it from the body's own
+  //   `FINGERBOARD_OVERHANG_MM` for anything bundled.
+  // - `nutToJointMm` is the last fret's distance plus 5mm of fingerboard
+  //   overhang. Sidebar display only; `scaleMath.ts` warns against using it
+  //   for saddle Y.
+  // - The pocket fields carry the real Fender bass pocket, 2-1/2" x 3-7/8"
+  //   (63.5 x 98.425mm) - not the guitar's 2-3/16" x 3". See
+  //   GENERIC_POCKET_SPEC below, which is what actually resolves.
+  // - `nutStringSpacingMm` is the **total spread**, outer string to outer
+  //   string: 3 intervals at the published ~10mm centre-to-centre spacing of
+  //   a 38.2mm four-string nut = 30mm. Not the per-string pitch - see
+  //   docs/AXE_SVG_FORMAT.md, which pins that definition for both platforms.
+  bass_long_34: {
+    id: 'bass_long_34',
+    name: 'Bass Long Scale (34" Scale, 20 Frets)',
+    scaleLengthMm: 863.6,     // 34 inches - P/J, StingRay, Thunderbird, Streamer
+    nutToBodyEdgeMm: 540.1155, // fret 17
+    nutToJointMm: 596.583,    // fret 20 + 5mm overhang
+    frets: 20,
+    jointWidthMm: 63.5,
+    jointDepthMm: 98.425,
+    jointCornerRadiusMm: 6.35,
+    pocketWidthMm: 63.5,
+    pocketDepthMm: 98.425,
+    pocketCornerRadiusMm: 6.35,
+    nutStringSpacingMm: 30.0,
+    style: 'fender_style',
+  },
+  bass_medium_33_25: {
+    id: 'bass_medium_33_25',
+    name: 'Bass Medium Scale (33.25" Scale, 20 Frets)',
+    scaleLengthMm: 844.55,    // 33.25 inches - R-Style
+    nutToBodyEdgeMm: 528.2012, // fret 17
+    nutToJointMm: 583.5334,   // fret 20 + 5mm overhang
+    frets: 20,
+    jointWidthMm: 63.5,
+    jointDepthMm: 98.425,
+    jointCornerRadiusMm: 6.35,
+    pocketWidthMm: 63.5,
+    pocketDepthMm: 98.425,
+    pocketCornerRadiusMm: 6.35,
+    nutStringSpacingMm: 30.0,
+    // Not a construction claim - `style` is a cosmetic family label nothing
+    // in this build reads, and the R-Style archetype is neck-through, which
+    // `NeckJointMechanism` models as `glued` (see
+    // DEFAULT_NECK_JOINT_MECHANISM).
+    style: 'gibson_style',
+  },
+  bass_short_30_5: {
+    id: 'bass_short_30_5',
+    name: 'Bass Short Scale (30.5" Scale, 20 Frets)',
+    scaleLengthMm: 774.7,     // 30.5 inches - SG-Style / EB-3
+    nutToBodyEdgeMm: 484.5154, // fret 17
+    nutToJointMm: 535.6848,   // fret 20 + 5mm overhang
+    frets: 20,
+    jointWidthMm: 63.5,
+    jointDepthMm: 98.425,
+    jointCornerRadiusMm: 6.35,
+    pocketWidthMm: 63.5,
+    pocketDepthMm: 98.425,
+    pocketCornerRadiusMm: 6.35,
+    nutStringSpacingMm: 30.0,
+    style: 'gibson_style',
+  },
+  bass_short_30: {
+    id: 'bass_short_30',
+    name: 'Bass Short Scale (30" Scale, 19 Frets)',
+    scaleLengthMm: 762,       // 30 inches - Mustang-Style
+    nutToBodyEdgeMm: 476.5725, // fret 17
+    nutToJointMm: 512.713,    // fret 19 + 5mm overhang (a Mustang Bass has 19)
+    frets: 19,
+    jointWidthMm: 63.5,
+    jointDepthMm: 98.425,
+    jointCornerRadiusMm: 6.35,
+    pocketWidthMm: 63.5,
+    pocketDepthMm: 98.425,
+    pocketCornerRadiusMm: 6.35,
+    nutStringSpacingMm: 30.0,
+    style: 'fender_style',
+  },
 };
 
 /**
@@ -400,10 +498,18 @@ export const FINGERBOARD_OVERHANG_MM: Record<string, LengthMm> = {
  * mechanism instead, applied by `utils/presets.ts`'s
  * `neckPresetFieldsForTemplate` regardless of which neck/body is involved.
  *
- * `bolt_on`'s numbers aren't invented - they're exactly what
+ * Keyed by instrument first, then mechanism. The instrument axis is not
+ * cosmetic: the table used to be mechanism-only and explicitly "independent
+ * of which neck or body it's attached to", with `bolt_on` carrying the real
+ * Fender *guitar* pocket at 55.56mm. A four-string bass heel is 63.5mm, so
+ * every bass project would have silently routed a pocket 8mm too narrow.
+ * Mirrors axe-shaper-ios's `PresetCatalogue.genericPocketSpec(for:)`, which
+ * gains the same axis.
+ *
+ * `guitar.bolt_on`'s numbers aren't invented - they're exactly what
  * `fender_scale`/`jaguar_scale`/`baritone_scale` above already agreed on
  * (55.56mm x 76.2mm, 6.35mm corners, the real standard Fender pocket).
- * `glued`'s width/radius (38.1mm/6.35mm) are the same universal agreement
+ * `guitar.glued`'s width/radius (38.1mm/6.35mm) are the same universal agreement
  * across every Gibson-style entry in `NECK_PRESETS`; its depth (101.6mm)
  * takes the deepest of the 5 Gibson-style bodies (67-101.6mm) as the
  * conservative generic default - too deep never stops a neck from seating,
@@ -411,11 +517,32 @@ export const FINGERBOARD_OVERHANG_MM: Record<string, LengthMm> = {
  * already uses for the same number.
  */
 export const GENERIC_POCKET_SPEC: Record<
-  NeckJointMechanism,
-  Pick<NeckPreset, 'jointWidthMm' | 'jointDepthMm' | 'jointCornerRadiusMm'>
+  InstrumentType,
+  Record<NeckJointMechanism, Pick<NeckPreset, 'jointWidthMm' | 'jointDepthMm' | 'jointCornerRadiusMm'>>
 > = {
-  bolt_on: { jointWidthMm: 55.56, jointDepthMm: 76.2, jointCornerRadiusMm: 6.35 },
-  glued: { jointWidthMm: 38.1, jointDepthMm: 101.6, jointCornerRadiusMm: 6.35 },
+  guitar: {
+    bolt_on: { jointWidthMm: 55.56, jointDepthMm: 76.2, jointCornerRadiusMm: 6.35 },
+    glued: { jointWidthMm: 38.1, jointDepthMm: 101.6, jointCornerRadiusMm: 6.35 },
+  },
+  bass: {
+    // The real Fender four-string bass pocket: 2-1/2" wide x 3-7/8" long,
+    // the dimension every Fender-spec replacement neck and routing template
+    // is built to. Both numbers are larger than the guitar's, and the width
+    // is the one that matters: without this axis a bass project routed a
+    // 55.56mm guitar pocket for a 63.5mm bass heel.
+    bolt_on: { jointWidthMm: 63.5, jointDepthMm: 98.425, jointCornerRadiusMm: 6.35 },
+    // Deliberately the same as bolt_on, and deliberately *not* the guitar's
+    // glued mortise. No measured set-neck bass tenon was available when this
+    // landed, and the two bass blueprints this build maps to `glued` -
+    // R-Style and Thunderbird - are really neck-through, where the mortise
+    // is notional anyway. Falling back to the guitar's 38.1mm would rout a
+    // mortise 25mm too narrow for a bass heel, which is the failure this
+    // whole axis exists to prevent; repeating the measured bass pocket is
+    // the conservative answer until a bass blueprint's own evidence packet
+    // supplies a real one (milestone W6). SG-Style, a genuine set-neck bass,
+    // is the entry that will need it first.
+    glued: { jointWidthMm: 63.5, jointDepthMm: 98.425, jointCornerRadiusMm: 6.35 },
+  },
 };
 
 /**
@@ -441,6 +568,30 @@ export const DEFAULT_NECK_JOINT_MECHANISM: Record<string, NeckJointMechanism> = 
   gretsch_thunderbird: 'glued',
   gibson_flying_v: 'glued',
   jag_style: 'bolt_on',
+
+  // The eight bass blueprints, decided here rather than left to the
+  // `?? FALLBACK_NECK_JOINT_MECHANISM` default - an omitted entry silently
+  // yields bolt-on, which would be wrong for four of these. The ids are the
+  // shared contract column from docs/BASS_BODY_DESIGN_MILESTONES.md and must
+  // stay in step with iOS; the bodies themselves arrive at milestone W6.
+  //
+  // R-Style and Thunderbird are neck-through in reality. `glued` is the
+  // closer of the two buckets this enum offers, not a claim they are built
+  // like an SG - exactly the modelling choice already made for the Firebird
+  // and the Gretsch Thunderbird above. A third neck-through mechanism is
+  // explicitly deferred.
+  p_bass_style: 'bolt_on',
+  j_bass_style: 'bolt_on',
+  mm_bass_style: 'bolt_on',
+  r_bass_style: 'glued',
+  thunderbird_bass_style: 'glued',
+  mustang_bass_style: 'bolt_on',
+  sg_bass_style: 'glued',
+  // Warwick built the Streamer both ways - neck-through on the Stage
+  // models, bolt-on on the Standard/LX. The bolt-on is the far more common
+  // one and the one this blueprint is drawn from; W6's evidence packet
+  // records which instrument the body was measured against.
+  streamer_bass_style: 'bolt_on',
 };
 
 /**
@@ -482,6 +633,14 @@ export const NECK_PRESET_INSTRUMENT: Record<string, InstrumentType> = {
   fender_scale: 'guitar',
   gibson_scale: 'guitar',
   jaguar_scale: 'guitar',
+  // The 4 bass necks. Unlike the guitar side there is no legacy/curated
+  // split: these were authored as scale-length-only necks from the start, so
+  // the same four entries are both what the picker offers and what the
+  // corpus pairs.
+  bass_long_34: 'bass',
+  bass_medium_33_25: 'bass',
+  bass_short_30_5: 'bass',
+  bass_short_30: 'bass',
 };
 
 export const BRIDGE_PRESET_INSTRUMENT: Record<string, InstrumentType> = {
@@ -489,6 +648,7 @@ export const BRIDGE_PRESET_INSTRUMENT: Record<string, InstrumentType> = {
   tremolo_strat: 'guitar',
   tune_o_matic: 'guitar',
   tele_bridge_plate: 'guitar',
+  bass_vintage_plate: 'bass',
 };
 
 export const PICKUP_TYPE_INSTRUMENT: Record<PickupType, InstrumentType> = {
@@ -500,6 +660,10 @@ export const PICKUP_TYPE_INSTRUMENT: Record<PickupType, InstrumentType> = {
   p90_dogear: 'guitar',
   tele_neck: 'guitar',
   tele_bridge: 'guitar',
+  bass_split_coil: 'bass',
+  bass_j_single_coil: 'bass',
+  bass_humbucker: 'bass',
+  bass_soapbar: 'bass',
 };
 
 export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
@@ -629,6 +793,42 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
     widthMm: 79.90847906788953,
     lengthMm: 92.0,
   },
+
+  // --- Four-string bass ------------------------------------------------------
+  bass_vintage_plate: {
+    id: 'bass_vintage_plate',
+    name: 'Bass Vintage Plate (4-String)',
+    scaleReference: 'saddle_line',
+    // A 34" bass intonates out to roughly 34-1/8" on the G and 34-3/8" on
+    // the E - i.e. the saddles sit ~3.2mm and ~9.5mm behind the theoretical
+    // line. Much larger than a guitar's 1.5-2.0/4.5-5.0mm because the
+    // strings are far heavier and stretch further when fretted. Unlike the
+    // Tune-O-Matic's 37.5mm, all of this is real per-string compensation -
+    // there is no structural post-to-saddle offset in a plate bridge.
+    compensationMm: {
+      treble: 3.2,
+      bass: 9.5,
+    },
+    // Plate footprint from the Fender-spec four-string retrofit envelope,
+    // 3.19" x 2.09" - a direct replacement for vintage and standard Fender
+    // top-load bass bridges, so its outline is the Fender footprint.
+    widthMm: 81.03,
+    lengthMm: 53.09,
+    // Half the plate length: no independently measured front-edge-to-saddle
+    // offset was available, so the plate is centred on the saddle line -
+    // the same convention tune_o_matic's own `7` on a 14mm plate uses.
+    saddleOffsetYMm: 26.5,
+    // TOTAL SPREAD across all four strings, not per-string pitch. The
+    // Fender-standard .750" per string is published as "2-1/4" (57mm) for
+    // the outer strings" - the same number read both ways, which is exactly
+    // the ambiguity docs/AXE_SVG_FORMAT.md exists to close.
+    stringSpacingMm: 57.15,
+    heightMm: 12.0,
+    // No mountingPoints: the five-screw pattern is bridge-model-specific
+    // detail this app doesn't model accurately, and nothing in the scale or
+    // saddle math reads it. Omitted rather than guessed - same call as
+    // tremolo_strat above.
+  },
 };
 
 /**
@@ -643,6 +843,55 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
  * presets.ts), so editing a shape here does not change the rout on existing
  * designs.
  */
+/**
+ * A rounded-rectangle rout outline, centred on (0,0) and sized to
+ * `widthMm` x `heightMm`, as this app's own anchors.
+ *
+ * The guitar routs above/below are traced from real routing templates, ears
+ * and all, and are literal data for that reason. The four-string bass routs
+ * are simple rounded rectangles - which is what a J, a Music Man and a
+ * soapbar cavity actually are - so generating them beats transcribing 32
+ * hand-written control points, and it keeps the corner radius honest instead
+ * of eyeballed per shape.
+ *
+ * Eight anchors: two per corner, with the straight edges between them left
+ * handle-free (an absent handle *is* a straight segment) and a quarter-circle
+ * Bezier at each corner. Deterministic, so the golden corpus is stable.
+ */
+const CIRCLE_KAPPA = 0.5522847498307936;
+
+function roundedRectAnchors(
+  idPrefix: string,
+  widthMm: LengthMm,
+  heightMm: LengthMm,
+  radiusMm: LengthMm
+): PickupRoutSpec['anchors'] {
+  const x = widthMm / 2;
+  const y = heightMm / 2;
+  const r = Math.min(radiusMm, x, y);
+  const k = r * CIRCLE_KAPPA;
+  const round = (v: number) => Number(v.toFixed(3));
+  const at = (px: number, py: number) => ({ x: round(px), y: round(py) });
+
+  // Clockwise from the top edge; Y grows downward.
+  const corners: Array<{ position: { x: number; y: number }; handleIn?: { x: number; y: number }; handleOut?: { x: number; y: number } }> = [
+    { position: at(-x + r, -y), handleIn: at(-k, 0) },
+    { position: at(x - r, -y), handleOut: at(k, 0) },
+    { position: at(x, -y + r), handleIn: at(0, -k) },
+    { position: at(x, y - r), handleOut: at(0, k) },
+    { position: at(x - r, y), handleIn: at(k, 0) },
+    { position: at(-x + r, y), handleOut: at(-k, 0) },
+    { position: at(-x, y - r), handleIn: at(0, k) },
+    { position: at(-x, -y + r), handleOut: at(0, -k) },
+  ];
+
+  return corners.map((corner, index) => ({
+    id: `${idPrefix}_a${index}`,
+    ...corner,
+    handleMode: 'corner' as const,
+  }));
+}
+
 export const PICKUP_SPECIFICATIONS: Record<
   PickupType,
   PickupRoutSpec & { name: string; defaultAngleDegrees?: number }
@@ -817,6 +1066,59 @@ export const PICKUP_SPECIFICATIONS: Record<
       { id: 'tele_bridge_a13', position: { x: 0.049, y: -20.001 }, handleIn: { x: 9.099, y: 3.099 }, handleOut: { x: -0.114, y: -0.029 }, handleMode: 'corner' },
       { id: 'tele_bridge_a14', position: { x: -0.296, y: -20.034 }, handleIn: { x: 0.117, y: -0.004 }, handleMode: 'corner' },
     ],
+  },
+
+  // --- Four-string bass ------------------------------------------------------
+  //
+  // Every dimension below is a *cavity* measurement where one was published,
+  // and a pickup measurement plus 2.0mm total clearance (1mm a side) where
+  // only the pickup was - each entry says which. Outlines are rounded
+  // rectangles at a 3.175mm corner radius, the radius a 1/4" router bit
+  // leaves; the traced, ear-accurate outlines arrive with the bass
+  // blueprints at milestone W6, the same way the guitar shapes did.
+  bass_split_coil: {
+    name: 'Split Coil (P-Style)',
+    // ONE COIL HALF, which is the unit that actually gets routed - a P-style
+    // body carries two of these, the D/G half nearer the bridge than the
+    // E/A half. Modelling the pair as a single rout is not possible here
+    // (a PickupRoutSpec is one closed contour) and would not be right
+    // either: they are two separate cavities in the wood, and a stepped
+    // outline enclosing both would tell a router to remove material that
+    // should stay. The W6 P-Style blueprint ships both placements.
+    //
+    // Cavity core from a P-Bass routing template: 2.28" x 1.15". The same
+    // template carries mounting tabs out to 2.7" (68.58mm); those are not in
+    // this outline yet, deliberately - under-routing is the recoverable
+    // direction, and the tab profile needs the traced template W6 supplies.
+    widthMm: 57.91,
+    heightMm: 29.21,
+    anchors: roundedRectAnchors('bass_split_coil', 57.91, 29.21, 3.175),
+  },
+  bass_j_single_coil: {
+    name: 'J-Style Single Coil (Bass)',
+    // Neck-position pickup 3.60" x 0.76" (91.4 x 19.3mm) + 2.0mm clearance.
+    // A J bridge pickup is ~2.7mm longer; because a PickupPlacement carries
+    // its own widthMm/heightMm, the bridge one is the same type resized
+    // rather than a second entry for what is the same rout shape.
+    widthMm: 93.4,
+    heightMm: 21.3,
+    anchors: roundedRectAnchors('bass_j_single_coil', 93.4, 21.3, 3.175),
+  },
+  bass_humbucker: {
+    name: 'Bass Humbucker (MM-Style)',
+    // Published routing-template cavity, 103.7 x 50.5mm, for a 101.7 x
+    // 48.5mm pickup - a measured cavity, not a derived one.
+    widthMm: 103.7,
+    heightMm: 50.5,
+    anchors: roundedRectAnchors('bass_humbucker', 103.7, 50.5, 3.175),
+  },
+  bass_soapbar: {
+    name: 'Bass Soapbar (4-String)',
+    // The 3.5" (88.9mm) four-string soapbar housing, 1.5" (38.1mm) wide -
+    // the size that names the series - plus 2.0mm clearance.
+    widthMm: 90.9,
+    heightMm: 40.1,
+    anchors: roundedRectAnchors('bass_soapbar', 90.9, 40.1, 3.175),
   },
 };
 

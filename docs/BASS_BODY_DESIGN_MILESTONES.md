@@ -280,6 +280,60 @@ tolerant enum that preserves it.
 
 ## Web milestone W2 — bass hardware foundations
 
+**Status: complete.** Every measurement below is sourced; each catalogue
+entry's comment records what from. Sourced values used:
+
+| Measurement | Value | Source |
+| --- | --- | --- |
+| Scale lengths | 762 / 774.7 / 844.55 / 863.6 mm | exact inch conversions |
+| Bass neck pocket | 2-1/2" x 3-7/8" (63.5 x 98.425 mm) | Fender-spec pocket, as used by every replacement neck and routing template |
+| Body joint fret | 17 | Fender's own setup instructions use the 17th fret as "where the neck joins the body" |
+| Bridge string spacing | .750" per string = **2-1/4" (57.15 mm) outer-to-outer** | published both ways on the same product — the total-spread reading, confirmed |
+| Bridge plate footprint | 3.19" x 2.09" (81.03 x 53.09 mm) | Fender-spec four-string retrofit envelope |
+| Compensation | G +3.2 mm, E +9.5 mm | a 34" bass intonates to ~34-1/8" on the G, ~34-3/8" on the E |
+| Nut string spread | 30 mm | ~10 mm centre-to-centre on a 38.2 mm four-string nut, x 3 intervals |
+| P split-coil cavity | 57.91 x 29.21 mm core | P-Bass routing template ("Core: 2.28" x 1.15"") |
+| MM humbucker cavity | 103.7 x 50.5 mm | published routing-template cavity |
+| J pickup | 91.4 x 19.3 mm + 2 mm clearance | published pickup dimensions |
+| Soapbar | 88.9 x 38.1 mm + 2 mm clearance | the 3.5" four-string soapbar housing |
+
+Decisions and deliberate gaps, all recorded in the code:
+
+- **One bass bridge ships, not several.** `bass_vintage_plate` is the only
+  four-string bridge whose footprint, spacing and compensation could all be
+  sourced. A Gibson three-point and a high-mass variant were left out rather
+  than invented; each bass blueprint's own bridge is measured with the body
+  at W6, which is where a second entry belongs anyway.
+- **`bass_split_coil` is one coil half**, which is the unit that actually
+  gets routed — a P-style body carries two, staggered. A `PickupRoutSpec` is
+  one closed contour, so the pair cannot be a single spec, and a stepped
+  outline enclosing both would tell a router to remove material that should
+  stay.
+- **The split-coil mounting tabs (out to 68.58 mm) are not in the outline
+  yet.** Under-routing is the recoverable direction; the tab profile needs
+  the traced template W6 supplies. **This is the one approximation in W2** —
+  the P-Style blueprint's evidence packet must settle it.
+- **`GENERIC_POCKET_SPEC.bass.glued` repeats the bolt-on bass pocket.** No
+  measured set-neck bass tenon was available, and the two blueprints mapped
+  to `glued` (R-Style, Thunderbird) are really neck-through, where the
+  mortise is notional. Falling back to the guitar's 38.1 mm would rout a
+  mortise 25 mm too narrow for a bass heel — the exact failure the axis
+  exists to prevent. **SG-Style, a genuine set-neck bass, is the entry that
+  will need a real number first.**
+- Bass routs are rounded rectangles at a 3.175 mm corner radius (a 1/4"
+  bit), generated rather than transcribed. That is what a J, an MM and a
+  soapbar cavity actually are; the traced, ear-accurate outlines arrive with
+  the blueprints at W6, as the guitar shapes did.
+- Bass necks are in `NECK_PRESETS` (option 2, one set of tables) and have no
+  legacy/curated split — they were authored as scale-length-only entries, so
+  the same four serve both the picker and the corpus.
+
+Found and fixed in passing: `scaleAnchors` (`utils/bezier.ts`) wrote
+`handleIn`/`handleOut` keys holding `undefined` when the source anchor had
+none. `JSON.stringify` drops those, so any resized rout — guitar included —
+was not deep-equal to its own saved-and-reloaded copy. Caught by the new
+resize/reload assertion rather than by inspection.
+
 Work:
 
 - Add verified 30, 30.5, 33.25 and 34 inch bass neck presets. Keep all stored
@@ -311,16 +365,31 @@ Work:
   it here is deliberate rather than a way to make a red check go green.
 - Seed synthetic bass projects for tests; do not wait for traced bodies.
 
-Exit criteria:
+Exit criteria — all asserted by `npm run bass:check`:
 
-- The scale/compensation matrix covers every bass neck × bass bridge pairing.
-- Each bass pickup can be created, resized, saved, reloaded and deleted.
-- Every selector returns only entries compatible with the active type/count.
-- A bass project's neck pocket is a bass pocket, verified against the
-  blueprint's own measured pocket rather than against `bolt_on`'s guitar value.
-- Existing guitar corpus output is byte-for-byte or tolerance-identical where
-  the test contract requires it, asserted by test rather than by inspection of
-  the regenerated diff.
+- ✅ The scale/compensation matrix covers every bass neck × bass bridge
+  pairing (4 × 1 = 4 new corpus rows), and the corpus is asserted to contain
+  no cross-instrument pair in either direction.
+- ✅ Each bass pickup can be created, resized, saved, reloaded and deleted —
+  including that the resized *outline* matches the resized width, not just
+  the reported number.
+- ✅ Every selector returns only entries compatible with the active
+  type/count, checked in both directions for both instruments.
+- ⚠️ A bass project's neck pocket is a bass pocket: asserted as 63.5 ×
+  98.425 mm for every bass neck on both mechanisms, and asserted never to
+  equal the guitar value. Verification against *a blueprint's own measured
+  pocket* is not possible yet — no bass blueprint exists until W6 — so that
+  half of the criterion carries forward, with the `glued` gap above as the
+  specific open item.
+- ✅ Existing guitar corpus output is byte-for-byte identical, asserted by
+  test rather than inspection: the regeneration guard added at W1 refuses to
+  move any committed `scaleMathMatrix` row, and the diff is **518 insertions,
+  zero deletions**.
+
+Verified end to end in the browser as well: a synthetic Bass/4 plan loads
+through the real `?plan=` path, draws its 63.5 mm pocket, two staggered
+split-coil halves and the bass bridge with no console errors, and every
+picker offers bass-only hardware.
 
 ## Web milestone W3 — New Design screen
 

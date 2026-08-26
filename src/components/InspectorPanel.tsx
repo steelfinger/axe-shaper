@@ -19,6 +19,7 @@ import {
   settingPickupWidth,
   movingPickup,
 } from '../utils/pickupEditing';
+import { offeredPickupTypes } from '../utils/presets';
 import { withMirroredBevelIntensity } from '../utils/symmetry';
 import { formatLength } from '../utils/units';
 import { EdgeProfilePreview } from './EdgeProfilePreview';
@@ -456,7 +457,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
                 }
                 className="form-select"
               >
-                {(Object.keys(PICKUP_SPECIFICATIONS) as PickupType[]).map((type) => (
+                {offeredPickupTypes(project.instrumentType).map((type) => (
                   <option key={type} value={type}>
                     {PICKUP_SPECIFICATIONS[type].name}
                   </option>

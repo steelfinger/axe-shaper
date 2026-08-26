@@ -149,6 +149,70 @@
         "pocketDepthMm": 76.2,
         "pocketCornerRadiusMm": 12.7,
         "style": "baritone"
+      },
+      "bass_long_34": {
+        "id": "bass_long_34",
+        "name": "Bass Long Scale (34\" Scale, 20 Frets)",
+        "scaleLengthMm": 863.6,
+        "nutToBodyEdgeMm": 540.1155,
+        "nutToJointMm": 596.583,
+        "frets": 20,
+        "jointWidthMm": 63.5,
+        "jointDepthMm": 98.425,
+        "jointCornerRadiusMm": 6.35,
+        "pocketWidthMm": 63.5,
+        "pocketDepthMm": 98.425,
+        "pocketCornerRadiusMm": 6.35,
+        "nutStringSpacingMm": 30,
+        "style": "fender_style"
+      },
+      "bass_medium_33_25": {
+        "id": "bass_medium_33_25",
+        "name": "Bass Medium Scale (33.25\" Scale, 20 Frets)",
+        "scaleLengthMm": 844.55,
+        "nutToBodyEdgeMm": 528.2012,
+        "nutToJointMm": 583.5334,
+        "frets": 20,
+        "jointWidthMm": 63.5,
+        "jointDepthMm": 98.425,
+        "jointCornerRadiusMm": 6.35,
+        "pocketWidthMm": 63.5,
+        "pocketDepthMm": 98.425,
+        "pocketCornerRadiusMm": 6.35,
+        "nutStringSpacingMm": 30,
+        "style": "gibson_style"
+      },
+      "bass_short_30_5": {
+        "id": "bass_short_30_5",
+        "name": "Bass Short Scale (30.5\" Scale, 20 Frets)",
+        "scaleLengthMm": 774.7,
+        "nutToBodyEdgeMm": 484.5154,
+        "nutToJointMm": 535.6848,
+        "frets": 20,
+        "jointWidthMm": 63.5,
+        "jointDepthMm": 98.425,
+        "jointCornerRadiusMm": 6.35,
+        "pocketWidthMm": 63.5,
+        "pocketDepthMm": 98.425,
+        "pocketCornerRadiusMm": 6.35,
+        "nutStringSpacingMm": 30,
+        "style": "gibson_style"
+      },
+      "bass_short_30": {
+        "id": "bass_short_30",
+        "name": "Bass Short Scale (30\" Scale, 19 Frets)",
+        "scaleLengthMm": 762,
+        "nutToBodyEdgeMm": 476.5725,
+        "nutToJointMm": 512.713,
+        "frets": 19,
+        "jointWidthMm": 63.5,
+        "jointDepthMm": 98.425,
+        "jointCornerRadiusMm": 6.35,
+        "pocketWidthMm": 63.5,
+        "pocketDepthMm": 98.425,
+        "pocketCornerRadiusMm": 6.35,
+        "nutStringSpacingMm": 30,
+        "style": "fender_style"
       }
     },
     "bridgePresets": {
@@ -231,6 +295,20 @@
         "saddleOffsetYMm": 67.5,
         "widthMm": 79.90847906788953,
         "lengthMm": 92
+      },
+      "bass_vintage_plate": {
+        "id": "bass_vintage_plate",
+        "name": "Bass Vintage Plate (4-String)",
+        "scaleReference": "saddle_line",
+        "compensationMm": {
+          "treble": 3.2,
+          "bass": 9.5
+        },
+        "widthMm": 81.03,
+        "lengthMm": 53.09,
+        "saddleOffsetYMm": 26.5,
+        "stringSpacingMm": 57.15,
+        "heightMm": 12
       }
     },
     "pickupSpecifications": {
@@ -1650,6 +1728,418 @@
             "handleMode": "corner"
           }
         ]
+      },
+      "bass_split_coil": {
+        "name": "Split Coil (P-Style)",
+        "widthMm": 57.91,
+        "heightMm": 29.21,
+        "anchors": [
+          {
+            "id": "bass_split_coil_a0",
+            "position": {
+              "x": -25.78,
+              "y": -14.605
+            },
+            "handleIn": {
+              "x": -1.754,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a1",
+            "position": {
+              "x": 25.78,
+              "y": -14.605
+            },
+            "handleOut": {
+              "x": 1.754,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a2",
+            "position": {
+              "x": 28.955,
+              "y": -11.43
+            },
+            "handleIn": {
+              "x": 0,
+              "y": -1.754
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a3",
+            "position": {
+              "x": 28.955,
+              "y": 11.43
+            },
+            "handleOut": {
+              "x": 0,
+              "y": 1.754
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a4",
+            "position": {
+              "x": 25.78,
+              "y": 14.605
+            },
+            "handleIn": {
+              "x": 1.754,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a5",
+            "position": {
+              "x": -25.78,
+              "y": 14.605
+            },
+            "handleOut": {
+              "x": -1.754,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a6",
+            "position": {
+              "x": -28.955,
+              "y": 11.43
+            },
+            "handleIn": {
+              "x": 0,
+              "y": 1.754
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a7",
+            "position": {
+              "x": -28.955,
+              "y": -11.43
+            },
+            "handleOut": {
+              "x": 0,
+              "y": -1.754
+            },
+            "handleMode": "corner"
+          }
+        ]
+      },
+      "bass_j_single_coil": {
+        "name": "J-Style Single Coil (Bass)",
+        "widthMm": 93.4,
+        "heightMm": 21.3,
+        "anchors": [
+          {
+            "id": "bass_j_single_coil_a0",
+            "position": {
+              "x": -43.525,
+              "y": -10.65
+            },
+            "handleIn": {
+              "x": -1.754,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a1",
+            "position": {
+              "x": 43.525,
+              "y": -10.65
+            },
+            "handleOut": {
+              "x": 1.754,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a2",
+            "position": {
+              "x": 46.7,
+              "y": -7.475
+            },
+            "handleIn": {
+              "x": 0,
+              "y": -1.754
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a3",
+            "position": {
+              "x": 46.7,
+              "y": 7.475
+            },
+            "handleOut": {
+              "x": 0,
+              "y": 1.754
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a4",
+            "position": {
+              "x": 43.525,
+              "y": 10.65
+            },
+            "handleIn": {
+              "x": 1.754,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a5",
+            "position": {
+              "x": -43.525,
+              "y": 10.65
+            },
+            "handleOut": {
+              "x": -1.754,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a6",
+            "position": {
+              "x": -46.7,
+              "y": 7.475
+            },
+            "handleIn": {
+              "x": 0,
+              "y": 1.754
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a7",
+            "position": {
+              "x": -46.7,
+              "y": -7.475
+            },
+            "handleOut": {
+              "x": 0,
+              "y": -1.754
+            },
+            "handleMode": "corner"
+          }
+        ]
+      },
+      "bass_humbucker": {
+        "name": "Bass Humbucker (MM-Style)",
+        "widthMm": 103.7,
+        "heightMm": 50.5,
+        "anchors": [
+          {
+            "id": "bass_humbucker_a0",
+            "position": {
+              "x": -48.675,
+              "y": -25.25
+            },
+            "handleIn": {
+              "x": -1.754,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_humbucker_a1",
+            "position": {
+              "x": 48.675,
+              "y": -25.25
+            },
+            "handleOut": {
+              "x": 1.754,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_humbucker_a2",
+            "position": {
+              "x": 51.85,
+              "y": -22.075
+            },
+            "handleIn": {
+              "x": 0,
+              "y": -1.754
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_humbucker_a3",
+            "position": {
+              "x": 51.85,
+              "y": 22.075
+            },
+            "handleOut": {
+              "x": 0,
+              "y": 1.754
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_humbucker_a4",
+            "position": {
+              "x": 48.675,
+              "y": 25.25
+            },
+            "handleIn": {
+              "x": 1.754,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_humbucker_a5",
+            "position": {
+              "x": -48.675,
+              "y": 25.25
+            },
+            "handleOut": {
+              "x": -1.754,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_humbucker_a6",
+            "position": {
+              "x": -51.85,
+              "y": 22.075
+            },
+            "handleIn": {
+              "x": 0,
+              "y": 1.754
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_humbucker_a7",
+            "position": {
+              "x": -51.85,
+              "y": -22.075
+            },
+            "handleOut": {
+              "x": 0,
+              "y": -1.754
+            },
+            "handleMode": "corner"
+          }
+        ]
+      },
+      "bass_soapbar": {
+        "name": "Bass Soapbar (4-String)",
+        "widthMm": 90.9,
+        "heightMm": 40.1,
+        "anchors": [
+          {
+            "id": "bass_soapbar_a0",
+            "position": {
+              "x": -42.275,
+              "y": -20.05
+            },
+            "handleIn": {
+              "x": -1.754,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_soapbar_a1",
+            "position": {
+              "x": 42.275,
+              "y": -20.05
+            },
+            "handleOut": {
+              "x": 1.754,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_soapbar_a2",
+            "position": {
+              "x": 45.45,
+              "y": -16.875
+            },
+            "handleIn": {
+              "x": 0,
+              "y": -1.754
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_soapbar_a3",
+            "position": {
+              "x": 45.45,
+              "y": 16.875
+            },
+            "handleOut": {
+              "x": 0,
+              "y": 1.754
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_soapbar_a4",
+            "position": {
+              "x": 42.275,
+              "y": 20.05
+            },
+            "handleIn": {
+              "x": 1.754,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_soapbar_a5",
+            "position": {
+              "x": -42.275,
+              "y": 20.05
+            },
+            "handleOut": {
+              "x": -1.754,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_soapbar_a6",
+            "position": {
+              "x": -45.45,
+              "y": 16.875
+            },
+            "handleIn": {
+              "x": 0,
+              "y": 1.754
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_soapbar_a7",
+            "position": {
+              "x": -45.45,
+              "y": -16.875
+            },
+            "handleOut": {
+              "x": 0,
+              "y": -1.754
+            },
+            "handleMode": "corner"
+          }
+        ]
       }
     }
   },
@@ -2061,6 +2551,34 @@
       "theoreticalSaddleYMm": 270,
       "saddleYMm": 272.5,
       "bridgePlateTopYMm": 202.5
+    },
+    {
+      "neckPresetId": "bass_long_34",
+      "bridgePresetId": "bass_vintage_plate",
+      "theoreticalSaddleYMm": 323.4845,
+      "saddleYMm": 326.6845,
+      "bridgePlateTopYMm": 296.9845
+    },
+    {
+      "neckPresetId": "bass_medium_33_25",
+      "bridgePresetId": "bass_vintage_plate",
+      "theoreticalSaddleYMm": 316.3488,
+      "saddleYMm": 319.5488,
+      "bridgePlateTopYMm": 289.8488
+    },
+    {
+      "neckPresetId": "bass_short_30_5",
+      "bridgePresetId": "bass_vintage_plate",
+      "theoreticalSaddleYMm": 290.1846,
+      "saddleYMm": 293.3846,
+      "bridgePlateTopYMm": 263.6846
+    },
+    {
+      "neckPresetId": "bass_short_30",
+      "bridgePresetId": "bass_vintage_plate",
+      "theoreticalSaddleYMm": 285.4275,
+      "saddleYMm": 288.6275,
+      "bridgePlateTopYMm": 258.9275
     }
   ],
   "cases": [

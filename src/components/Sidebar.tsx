@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, ChevronDown, ChevronRight, Bookmark, Plus, Zap, Scissors, Info } from 'lucide-react';
-import { BRIDGE_PRESETS, CURATED_NECK_PRESETS, NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
+import { NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import {
   DEFAULT_EDGE_PROFILES,
@@ -26,6 +26,9 @@ import type {
 import {
   bridgePresetFields,
   neckPresetFieldsForTemplate,
+  offeredBridgePresets,
+  offeredNeckPresets,
+  offeredPickupTypes,
   resolveBridgePreset,
   resolveNeckPreset,
   resolvedNeckJointMechanism,
@@ -300,7 +303,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
     neckId: string,
     mechanism: NeckJointMechanism
   ): GuitarProject => {
-    const neckFields = neckPresetFieldsForTemplate(neckId, prev.activeTemplateId, mechanism);
+    const neckFields = neckPresetFieldsForTemplate(
+      neckId,
+      prev.activeTemplateId,
+      mechanism,
+      prev.instrumentType
+    );
     const halfWidth = neckFields.neckPreset.jointWidthMm / 2;
     const updatedAnchors = prev.contour.anchors.map((a) => {
       if (a.semanticRole === 'neck_pocket_left') {
@@ -924,7 +932,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }
                   className="form-select"
                 >
-                  {Object.values(CURATED_NECK_PRESETS).map((n) => (
+                  {offeredNeckPresets(project.instrumentType).map((n) => (
                     <option key={n.id} value={n.id}>
                       {n.name}
                     </option>
@@ -933,12 +941,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       (every bundled blueprint does) - show its real name as an
                       extra, already-selected row instead of a foreign/unknown
                       value, exactly like axe-shaper-ios's own picker. Picking
-                      one of the 4 curated rows above replaces it. */}
-                  {NECK_PRESETS[neckPresetId] && (
-                    <option key={neckPresetId} value={neckPresetId}>
-                      {NECK_PRESETS[neckPresetId].name}
-                    </option>
-                  )}
+                      one of the offered rows above replaces it. Guarded on the
+                      id not already being offered, since a bass project's own
+                      necks come from NECK_PRESETS and would otherwise appear
+                      twice. */}
+                  {NECK_PRESETS[neckPresetId] &&
+                    !offeredNeckPresets(project.instrumentType).some((n) => n.id === neckPresetId) && (
+                      <option key={neckPresetId} value={neckPresetId}>
+                        {NECK_PRESETS[neckPresetId].name}
+                      </option>
+                    )}
                 </select>
               </div>
 
@@ -978,7 +990,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }
                   className="form-select"
                 >
-                  {Object.values(BRIDGE_PRESETS).map((b) => (
+                  {offeredBridgePresets(project.instrumentType).map((b) => (
                     <option key={b.id} value={b.id}>
                       {b.name}
                     </option>
@@ -1010,7 +1022,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   title="Add a pickup"
                 >
                   <option value="">+ Add Pickup&hellip;</option>
-                  {(Object.keys(PICKUP_SPECIFICATIONS) as PickupType[]).map((type) => (
+                  {offeredPickupTypes(project.instrumentType).map((type) => (
                     <option key={type} value={type}>
                       {PICKUP_SPECIFICATIONS[type].name}
                     </option>

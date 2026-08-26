@@ -11,13 +11,24 @@ import { PROJECT_SCHEMA_VERSION, isSupportedSchemaVersion } from '../constants/s
 import type {
   BridgePreset,
   GuitarProject,
+  InstrumentType,
   NeckJointMechanism,
   NeckPreset,
   PickupPlacement,
   PickupRoutSpec,
+  PickupType,
   StoredProject,
 } from '../types/guitar';
-import { isInstrumentType, isSupportedInstrument, resolveInstrument } from './instrument';
+import {
+  LEGACY_INSTRUMENT_TYPE,
+  bridgePresetInstrument,
+  defaultStringCount,
+  isInstrumentType,
+  isSupportedInstrument,
+  neckPresetInstrument,
+  pickupTypeInstrument,
+  resolveInstrument,
+} from './instrument';
 import { getFretDistanceFromNutMm } from './scaleMath';
 
 /**
@@ -43,7 +54,7 @@ import { getFretDistanceFromNutMm } from './scaleMath';
 
 export const DEFAULT_NECK_PRESET_ID = 'fender_strat_21';
 export const DEFAULT_BRIDGE_PRESET_ID = 'tremolo_strat';
-export const DEFAULT_PICKUP_TYPE = 'single_coil';
+export const DEFAULT_PICKUP_TYPE: PickupType = 'single_coil';
 export const FALLBACK_NECK_JOINT_MECHANISM: NeckJointMechanism = 'bolt_on';
 
 type NeckRef = Pick<GuitarProject, 'neckPresetId' | 'neckPreset'>;
@@ -113,23 +124,39 @@ export function neckPresetFields(id: string): Required<NeckRef> {
  *   of this correction.
  * - The pocket shape (`jointWidthMm`/`jointDepthMm`/`jointCornerRadiusMm`,
  *   and their `pocket*` iOS-writer-named duplicates) always comes from
- *   `GENERIC_POCKET_SPEC[mechanism]`, never from the chosen preset's own
- *   stored pocket fields - pocket shape is mechanism-owned, not neck-owned
- *   (see `GENERIC_POCKET_SPEC`'s own comment for why), applied
- *   unconditionally because `mechanism` always has a concrete value by the
- *   time it reaches this function (the caller resolves it, typically via
- *   `resolvedNeckJointMechanism`).
+ *   `GENERIC_POCKET_SPEC[instrumentType][mechanism]`, never from the chosen
+ *   preset's own stored pocket fields - pocket shape is instrument- and
+ *   mechanism-owned, not neck-owned (see `GENERIC_POCKET_SPEC`'s own comment
+ *   for why), applied unconditionally because both always have a concrete
+ *   value by the time they reach this function (the caller resolves them,
+ *   typically via `resolvedNeckJointMechanism` and the project's own
+ *   `instrumentType`).
+ *
+ *   `instrumentType` is the axis added for bass. Without it a bass project
+ *   routed the 55.56mm Fender *guitar* pocket for a 63.5mm bass heel - the
+ *   table used to be keyed by mechanism alone and described itself as
+ *   independent of which neck was attached, which was true only while every
+ *   neck was a guitar neck.
+ *
+ * The fingerboard-overhang reference fret stays **22 for every instrument**,
+ * bass included. A four-string bass has 19-21 frets, so its "22nd fret" is a
+ * point past the end of the fingerboard - still a well-defined geometric
+ * convention, and correct only while both this app and axe-shaper-ios use the
+ * same number. Correcting it to a bass's real fret count on one side would
+ * slide the whole body along the neck and take the bridge and pickups with
+ * it (docs/AXE_SVG_FORMAT.md).
  */
 export function neckPresetFieldsForTemplate(
   id: string,
   activeTemplateId: string,
-  mechanism: NeckJointMechanism
+  mechanism: NeckJointMechanism,
+  instrumentType: InstrumentType
 ): Required<NeckRef> {
   const base = NECK_PRESETS[id] ?? CURATED_NECK_PRESETS[id] ?? NECK_PRESETS[DEFAULT_NECK_PRESET_ID];
   const overhang = FINGERBOARD_OVERHANG_MM[activeTemplateId];
   const nutToBodyEdgeMm =
     overhang === undefined ? base.nutToBodyEdgeMm : getFretDistanceFromNutMm(22, base.scaleLengthMm) - overhang;
-  const pocket = GENERIC_POCKET_SPEC[mechanism];
+  const pocket = GENERIC_POCKET_SPEC[instrumentType][mechanism];
   return {
     neckPresetId: id,
     neckPreset: {
@@ -146,6 +173,82 @@ export function neckPresetFieldsForTemplate(
 }
 
 /**
+ * What the pickers may offer for a given instrument.
+ *
+ * Pure functions over the catalogue, kept together because they answer one
+ * question - "what can this project legally use?" - and because getting any
+ * of them wrong has the same consequence: guitar hardware substituted into a
+ * bass project, which resolves, draws, saves and prints without complaining
+ * and is wrong by tens of millimetres.
+ *
+ * None of these take part in resolving a *file's* geometry. An id these
+ * tables have never heard of still opens and still draws from its embedded
+ * copy; it simply is not offered as a choice. That separation is the whole
+ * reason compatibility lives in side-tables rather than on the presets.
+ */
+
+/**
+ * The necks offered for `instrumentType`, in catalogue order.
+ *
+ * Asymmetric between the two instruments, for a historical reason worth
+ * stating: guitar has nine legacy per-body necks in `NECK_PRESETS` that
+ * remain *resolvable* (every bundled blueprint names one) but are no longer
+ * *offered*, so its picker shows the four `CURATED_NECK_PRESETS` instead.
+ * The bass necks were authored as scale-length-only entries from the start,
+ * so there is no legacy half to hide and the same four entries serve both
+ * jobs.
+ */
+export function offeredNeckPresets(instrumentType: InstrumentType): NeckPreset[] {
+  if (instrumentType === 'guitar') return Object.values(CURATED_NECK_PRESETS);
+  return Object.values(NECK_PRESETS).filter((neck) => neckPresetInstrument(neck.id) === instrumentType);
+}
+
+/** The bridges offered for `instrumentType`, in catalogue order. */
+export function offeredBridgePresets(instrumentType: InstrumentType): BridgePreset[] {
+  return Object.values(BRIDGE_PRESETS).filter((bridge) => bridgePresetInstrument(bridge.id) === instrumentType);
+}
+
+/** The pickup types offered for `instrumentType`, in catalogue order. */
+export function offeredPickupTypes(instrumentType: InstrumentType): PickupType[] {
+  return (Object.keys(PICKUP_SPECIFICATIONS) as PickupType[]).filter(
+    (type) => pickupTypeInstrument(type) === instrumentType
+  );
+}
+
+/**
+ * Whether a template - a bundled blueprint or a user-saved one - can be
+ * applied to a project of this instrument. Switching blueprint replaces the
+ * contour and the hardware, so crossing instruments is a new design, not an
+ * edit (milestone W4).
+ */
+export function isTemplateCompatible(
+  template: { instrumentType?: InstrumentType; stringCount?: number },
+  project: Pick<GuitarProject, 'instrumentType' | 'stringCount'>
+): boolean {
+  const instrumentType = template.instrumentType ?? LEGACY_INSTRUMENT_TYPE;
+  const stringCount = template.stringCount ?? defaultStringCount(instrumentType);
+  return instrumentType === project.instrumentType && stringCount === project.stringCount;
+}
+
+/**
+ * The default hardware a new project of this instrument starts on: the first
+ * offered entry, falling back to the guitar defaults for an instrument with
+ * an empty catalogue (which cannot happen today, and would be a catalogue
+ * bug rather than a document problem if it did).
+ */
+export function defaultNeckPresetId(instrumentType: InstrumentType): string {
+  return offeredNeckPresets(instrumentType)[0]?.id ?? DEFAULT_NECK_PRESET_ID;
+}
+
+export function defaultBridgePresetId(instrumentType: InstrumentType): string {
+  return offeredBridgePresets(instrumentType)[0]?.id ?? DEFAULT_BRIDGE_PRESET_ID;
+}
+
+export function defaultPickupType(instrumentType: InstrumentType): PickupType {
+  return offeredPickupTypes(instrumentType)[0] ?? DEFAULT_PICKUP_TYPE;
+}
+
+/**
  * The curated neck sharing a scale length with an arbitrary preset id -
  * every one of the 9 legacy `NECK_PRESETS` shares its exact `scaleLengthMm`
  * with exactly one of the 4 `CURATED_NECK_PRESETS` by construction (that
@@ -154,10 +257,10 @@ export function neckPresetFieldsForTemplate(
  * nothing matches (a genuinely custom scale length) - the caller then keeps
  * showing that id as-is, same as an already-open file naming a legacy id.
  */
-function curatedNeckIdMatchingScaleLength(id: string): string {
+function curatedNeckIdMatchingScaleLength(id: string, instrumentType: InstrumentType): string {
   const preset = NECK_PRESETS[id] ?? CURATED_NECK_PRESETS[id];
   if (!preset) return id;
-  const match = Object.values(CURATED_NECK_PRESETS).find((n) => n.scaleLengthMm === preset.scaleLengthMm);
+  const match = offeredNeckPresets(instrumentType).find((n) => n.scaleLengthMm === preset.scaleLengthMm);
   return match?.id ?? id;
 }
 
@@ -177,11 +280,16 @@ function curatedNeckIdMatchingScaleLength(id: string): string {
  * store as the project's own `neckJointMechanism` (see
  * `defaultNeckJointMechanism`).
  */
-export function neckPresetFieldsForNewTemplate(nativeNeckId: string, activeTemplateId: string): Required<NeckRef> {
+export function neckPresetFieldsForNewTemplate(
+  nativeNeckId: string,
+  activeTemplateId: string,
+  instrumentType: InstrumentType
+): Required<NeckRef> {
   return neckPresetFieldsForTemplate(
-    curatedNeckIdMatchingScaleLength(nativeNeckId),
+    curatedNeckIdMatchingScaleLength(nativeNeckId, instrumentType),
     activeTemplateId,
-    defaultNeckJointMechanism(activeTemplateId)
+    defaultNeckJointMechanism(activeTemplateId),
+    instrumentType
   );
 }
 
@@ -219,6 +327,13 @@ export function bridgePresetFields(id: string): Required<BridgeRef> {
  *
  * Defensive against missing fields despite the types: decoded JSON is not
  * checked at runtime, and a rout is a hole cut in a finished body.
+ *
+ * The `DEFAULT_PICKUP_TYPE` fallback here stays a *guitar* single coil, and
+ * deliberately does not gain an instrument axis the way `addingPickup` did.
+ * It is only reachable for a placement with no embedded anchors *and* a type
+ * this build has never heard of - which means a file predating the anchors
+ * field, and every one of those is Guitar/6, because that is all the schema
+ * versions without an instrument axis could describe.
  */
 export function resolvePickupSpec(placement: PickupPlacement): PickupRoutSpec {
   const defaults = PICKUP_SPECIFICATIONS[placement.type] ?? PICKUP_SPECIFICATIONS[DEFAULT_PICKUP_TYPE];

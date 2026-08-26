@@ -269,7 +269,7 @@ function EditorApp(): React.JSX.Element {
       // Remaps the template's own legacy neckPresetId to its curated
       // equivalent (see neckPresetFieldsForNewTemplate) so the Neck picker
       // lands on one of the 4 offered choices, not a foreign 5th row.
-      ...neckPresetFieldsForNewTemplate(template.neckPresetId, templateId),
+      ...neckPresetFieldsForNewTemplate(template.neckPresetId, templateId, prev.instrumentType),
       neckJointMechanism: defaultNeckJointMechanism(templateId),
       ...bridgePresetFields(template.bridgePresetId),
       contour: {

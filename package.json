@@ -19,6 +19,7 @@
     "marketing:plan": "node scripts/build-marketing-plan.ts",
     "fixtures:check": "node scripts/check-ios-fixtures.ts",
     "schema:check": "node scripts/check-schema-migration.ts",
+    "bass:check": "node scripts/check-bass-hardware.ts",
     "preview": "vite preview"
   },
   "dependencies": {

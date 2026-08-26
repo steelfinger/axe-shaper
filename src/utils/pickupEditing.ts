@@ -1,7 +1,8 @@
 import { PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import type { GuitarProject, PickupPlacement, PickupType, Vector2D } from '../types/guitar';
 import { scaleAnchors } from './bezier';
-import { DEFAULT_PICKUP_TYPE, resolvePickupSpec } from './presets';
+import { defaultPickupType, resolvePickupSpec } from './presets';
+import { pickupTypeInstrument } from './instrument';
 
 /**
  * Pickup editing as pure functions on `GuitarProject`, the same shape as
@@ -12,6 +13,30 @@ import { DEFAULT_PICKUP_TYPE, resolvePickupSpec } from './presets';
  * (only Y is honoured), and drag-to-rotate snaps to a fixed step
  * unconditionally - numeric entry does not snap.
  */
+
+
+/**
+ * The catalogue rout to seed a new or retyped pickup with, for a project of
+ * this instrument.
+ *
+ * Both call sites used to fall back to `PICKUP_SPECIFICATIONS[
+ * DEFAULT_PICKUP_TYPE]`, which is a *guitar* single coil - so an
+ * unrecognised type in a bass project quietly routed a 86 x 26mm guitar
+ * cavity. A type belonging to the other instrument is redirected the same
+ * way rather than honoured: the pickers are filtered, so getting here with
+ * one means something upstream is wrong, and the wrong answer is a hole in
+ * the wrong place on a plan meant to be printed 1:1 and cut.
+ *
+ * This is only about *creating* a rout. Reading one back from a file still
+ * goes through `resolvePickupSpec`, where the placement's own embedded
+ * anchors win over any catalogue lookup at all.
+ */
+function seedSpecFor(project: Pick<GuitarProject, 'instrumentType'>, type: PickupType) {
+  const compatible =
+    PICKUP_SPECIFICATIONS[type] !== undefined && pickupTypeInstrument(type) === project.instrumentType;
+  const resolvedType = compatible ? type : defaultPickupType(project.instrumentType);
+  return { type: resolvedType, spec: PICKUP_SPECIFICATIONS[resolvedType] };
+}
 
 export const PICKUP_ROTATION_SNAP_DEGREES = 5;
 
@@ -27,11 +52,11 @@ const DEFAULT_POSITION: Vector2D = { x: 0, y: 150 };
 
 /** Adds a pickup seeded from `type`'s catalogue dimensions. Returns the edited project and the new pickup's id, so the caller can select it immediately. */
 export function addingPickup(project: GuitarProject, type: PickupType): { project: GuitarProject; id: string } {
-  const spec = PICKUP_SPECIFICATIONS[type] ?? PICKUP_SPECIFICATIONS[DEFAULT_PICKUP_TYPE];
+  const { type: seededType, spec } = seedSpecFor(project, type);
   const id = generatePickupId();
   const pickup: PickupPlacement = {
     id,
-    type,
+    type: seededType,
     offsetXMm: DEFAULT_POSITION.x,
     offsetYMm: DEFAULT_POSITION.y,
     angleDegrees: spec.defaultAngleDegrees ?? 0,
@@ -135,10 +160,10 @@ export function settingPickupHeight(project: GuitarProject, id: string, heightMm
  * type, not a lock.
  */
 export function settingPickupType(project: GuitarProject, id: string, type: PickupType): GuitarProject {
-  const spec = PICKUP_SPECIFICATIONS[type] ?? PICKUP_SPECIFICATIONS[DEFAULT_PICKUP_TYPE];
+  const { type: seededType, spec } = seedSpecFor(project, type);
   return updatingPickup(project, id, (p) => ({
     ...p,
-    type,
+    type: seededType,
     widthMm: spec.widthMm,
     heightMm: spec.heightMm,
     anchors: structuredClone(spec.anchors),
