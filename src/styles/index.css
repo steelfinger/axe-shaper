@@ -2728,3 +2728,299 @@ html.marketing-document {
     display: none;
   }
 }
+
+/* ==========================================================================
+   New Design screen
+   The startup decision surface. Every selectable thing here is a real radio
+   input inside a <label>, so arrow keys, Space and the roving tab stop are
+   the platform's rather than ours; the input itself is visually hidden and
+   the label carries the appearance. Gold marks the chosen one and nothing
+   else, per the design system's Gold Is Truth rule.
+   ========================================================================== */
+
+.new-design-screen {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.new-design-header {
+  display: flex;
+  align-items: center;
+  padding: 14px 24px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.new-design-body {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.new-design-intro h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.new-design-intro p {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.design-instrument-group,
+.design-template-group {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0; /* a fieldset defaults to min-content, which blocks grid shrink */
+}
+
+.design-instrument-group legend,
+.design-template-group legend {
+  padding: 0 0 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.design-instrument-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.design-instrument-option input,
+.design-card input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.design-instrument-option {
+  cursor: pointer;
+}
+
+.design-instrument-face {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 22px;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.design-instrument-name {
+  font-weight: 600;
+}
+
+.design-instrument-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.design-instrument-option:hover .design-instrument-face {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.design-instrument-option input:checked + .design-instrument-face {
+  border-color: var(--accent-gold);
+  background: rgba(209, 165, 61, 0.12);
+}
+
+.design-instrument-option input:focus-visible + .design-instrument-face,
+.design-card input:focus-visible + .design-card-preview {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 3px;
+}
+
+/* `display: grid` outranks the `hidden` attribute's own `display: none`, so
+   the collapsed Extra group would render anyway. Kept as an attribute
+   selector rather than a class because `hidden` is also what tells assistive
+   technology the group is collapsed. */
+.design-card-grid[hidden] {
+  display: none;
+}
+
+.design-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.design-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.design-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.design-card.is-selected {
+  border-color: var(--accent-gold);
+  background: rgba(209, 165, 61, 0.12);
+}
+
+.design-card-preview {
+  width: 100%;
+  height: 132px;
+  display: block;
+}
+
+.design-card-preview path {
+  fill: rgba(255, 255, 255, 0.04);
+  stroke: var(--text-primary);
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+
+.design-card.is-selected .design-card-preview path {
+  stroke: var(--accent-gold);
+}
+
+.design-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.design-card-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.design-card-category,
+.design-card-facts {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.design-card-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+/* Mono-Means-Measured: the scale length is a physical readout. */
+.design-card-measure {
+  font-family: var(--font-mono);
+}
+
+.design-extra {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.design-extra-toggle {
+  align-self: flex-start;
+}
+
+.design-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+}
+
+.design-summary-text {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.design-summary-text strong {
+  color: var(--text-primary);
+}
+
+.design-submit {
+  flex: 0 0 auto;
+}
+
+.design-empty,
+.design-loading {
+  margin: 0;
+  padding: 22px;
+  border: 1px dashed var(--panel-border);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.design-loading {
+  max-width: 1040px;
+  margin: 40px auto;
+}
+
+.design-open-existing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.design-primer {
+  border-top: 1px solid var(--panel-border);
+  padding-top: 26px;
+}
+
+.design-primer h2 {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 16px;
+}
+
+@media (max-width: 640px) {
+  .new-design-body {
+    padding: 26px 16px 48px;
+    gap: 26px;
+  }
+
+  .design-card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .design-card-preview {
+    height: 108px;
+  }
+
+  .design-submit {
+    width: 100%;
+    justify-content: center;
+  }
+}

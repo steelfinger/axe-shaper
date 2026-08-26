@@ -144,10 +144,34 @@ also makes it a regression test here: it fails if curve evaluation, scale math
 or symmetry output changes. Regenerate deliberately, never to make the check
 pass. See `tests/golden/README.md`.
 
+## The app shell decides before the editor exists
+
+`EditorRoute` (`src/App.tsx`) shows either `NewDesignScreen` or `EditorApp`,
+never both, and `EditorApp` takes a plain `GuitarProject` - there is no
+`GuitarProject | null` threaded through the editor because no project exists
+until one is chosen. That is also why choosing Bass cannot flash a guitar
+project: `createProject` runs on submit, not on selection.
+
+`EditorApp` is keyed by a session id, so New Design gets a fresh editor.
+Undo history, selections and the guide image belong to the document that was
+open, and none of them survive into the next one.
+
+Unsaved-change tracking is its own `isDirty` flag, not `canUndo`: undoing to
+the start still leaves a redo stack, and saving does not clear history.
+
+Controls on the New Design screen are real `<input type="radio">` elements
+inside `<label>`s. Arrow-key movement, Space, and the single roving tab stop
+come from the platform - a `div` with an `onClick` would have to reimplement
+all three.
+
 ## Opening a plan from a link
 
 `/app?plan=/marketing/foo.axe.svg` fetches that file and loads it as the
-project, which is how the public page's "Open it in the editor" works.
+project, which is how the public page's "Open it in the editor" works. The
+deep link bypasses the New Design screen entirely - `EditorRoute` starts in a
+`loading` state when the parameter is present, so a link never flashes the
+chooser on its way to the drawing someone was sent. A plan that fails to load
+falls back to the chooser, not to a default project nobody asked for.
 
 Two things are load-bearing in `planParamFromLocation` / its effect in
 `src/App.tsx`:
@@ -155,11 +179,10 @@ Two things are load-bearing in `planParamFromLocation` / its effect in
 - The value must be a **same-origin absolute path**. It is fetched and loaded
   as project data, so accepting `https://...` or protocol-relative `//host/...`
   would let a crafted link drop arbitrary content into someone's editor.
-- The plan is applied with `setProject`, not `handleUpdateProject`, so it is
-  the baseline document rather than an undoable edit sitting on top of a
-  default nobody asked for. The parameter is then stripped with
-  `history.replaceState`, because otherwise a reload re-applies the plan and
-  silently discards whatever the user has drawn since.
+- The plan becomes the shell's chosen project rather than an undoable edit on
+  top of something else, so undo is empty when it opens. The parameter is then
+  stripped with `history.replaceState`, because otherwise a reload re-applies
+  the plan and silently discards whatever the user has drawn since.
 
 ## Where the real logic lives
 

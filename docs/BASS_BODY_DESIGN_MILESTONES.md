@@ -393,6 +393,43 @@ picker offers bass-only hardware.
 
 ## Web milestone W3 — New Design screen
 
+**Status: complete.** `src/components/NewDesignScreen.tsx` is the startup
+surface; `EditorRoute` in `src/App.tsx` is the shell that decides between it
+and the editor.
+
+Notes on how it was built:
+
+- **No project exists until Open editor is pressed.** The screen holds a
+  template *id*, and `createProject` runs once, on submit. That is what makes
+  "choosing Bass cannot briefly render or initialise the S-style project"
+  structurally true rather than a timing accident - there is nothing to
+  initialise until the choice is made.
+- **Every control is a real radio input** inside a `<label>`, visually hidden
+  by the standard 1px/absolute recipe. Arrow-key movement within a group,
+  Space to select, and the single roving tab stop are the platform's; a `div`
+  with an `onClick` would have to reimplement each of them and would get the
+  roving tab stop wrong.
+- **`EditorApp` is keyed by session id**, so a new design gets a new editor -
+  undo history, selections and the guide image all belong to the document
+  that was open. This is also W4's "undo/redo never crosses a New Design
+  boundary" criterion, satisfied early and for free.
+- **Unsaved-change tracking is its own flag**, not `canUndo`. Undoing back to
+  the start still leaves a redo stack, and saving does not clear history, so
+  `canUndo` would have prompted on documents with nothing to lose.
+- **Bass shows an honest empty state**, because no bass blueprints are
+  bundled until W6. The instrument is real end to end - hardware, pocket,
+  routs, file format - and only the traced bodies are outstanding, so the
+  screen says that rather than showing an unexplained blank grid. There is no
+  Open editor button for an instrument with no blueprints. **This is the one
+  thing to review before any public build**: the Bass option is visible and
+  selectable while it cannot yet produce a design.
+- The `WelcomeModal` is no longer a first-run gate. It survives as contextual
+  help in the editor's Help menu, and its "Start with S-Style" action is gone
+  - that action only ever existed because the S-Style project had already been
+  built behind it. Its three-step primer is repeated below the choices on the
+  New Design screen.
+
+
 Replace `WelcomeModal` as the startup decision surface with one “New Design”
 screen:
 
@@ -415,12 +452,33 @@ Behavior:
 - First-run educational copy moves below the choices or into contextual help;
   it must not compete with the creation decision.
 
-Exit criteria:
+Exit criteria - verified in the browser (this repository has no component
+test runner, and adding one was out of scope for this milestone):
 
-- A keyboard-only user can choose type/template and open the editor.
-- Reload/new/open/deep-link paths each land on the intended surface.
-- Choosing Bass cannot briefly render or initialize the S-style project.
-- Desktop and narrow layouts remain usable without horizontal overflow.
+- ✅ A keyboard-only user can choose type/template and open the editor.
+  Verified by driving the real controls: ArrowRight moved Guitar to Bass and
+  updated the grid, ArrowLeft returned, three ArrowRights moved the blueprint
+  selection to T-Style, and Tab reached **Open editor**, which opened
+  "Custom T-Style Standard". The final activation was clicked rather than
+  keyed only because the automation harness sends Return with an empty
+  `event.key`; the control is a `<button type="submit">` inside the form,
+  which is what gives Enter its behaviour.
+- ✅ Reload/new/open/deep-link paths each land on the intended surface.
+  Reload of `/app` lands on the chooser. `?plan=` goes straight to the editor,
+  never flashing the chooser, with the URL stripped and undo disabled (the
+  plan is the baseline document, not an edit). A `?plan=` that 404s falls back
+  to the chooser with an explanation, **not** to a default project nobody
+  asked for. Header **New...** returns to the chooser, with the confirmation
+  only when the document is dirty; declining keeps the document.
+- ✅ Choosing Bass cannot briefly render or initialize the S-style project:
+  selecting Bass yields 0 cards, the empty state, and no submit control.
+- ✅ Desktop and narrow layouts remain usable without horizontal overflow: at
+  375px `documentElement.scrollWidth` equals the viewport and no element's
+  right edge exceeds it.
+
+Also confirmed while here: undo/redo do not cross a New Design boundary (both
+disabled in a reopened document whose predecessor had history), and the
+marketing route is unaffected by the shell change.
 
 ## Web milestone W4 — isolated editor mode
 

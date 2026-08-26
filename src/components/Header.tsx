@@ -1,5 +1,5 @@
 import React from 'react';
-import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, Box, CircleHelp, Info, Menu, Printer } from 'lucide-react';
+import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, Box, CircleHelp, Info, Menu, Printer, FilePlus2 } from 'lucide-react';
 import type { PrintPaper } from '../utils/tiledPrint';
 import type { GuitarProject } from '../types/guitar';
 import { snapGridToUnit } from '../utils/units';
@@ -13,6 +13,9 @@ interface HeaderProps {
   onUndo: () => void;
   onRedo: () => void;
   onResetTemplate: () => void;
+  /** Back to the New Design screen. Distinct from Reset, which reloads the
+   *  current blueprint's baseline into the document that is already open. */
+  onNewDesign: () => void;
   onSave: () => void;
   onShare: () => void;
   onView3D: () => void;
@@ -31,6 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
   onUndo,
   onRedo,
   onResetTemplate,
+  onNewDesign,
   onSave,
   onShare,
   onView3D,
@@ -133,6 +137,10 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
         <button className="btn btn-sm" onClick={onRedo} disabled={!canRedo} title="Redo (Ctrl+Y)">
           <Redo2 size={15} />
+        </button>
+
+        <button className="btn btn-sm header-secondary-action" onClick={onNewDesign} title="Start a new design">
+          <FilePlus2 size={15} /> New&hellip;
         </button>
 
         <button className="btn btn-sm header-secondary-action" onClick={onResetTemplate} title="Reset to baseline blueprint">
@@ -255,6 +263,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
               </div>
             </div>
+            <button onClick={onNewDesign}><FilePlus2 size={15} /> New design&hellip;</button>
             <button onClick={onResetTemplate}><RotateCcw size={15} /> Reset blueprint</button>
             <button onClick={() => fileInputRef.current?.click()}><Upload size={15} /> Open project</button>
             <button onClick={onShare}><Share2 size={15} /> Share project</button>

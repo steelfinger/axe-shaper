@@ -12,7 +12,6 @@ import {
   neckPresetFieldsForNewTemplate,
   withEmbeddedPresets,
 } from './utils/presets';
-import { createProject } from './utils/projectFactory';
 import { buildViewer3DPath } from './utils/viewer3dLink';
 import type {
   GuitarProject,
@@ -47,6 +46,7 @@ import { SaveInfoModal } from './components/SaveInfoModal';
 import { WelcomeModal } from './components/WelcomeModal';
 import { AboutModal } from './components/AboutModal';
 import { MarketingSite } from './components/MarketingSite';
+import { NewDesignScreen } from './components/NewDesignScreen';
 
 /** Matches the floor InspectorPanel's delete button enforces - a contour needs at least this many nodes to stay a sane shape. */
 export const MIN_ANCHOR_COUNT = 4;
@@ -81,15 +81,6 @@ const cloneDoc = (doc: EditorDoc): EditorDoc => ({
 });
 
 const UNDO_STEPS = 50;
-const WELCOME_STORAGE_KEY = 'axe-shaper:welcome-seen-v1';
-
-const shouldShowWelcome = (): boolean => {
-  try {
-    return window.localStorage.getItem(WELCOME_STORAGE_KEY) !== 'true';
-  } catch {
-    return true;
-  }
-};
 
 /**
  * A plan for `/app?plan=...` to open on load, or null.
@@ -105,11 +96,23 @@ const planParamFromLocation = (): string | null => {
   return raw;
 };
 
-function EditorApp(): React.JSX.Element {
-  // Built on first render, not at module scope: the old module-level literal
-  // was evaluated at import, which made every new project's metadata.created
-  // the timestamp of the page load. See utils/projectFactory.ts.
-  const [project, setProject] = useState<GuitarProject>(() => createProject());
+interface EditorAppProps {
+  /** The chosen document. The shell has already decided; the editor never
+   *  renders without one, which is why nothing below checks for null. */
+  initialProject: GuitarProject;
+  /** Return to the New Design screen. The editor owns the unsaved-changes
+   *  confirmation because it is the only thing that knows whether there are
+   *  any. */
+  onNewDesign: () => void;
+}
+
+function EditorApp({ initialProject, onNewDesign }: EditorAppProps): React.JSX.Element {
+  const [project, setProject] = useState<GuitarProject>(initialProject);
+  // Whether anything has changed since the document was opened or last
+  // saved. Not the same as `canUndo`: undoing back to the start still leaves
+  // a redo stack, and saving does not clear history. Only used to decide
+  // whether leaving for a new design needs a confirmation.
+  const [isDirty, setIsDirty] = useState(false);
   const [selectedAnchorIds, setSelectedAnchorIds] = useState<Set<string>>(() => new Set());
   // The single selected anchor's id, when exactly one is selected - most
   // existing single-node logic (position edit, add-node-here, delete
@@ -125,7 +128,11 @@ function EditorApp(): React.JSX.Element {
   const [activeLayer, setActiveLayer] = useState<ActiveLayer>({ kind: 'body' });
   const [handleAngleSnap, setHandleAngleSnap] = useState<HandleAngleSnapPreference>(loadHandleAngleSnapPreference);
   const [isSaveInfoModalOpen, setIsSaveInfoModalOpen] = useState(false);
-  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(shouldShowWelcome);
+  // Opened from the editor menu only. It used to auto-open on first run as
+  // the startup surface, which meant the first thing a new user did was
+  // dismiss something to reach the thing they came for; the New Design screen
+  // is that surface now, and carries the same primer below its choices.
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<'tools' | 'inspector' | null>(null);
   // In-memory only - reappears on reload, deliberately not persisted to localStorage.
@@ -163,6 +170,7 @@ function EditorApp(): React.JSX.Element {
     coalesceKey?: string
   ) => {
     beginEdit(coalesceKey);
+    setIsDirty(true);
     setProject((prev) => {
       const next = updater(prev);
       return { ...next, metadata: { ...next.metadata, modified: new Date().toISOString() } };
@@ -174,6 +182,7 @@ function EditorApp(): React.JSX.Element {
     coalesceKey?: string
   ) => {
     beginEdit(coalesceKey);
+    setIsDirty(true);
     setGuideImage(updater);
   };
 
@@ -497,6 +506,7 @@ function EditorApp(): React.JSX.Element {
       return;
     }
     downloadProjectSVG();
+    setIsDirty(false);
   };
 
   const handleShareProject = async () => {
@@ -541,19 +551,21 @@ function EditorApp(): React.JSX.Element {
     }
   };
 
-  const closeWelcome = () => {
-    try {
-      window.localStorage.setItem(WELCOME_STORAGE_KEY, 'true');
-    } catch {
-      // The guide can still close when storage is blocked.
-    }
-    setIsWelcomeModalOpen(false);
+  /**
+   * Leave for the New Design screen. Confirmed only when there is something
+   * to lose - a prompt on an untouched document is the kind of friction that
+   * teaches people to click through prompts without reading them.
+   */
+  const handleNewDesign = () => {
+    if (isDirty && !window.confirm('Start a new design? Unsaved changes to this one will be lost.')) return;
+    onNewDesign();
   };
 
   const handleContinueFromSaveInfo = () => {
     hasSeenSaveInfoRef.current = true;
     setIsSaveInfoModalOpen(false);
     downloadProjectSVG();
+    setIsDirty(false);
   };
 
   // Open a .axe.svg project file.
@@ -571,6 +583,10 @@ function EditorApp(): React.JSX.Element {
       const result = loadProject(extractProjectFromSVG(text));
       if (result.ok) {
         handleUpdateProject(() => result.project);
+        // The document now matches a file that exists on disk, so leaving for
+        // a new design would lose nothing - even though the open itself is an
+        // undoable step.
+        setIsDirty(false);
         setSelectedAnchorIds(new Set());
         setSelectedSegmentIndex(null);
         setSelectedPickupId(null);
@@ -582,49 +598,6 @@ function EditorApp(): React.JSX.Element {
     reader.readAsText(file);
     e.target.value = '';
   };
-
-  /**
-   * Open the plan named by `?plan=`, so a link like the public page's "Open it
-   * in the editor" arrives with that drawing already on the canvas instead of
-   * the default project.
-   *
-   * Two details matter. The plan is set with `setProject`, not
-   * `handleUpdateProject`, so it becomes the baseline document rather than an
-   * undoable edit on top of a default nobody chose. And the parameter is
-   * stripped from the URL once it has been applied, so a later reload cannot
-   * silently throw away work by loading the plan a second time.
-   */
-  useEffect(() => {
-    const src = planParamFromLocation();
-    if (!src) return;
-    let cancelled = false;
-
-    void (async () => {
-      let imported: StoredProject | null = null;
-      try {
-        const response = await fetch(src);
-        if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-        imported = extractProjectFromSVG(await response.text());
-      } catch {
-        imported = null;
-      }
-      if (cancelled) return;
-
-      const result = loadProject(imported);
-      if (result.ok) {
-        setProject(result.project);
-        // They came to look at a specific drawing, not to be onboarded.
-        setIsWelcomeModalOpen(false);
-      } else {
-        alert(`${result.message} The editor started from the default project instead.`);
-      }
-      window.history.replaceState(null, '', window.location.pathname);
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     document.title = `${project.settings.name} — Axe Shaper Editor`;
@@ -672,6 +645,7 @@ function EditorApp(): React.JSX.Element {
         onShare={handleShareProject}
         onView3D={handleView3D}
         onPrintTiled={(paper) => printTiledProject(project, paper)}
+        onNewDesign={handleNewDesign}
         onShowWelcome={() => setIsWelcomeModalOpen(true)}
         onShowAbout={() => setIsAboutModalOpen(true)}
         onOpenFile={handleOpenFile}
@@ -774,7 +748,7 @@ function EditorApp(): React.JSX.Element {
       />
       </div>
 
-      <WelcomeModal isOpen={isWelcomeModalOpen} onClose={closeWelcome} />
+      <WelcomeModal isOpen={isWelcomeModalOpen} onClose={() => setIsWelcomeModalOpen(false)} />
       <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} />
 
       <SaveInfoModal
@@ -791,9 +765,112 @@ function EditorApp(): React.JSX.Element {
   );
 }
 
+/**
+ * What the editor route is showing.
+ *
+ * `loading` exists only for the `?plan=` case: the plan is fetched before
+ * anything renders, so a deep link never flashes the New Design screen on its
+ * way to the drawing someone was sent. Every other entry starts at
+ * `choosing`, and the editor is not constructed at all until a project
+ * exists - which is what lets `EditorApp` take a plain `GuitarProject`
+ * instead of threading null checks through the whole tree.
+ */
+type EditorRouteState =
+  | { kind: 'loading' }
+  | { kind: 'choosing' }
+  | { kind: 'editing'; project: GuitarProject; session: number };
+
+function EditorRoute(): React.JSX.Element {
+  const [state, setState] = useState<EditorRouteState>(() =>
+    planParamFromLocation() ? { kind: 'loading' } : { kind: 'choosing' }
+  );
+  // Bumped on every New Design, and used as EditorApp's key so a fresh
+  // document gets a fresh editor: undo history, selections and the guide
+  // image all belong to the document that was open, and none of them should
+  // survive into the next one.
+  const sessionRef = useRef(0);
+
+  const openProject = (project: GuitarProject) => {
+    sessionRef.current += 1;
+    setState({ kind: 'editing', project, session: sessionRef.current });
+  };
+
+  const openFile = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = loadProject(extractProjectFromSVG(event.target?.result as string));
+      if (result.ok) openProject(result.project);
+      else alert(result.message);
+    };
+    reader.readAsText(file);
+  };
+
+  /**
+   * Open the plan named by `?plan=`, so a link like the public page's "Open it
+   * in the editor" arrives with that drawing already on the canvas instead of
+   * the chooser.
+   *
+   * The parameter is stripped from the URL once it has been applied, because
+   * otherwise a reload re-applies the plan and silently discards whatever the
+   * user has drawn since. A plan that fails to load falls back to the New
+   * Design screen rather than to a default project nobody asked for.
+   */
+  useEffect(() => {
+    const src = planParamFromLocation();
+    if (!src) return;
+    let cancelled = false;
+
+    void (async () => {
+      let imported: StoredProject | null = null;
+      try {
+        const response = await fetch(src);
+        if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+        imported = extractProjectFromSVG(await response.text());
+      } catch {
+        imported = null;
+      }
+      if (cancelled) return;
+
+      const result = loadProject(imported);
+      if (result.ok) openProject(result.project);
+      else {
+        alert(`${result.message} Choose a blueprint to start a new design instead.`);
+        setState({ kind: 'choosing' });
+      }
+      window.history.replaceState(null, '', window.location.pathname);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (state.kind === 'loading') {
+    return (
+      <div className="new-design-screen">
+        <p className="design-loading" role="status">
+          Opening plan&hellip;
+        </p>
+      </div>
+    );
+  }
+
+  if (state.kind === 'choosing') {
+    return <NewDesignScreen onOpenProject={openProject} onOpenFile={openFile} />;
+  }
+
+  return (
+    <EditorApp
+      key={state.session}
+      initialProject={state.project}
+      onNewDesign={() => setState({ kind: 'choosing' })}
+    />
+  );
+}
+
 export function App(): React.JSX.Element {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
-  if (path === '/app') return <EditorApp />;
+  if (path === '/app') return <EditorRoute />;
   return <MarketingSite path={path} />;
 }
 
