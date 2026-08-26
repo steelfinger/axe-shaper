@@ -204,6 +204,17 @@ async function main() {
       'unsupported-instrument'
     );
 
+    check('decoding preserves an unknown instrument verbatim; only editing is refused', () => {
+      // The two halves of "decode tolerantly, refuse to edit". A save of such
+      // a payload still round-trips the value it did not understand, and the
+      // refusal happens at the edit door rather than at the parser.
+      const unknown = { ...v2, schemaVersion: 3, instrumentType: 'ukulele', stringCount: 4 };
+      const written = exporter.exportProjectToSVG(unknown);
+      deepStrictEqual(decodePayload(written).instrumentType, 'ukulele');
+      deepStrictEqual(metadataElement(written, 'instrumentType'), 'ukulele');
+      deepStrictEqual(presets.loadProject(decodePayload(written)).ok, false);
+    });
+
     check('a payload that is not a project at all is refused', () => {
       deepStrictEqual(presets.loadProject(null).ok, false);
       deepStrictEqual(presets.loadProject({ schemaVersion: 3 } as any).ok, false);

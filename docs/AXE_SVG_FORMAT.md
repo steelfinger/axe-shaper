@@ -54,6 +54,28 @@ The same rule applies to pickups: the rout comes from the `PickupPlacement`'s
 own `widthMm` / `heightMm` / `cornerRadiusMm` / `anchors`, and `type` only
 seeds those at creation.
 
+### Decode tolerantly, refuse to edit
+
+The rule for anything a reader does not understand — a newer `schemaVersion`,
+an unrecognised `instrumentType`, an unknown enum value:
+
+1. **Decoding never fails on unknown vocabulary.** The payload is parsed and
+   the unknown value is kept verbatim, so it can still be round-tripped or
+   inspected. This is what makes the embedded hardware copies worth having: a
+   strict decoder that aborts never reaches the geometry that would have been
+   drawn correctly anyway. (Invalid *numbers* are a different matter and are
+   still rejected.)
+2. **Opening it for editing is refused.** Editing implies writing it back,
+   and writing back what you did not understand silently discards it — or, in
+   the instrument case, offers guitar hardware, a guitar pocket and guitar
+   string spacing for something the build cannot draw.
+
+The two layers are separate on purpose. On web that is
+`extractProjectFromSVG` (tolerant, never inspects the instrument) and
+`loadProject` (the single edit door, which refuses); on iOS it is the
+`TolerantWireEnum` decode path and document validation. A reader that only
+ever views or exports may use layer 1 alone, deliberately.
+
 ### A payload newer than the reader
 
 A version above what a build knows must not be **edited**. Editing and saving
@@ -84,7 +106,8 @@ one door into the editable project path.
   geometry — the embedded preset stays the physical source of truth.
 - The supported matrix for this release is **Guitar/6** and **Bass/4**. A
   version 3 payload naming a known type with a count outside the matrix, or an
-  unrecognised type, is rejected rather than opened as something else.
+  unrecognised type, decodes intact but is refused for editing — see "Decode
+  tolerantly, refuse to edit" above. It is never opened as something else.
 - Version 1 and 2 payloads carry neither field and decode as **Guitar/6** —
   a default-when-absent read, not a guess: nothing else was drawable.
 - The bump is not a bass-only event. From the first build that writes version

@@ -50,9 +50,13 @@ export function isInstrumentType(value: unknown): value is InstrumentType {
   return typeof value === 'string' && (INSTRUMENT_TYPES as readonly string[]).includes(value);
 }
 
-/** Whether this build supports designing this instrument with this many strings. */
+/**
+ * Whether this build supports designing this instrument with this many
+ * strings. Defensive about the lookup despite the type: the argument
+ * routinely originates in a `JSON.parse` that nothing checked at runtime.
+ */
 export function isSupportedInstrument(type: InstrumentType, stringCount: number): boolean {
-  return SUPPORTED_STRING_COUNTS[type].includes(stringCount);
+  return SUPPORTED_STRING_COUNTS[type]?.includes(stringCount) ?? false;
 }
 
 /** Sentence-case label for UI copy: "Guitar" / "Bass". */
@@ -61,11 +65,22 @@ export function instrumentLabel(type: InstrumentType): string {
 }
 
 /**
- * The instrument a decoded payload describes. Absent fields mean a version 1
- * or 2 file, which is Guitar/6; an unrecognised `instrumentType` string is
- * *not* silently coerced here - `migrateProject()` rejects those before they
- * reach the editor, and this function is not the place to decide that a file
- * this build does not understand is a guitar.
+ * The instrument a decoded payload describes, for a payload that has already
+ * passed the edit gate. Absent fields mean a version 1 or 2 file, which is
+ * Guitar/6.
+ *
+ * This *does* coerce an unrecognised `instrumentType` to guitar, and that is
+ * only safe because of where it sits. The shared rule is **decode
+ * tolerantly, refuse to edit**: decoding never inspects the instrument, so an
+ * unknown value survives verbatim in the decoded payload, and
+ * `migrateProject()` refuses it before anything reaches the editor. So by the
+ * time this function runs, `instrumentType` is either a known value or
+ * genuinely absent - the coercion is a default-when-absent read, never a
+ * decision that a file this build does not understand is a guitar.
+ *
+ * Calling this on a payload that has *not* been through that gate would break
+ * the rule, because the guitar it returns would then be written back over
+ * whatever the file actually said.
  */
 export function resolveInstrument(
   project: Pick<StoredProject, 'instrumentType' | 'stringCount'>

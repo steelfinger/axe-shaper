@@ -262,13 +262,22 @@ export function withEmbeddedPickupSpecs(pickups: PickupPlacement[]): PickupPlace
  * this is what turns a decoded `StoredProject` into a `GuitarProject`.
  */
 export function withEmbeddedPresets(project: StoredProject): GuitarProject {
+  const instrumentDefaults = resolveInstrument(project);
   return {
     ...project,
     // A version 1 or 2 file has neither field; both are Guitar/6 by
     // construction, since that is all the app could draw. Resolved here
     // rather than only in migrateProject() so that *saving* also stamps them:
     // exportProjectToSVG runs this over whatever it is handed.
-    ...resolveInstrument(project),
+    //
+    // Defaults fill in what is *absent*; a value the file actually carried is
+    // written back verbatim, including one this build does not recognise.
+    // That is the "decode tolerantly" half of the rule - a save must not
+    // quietly relabel an unknown instrument as a guitar - and it is why this
+    // does not simply spread resolveInstrument(), which coerces.
+    // migrateProject() is what stops such a payload reaching the editor.
+    instrumentType: project.instrumentType ?? instrumentDefaults.instrumentType,
+    stringCount: project.stringCount ?? instrumentDefaults.stringCount,
     neckPreset: resolveNeckPreset(project),
     bridgePreset: resolveBridgePreset(project),
     // ?? [] rather than trusting the type: a hand-edited or foreign file can
