@@ -169,7 +169,38 @@ Option 2 is the recommendation. Whichever is chosen, the guitar half of
 `scaleMathMatrix` must be asserted unchanged rather than eyeballed after
 regeneration.
 
+**Decided at W1: option 2.** `scripts/generate-golden-corpus.ts` now skips
+neck x bridge pairs whose instrument types disagree, resolved through the
+`*_INSTRUMENT` side-tables in `src/constants/hardware.ts`. Ids with no
+declared instrument pair with everything, so a preset added without a
+compatibility entry shows up as extra rows rather than silently vanishing
+from the contract; `npm run schema:check` fails if any catalogue id is
+missing one. The guitar half is asserted rather than eyeballed:
+`npm run corpus` refuses to write when regeneration would change a
+`scaleMathMatrix` row the committed corpus already has, unless run with
+`--allow-scale-math-change`. iOS must make the same choice in M24.
+
 ## Web milestone W1 — contract and migration
+
+**Status: complete**, except for the two gates that need the sibling
+repositories (recorded under "Exit criteria" below). Decisions taken here:
+
+- Corpus/catalog tables: **option 2**, see above.
+- `stringSpacingMm` / `heightMm` / `nutStringSpacingMm` are added to the
+  types as **optional**, under iOS's exact spellings, with the total-spread
+  semantics pinned in `docs/AXE_SVG_FORMAT.md`. The guitar catalogue is
+  **not** backfilled with values here; those land in W2 alongside the bass
+  hardware, so every measurement gets verified against published specs in one
+  pass rather than eyeballed one at a time (CLAUDE.md is explicit that
+  `hardware.ts` values are checked, not estimated). Nothing reads the fields
+  yet on this side, so an absent value changes no behaviour.
+- An unrecognised `instrumentType` is **rejected**, not coerced to guitar.
+  The plan only required rejecting a known type with a bad count; silently
+  treating an unknown instrument as a guitar would offer guitar hardware for
+  something this build cannot draw.
+- `GuitarProject` keeps its name, per the plan. A new `StoredProject` type
+  marks the read boundary - a decoded payload that has not been migrated -
+  so v1/v2 payloads are not typed as if they carried fields they lack.
 
 Work:
 
@@ -201,15 +232,51 @@ Work:
 
 Exit criteria:
 
-- v1 and v2 fixtures become semantically identical Guitar/6 v3 projects.
-- A synthetic Bass/4 fixture round-trips without changing geometry or type.
-- Wrong known combinations fail validation with a useful error.
-- Unknown future schema versions cannot enter the editable project path.
-- iOS-written v3 fixture decoding has a test placeholder ready for M24.
-- All three readers — web, iOS and the 3D viewer — open a v3 *guitar* project
-  written by this build without warnings or fallback geometry.
-- `npm run corpus:check` passes, and the pre-existing guitar rows of
-  `scaleMathMatrix` are identical to the committed baseline.
+- ✅ v1 and v2 fixtures become semantically identical Guitar/6 v3 projects.
+  `npm run schema:check` asserts both directions; `npm run fixtures:check`
+  asserts it for all 11 iOS-written (v2) fixtures.
+- ✅ A synthetic Bass/4 fixture round-trips without changing geometry or type
+  (`schema:check`).
+- ✅ Wrong known combinations fail validation with a useful error — Bass/6,
+  Guitar/4 and an unrecognised type, each with a message written to be shown
+  as-is.
+- ✅ Unknown future schema versions cannot enter the editable project path.
+  `migrateProject()` throws `UnsupportedProjectError`; `loadProject()` is the
+  single door and returns the refusal as a value.
+- ✅ iOS-written v3 fixture decoding has a test placeholder ready for M24:
+  `tests/fixtures/ios-written-v3/`, reported as *pending* by
+  `fixtures:check` until iOS syncs files there, then asserted (strict no-op
+  load, instrument axis present and inside the supported matrix).
+- ⚠️ Readers opening a v3 *guitar* project written by this build:
+  - **web** — verified end to end in the browser (export → extract → load →
+    v3 Guitar/6, geometry unchanged).
+  - **3D viewer** — verified. `validateProject` (`src/core/axeSvg.ts` in
+    `steelfinger/axe-shape-3D-viewer`) only requires `typeof schemaVersion
+    === 'number'` with no upper bound, and its `GuitarProject` has an index
+    signature, so the new fields pass through untouched. Confirmed
+    empirically against the pinned bundle in `public/viewer3d` (v0.1.2): a v3
+    project renders with full geometry, correct scale and no console errors.
+  - **iOS** — *not verified here*; it needs a run of the iOS test suite in
+    `axe-shaper-ios`, which this milestone does not touch. Its
+    `PayloadSchema` allow-lists known keys, so confirm `instrumentType` and
+    `stringCount` are accepted rather than stripped before this ships.
+- ✅ `npm run corpus:check` passes. The regenerated corpus differs from the
+  committed baseline by exactly two lines — `projectSchemaVersion` 2 → 3 and
+  one new `conventions.scaleMathPairing` note. All 36 `scaleMathMatrix` rows
+  and every geometry number are byte-identical.
+
+Confirmed against the iOS source while pinning the format doc, and already
+covered there: `StringGeometry.evenSpread` divides by a literal `5`, not by
+`stringCount - 1`, at all three call sites (nut, saddle, headstock post).
+Correct for Guitar/6, wrong for Bass/4 — four strings would be laid across
+three fifths of the spread. `axe-shaper-ios/docs/m24-bass-body-design.md`
+Step 4 already names the `5` as the divisor to parameterise, so this is a
+planned M24 item, not a new finding; it is noted in
+`docs/AXE_SVG_FORMAT.md` so the web side cannot write a value that assumes
+otherwise. What W1 leaves for that repository is recorded on its branch
+`bass-body/m24-web-w1-contract`, including one genuinely open question: web
+rejects an unrecognised `instrumentType`, while the iOS plan asks for a
+tolerant enum that preserves it.
 
 ## Web milestone W2 — bass hardware foundations
 

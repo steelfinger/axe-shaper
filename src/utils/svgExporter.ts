@@ -1,4 +1,4 @@
-import type { BridgePreset, GuitarProject, LengthMm } from '../types/guitar';
+import type { BridgePreset, GuitarProject, LengthMm, StoredProject } from '../types/guitar';
 import { anchorsToSVGPath } from './bezier';
 import { bevelInsetLoop, closedPolylineToSVGPath } from './bevelIntensity';
 import {
@@ -111,10 +111,10 @@ function encodeProjectData(project: GuitarProject): string {
   return btoa(binary);
 }
 
-function decodeProjectData(base64: string): GuitarProject {
+function decodeProjectData(base64: string): StoredProject {
   const binary = atob(base64);
   const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-  return JSON.parse(new TextDecoder().decode(bytes)) as GuitarProject;
+  return JSON.parse(new TextDecoder().decode(bytes)) as StoredProject;
 }
 
 /**
@@ -123,7 +123,19 @@ function decodeProjectData(base64: string): GuitarProject {
  * metadata was stripped by another editor's re-save) rather than throwing -
  * callers should treat that as "not an Axe Shaper file", not a parse error.
  */
-export function extractProjectFromSVG(svgText: string): GuitarProject | null {
+/**
+ * The decoded payload of a .axe.svg, exactly as written - not a project ready
+ * to edit.
+ *
+ * Deliberately returns a `StoredProject`: the payload may be any schema
+ * version, and a version 1 or 2 one genuinely has no instrument axis. Nothing
+ * is defaulted, migrated or version-checked here, because this is also how
+ * `constants/templates.ts` reads the bundled blueprints and how a future
+ * view-only path would read a newer file. Anything that is going to be
+ * *edited* must go through `loadProject()` (`utils/presets.ts`), which is
+ * where the version and instrument gates live.
+ */
+export function extractProjectFromSVG(svgText: string): StoredProject | null {
   try {
     const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
     if (doc.querySelector('parsererror')) return null;
@@ -202,10 +214,14 @@ function getContentBoundsMm(project: GuitarProject): BoundsMm {
   return bounds;
 }
 
-export function exportProjectToSVG(rawProject: GuitarProject): string {
-  // Stamp the resolved hardware into the payload before encoding, so a saved
-  // file always carries the geometry it was drawn with even if the in-memory
-  // project came from a version 1 load and was never otherwise touched.
+export function exportProjectToSVG(rawProject: StoredProject): string {
+  // Stamp the resolved hardware and the instrument axis into the payload
+  // before encoding, so a saved file always carries the geometry it was drawn
+  // with - and says what it is for - even if the in-memory project came from
+  // a version 1 or 2 load and was never otherwise touched. The <project:*>
+  // metadata elements below are a plain-text mirror of payload fields for
+  // anything scanning the file without base64-decoding it; the payload stays
+  // authoritative, so they are read off `project`, never computed separately.
   const project = withEmbeddedPresets(rawProject);
 
   const { contour, pickups, pickguards, frontRoutes, backRoutes, settings } = project;
@@ -272,6 +288,8 @@ export function exportProjectToSVG(rawProject: GuitarProject): string {
     <project:name>${escapeXml(settings.name)}</project:name>
     <project:units>millimeters</project:units>
     <project:schemaVersion>${project.schemaVersion}</project:schemaVersion>
+    <project:instrumentType>${escapeXml(project.instrumentType)}</project:instrumentType>
+    <project:stringCount>${project.stringCount}</project:stringCount>
     <project:appVersion>${escapeXml(project.appVersion)}</project:appVersion>
     <project:data>${encodeProjectData(project)}</project:data>
   </metadata>

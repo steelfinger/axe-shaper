@@ -111,6 +111,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     const template: UserTemplate = {
       id: `user_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
       name,
+      // Stamped on save, never backfilled onto existing records: a stored
+      // template has no version field to migrate on, so reads default an
+      // untagged one to Guitar/6 instead (userTemplateInstrument).
+      instrumentType: project.instrumentType,
+      stringCount: project.stringCount,
       neckPresetId: project.neckPresetId,
       bridgePresetId: project.bridgePresetId,
       defaultAnchors: JSON.parse(JSON.stringify(project.contour.anchors)),

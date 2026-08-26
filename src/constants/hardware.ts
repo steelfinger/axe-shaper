@@ -1,5 +1,6 @@
 import type {
   BridgePreset,
+  InstrumentType,
   LengthMm,
   NeckJointMechanism,
   NeckPreset,
@@ -440,6 +441,65 @@ export const DEFAULT_NECK_JOINT_MECHANISM: Record<string, NeckJointMechanism> = 
   gretsch_thunderbird: 'glued',
   gibson_flying_v: 'glued',
   jag_style: 'bolt_on',
+};
+
+/**
+ * Which instrument each catalogue id is for.
+ *
+ * Deliberately side-tables keyed by id, not a field on `NeckPreset` /
+ * `BridgePreset` / `PickupRoutSpec`. Three reasons, in order of how much they
+ * would hurt:
+ *
+ * 1. Those structs are *embedded into every saved file*, and the embedded
+ *    copy is the physical source of truth for geometry. An `instrumentType`
+ *    living inside the embedded neck would be a second, stale answer to a
+ *    question the project already answers at the top level - exactly the "two
+ *    facts competing" failure this codebase has documented twice already.
+ * 2. `scripts/generate-golden-corpus.ts` embeds `NECK_PRESETS`,
+ *    `BRIDGE_PRESETS` and `PICKUP_SPECIFICATIONS` verbatim, so a new field on
+ *    any of them is a corpus change - and a contract change every port has to
+ *    reproduce - for what is purely a picker-filtering concern here.
+ * 3. Compatibility is catalogue knowledge that can be corrected in a later
+ *    build; the physical measurements in the presets themselves must not be.
+ *
+ * An id absent from these tables has no known instrument (see
+ * `utils/instrument.ts`), which is the right answer for a preset id from a
+ * file this build has never heard of.
+ */
+export const NECK_PRESET_INSTRUMENT: Record<string, InstrumentType> = {
+  // NECK_PRESETS - the 9 per-body legacy entries
+  fender_strat_21: 'guitar',
+  fender_tele_22: 'guitar',
+  gibson_lp_22: 'guitar',
+  gibson_sg_22: 'guitar',
+  gibson_firebird_19: 'guitar',
+  gretsch_thunderbird_22: 'guitar',
+  gibson_flying_v_22: 'guitar',
+  jaguar_22: 'guitar',
+  baritone_27: 'guitar',
+  // CURATED_NECK_PRESETS - the 4 scale-length-only entries the picker offers
+  baritone_scale: 'guitar',
+  fender_scale: 'guitar',
+  gibson_scale: 'guitar',
+  jaguar_scale: 'guitar',
+};
+
+export const BRIDGE_PRESET_INSTRUMENT: Record<string, InstrumentType> = {
+  hardtail_6: 'guitar',
+  tremolo_strat: 'guitar',
+  tune_o_matic: 'guitar',
+  tele_bridge_plate: 'guitar',
+};
+
+export const PICKUP_TYPE_INSTRUMENT: Record<PickupType, InstrumentType> = {
+  humbucker: 'guitar',
+  mini_humbucker: 'guitar',
+  single_coil: 'guitar',
+  lipstick: 'guitar',
+  p90_soapbar: 'guitar',
+  p90_dogear: 'guitar',
+  tele_neck: 'guitar',
+  tele_bridge: 'guitar',
 };
 
 export const BRIDGE_PRESETS: Record<string, BridgePreset> = {

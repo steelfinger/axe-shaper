@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "generator": "scripts/generate-golden-corpus.ts",
-  "projectSchemaVersion": 2,
+  "projectSchemaVersion": 3,
   "conventions": {
     "units": "millimetres",
     "xZero": "body centreline",
@@ -9,7 +9,8 @@
     "handles": "handleIn/handleOut are offsets relative to their own anchor, not absolute points",
     "toleranceMm": 0.000001,
     "samplesPerSegment": 128,
-    "generatedIds": "ids minted by an operation are rewritten to generated:<n> in order of appearance; a port should compare geometry, not ids"
+    "generatedIds": "ids minted by an operation are rewritten to generated:<n> in order of appearance; a port should compare geometry, not ids",
+    "scaleMathPairing": "scaleMathMatrix covers every neck x bridge pair whose instrument types agree; hardware belonging to different instruments is not paired"
   },
   "constants": {
     "mmPerInch": 25.4,

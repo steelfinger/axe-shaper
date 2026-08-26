@@ -18,6 +18,7 @@
     "bridge:check": "node scripts/check-bridge-drawing.ts",
     "marketing:plan": "node scripts/build-marketing-plan.ts",
     "fixtures:check": "node scripts/check-ios-fixtures.ts",
+    "schema:check": "node scripts/check-schema-migration.ts",
     "preview": "vite preview"
   },
   "dependencies": {

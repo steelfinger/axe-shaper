@@ -16,6 +16,14 @@
  *   npm run corpus          regenerate and write
  *   npm run corpus:check    verify the committed file is current (CI)
  *
+ * A deliberate regeneration still refuses to move a scale-math row that
+ * already exists in the committed corpus (see assertScaleMathStable). Adding
+ * hardware is meant to *add* rows; a run that changes an existing saddle or
+ * bridge-plate number is either a real geometry regression or a change that
+ * every port has to be told about, and neither should ride along in a diff
+ * that is otherwise thousands of new lines. Pass --allow-scale-math-change
+ * when the move is the point.
+ *
  * Modules are loaded through Vite's SSR pipeline rather than imported
  * directly: the app's sources use extensionless specifiers that bare Node
  * cannot resolve. Only DOM-free modules are loaded - blueprint files are
@@ -150,13 +158,33 @@ async function build() {
   const schema = await load('/src/constants/schema.ts');
 
   const { NECK_PRESETS, BRIDGE_PRESETS, PICKUP_SPECIFICATIONS } = hardware;
+  const { NECK_PRESET_INSTRUMENT, BRIDGE_PRESET_INSTRUMENT } = hardware;
 
-  // --- Scale math over every neck x bridge combination -----------------------
+  // --- Scale math over every compatible neck x bridge combination ------------
   // The single most important thing for a port to get right, and small enough
   // to cover exhaustively rather than by sampling.
+  //
+  // "Compatible" means the two agree on instrument. The cross-product used to
+  // be unconditional, which was the same thing while the catalogue held only
+  // guitar hardware; once bass necks and bridges land it would pair a 34"
+  // bass neck against a guitar tremolo and contractually oblige every port to
+  // reproduce the resulting nonsense. Skipping the mismatches keeps the
+  // guitar rows byte-identical and gives bass real coverage.
+  //
+  // An id missing from the compatibility tables has no declared instrument;
+  // those pair with anything, so a preset added without a compatibility entry
+  // shows up as extra rows here rather than silently vanishing from the
+  // contract.
+  const compatible = (neckId: string, bridgeId: string): boolean => {
+    const neckInstrument = NECK_PRESET_INSTRUMENT[neckId];
+    const bridgeInstrument = BRIDGE_PRESET_INSTRUMENT[bridgeId];
+    return !neckInstrument || !bridgeInstrument || neckInstrument === bridgeInstrument;
+  };
+
   const scaleMathMatrix = [];
   for (const neckId of Object.keys(NECK_PRESETS)) {
     for (const bridgeId of Object.keys(BRIDGE_PRESETS)) {
+      if (!compatible(neckId, bridgeId)) continue;
       const neck = NECK_PRESETS[neckId];
       const bridge = BRIDGE_PRESETS[bridgeId];
       scaleMathMatrix.push({
@@ -352,6 +380,8 @@ async function build() {
       samplesPerSegment: SAMPLES_PER_SEGMENT,
       generatedIds:
         'ids minted by an operation are rewritten to generated:<n> in order of appearance; a port should compare geometry, not ids',
+      scaleMathPairing:
+        'scaleMathMatrix covers every neck x bridge pair whose instrument types agree; hardware belonging to different instruments is not paired',
     },
     constants: {
       mmPerInch: units.MM_PER_INCH,
@@ -375,7 +405,53 @@ async function build() {
 const compactPairs = (s: string) =>
   s.replace(/\[\s+(-?[\d.eE+]+),\s+(-?[\d.eE+]+)\s+\]/g, '[$1, $2]');
 
+type ScaleMathRow = { neckPresetId: string; bridgePresetId: string; [key: string]: unknown };
+
+/**
+ * Every scale-math row the committed corpus already has must survive a
+ * regeneration unchanged. Rows for hardware the committed file has never seen
+ * are new coverage and pass freely; a row that disappears is reported too,
+ * since dropping a pairing silently narrows the contract every port asserts
+ * against.
+ */
+function assertScaleMathStable(committed: string, regenerated: ScaleMathRow[]): void {
+  let baseline: { scaleMathMatrix?: ScaleMathRow[] };
+  try {
+    baseline = JSON.parse(committed);
+  } catch {
+    return; // an unreadable committed file has nothing to protect
+  }
+  if (!Array.isArray(baseline.scaleMathMatrix)) return;
+
+  const key = (row: ScaleMathRow) => `${row.neckPresetId} x ${row.bridgePresetId}`;
+  const fresh = new Map(regenerated.map((row) => [key(row), row]));
+  const drifted: string[] = [];
+
+  for (const row of baseline.scaleMathMatrix) {
+    const now = fresh.get(key(row));
+    if (!now) {
+      drifted.push(`${key(row)}: dropped from the matrix`);
+      continue;
+    }
+    for (const field of Object.keys(row)) {
+      if (row[field] !== now[field]) {
+        drifted.push(`${key(row)}: ${field} ${String(row[field])} -> ${String(now[field])}`);
+      }
+    }
+  }
+
+  if (drifted.length > 0) {
+    console.error(
+      `Regenerating would change ${drifted.length} scale-math row(s) that already exist in the committed corpus:\n` +
+        drifted.map((line) => `  ${line}`).join('\n') +
+        `\n\nThis is a contract change every port must reproduce. If it is intended, rerun with --allow-scale-math-change.`
+    );
+    process.exit(1);
+  }
+}
+
 const isCheck = process.argv.includes('--check');
+const allowScaleMathChange = process.argv.includes('--allow-scale-math-change');
 const corpus = await build();
 const json = `${compactPairs(JSON.stringify(corpus, null, 2))}\n`;
 const digest = (s: string) => createHash('sha256').update(s).digest('hex').slice(0, 12);
@@ -395,6 +471,9 @@ if (isCheck) {
   }
   console.log(`Golden corpus up to date (${digest(json)}, ${corpus.cases.length} blueprints).`);
 } else {
+  if (existsSync(OUT_PATH) && !allowScaleMathChange) {
+    assertScaleMathStable(readFileSync(OUT_PATH, 'utf8'), corpus.scaleMathMatrix);
+  }
   mkdirSync(dirname(OUT_PATH), { recursive: true });
   writeFileSync(OUT_PATH, json);
   const segments = corpus.cases.reduce((n, c) => n + c.expected.segmentCount, 0);

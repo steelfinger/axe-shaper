@@ -13,7 +13,14 @@ npm run build:zip  # rebuilds dist and axe-shaper-dist.zip (the deliverable)
 npm run lint       # oxlint
 npm run corpus     # regenerate tests/golden/geometry-corpus.json
 npm run corpus:check  # fail if the committed corpus is stale
+npm run schema:check  # schema v3 contract: migration, round-trip, rejections
+npm run fixtures:check # iOS-written payloads decode, load and re-save intact
 ```
+
+`corpus:check`, `schema:check` and `fixtures:check` are not in CI (which only
+runs `build`, and therefore `bridge:check`). Run them by hand before
+committing anything that touches the file format, the hardware tables or the
+geometry utils.
 
 `npx tsc -b --noEmit` before committing. `src/App.tsx` has two known lint
 warnings (unused catch param, exhaustive-deps); anything else is new.
@@ -38,6 +45,43 @@ above Y=0 (the Strat's do, at about -62mm; the SG's do not, they sit at 0).
 Changing it on a template whose horns stop at Y=0 slides the entire body up the
 neck and drags the bridge and pickups with it. There is a comment about this on
 `sg_style` in `src/constants/hardware.ts` - it was found the hard way.
+
+## Instrument type is project-level, and version 3 gates the door
+
+`instrumentType` (`guitar` | `bass`) and `stringCount` are schema v3 fields on
+the project itself. They are deliberately *not* repeated inside the embedded
+neck or bridge, and the supported matrix - Guitar/6 and Bass/4 - lives in
+exactly one place, `SUPPORTED_STRING_COUNTS` in `src/utils/instrument.ts`.
+
+**Every path that opens a document goes through `loadProject()`**
+(`src/utils/presets.ts`), never `migrateProject()` directly. It refuses two
+things that used to sail straight into the editor:
+
+- a payload from a *newer* schema version - before v3 there was no gate at
+  all, so a v4 file was accepted, edited and written back out as v2;
+- a known instrument with a string count this build cannot draw.
+
+v1/v2 files decode as Guitar/6. That is a default-when-absent read, not a
+guess: nothing else was drawable.
+
+Catalogue compatibility (`NECK_PRESET_INSTRUMENT` and friends in
+`constants/hardware.ts`) is a **side-table keyed by id**, never a field on the
+presets. Presets are embedded verbatim into every save and into the golden
+corpus; an `instrumentType` inside one would be a second, stale answer to a
+question the project already answers.
+
+`docs/AXE_SVG_FORMAT.md` is the format contract - read it before changing
+anything a second implementation reads. In particular `stringSpacingMm` /
+`nutStringSpacingMm` are a **total spread across all strings**, not a
+per-string pitch.
+
+## Regenerating the golden corpus is guarded
+
+`npm run corpus` refuses to write if it would change a `scaleMathMatrix` row
+that already exists in the committed file - adding hardware is meant to *add*
+rows, and a moved saddle number is either a regression or a contract change
+every port must reproduce. `--allow-scale-math-change` when the move is the
+point.
 
 ## Hardware presets: the embedded copy wins
 

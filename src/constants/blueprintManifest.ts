@@ -6,52 +6,66 @@ import type { ReferenceTemplate } from '../types/guitar';
  * file instead - the same save format a user gets from Save - so a new
  * built-in blueprint is just "design it, Save, drop the file here, add one
  * entry below". Order here is display order in the sidebar.
+ *
+ * `instrumentType` lives here rather than in the .axe.svg files because the
+ * bundled blueprints are schema version 2 payloads that predate the field,
+ * and because which instrument a body is for is curation metadata in exactly
+ * the sense the rest of this table is. All eight current entries are guitars;
+ * the bass blueprints arrive with milestone W6.
  */
 export const BLUEPRINT_MANIFEST: Record<
   string,
-  Pick<ReferenceTemplate, 'description' | 'category' | 'tier'>
+  Pick<ReferenceTemplate, 'description' | 'category' | 'tier' | 'instrumentType'>
 > = {
   single_cut: {
     description: 'Classic single-cut Mahogany body with dual humbuckers and Tune-O-Matic bridge.',
     category: 'Single-Cut',
     tier: 'reference',
+    instrumentType: 'guitar',
   },
   sg_style: {
     description: 'Symmetric double-cutaway Vintage SG body (Gibson/Yamaha style) with bevel contours.',
     category: 'Double-Cut',
     tier: 'reference',
+    instrumentType: 'guitar',
   },
   s_style: {
     description: 'Double cutaway body with contoured waist and upper horns.',
     category: 'S-Style',
     tier: 'reference',
+    instrumentType: 'guitar',
   },
   t_style: {
     description: 'Single cutaway solid body with flat edge profile and classic bridge plate.',
     category: 'T-Style',
     tier: 'reference',
+    instrumentType: 'guitar',
   },
   gibson_firebird: {
     description:
       'Firebird-style body with a fret-19 pocket joint, Tune-O-Matic bridge, and standard humbuckers, positioned from a real routing template.',
     category: 'Firebird',
     tier: 'extra',
+    instrumentType: 'guitar',
   },
   gretsch_thunderbird: {
     description:
       'Single-cutaway body inspired by the Gretsch Billy-Bo Jupiter Thunderbird, with a Tune-O-Matic bridge and standard humbuckers.',
     category: 'Thunderbird',
     tier: 'extra',
+    instrumentType: 'guitar',
   },
   gibson_flying_v: {
     description: 'Body inspired by the Gibson Flying V, with a deep-set neck joint, Tune-O-Matic bridge, and standard humbuckers.',
     category: 'V-Style',
     tier: 'extra',
+    instrumentType: 'guitar',
   },
   jag_style: {
     description: 'Jaguar-style offset body with its pickguard and front control routes, a 610 mm scale neck, and Tune-O-Matic bridge.',
     category: 'Offset',
     tier: 'extra',
+    instrumentType: 'guitar',
   },
 };
 

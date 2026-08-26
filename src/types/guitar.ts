@@ -1,5 +1,18 @@
 export type LengthMm = number;
 
+/**
+ * Which instrument a design is for. A project-level fact, wire values
+ * `guitar` and `bass` - deliberately NOT duplicated inside the embedded neck
+ * or bridge, where two copies could disagree. Schema version 3 and later
+ * carry it explicitly; version 1 and 2 files predate the concept and decode
+ * as `guitar` (see `utils/instrument.ts`).
+ *
+ * Paired with `GuitarProject.stringCount`. The supported matrix for this
+ * release is Guitar/6 and Bass/4; `SUPPORTED_STRING_COUNTS` in
+ * `utils/instrument.ts` is the single place that says so.
+ */
+export type InstrumentType = 'guitar' | 'bass';
+
 export interface Vector2D {
   x: LengthMm;
   y: LengthMm;
@@ -70,6 +83,17 @@ export interface NeckPreset {
   pocketWidthMm?: LengthMm;
   pocketDepthMm?: LengthMm;
   pocketCornerRadiusMm?: LengthMm;
+  /**
+   * Total string spread at the nut - outer string to outer string, NOT the
+   * per-string pitch. Optional: axe-shaper-ios has modelled the field for
+   * longer than this app has but never writes it, so every file in
+   * `tests/fixtures/ios-written` omits it and both sides fall back to a
+   * constant. Schema version 3 is where both sides start writing it; the
+   * catalogue values are added with the bass hardware (milestone W2), when
+   * they can be verified against published specs in one pass rather than
+   * eyeballed. See `docs/AXE_SVG_FORMAT.md`.
+   */
+  nutStringSpacingMm?: LengthMm;
 }
 
 /**
@@ -104,6 +128,23 @@ export interface BridgePreset {
   widthMm: LengthMm;
   lengthMm: LengthMm;
   saddleOffsetYMm?: LengthMm; // Distance from top edge of plate to saddle line
+  /**
+   * Total string spread at the saddles - outer string to outer string, NOT
+   * the per-string pitch. A 4-string bass at ~19mm pitch is ~57 here, not 19.
+   * axe-shaper-ios spends it as
+   * `-totalMm / 2 + (index - 1) * (totalMm / (stringCount - 1))` and its
+   * `fallbackStringSpacingMm = 52.5` is six guitar strings at 10.5mm pitch,
+   * which is what pins the total-spread reading. Same optionality story as
+   * `NeckPreset.nutStringSpacingMm`; see `docs/AXE_SVG_FORMAT.md`.
+   */
+  stringSpacingMm?: LengthMm;
+  /**
+   * Height of the bridge above the body face. Not read by any 2D geometry
+   * here - it is the 3D preview's, and iOS's, measurement - modelled under
+   * iOS's own spelling so it survives a round trip and so both sides can
+   * start writing it at schema version 3.
+   */
+  heightMm?: LengthMm;
 }
 
 export type PickupType =
@@ -232,6 +273,14 @@ export interface ReferenceTemplate {
   id: string;
   name: string;
   description: string;
+  /**
+   * Which instrument this blueprint is a body for. Comes from the manifest
+   * (`constants/blueprintManifest.ts`), not from the blueprint's own
+   * .axe.svg payload: the bundled files are schema version 2 and predate the
+   * field, and curation metadata is exactly what the manifest is for.
+   */
+  instrumentType: InstrumentType;
+  stringCount: number;
   category: 'S-Style' | 'T-Style' | 'Single-Cut' | 'Double-Cut' | 'Offset' | 'Firebird' | 'Thunderbird' | 'V-Style';
   /** 'reference' = the core curated set, always visible. 'extra' = the
    *  long tail of additional blueprints, tucked into a closed-by-default,
@@ -265,9 +314,28 @@ export interface BindingParams {
   [key: string]: unknown;
 }
 
+/**
+ * An in-memory project. Despite the name (kept deliberately - a
+ * repository-wide rename would add risk without changing the file format or
+ * anything a user sees), this models a guitar *or* a bass; `instrumentType`
+ * says which.
+ *
+ * Every project the editor holds has been through `migrateProject()`, which
+ * is why the two version-3 fields below are required here even though a file
+ * on disk may predate them. `StoredProject` is the type for a payload that
+ * has been decoded but not yet migrated.
+ */
 export interface GuitarProject {
   schemaVersion: number;
   appVersion: string;
+  /**
+   * Which instrument this is, and how many strings. Authoritative and
+   * project-level: hardware compatibility is derived from these two, and
+   * nothing inside the embedded neck/bridge repeats them. Added at schema
+   * version 3; `utils/instrument.ts` supplies Guitar/6 for older files.
+   */
+  instrumentType: InstrumentType;
+  stringCount: number;
   metadata: {
     created: string;
     modified: string;
@@ -323,3 +391,13 @@ export interface GuitarProject {
   frontRoutes?: RoutedCavity[];
   backRoutes?: RoutedCavity[];
 }
+
+/**
+ * A project payload as decoded from a file, before migration - the type at
+ * the read boundary (`extractProjectFromSVG`, a `?plan=` fetch, an iOS
+ * fixture). Schema version 1 and 2 payloads have no `instrumentType` or
+ * `stringCount` at all, so the read boundary must not pretend otherwise;
+ * `migrateProject()` is what turns one of these into a `GuitarProject`.
+ */
+export type StoredProject = Omit<GuitarProject, 'instrumentType' | 'stringCount'> &
+  Partial<Pick<GuitarProject, 'instrumentType' | 'stringCount'>>;

@@ -1,4 +1,5 @@
 import type { ReferenceTemplate } from '../types/guitar';
+import { defaultStringCount } from '../utils/instrument';
 import { withEmbeddedPickupSpecs } from '../utils/presets';
 import { extractProjectFromSVG } from '../utils/svgExporter';
 import { BLUEPRINT_MANIFEST, BLUEPRINT_ORDER } from './blueprintManifest';
@@ -44,6 +45,10 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
       id,
       name: project.settings.name,
       ...manifestEntry,
+      // Derived, not stored per entry: the supported string counts per
+      // instrument are one table (`utils/instrument.ts`), and a manifest that
+      // could disagree with it would be a second answer to the same question.
+      stringCount: defaultStringCount(manifestEntry.instrumentType),
       neckPresetId: project.neckPresetId,
       bridgePresetId: project.bridgePresetId,
       defaultAnchors: project.contour.anchors,

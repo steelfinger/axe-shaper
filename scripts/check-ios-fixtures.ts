@@ -9,13 +9,23 @@
  * Scripts/sync-fixtures-to-web.sh and kept byte-identical to the writer's
  * output by a test on that side.
  *
+ * The fixtures currently in the tree are schema version 2 - iOS has not
+ * written version 3 yet (its milestone M24). They are therefore checked as
+ * *legacy* payloads: readable, and migrating to a semantically identical
+ * Guitar/6 version 3 project. `tests/fixtures/ios-written-v3/` is the
+ * placeholder that turns this into a current-version check the moment iOS
+ * starts writing there; see the "iOS-written version 3 fixtures" section at
+ * the end.
+ *
  * Per file this asserts:
- *   - the payload decodes, is schemaVersion current, and agrees with the
- *     <project:schemaVersion> element;
+ *   - the payload decodes, is at a schemaVersion this build supports, and
+ *     agrees with the <project:schemaVersion> element;
  *   - structural sanity a router cares about: unique anchor ids, mirrorIds
  *     that resolve, finite coordinates, positive pickup dimensions;
- *   - loading is a no-op: migrateProject() deep-equals the payload, so a
- *     current, fully-embedded file round-trips untouched;
+ *   - loading changes nothing but the version: migrateProject() deep-equals
+ *     the payload apart from the schemaVersion stamp and the two fields
+ *     version 3 adds, so a fully-embedded file's geometry, hardware and
+ *     settings round-trip untouched;
  *   - the drawn body path equals anchorsToSVGPath() of the decoded payload;
  *   - every visible pickguard/front/back route has the same path as its
  *     payload contour, and the printable route palette stays aligned;
@@ -43,6 +53,13 @@ import { createServer } from 'vite';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const FIXTURE_DIR = join(ROOT, 'tests', 'fixtures', 'ios-written');
+
+/**
+ * Where iOS's schema version 3 fixtures land (its milestone M24). Absent
+ * today; the check below reports that rather than passing silently, so the
+ * day the directory appears its contents are asserted instead of ignored.
+ */
+const V3_FIXTURE_DIR = join(ROOT, 'tests', 'fixtures', 'ios-written-v3');
 
 /**
  * The synthetic fixtures the blueprints can't be: live symmetry with
@@ -124,6 +141,7 @@ async function main() {
     const scaleMath = await load('/src/utils/scaleMath.ts');
     const manifest = await load('/src/constants/blueprintManifest.ts');
     const schema = await load('/src/constants/schema.ts');
+    const instrument = await load('/src/utils/instrument.ts');
     // exportProjectToSVG is DOM-free (TextEncoder + btoa); only
     // extractProjectFromSVG in the same module needs a DOMParser, and this
     // script does its own scanning rather than calling it.
@@ -153,11 +171,12 @@ async function main() {
       console.log(fileName);
       const svg = readFileSync(join(FIXTURE_DIR, fileName), 'utf8');
 
-      check('payload decodes at the current schema version', () => {
+      check('payload decodes at a supported schema version', () => {
         const { metadataSchemaVersion, project } = scan(svg);
         invariant(
-          project.schemaVersion === schema.PROJECT_SCHEMA_VERSION,
-          `payload schemaVersion is ${project.schemaVersion}, expected ${schema.PROJECT_SCHEMA_VERSION}`
+          schema.isSupportedSchemaVersion(project.schemaVersion),
+          `payload schemaVersion is ${project.schemaVersion}, which this build cannot read ` +
+            `(supports ${schema.MIN_SUPPORTED_SCHEMA_VERSION}-${schema.PROJECT_SCHEMA_VERSION})`
         );
         invariant(
           metadataSchemaVersion === project.schemaVersion,
@@ -217,17 +236,32 @@ async function main() {
         }
       });
 
-      check('loading is a no-op for a current file', () => {
-        // Pickups carry the one documented exception to "no-op": a placement
-        // saved before anchors existed gets backfilled with its type's real
-        // catalogue rout on load (resolvePickupSpec/withEmbeddedPickupSpecs
-        // in presets.ts) rather than round-tripping its stale numbers -
-        // exactly what these iOS-written fixtures still have. Comparing
-        // against that same production helper (rather than the raw payload)
-        // keeps this a no-op check for every other field while still
-        // catching any pickup drift migrateProject doesn't account for.
-        const expected = { ...project, pickups: presets.withEmbeddedPickupSpecs(project.pickups ?? []) };
-        deepStrictEqual(presets.migrateProject(project), expected);
+      check('loading changes nothing but the schema version and what it adds', () => {
+        // Two documented exceptions to "loading is a no-op", and nothing else
+        // may differ:
+        //
+        // - Pickups: a placement saved before `anchors` existed gets
+        //   backfilled with its type's real catalogue rout on load
+        //   (resolvePickupSpec/withEmbeddedPickupSpecs in presets.ts) rather
+        //   than round-tripping its stale numbers - exactly what these
+        //   iOS-written fixtures still have. Comparing against that same
+        //   production helper keeps this a no-op check for every other field.
+        // - The version stamp and the instrument axis version 3 introduces.
+        //   These fixtures predate it, so they migrate to Guitar/6; that is
+        //   the migration itself, asserted here rather than assumed.
+        const expected = {
+          ...project,
+          pickups: presets.withEmbeddedPickupSpecs(project.pickups ?? []),
+          schemaVersion: schema.PROJECT_SCHEMA_VERSION,
+          ...instrument.resolveInstrument(project),
+        };
+        const migrated = presets.migrateProject(project);
+        deepStrictEqual(migrated, expected);
+        if (project.schemaVersion < 3) {
+          invariant(project.instrumentType === undefined, 'a pre-version-3 payload should not carry instrumentType');
+          deepStrictEqual(migrated.instrumentType, 'guitar');
+          deepStrictEqual(migrated.stringCount, 6);
+        }
       });
 
       check('drawn body path matches the decoded payload', () => {
@@ -299,8 +333,14 @@ async function main() {
       // thing that stops being true in a refactor nobody connects to the
       // iPad. Running the real writer is what turns it into a checked fact.
       check('a save preserves the whole payload, including fields this app has no model for', () => {
-        const written = scan(exporter.exportProjectToSVG(project)).project;
-        deepStrictEqual(written, presets.migrateProject(project));
+        // Saves what the editor would actually be holding - the *migrated*
+        // project - rather than the raw legacy payload. Writing a version 2
+        // payload straight back out is not something the app does, and
+        // comparing that against its migration would only be comparing
+        // version stamps.
+        const loaded = presets.migrateProject(project);
+        const written = scan(exporter.exportProjectToSVG(loaded)).project;
+        deepStrictEqual(written, loaded);
       });
 
       // Called out separately from the whole-payload check above: a
@@ -310,9 +350,50 @@ async function main() {
       // image bytes.
       if (project.guideImage) {
         check('the iOS guide image survives a save byte-for-byte', () => {
-          const written = scan(exporter.exportProjectToSVG(project)).project;
+          const written = scan(exporter.exportProjectToSVG(presets.migrateProject(project))).project;
           invariant(written.guideImage, 'the guide image was dropped by the writer');
           deepStrictEqual(written.guideImage, project.guideImage);
+        });
+      }
+    }
+    // --- iOS-written version 3 fixtures (M24) ---------------------------
+    //
+    // The placeholder the web half of the version 3 contract needs: the
+    // moment iOS starts writing the instrument axis, its fixtures land here
+    // and are asserted rather than assumed. Until then this reports the gap
+    // instead of quietly passing, so "iOS version 3 decoding is covered"
+    // never becomes true by omission.
+    console.log('\ntests/fixtures/ios-written-v3/ (iOS milestone M24)');
+    if (!existsSync(V3_FIXTURE_DIR)) {
+      console.log(
+        `  pending  no iOS-written version ${schema.PROJECT_SCHEMA_VERSION} fixtures yet - ` +
+          `sync them into ${V3_FIXTURE_DIR} when iOS M24 lands`
+      );
+    } else {
+      const v3Files = readdirSync(V3_FIXTURE_DIR).filter((f) => f.endsWith('.axe.svg'));
+      check('the version 3 fixture directory is not empty', () => {
+        invariant(v3Files.length > 0, `${V3_FIXTURE_DIR} exists but holds no .axe.svg files`);
+      });
+      for (const fileName of v3Files.sort()) {
+        const project = scan(readFileSync(join(V3_FIXTURE_DIR, fileName), 'utf8')).project;
+        check(`${fileName}: is a version 3 payload carrying its own instrument axis`, () => {
+          deepStrictEqual(project.schemaVersion, schema.PROJECT_SCHEMA_VERSION);
+          invariant(
+            instrument.isInstrumentType(project.instrumentType),
+            `instrumentType is ${String(project.instrumentType)}`
+          );
+          invariant(
+            instrument.isSupportedInstrument(project.instrumentType, project.stringCount),
+            `${project.stringCount}-string ${project.instrumentType} is outside the supported matrix`
+          );
+        });
+        check(`${fileName}: loading a current file is a no-op`, () => {
+          // No migration is due at the current version, so unlike the legacy
+          // fixtures above this is the original, strict no-op assertion.
+          deepStrictEqual(presets.migrateProject(project), {
+            ...project,
+            pickups: presets.withEmbeddedPickupSpecs(project.pickups ?? []),
+          });
         });
       }
     }

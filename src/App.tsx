@@ -5,16 +5,23 @@ import { Sidebar } from './components/Sidebar';
 import { InspectorPanel } from './components/InspectorPanel';
 import { CanvasWorkspace } from './components/CanvasWorkspace';
 import { REFERENCE_TEMPLATES } from './constants/templates';
-import { PROJECT_SCHEMA_VERSION } from './constants/schema';
 import {
   bridgePresetFields,
   defaultNeckJointMechanism,
-  migrateProject,
+  loadProject,
   neckPresetFieldsForNewTemplate,
   withEmbeddedPresets,
 } from './utils/presets';
+import { createProject } from './utils/projectFactory';
 import { buildViewer3DPath } from './utils/viewer3dLink';
-import type { GuitarProject, GuideImageState, CalibrationState, Vector2D, PickupType } from './types/guitar';
+import type {
+  GuitarProject,
+  GuideImageState,
+  CalibrationState,
+  StoredProject,
+  Vector2D,
+  PickupType,
+} from './types/guitar';
 import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
 import { withMirroredInsertion } from './utils/symmetry';
@@ -43,51 +50,6 @@ import { MarketingSite } from './components/MarketingSite';
 
 /** Matches the floor InspectorPanel's delete button enforces - a contour needs at least this many nodes to stay a sane shape. */
 export const MIN_ANCHOR_COUNT = 4;
-
-const INITIAL_PROJECT: GuitarProject = {
-  schemaVersion: PROJECT_SCHEMA_VERSION,
-  appVersion: '1.0.0',
-  metadata: {
-    created: new Date().toISOString(),
-    modified: new Date().toISOString(),
-    author: 'Axe Shaper Luthier',
-  },
-  settings: {
-    name: 'Custom S-Style Build',
-    unitDisplay: 'mm',
-    canvasOrientation: 'vertical',
-    symmetry: {
-      mode: 'none',
-      sourceSide: 'left',
-    },
-    showCenterAxis: true,
-    showGhostGuide: true,
-    showHardwareCavities: true,
-    showDimensions: true,
-    showGrid: true,
-    gridSizeMm: 50,
-    snapToGridEnabled: false,
-    finishStyle: 'sunburst',
-    bodyColor: '#3b82f6',
-    secondaryColor: '#f59e0b',
-    bodyFillOpacity: 0.35,
-    pickguardEnabled: true,
-    pickguardColor: '#ffffff',
-  },
-  activeTemplateId: 's_style',
-  contour: {
-    anchors: REFERENCE_TEMPLATES.s_style.defaultAnchors,
-    closed: true,
-  },
-  edgeProfile: REFERENCE_TEMPLATES.s_style.edgeProfile,
-  ...neckPresetFieldsForNewTemplate(REFERENCE_TEMPLATES.s_style.neckPresetId, 's_style'),
-  neckJointMechanism: defaultNeckJointMechanism('s_style'),
-  ...bridgePresetFields(REFERENCE_TEMPLATES.s_style.bridgePresetId),
-  pickups: REFERENCE_TEMPLATES.s_style.defaultPickups,
-  pickguards: REFERENCE_TEMPLATES.s_style.defaultPickguards ?? [],
-  frontRoutes: REFERENCE_TEMPLATES.s_style.defaultFrontRoutes ?? [],
-  backRoutes: REFERENCE_TEMPLATES.s_style.defaultBackRoutes ?? [],
-};
 
 const INITIAL_GUIDE_IMAGE: GuideImageState = {
   imageUrl: null,
@@ -144,7 +106,10 @@ const planParamFromLocation = (): string | null => {
 };
 
 function EditorApp(): React.JSX.Element {
-  const [project, setProject] = useState<GuitarProject>(INITIAL_PROJECT);
+  // Built on first render, not at module scope: the old module-level literal
+  // was evaluated at import, which made every new project's metadata.created
+  // the timestamp of the page load. See utils/projectFactory.ts.
+  const [project, setProject] = useState<GuitarProject>(() => createProject());
   const [selectedAnchorIds, setSelectedAnchorIds] = useState<Set<string>>(() => new Set());
   // The single selected anchor's id, when exactly one is selected - most
   // existing single-node logic (position edit, add-node-here, delete
@@ -599,15 +564,19 @@ function EditorApp(): React.JSX.Element {
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target?.result as string;
-      const imported = extractProjectFromSVG(text);
-      if (imported && imported.contour && imported.settings) {
-        handleUpdateProject(() => migrateProject(imported));
+      // loadProject is the gate: it migrates a version 1/2 file to the
+      // current schema, and refuses a payload this build must not edit - a
+      // future schema version, or an instrument/string-count combination it
+      // cannot draw - with a message written to be shown as-is.
+      const result = loadProject(extractProjectFromSVG(text));
+      if (result.ok) {
+        handleUpdateProject(() => result.project);
         setSelectedAnchorIds(new Set());
         setSelectedSegmentIndex(null);
         setSelectedPickupId(null);
         setActiveLayer({ kind: 'body' });
       } else {
-        alert('This SVG does not contain Axe Shaper project data.');
+        alert(result.message);
       }
     };
     reader.readAsText(file);
@@ -631,7 +600,7 @@ function EditorApp(): React.JSX.Element {
     let cancelled = false;
 
     void (async () => {
-      let imported: GuitarProject | null = null;
+      let imported: StoredProject | null = null;
       try {
         const response = await fetch(src);
         if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
@@ -641,12 +610,13 @@ function EditorApp(): React.JSX.Element {
       }
       if (cancelled) return;
 
-      if (imported?.contour && imported.settings) {
-        setProject(migrateProject(imported));
+      const result = loadProject(imported);
+      if (result.ok) {
+        setProject(result.project);
         // They came to look at a specific drawing, not to be onboarded.
         setIsWelcomeModalOpen(false);
       } else {
-        alert('That plan could not be opened, so the editor started from the default project instead.');
+        alert(`${result.message} The editor started from the default project instead.`);
       }
       window.history.replaceState(null, '', window.location.pathname);
     })();

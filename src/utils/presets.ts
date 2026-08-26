@@ -7,7 +7,7 @@ import {
   NECK_PRESETS,
   PICKUP_SPECIFICATIONS,
 } from '../constants/hardware';
-import { PROJECT_SCHEMA_VERSION } from '../constants/schema';
+import { PROJECT_SCHEMA_VERSION, isSupportedSchemaVersion } from '../constants/schema';
 import type {
   BridgePreset,
   GuitarProject,
@@ -15,7 +15,9 @@ import type {
   NeckPreset,
   PickupPlacement,
   PickupRoutSpec,
+  StoredProject,
 } from '../types/guitar';
+import { isInstrumentType, isSupportedInstrument, resolveInstrument } from './instrument';
 import { getFretDistanceFromNutMm } from './scaleMath';
 
 /**
@@ -255,12 +257,18 @@ export function withEmbeddedPickupSpecs(pickups: PickupPlacement[]): PickupPlace
 }
 
 /**
- * Backfill the embedded presets without disturbing any that are already there.
- * Safe to call on a project of any schema version.
+ * Backfill the embedded presets and the instrument axis without disturbing
+ * anything already there. Safe to call on a project of any schema version -
+ * this is what turns a decoded `StoredProject` into a `GuitarProject`.
  */
-export function withEmbeddedPresets(project: GuitarProject): GuitarProject {
+export function withEmbeddedPresets(project: StoredProject): GuitarProject {
   return {
     ...project,
+    // A version 1 or 2 file has neither field; both are Guitar/6 by
+    // construction, since that is all the app could draw. Resolved here
+    // rather than only in migrateProject() so that *saving* also stamps them:
+    // exportProjectToSVG runs this over whatever it is handed.
+    ...resolveInstrument(project),
     neckPreset: resolveNeckPreset(project),
     bridgePreset: resolveBridgePreset(project),
     // ?? [] rather than trusting the type: a hand-edited or foreign file can
@@ -275,14 +283,101 @@ export function withEmbeddedPresets(project: GuitarProject): GuitarProject {
 }
 
 /**
- * Bring a project loaded from a file up to the current schema. A version 1
- * file has ids but no embedded presets; resolving them against this build's
- * table is the best available answer and matches what version 1 readers did
- * implicitly.
+ * A payload this build must not edit. Thrown by `migrateProject()`, which is
+ * the one door into the editable project path; `loadProject()` turns it into
+ * a message for the UI. `reason` is for callers that want to react
+ * differently (a viewer could still render a future-version file); `message`
+ * is written to be shown to a person as-is.
  */
-export function migrateProject(project: GuitarProject): GuitarProject {
+export class UnsupportedProjectError extends Error {
+  readonly reason: 'unsupported-version' | 'unsupported-instrument';
+
+  constructor(reason: UnsupportedProjectError['reason'], message: string) {
+    super(message);
+    this.name = 'UnsupportedProjectError';
+    this.reason = reason;
+  }
+}
+
+/**
+ * Bring a project loaded from a file up to the current schema, or refuse it.
+ *
+ * A version 1 file has ids but no embedded presets; resolving them against
+ * this build's table is the best available answer and matches what version 1
+ * readers did implicitly. A version 1 or 2 file also has no instrument axis,
+ * and becomes Guitar/6.
+ *
+ * Two payloads are refused rather than migrated, and refusing here rather
+ * than at each call site is the point - this function is the only way into
+ * the editable project path:
+ *
+ * - **A future schema version.** Before version 3 there was no gate at all:
+ *   this function stamped `PROJECT_SCHEMA_VERSION` unconditionally, so a
+ *   version 4 file was accepted, edited and written back out as version 2,
+ *   discarding whatever the newer writer knew. Viewing or exporting such a
+ *   file may become safe later; editing it never is.
+ * - **An instrument this build cannot draw**, meaning an unrecognised
+ *   `instrumentType` or a known type with a string count outside
+ *   `SUPPORTED_STRING_COUNTS`. Opening a Bass/5 file as if it were a Bass/4
+ *   would put the outer strings, and anything derived from their spacing, in
+ *   the wrong place on a drawing whose whole purpose is to be printed 1:1 and
+ *   cut.
+ */
+export function migrateProject(project: StoredProject): GuitarProject {
+  if (!isSupportedSchemaVersion(project.schemaVersion)) {
+    throw new UnsupportedProjectError(
+      'unsupported-version',
+      `This design was saved by a newer version of Axe Shaper (file format ${String(
+        project.schemaVersion
+      )}; this build reads up to ${PROJECT_SCHEMA_VERSION}). Update the app to open it.`
+    );
+  }
+
+  // Only a version 3+ payload can carry these fields, so this validates what
+  // a file actually claims rather than what the migration defaults supply.
+  if (project.instrumentType !== undefined && !isInstrumentType(project.instrumentType)) {
+    throw new UnsupportedProjectError(
+      'unsupported-instrument',
+      `This design is for an instrument this build doesn't support (${String(project.instrumentType)}).`
+    );
+  }
+
+  const instrument = resolveInstrument(project);
+  if (!isSupportedInstrument(instrument.instrumentType, instrument.stringCount)) {
+    throw new UnsupportedProjectError(
+      'unsupported-instrument',
+      `This design is a ${instrument.stringCount}-string ${instrument.instrumentType}, which this build doesn't support yet.`
+    );
+  }
+
   return {
     ...withEmbeddedPresets(project),
     schemaVersion: PROJECT_SCHEMA_VERSION,
   };
+}
+
+/** What `loadProject()` returns: a project ready to edit, or why not. */
+export type ProjectLoadResult =
+  | { ok: true; project: GuitarProject }
+  | { ok: false; reason: UnsupportedProjectError['reason'] | 'unreadable'; message: string };
+
+/**
+ * The read boundary for every path that opens a document - Open File, a
+ * `?plan=` link, a drop. Wraps `migrateProject()` so a refusal is a value the
+ * caller can show rather than an exception it has to remember to catch, and
+ * so the "is this even a project" shape check lives next to the version and
+ * instrument checks instead of being repeated at each call site.
+ */
+export function loadProject(stored: StoredProject | null | undefined): ProjectLoadResult {
+  if (!stored || !stored.contour || !stored.settings) {
+    return { ok: false, reason: 'unreadable', message: 'This file does not contain Axe Shaper project data.' };
+  }
+  try {
+    return { ok: true, project: migrateProject(stored) };
+  } catch (error) {
+    if (error instanceof UnsupportedProjectError) {
+      return { ok: false, reason: error.reason, message: error.message };
+    }
+    throw error;
+  }
 }
