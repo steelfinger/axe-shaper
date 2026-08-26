@@ -13,7 +13,7 @@ import {
 } from '../utils/bezier';
 import { applyLiveSymmetry, withMirroredInsertion } from '../utils/symmetry';
 import { bevelInsetLoop, closedPolylineToSVGPath } from '../utils/bevelIntensity';
-import { type ActiveLayer, getActiveContour, withActiveContour } from '../utils/layerShapes';
+import { activeLayersEqual, type ActiveLayer, getActiveContour, withActiveContour } from '../utils/layerShapes';
 import {
   movingPickup,
   pickupRotationHandlePosition,
@@ -108,6 +108,8 @@ interface CanvasWorkspaceProps {
   activeLayer: ActiveLayer;
   /** Browser-local input preference, never written into the project. */
   handleAngleSnapIncrementDegrees: number | null;
+  /** Activates a visible, editable layer when its outline is picked on canvas. */
+  onSelectLayer: (layer: ActiveLayer) => void;
 }
 
 
@@ -131,6 +133,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   onCancelCalibration,
   activeLayer,
   handleAngleSnapIncrementDegrees,
+  onSelectLayer,
 }) => {
   const [knownDistanceInput, setKnownDistanceInput] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -455,6 +458,44 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   const isOutlinePickTarget = (target: Konva.Node): boolean =>
     target === target.getStage() || target.name() === BODY_OUTLINE_NAME;
 
+  /**
+   * A layer's fill can be large and overlap the body, so switching layers is
+   * deliberately an outline-only gesture. The nearest eligible outline wins;
+   * ties follow the visible paint order, with front routes above pickguards,
+   * the body, then back routes.
+   */
+  const selectableLayerAt = (pointer: Vector2D): { layer: ActiveLayer; segmentIndex: number } | null => {
+    const modelPoint = toModel(pointer);
+    const currentHit = findClosestSegment(activeContour.anchors, activeContour.closed, modelPoint);
+    // When outlines overlap within the normal selection radius, preserve the
+    // current layer. There is no unambiguous path to switch to in that case.
+    if (currentHit && currentHit.distance * zoom <= PICK_TOLERANCE_PX) return null;
+    const candidates: ActiveLayer[] = [
+      ...(settings.showFrontRoutes !== false
+        ? frontRoutes.filter((route) => route.visible !== false && !route.locked).map((route) => ({ kind: 'frontRoute' as const, id: route.id }))
+        : []),
+      ...(settings.showPickguard !== false
+        ? pickguards.filter((pickguard) => pickguard.visible !== false && !pickguard.locked).map((pickguard) => ({ kind: 'pickguard' as const, id: pickguard.id }))
+        : []),
+      { kind: 'body' },
+      ...(settings.showBackRoutes !== false
+        ? backRoutes.filter((route) => route.visible !== false && !route.locked).map((route) => ({ kind: 'backRoute' as const, id: route.id }))
+        : []),
+    ];
+
+    let best: { layer: ActiveLayer; segmentIndex: number; distance: number } | null = null;
+    for (const layer of candidates) {
+      if (activeLayersEqual(layer, activeLayer)) continue;
+      const contour = getActiveContour(project, layer);
+      if (!contour) continue;
+      const hit = findClosestSegment(contour.anchors, contour.closed, modelPoint);
+      if (hit && hit.distance * zoom <= PICK_TOLERANCE_PX && (!best || hit.distance < best.distance)) {
+        best = { layer, segmentIndex: hit.index, distance: hit.distance };
+      }
+    }
+    return best && { layer: best.layer, segmentIndex: best.segmentIndex };
+  };
+
   return (
     <div className="app-canvas-container" ref={containerRef}>
       {/* Floating Canvas Toolbar */}
@@ -543,6 +584,14 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
           const pointer = e.target.getStage()?.getPointerPosition();
           if (!pointer) return;
+          const layerHit = selectableLayerAt(pointer);
+          if (layerHit) {
+            onSelectLayer(layerHit.layer);
+            onSelectSegment(layerHit.segmentIndex);
+            onSelectAnchor(null);
+            onSelectHardware(null);
+            return;
+          }
           const index = pickSegment(pointer);
           onSelectSegment(index);
           // A click out in open space, or well inside the body, clears everything

@@ -806,6 +806,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         onCancelCalibration={handleCancelCalibration}
         activeLayer={activeLayer}
         handleAngleSnapIncrementDegrees={handleAngleSnap.enabled ? handleAngleSnap.incrementDegrees : null}
+        onSelectLayer={handleSetActiveLayer}
       />
 
       <div id="editor-inspector" className="responsive-panel-wrap inspector-panel-wrap">
