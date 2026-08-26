@@ -72,9 +72,13 @@ corpus; an `instrumentType` inside one would be a second, stale answer to a
 question the project already answers.
 
 `docs/AXE_SVG_FORMAT.md` is the format contract - read it before changing
-anything a second implementation reads. In particular `stringSpacingMm` /
-`nutStringSpacingMm` are a **total spread across all strings**, not a
-per-string pitch.
+anything a second implementation reads. Two things there are easy to get
+backwards: `stringSpacingMm` / `nutStringSpacingMm` are a **total spread
+across all strings**, not a per-string pitch; and the fingerboard-overhang
+reference fret (`FINGERBOARD_REFERENCE_FRET`, 22 guitar / 20 bass) is a
+**rate**, not a claim about where a fingerboard ends. It must be the same
+number on the way in and the way out - reading it off each neck's own `frets`
+would move the bridge 10.8mm in a case that is currently exact.
 
 ## The editor is isolated to one instrument
 

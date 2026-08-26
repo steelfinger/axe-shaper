@@ -119,18 +119,37 @@ Rules:
   apart in the native preview while the printed plan still looked right, which
   is the “two facts competing” failure this codebase has documented twice
   already. Pin the definition in the format doc before either side writes it.
-- **The fingerboard-overhang reference fret stays 22 for every instrument.**
-  `FINGERBOARD_OVERHANG_MM` (`src/constants/hardware.ts`) stores, per
-  blueprint, how far past Y=0 that body's 22nd fret sits, and
+- **The fingerboard-overhang reference fret is per instrument: 22 guitar, 20
+  bass.** `FINGERBOARD_OVERHANG_MM` (`src/constants/hardware.ts`) stores, per
+  blueprint, how far past Y=0 that body's reference fret sits, and
   `neckPresetFieldsForTemplate` recomputes `nutToBodyEdgeMm` as
-  `getFretDistanceFromNutMm(22, scale) - overhang` with 22 hardcoded. iOS
-  mirrors the same constant as `BlueprintCosmetics.fingerboardOverhangMm`.
-  Basses have 19–21 frets, so for a bass the “22nd fret” is a point past the
-  end of the fingerboard — it remains a well-defined geometric convention, and
-  it is only correct while *both* platforms use 22. Anyone who “corrects” this
-  to a bass's real fret count on one platform slides the whole body along the
-  neck and drags the bridge and pickups with it (see CLAUDE.md, “Coordinate
-  system”). Treat 22 as instrument-independent and pin it in the iOS doc too.
+  `getFretDistanceFromNutMm(N, scale) - overhang`. iOS mirrors the same
+  constant as `BlueprintCosmetics.fingerboardOverhangMm` and must agree on N.
+
+  **Revised during W4.** This plan originally said 22 for every instrument.
+  The number turns out not to be a claim about where a fingerboard ends: the
+  overhang is derived with N and consumed with N, so the absolute position
+  cancels and only the rate `kN = 1 - 2^(-N/12)` survives - how far the joint
+  slides per mm of scale-length change. A same-scale swap is therefore exact
+  whatever N is (`s_style`'s overhang is derived from a *21*-fret neck using
+  22 and still reproduces 390.7 exactly), and N only matters across a scale
+  change.
+
+  That makes 22 exactly right for guitar, where all four curated necks have
+  22 frets, and the wrong *rate* for bass, where necks have 19-21: a 34" to
+  30" swap misplaces the joint - and the bridge - by ~3.5mm. N=20 drops that
+  below a millimetre for the swaps that make sense.
+
+  Two things stay true from the original wording, and matter more than the
+  value: **N must be identical on the way in and the way out** (reading it off
+  each neck's own fret count breaks the cancellation and would move the bridge
+  10.8mm in a case that is currently exact), and **N must be identical on both
+  platforms** per instrument, or the body lands at a different Y on each side.
+
+  Changed at W4 rather than later because the bass catalogue existed and no
+  bass blueprint did, so no stored overhang constant had to be recomputed.
+  After W6 authors eight of them, this change would mean recomputing all eight
+  on both platforms.
 
 ### Catalog tables and the golden corpus
 
@@ -586,12 +605,13 @@ Create each blueprint manually in the app and save it as a real `.axe.svg`,
 then add its curation metadata and order to the manifest. Two other
 blueprint-keyed tables need one new entry each, and neither is optional:
 
-- `FINGERBOARD_OVERHANG_MM` — `fret22Distance(scale) - nutToBodyEdgeMm` for
+- `FINGERBOARD_OVERHANG_MM` — `fret20Distance(scale) - nutToBodyEdgeMm` for
   that body's own native neck, computed by hand exactly as the existing eight
   were (the table is deliberately literal to avoid an import cycle). Same
   value must be added to iOS's `BlueprintCosmetics.fingerboardOverhangMm`.
-  Reference fret stays 22 regardless of the bass's real fret count — see the
-  wire contract.
+  The reference fret for a bass body is **20**, not the 22 the existing eight
+  guitar entries use, and not that bass's own real fret count — see the wire
+  contract.
 - `DEFAULT_NECK_JOINT_MECHANISM` — omitting an entry silently yields bolt-on.
 
 Author the four reference blueprints first; complete and validate them before

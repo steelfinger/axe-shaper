@@ -452,29 +452,45 @@ export const CURATED_NECK_PRESETS: Record<string, NeckPreset> = {
 };
 
 /**
- * How far past Y=0 (the neck-pocket joint line) each bundled body's 22nd
- * fret sits - one entry per `activeTemplateId` in `BLUEPRINT_ORDER`
- * (`constants/blueprintManifest.ts`). Each value is
- * `fret22Distance(nativeNeck.scaleLengthMm) - nativeNeck.nutToBodyEdgeMm`
+ * How far past Y=0 (the neck-pocket joint line) each bundled body's
+ * *reference fret* sits - one entry per `activeTemplateId` in
+ * `BLUEPRINT_ORDER` (`constants/blueprintManifest.ts`). Each value is
+ * `fretRefDistance(nativeNeck.scaleLengthMm) - nativeNeck.nutToBodyEdgeMm`
  * for that body's own native `NECK_PRESETS` entry above - the same
  * body-owned constant axe-shaper-ios's `BlueprintCosmetics
  * .fingerboardOverhangMm` stores (docs/m17-hardware-and-body-refinements.md
  * there). `utils/presets.ts`'s `neckPresetFieldsForTemplate` uses this to
- * recompute `nutToBodyEdgeMm` for whichever of the 4 `CURATED_NECK_PRESETS`
- * a project attaches, so the bridge lands where each body's own native neck
- * was measured against regardless of which curated neck is picked.
+ * recompute `nutToBodyEdgeMm` for whichever neck a project attaches, so the
+ * bridge lands where each body's own native neck was measured against
+ * regardless of which neck is picked.
+ *
+ * **The reference fret is per instrument** - `FINGERBOARD_REFERENCE_FRET` in
+ * `utils/instrument.ts`: 22 for guitar, 20 for bass. All eight entries below
+ * are guitar, so all eight are fret 22; the bass bodies arriving at milestone
+ * W6 use fret 20 and *must* be computed with it. Getting that wrong slides
+ * the body along the neck and takes the bridge and pickups with it.
+ *
+ * The number is a rate rather than a claim about where a fingerboard
+ * actually ends - it is derived and consumed with the same fret, so the
+ * absolute position cancels and only `1 - 2^(-N/12)` survives. `s_style`'s
+ * value below is computed from the *21*-fret `fender_strat_21` using fret 22
+ * and is exact for every same-scale swap regardless. See
+ * `FINGERBOARD_REFERENCE_FRET`'s own comment for the algebra, and for why
+ * reading the fret count off each neck instead would be a 10.8mm bug.
  *
  * Deliberately literal, not derived from `constants/templates.ts` at
  * runtime: `templates.ts` decodes blueprints via `utils/svgExporter.ts`,
  * which already imports from `utils/presets.ts` - importing `templates.ts`
  * back from `presets.ts` would be a real import cycle
  * (presets -> templates -> svgExporter -> presets), not just a style
- * preference. Recompute by hand (`fret22Distance(s) = s * (1 - 2 **
- * (-22/12))`, `utils/scaleMath.ts`'s `getFretDistanceFromNutMm`) if a
+ * preference. Recompute by hand (`fretNDistance(s) = s * (1 - 2 **
+ * (-N/12))` with N from `FINGERBOARD_REFERENCE_FRET` for that body's
+ * instrument, via `utils/scaleMath.ts`'s `getFretDistanceFromNutMm`) if a
  * template's native `NECK_PRESETS` entry's `scaleLengthMm`/
  * `nutToBodyEdgeMm` above ever changes.
  */
 export const FINGERBOARD_OVERHANG_MM: Record<string, LengthMm> = {
+  // Guitar bodies - reference fret 22.
   single_cut: 73.0411, // gibson_lp_22
   sg_style: 43.3811, // gibson_sg_22
   s_style: 75.2453, // fender_strat_21
@@ -483,6 +499,7 @@ export const FINGERBOARD_OVERHANG_MM: Record<string, LengthMm> = {
   gretsch_thunderbird: 73.0011, // gretsch_thunderbird_22
   gibson_flying_v: 74.0011, // gibson_flying_v_22
   jag_style: 70.9045, // jaguar_22
+  // Bass bodies (milestone W6) go here, computed with reference fret 20.
 };
 
 /**

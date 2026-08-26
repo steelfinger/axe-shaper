@@ -23,6 +23,7 @@ import {
   LEGACY_INSTRUMENT_TYPE,
   bridgePresetInstrument,
   defaultStringCount,
+  fingerboardReferenceFret,
   isInstrumentType,
   isSupportedInstrument,
   neckPresetInstrument,
@@ -138,13 +139,12 @@ export function neckPresetFields(id: string): Required<NeckRef> {
  *   independent of which neck was attached, which was true only while every
  *   neck was a guitar neck.
  *
- * The fingerboard-overhang reference fret stays **22 for every instrument**,
- * bass included. A four-string bass has 19-21 frets, so its "22nd fret" is a
- * point past the end of the fingerboard - still a well-defined geometric
- * convention, and correct only while both this app and axe-shaper-ios use the
- * same number. Correcting it to a bass's real fret count on one side would
- * slide the whole body along the neck and take the bridge and pickups with
- * it (docs/AXE_SVG_FORMAT.md).
+ * The fingerboard-overhang reference fret comes from
+ * `FINGERBOARD_REFERENCE_FRET[instrumentType]` (22 for guitar, 20 for bass),
+ * *not* from the chosen neck's own `frets`. It is a rate, not a claim about
+ * where a fingerboard ends, and it has to be the same number on the way in
+ * and the way out or the derivation stops cancelling - see that constant's
+ * own comment, and docs/AXE_SVG_FORMAT.md, which pins it for both platforms.
  */
 export function neckPresetFieldsForTemplate(
   id: string,
@@ -154,8 +154,11 @@ export function neckPresetFieldsForTemplate(
 ): Required<NeckRef> {
   const base = NECK_PRESETS[id] ?? CURATED_NECK_PRESETS[id] ?? NECK_PRESETS[DEFAULT_NECK_PRESET_ID];
   const overhang = FINGERBOARD_OVERHANG_MM[activeTemplateId];
+  const referenceFret = fingerboardReferenceFret(instrumentType);
   const nutToBodyEdgeMm =
-    overhang === undefined ? base.nutToBodyEdgeMm : getFretDistanceFromNutMm(22, base.scaleLengthMm) - overhang;
+    overhang === undefined
+      ? base.nutToBodyEdgeMm
+      : getFretDistanceFromNutMm(referenceFret, base.scaleLengthMm) - overhang;
   const pocket = GENERIC_POCKET_SPEC[instrumentType][mechanism];
   return {
     neckPresetId: id,

@@ -154,20 +154,53 @@ values arrive with the bass hardware (milestone W2), so that guitar and bass
 measurements get verified against published specs in one pass rather than
 eyeballed one at a time.
 
-### The fingerboard-overhang reference fret is 22 for every instrument
+### The fingerboard-overhang reference fret: 22 guitar, 20 bass
 
 `FINGERBOARD_OVERHANG_MM` (web, `src/constants/hardware.ts`) and
 `BlueprintCosmetics.fingerboardOverhangMm` (iOS) store, per blueprint, how far
-past Y=0 that body's **22nd fret** sits. `nutToBodyEdgeMm` is then recomputed
-as `getFretDistanceFromNutMm(22, scale) - overhang`.
+past Y=0 that body's **reference fret** sits. `nutToBodyEdgeMm` is then
+recomputed as `getFretDistanceFromNutMm(N, scale) - overhang`.
 
-Basses have 19–21 frets, so on a bass the "22nd fret" is a point past the end
-of the fingerboard. It is still a well-defined geometric convention, and it is
-only correct while **both** platforms use 22.
+| Instrument | N |
+| --- | ---: |
+| Guitar | 22 |
+| Bass | 20 |
 
-Anyone who "corrects" this to a bass's real fret count on one platform slides
-the whole body along the neck and drags the bridge and pickups with it. Treat
-22 as instrument-independent.
+**N is a rate, not a claim about where a fingerboard ends.** The overhang is
+derived with N and consumed with N, so the absolute position cancels:
+
+```
+overhang  = fretN(S_native) − nutToBodyEdge_native
+new value = fretN(S_new) − overhang
+          = nutToBodyEdge_native + kN · (S_new − S_native),  kN = 1 − 2^(−N/12)
+```
+
+All that survives is `kN`: how far the joint line slides per millimetre of
+scale-length change. Attaching a neck of the *same* scale reproduces the
+body's own value exactly, whatever N is — web's `s_style` overhang is derived
+from a **21**-fret neck using N=22 and still reproduces 390.7 to the digit.
+
+Two rules follow, and both matter more than the number itself:
+
+1. **N must be the same on the way in and the way out.** Reading it off each
+   neck's real fret count breaks the cancellation: on web that would move the
+   bridge **10.8 mm** when a 22-fret neck is attached to a body whose overhang
+   was derived from a 21-fret one, at the *same* scale — a case that is
+   currently exact.
+2. **N must be the same on both platforms**, per instrument. It is a contract
+   number; disagreeing on it lands the body at a different Y on each side.
+
+Why the values differ: all four curated guitar necks have 22 frets, so N=22 is
+the exact rate for every swap the guitar picker offers. Four-string bass necks
+have 19–21, so N=22 would be the wrong rate — swapping a 34″ bass neck for a
+30″ one would misplace the joint, and with it the bridge, by about **3.5 mm**.
+N=20 is the common four-string count and drops that below a millimetre for the
+swaps that make sense.
+
+This replaces an earlier decision to use 22 for both instruments. It was
+changed while the bass catalogue existed but no bass blueprint did, so no
+stored overhang constant had to be recomputed; after bass bodies ship, changing
+it means recomputing every one of them on both platforms.
 
 ## Coordinate system
 

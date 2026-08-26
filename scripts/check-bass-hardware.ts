@@ -270,6 +270,74 @@ async function main() {
       );
     });
 
+    console.log('the fingerboard-overhang reference fret');
+
+    check('guitar is still fret 22, so no existing body moves', () => {
+      deepStrictEqual(instrument.FINGERBOARD_REFERENCE_FRET.guitar, 22);
+      // Every value in FINGERBOARD_OVERHANG_MM was computed with 22 against
+      // its body's own native neck. Recomputing it must return the native
+      // nutToBodyEdgeMm exactly - if this drifts, every bundled guitar body
+      // has slid along its neck.
+      const native: Record<string, string> = {
+        single_cut: 'gibson_lp_22',
+        sg_style: 'gibson_sg_22',
+        s_style: 'fender_strat_21',
+        t_style: 'fender_tele_22',
+        gibson_firebird: 'gibson_firebird_19',
+        gretsch_thunderbird: 'gretsch_thunderbird_22',
+        gibson_flying_v: 'gibson_flying_v_22',
+        jag_style: 'jaguar_22',
+      };
+      for (const [bodyId, neckId] of Object.entries(native)) {
+        const neck = hardware.NECK_PRESETS[neckId];
+        const overhang = hardware.FINGERBOARD_OVERHANG_MM[bodyId];
+        invariant(neck && overhang !== undefined, `${bodyId}/${neckId} is missing`);
+        const recomputed = scaleMath.getFretDistanceFromNutMm(22, neck.scaleLengthMm) - overhang;
+        invariant(
+          Math.abs(recomputed - neck.nutToBodyEdgeMm) < 1e-3,
+          `${bodyId}: recomputes to ${recomputed.toFixed(4)}, native is ${neck.nutToBodyEdgeMm}`
+        );
+      }
+    });
+
+    check('the derivation cancels: a same-scale neck reproduces the body exactly', () => {
+      // The property the whole scheme rests on, and the reason the reference
+      // fret is a *rate* rather than a claim about where a fingerboard ends.
+      // s_style is the sharpest case: its overhang is derived from the
+      // 21-fret fender_strat_21 using fret 22, and attaching the 22-fret
+      // fender_scale at the same 647.7mm must still land on 390.7.
+      const fields = presets.neckPresetFieldsForTemplate('fender_scale', 's_style', 'bolt_on', 'guitar');
+      invariant(
+        Math.abs(fields.neckPreset.nutToBodyEdgeMm - 390.7) < 1e-3,
+        `same-scale swap moved the joint to ${fields.neckPreset.nutToBodyEdgeMm}`
+      );
+    });
+
+    check('bass uses fret 20, and that is the right rate for four-string necks', () => {
+      deepStrictEqual(instrument.FINGERBOARD_REFERENCE_FRET.bass, 20);
+      // Every bass neck this build offers has 19-21 frets, so 22 would be
+      // the wrong rate. Guard the premise rather than the number: if a
+      // 22-fret bass neck is ever added, this choice deserves rethinking.
+      for (const neck of bassNecks) {
+        invariant(
+          neck.frets >= 19 && neck.frets <= 21,
+          `${neck.id} has ${neck.frets} frets - reconsider FINGERBOARD_REFERENCE_FRET.bass`
+        );
+      }
+    });
+
+    check('the reference fret is never read off the neck itself', () => {
+      // Deriving with one fret count and consuming with another breaks the
+      // cancellation above. Two necks of the same scale but different fret
+      // counts must resolve a body identically; if this fails, someone has
+      // made the reference fret neck-owned.
+      const a = presets.neckPresetFieldsForTemplate('fender_strat_21', 's_style', 'bolt_on', 'guitar');
+      const b = presets.neckPresetFieldsForTemplate('fender_tele_22', 's_style', 'bolt_on', 'guitar');
+      invariant(a.neckPreset.frets !== b.neckPreset.frets, 'the fixture necks no longer differ in fret count');
+      deepStrictEqual(a.neckPreset.scaleLengthMm, b.neckPreset.scaleLengthMm);
+      deepStrictEqual(a.neckPreset.nutToBodyEdgeMm, b.neckPreset.nutToBodyEdgeMm);
+    });
+
     console.log('an imported Bass/4 project stays a bass');
 
     check('opens in bass mode even when every preset id is unknown', () => {

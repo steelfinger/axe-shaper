@@ -41,6 +41,53 @@ export const SUPPORTED_STRING_COUNTS: Record<InstrumentType, readonly number[]> 
   bass: [4],
 };
 
+/**
+ * The fret whose distance from the nut is used as the reference point for a
+ * blueprint's `FINGERBOARD_OVERHANG_MM`, per instrument.
+ *
+ * **This number is a rate, not a claim about where a fingerboard ends.** The
+ * overhang is derived with it and consumed with it:
+ *
+ * ```
+ * overhang  = fretN(S_native) - nutToBodyEdge_native
+ * new value = fretN(S_new) - overhang
+ *           = nutToBodyEdge_native + kN * (S_new - S_native)
+ * ```
+ *
+ * The absolute position cancels; all that survives is `kN = 1 - 2^(-N/12)`,
+ * the distance the joint line slides per millimetre of scale-length change.
+ * So attaching a neck of the *same* scale reproduces the body's own
+ * `nutToBodyEdgeMm` exactly, whatever N is - `s_style`'s overhang is derived
+ * from the 21-fret `fender_strat_21`, and the 22-fret `fender_scale`
+ * reproduces 390.7 to the digit. N only matters when the scale changes.
+ *
+ * Which is why it must stay **constant within a document**, and therefore be
+ * keyed by instrument rather than read off each neck's own `frets`. Deriving
+ * with one fret count and consuming with another breaks the cancellation:
+ * `s_style` + `fender_scale` at the same 647.7mm scale would move the bridge
+ * 10.8mm, in a case that is currently exact. That is the "two facts
+ * competing" failure this codebase has documented more than once.
+ *
+ * Guitar is 22 because all four curated guitar necks have 22 frets, making
+ * the rate exact for every swap the picker offers. Bass necks have 19-21, so
+ * 22 would be the wrong rate: swapping a 34" bass neck for a 30" one would
+ * misplace the joint - and with it the bridge - by about 3.5mm. 20 is the
+ * common four-string count and drops that to well under a millimetre for the
+ * swaps that make sense.
+ *
+ * Changing a value here moves every body of that instrument along its neck,
+ * so it is a cross-platform contract number: axe-shaper-ios mirrors it as
+ * `GuitarProject.lastFretForFingerboardLength` and must agree.
+ */
+export const FINGERBOARD_REFERENCE_FRET: Record<InstrumentType, number> = {
+  guitar: 22,
+  bass: 20,
+};
+
+export function fingerboardReferenceFret(type: InstrumentType): number {
+  return FINGERBOARD_REFERENCE_FRET[type] ?? FINGERBOARD_REFERENCE_FRET.guitar;
+}
+
 /** The string count a new design of this type starts with. */
 export function defaultStringCount(type: InstrumentType): number {
   return SUPPORTED_STRING_COUNTS[type][0];
