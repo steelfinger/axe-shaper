@@ -3,6 +3,7 @@ import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, Box, CircleHelp, Info, M
 import type { PrintPaper } from '../utils/tiledPrint';
 import type { GuitarProject } from '../types/guitar';
 import { snapGridToUnit } from '../utils/units';
+import { instrumentLabel } from '../utils/instrument';
 
 interface HeaderProps {
   project: GuitarProject;
@@ -69,6 +70,15 @@ export const Header: React.FC<HeaderProps> = ({
           style={{ width: '220px', fontWeight: 600 }}
           placeholder="Project Name..."
         />
+
+        {/* Project context, not a control. The instrument is fixed for the
+            life of a document - changing it replaces the contour and every
+            piece of hardware, which is New..., not a toggle - so this states
+            what is being designed rather than offering to change it. */}
+        <span className="header-instrument" title="Set when the design was created. Use New… to design the other instrument.">
+          {instrumentLabel(project.instrumentType)}
+          <span className="header-instrument-strings">{project.stringCount}-string</span>
+        </span>
 
         <div className="header-unit-controls" style={{ display: 'flex', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', padding: '2px' }}>
           <button

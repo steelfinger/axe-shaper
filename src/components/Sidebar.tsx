@@ -25,6 +25,7 @@ import type {
 } from '../types/guitar';
 import {
   bridgePresetFields,
+  isTemplateCompatible,
   neckPresetFieldsForTemplate,
   offeredBridgePresets,
   offeredNeckPresets,
@@ -37,6 +38,7 @@ import { type ActiveLayer, activeLayersEqual } from '../utils/layerShapes';
 import { getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 import { GRID_PRESETS, formatLength, gridMinorDivisor, toMm, unitLabel } from '../utils/units';
 import { deleteUserTemplate, loadUserTemplates, saveUserTemplate, type UserTemplate } from '../utils/userTemplates';
+import { instrumentLabel } from '../utils/instrument';
 import type { HandleAngleSnapPreference } from '../utils/handleAngleSnap';
 
 interface SidebarProps {
@@ -103,10 +105,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [extraOpen, setExtraOpen] = useState<boolean>(
     () => REFERENCE_TEMPLATES[project.activeTemplateId]?.tier === 'extra'
   );
-  const referenceTemplates = Object.values(REFERENCE_TEMPLATES).filter((t) => t.tier === 'reference');
-  const extraTemplates = Object.values(REFERENCE_TEMPLATES).filter((t) => t.tier === 'extra');
+  // Blueprints are filtered to the project's own instrument, and Switch
+  // Blueprint therefore only ever offers bodies this document can actually
+  // become. Changing Guitar <-> Bass is New..., not a switch: it would
+  // replace the contour and every piece of hardware, which is a new design.
+  const compatibleTemplates = Object.values(REFERENCE_TEMPLATES).filter((t) =>
+    isTemplateCompatible(t, project)
+  );
+  const referenceTemplates = compatibleTemplates.filter((t) => t.tier === 'reference');
+  const extraTemplates = compatibleTemplates.filter((t) => t.tier === 'extra');
+  const instrument = instrumentLabel(project.instrumentType).toLowerCase();
 
   const [userTemplates, setUserTemplates] = useState<UserTemplate[]>(loadUserTemplates);
+  // Same rule for saved templates, and it matters more here: a UserTemplate
+  // stores preset *ids only*, with no embedded copy, so applying one from the
+  // other instrument resolves its hardware purely through the catalogue -
+  // the one path in the app where "the embedded copy wins" cannot rescue a
+  // wrong lookup. Untagged records predate the field and read as Guitar/6.
+  const compatibleUserTemplates = userTemplates.filter((t) => isTemplateCompatible(t, project));
 
   const handleSaveAsTemplate = () => {
     const name = window.prompt('Name this template:', project.settings.name)?.trim();
@@ -370,9 +386,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="panel-section">
               <div className="section-title">
                 <Sliders size={16} /> Reference Blueprints
+                {/* The header carries this too, but the header's project
+                    controls are hidden in the narrow layout - and this is the
+                    panel where "which instrument am I designing" actually
+                    decides what the lists below contain. */}
+                <span className="sidebar-instrument">
+                  {instrumentLabel(project.instrumentType)} · {project.stringCount}-string
+                </span>
               </div>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-                Select a baseline guitar blueprint to initialize editable Bezier nodes and hardware alignment.
+                {compatibleTemplates.length === 0 ? (
+                  <>
+                    No {instrument} blueprints are bundled yet, so there is nothing to switch to. The hardware
+                    and neck pocket for this design are still {instrument}-specific.
+                  </>
+                ) : (
+                  <>
+                    Select a baseline {instrument} blueprint to initialize editable Bezier nodes and hardware
+                    alignment. To design the other instrument, use <strong>New&hellip;</strong> - it replaces the
+                    contour and all of the hardware.
+                  </>
+                )}
               </p>
 
               {referenceTemplates.map((tmpl) => (
@@ -473,10 +507,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <Plus size={15} /> Save Current Design as Template
               </button>
 
-              {userTemplates.length === 0 ? (
-                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>No saved templates yet.</p>
+              {compatibleUserTemplates.length === 0 ? (
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  {userTemplates.length === 0
+                    ? 'No saved templates yet.'
+                    : `No saved ${instrument} templates. Templates saved for the other instrument are hidden here.`}
+                </p>
               ) : (
-                userTemplates.map((tmpl) => (
+                compatibleUserTemplates.map((tmpl) => (
                   <div
                     key={tmpl.id}
                     onClick={() => onSelectTemplate(tmpl.id)}
@@ -879,7 +917,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               ) : (
                 <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  No guide image loaded. Click upload above to load any guitar template photo or PNG.
+                  No guide image loaded. Click upload above to load any instrument template photo or PNG.
                 </p>
               )}
             </div>

@@ -3024,3 +3024,41 @@ html.marketing-document {
     justify-content: center;
   }
 }
+
+/* Project context in the header: the instrument a document was created as.
+   Deliberately not styled as a control - it is not one, and gold is reserved
+   for "this is the active choice" among things you can actually choose. */
+.header-instrument {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.header-instrument-strings {
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Instrument context inside the Templates panel. Same job as
+   .header-instrument, kept because the header hides its project controls in
+   the narrow layout. */
+.sidebar-instrument {
+  margin-left: auto;
+  padding: 2px 7px;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-muted);
+  white-space: nowrap;
+}

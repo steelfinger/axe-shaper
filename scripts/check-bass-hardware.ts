@@ -63,6 +63,7 @@ async function main() {
     const pickupEditing = await load('/src/utils/pickupEditing.ts');
     const scaleMath = await load('/src/utils/scaleMath.ts');
     const exporter = await load('/src/utils/svgExporter.ts');
+    const manifest = await load('/src/constants/blueprintManifest.ts');
 
     const bassNecks = presets.offeredNeckPresets('bass');
     const bassBridges = presets.offeredBridgePresets('bass');
@@ -267,6 +268,72 @@ async function main() {
         instrument.pickupTypeInstrument(retyped.pickups.at(-1).type) === 'bass',
         'retyping to a guitar pickup was honoured in a bass project'
       );
+    });
+
+    console.log('an imported Bass/4 project stays a bass');
+
+    check('opens in bass mode even when every preset id is unknown', () => {
+      // The W4 criterion, and the reason the instrument axis is project-level
+      // rather than derived from the hardware: a file naming presets this
+      // build has never heard of must still open as what it says it is, with
+      // its own embedded measurements driving the drawing.
+      const foreign = {
+        ...bassProject,
+        neckPresetId: 'some_future_bass_neck',
+        bridgePresetId: 'some_future_bass_bridge',
+        neckPreset: { ...bassProject.neckPreset, id: 'some_future_bass_neck', scaleLengthMm: 880, nutToBodyEdgeMm: 550 },
+        bridgePreset: { ...bassProject.bridgePreset, id: 'some_future_bass_bridge', compensationMm: { treble: 4, bass: 11 } },
+      };
+      const written = exporter.exportProjectToSVG(foreign);
+      const result = presets.loadProject(
+        JSON.parse(Buffer.from(written.match(/<project:data>([\s\S]*?)<\/project:data>/)![1].trim(), 'base64').toString('utf8'))
+      );
+      invariant(result.ok, `the file was refused: ${!result.ok ? result.message : ''}`);
+      deepStrictEqual(result.project.instrumentType, 'bass');
+      deepStrictEqual(result.project.stringCount, 4);
+
+      // Embedded physical values still win over any catalogue lookup.
+      const neck = presets.resolveNeckPreset(result.project);
+      const bridge = presets.resolveBridgePreset(result.project);
+      deepStrictEqual(neck.scaleLengthMm, 880);
+      deepStrictEqual(neck.nutToBodyEdgeMm, 550);
+      deepStrictEqual(bridge.compensationMm.treble, 4);
+      deepStrictEqual(scaleMath.getTheoreticalSaddleYMm(neck), 330);
+    });
+
+    check('an unknown bass preset id is not offered as a choice', () => {
+      // Resolving it and offering it are different questions. The file above
+      // draws correctly; its ids simply are not in any picker.
+      invariant(
+        !presets.offeredNeckPresets('bass').some((n: any) => n.id === 'some_future_bass_neck'),
+        'an unknown id leaked into the neck picker'
+      );
+      deepStrictEqual(instrument.neckPresetInstrument('some_future_bass_neck'), undefined);
+    });
+
+    check('no bundled blueprint is applicable to a bass project', () => {
+      // Until W6 bundles bass bodies, Switch Blueprint in a bass project has
+      // nothing to offer - and must offer nothing rather than a guitar body.
+      //
+      // Read from BLUEPRINT_MANIFEST rather than REFERENCE_TEMPLATES: the
+      // manifest is where the instrument tag actually lives, and
+      // constants/templates.ts decodes the .axe.svg files through a DOMParser
+      // that Node does not have.
+      const bassDoc = { instrumentType: 'bass', stringCount: 4 };
+      const guitarDoc = { instrumentType: 'guitar', stringCount: 6 };
+      const entries = Object.entries<any>(manifest.BLUEPRINT_MANIFEST);
+      invariant(entries.length > 0, 'the blueprint manifest is empty');
+      for (const [id, entry] of entries) {
+        const template = {
+          instrumentType: entry.instrumentType,
+          stringCount: instrument.defaultStringCount(entry.instrumentType),
+        };
+        invariant(!presets.isTemplateCompatible(template, bassDoc), `blueprint ${id} is offered to a bass project`);
+        invariant(
+          presets.isTemplateCompatible(template, guitarDoc),
+          `blueprint ${id} is no longer offered to a guitar project`
+        );
+      }
     });
 
     console.log('golden corpus');

@@ -8,6 +8,7 @@ import { REFERENCE_TEMPLATES } from './constants/templates';
 import {
   bridgePresetFields,
   defaultNeckJointMechanism,
+  isTemplateCompatible,
   loadProject,
   neckPresetFieldsForNewTemplate,
   withEmbeddedPresets,
@@ -268,6 +269,17 @@ function EditorApp({ initialProject, onNewDesign }: EditorAppProps): React.JSX.E
   const handleSelectTemplate = (templateId: string) => {
     const template = REFERENCE_TEMPLATES[templateId] ?? getUserTemplate(templateId);
     if (!template) return;
+    // Switching blueprint stays inside the instrument. The pickers only offer
+    // compatible ones, so reaching here with a mismatch means something
+    // upstream is stale - a saved template id, or a list that was not
+    // filtered - and the right answer is to refuse rather than to rebuild the
+    // document around hardware for an instrument it is not.
+    //
+    // This is the guard that matters most for a *user* template: it stores
+    // preset ids with no embedded copy, so applying a bass one to a guitar
+    // project would resolve its neck and bridge straight out of the
+    // catalogue, with nothing to fall back on.
+    if (!isTemplateCompatible(template, project)) return;
 
     handleUpdateProject((prev) => ({
       ...prev,

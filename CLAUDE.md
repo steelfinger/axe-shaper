@@ -76,6 +76,20 @@ anything a second implementation reads. In particular `stringSpacingMm` /
 `nutStringSpacingMm` are a **total spread across all strings**, not a
 per-string pitch.
 
+## The editor is isolated to one instrument
+
+A document's `instrumentType` is fixed for its life. Blueprints, saved
+templates, necks, bridges and pickup types are all filtered to it, and
+`handleSelectTemplate` refuses a mismatch even if the UI ever stops
+filtering. Changing instrument is **New...**, not a switch - it replaces the
+contour and every piece of hardware.
+
+The filter that matters most is on **user templates**. A `UserTemplate`
+stores preset ids with *no embedded copy*, so applying one from the other
+instrument resolves its neck and bridge purely through the catalogue - the
+one path in this app where "the embedded copy wins" cannot rescue a wrong
+lookup. Untagged records predate the field and read as Guitar/6.
+
 ## The bass catalogue
 
 Bass hardware lives in the same `NECK_PRESETS` / `BRIDGE_PRESETS` /

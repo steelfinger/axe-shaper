@@ -482,6 +482,42 @@ marketing route is unaffected by the shell change.
 
 ## Web milestone W4 — isolated editor mode
 
+**Status: complete.** Much of it was already in place: the neck, bridge and
+pickup pickers were wired to the selectors at W2, and the undo/redo boundary
+fell out of W3's session key. What W4 added is blueprint and user-template
+filtering, the project-type context, and the copy audit.
+
+- **Blueprints and saved templates are filtered by
+  `isTemplateCompatible`**, and `handleSelectTemplate` refuses a mismatch
+  even if one reaches it. Belt and braces on purpose: a `UserTemplate` stores
+  preset **ids only** with no embedded copy, so applying one from the other
+  instrument would resolve its neck and bridge straight out of the catalogue,
+  with nothing to fall back on. It is the one path in the app where "the
+  embedded copy wins" cannot rescue a wrong lookup.
+- **Project type shows in two places, not one.** The header carries it next
+  to the project name, but the header's project controls are hidden in the
+  narrow layout, so the Templates panel carries it too - and that panel is
+  where the instrument actually decides what the lists below contain.
+  Presented as context, never as a control: changing it would replace the
+  contour and every piece of hardware, which is New..., not a toggle.
+- **A bass project's Templates tab says there is nothing to switch to**,
+  rather than showing an empty list under "Select a baseline bass blueprint".
+
+### The copy audit, and what it deliberately did not change
+
+- Changed: the Templates panel's "baseline guitar blueprint", and the guide
+  image's "any guitar template photo".
+- **Not changed: `AboutModal` and `MarketingSite`.** Both say "electric
+  guitar", which is accurate today - no bass body can be designed until W6
+  bundles blueprints. Broadening them now is exactly the "unsupported product
+  claim" this milestone's own instruction warns against. They change when
+  bass ships, with the counts, at W6/W7.
+- **Not changed: the exported SVG's own wording** (including its `<!-- Guitar
+  Geometry Group -->` comment) and download filenames. W5 owns making SVG
+  titles, descriptions, labels and download names type-aware; doing it here
+  would only split that change across two milestones.
+
+
 Work:
 
 - Filter the sidebar's blueprints, necks, bridges and pickups by the project's
@@ -502,11 +538,26 @@ Work:
 
 Exit criteria:
 
-- There is no route through the UI that offers guitar hardware in Bass/4.
-- Imported Bass/4 projects open in Bass mode even when their preset ids are
-  unknown; embedded physical values still win.
-- Undo/redo never crosses a New Design boundary.
-- Existing Guitar projects behave as before apart from the new creation flow.
+- ✅ There is no route through the UI that offers guitar hardware in Bass/4.
+  Necks, bridges and pickup types go through the selectors (asserted in both
+  directions by `npm run bass:check`); blueprints and saved templates go
+  through `isTemplateCompatible`; `handleSelectTemplate` refuses a mismatch
+  as a backstop. Verified in the browser on a real Bass/4 document: every
+  picker bass-only, no blueprint offered, and a bass-tagged user template
+  visible only in the bass document while a guitar-tagged and an untagged
+  legacy one were visible only in the guitar document.
+- ✅ Imported Bass/4 projects open in Bass mode even when their preset ids
+  are unknown; embedded physical values still win. Asserted by
+  `bass:check`: a file naming `some_future_bass_neck` /
+  `some_future_bass_bridge` opens as Bass/4, draws from its own embedded
+  880 mm scale and 550 mm nut-to-body-edge, and those ids appear in no picker.
+- ✅ Undo/redo never crosses a New Design boundary - satisfied at W3 by
+  keying the editor on a session id, and verified there.
+- ✅ Existing Guitar projects behave as before apart from the new creation
+  flow: the golden corpus is unchanged, the iOS fixtures still round-trip,
+  and a guitar document still lists all four reference blueprints, the four
+  extras, and its untagged legacy user templates.
+
 
 ## Web milestone W5 — output and 3D handoff
 
