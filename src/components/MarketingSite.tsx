@@ -220,7 +220,11 @@ function IpadPage(): React.JSX.Element {
 
 export function MarketingSite({ path }: { path: string }): React.JSX.Element {
   useEffect(() => {
-    document.documentElement.classList.add('marketing-document');
+    // marketing-document: this page's own smooth-scroll-to-anchor behaviour.
+    // page-scrolls: the shared opt-out from the app shell's fixed-viewport
+    // layout (also used by NewDesignScreen) - see the rule's own comment in
+    // styles/index.css.
+    document.documentElement.classList.add('marketing-document', 'page-scrolls');
     document.title = path === '/privacy'
       ? 'Privacy — Axe Shaper'
       : path === '/support'
@@ -235,7 +239,7 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
     scrollToHash();
     window.addEventListener('hashchange', scrollToHash);
     return () => {
-      document.documentElement.classList.remove('marketing-document');
+      document.documentElement.classList.remove('marketing-document', 'page-scrolls');
       window.removeEventListener('hashchange', scrollToHash);
     };
   }, [path]);

@@ -17,15 +17,36 @@ import { formatLength } from '../utils/units';
  *
  * Two things here are structural rather than cosmetic:
  *
- * - **No project exists until Open editor is pressed.** The screen holds a
- *   template *id*, and `createProject` runs once, on submit. Choosing Bass
- *   therefore cannot briefly render or initialise a guitar project - there is
- *   nothing to initialise until the choice is made.
+ * - **No project exists until a card is activated or Open editor is
+ *   pressed.** The screen holds a template *id*, and `createProject` runs
+ *   once, at that point. Choosing Bass therefore cannot briefly render or
+ *   initialise a guitar project - there is nothing to initialise until the
+ *   choice is made.
  * - **Every control is a real radio input.** Arrow-key navigation within a
  *   group, Space to select, and the roving tab stop all come from the
  *   platform; a div with an onClick would have to reimplement each of them,
  *   and would get the roving tab stop wrong. The cards are `<label>`s for
  *   their own input, so the whole card stays clickable.
+ *
+ * A real pointer click (mouse, touch, pen) on a card opens the editor
+ * immediately, rather than only selecting it and leaving "Open editor" as a
+ * second, separate click - a card was selectable but that wasn't obvious as
+ * a two-step flow, and clicking a card was the natural expectation of
+ * "choose this one." Arrow-key browsing within the radio group deliberately
+ * still only *selects* (updates the preview) without submitting, because a
+ * keyboard-only user has no other way to move between cards, and needs to be
+ * able to pass a card by without committing to it.
+ *
+ * That distinction is harder than "click vs. change": a native radio group's
+ * arrow-key navigation is specified to run the newly-focused radio's own
+ * activation behaviour, which fires a real `click` event - not just
+ * `change`. `onClick` alone can't tell that apart from an actual pointer
+ * click; `event.detail` can't either (both are `0`, same as a keyboard Space
+ * activation). The one reliable signal is `pointerType`: empty for anything
+ * keyboard-originated, `"mouse"`/`"touch"`/`"pen"` for a real pointing
+ * device. Confirmed empirically, not assumed - see `BlueprintCard`'s own
+ * comment. "Open editor" stays as the explicit, always-present action for
+ * arrow-key/Tab-only navigation.
  */
 
 interface NewDesignScreenProps {
@@ -82,6 +103,15 @@ export function NewDesignScreen({ onOpenProject, onOpenFile }: NewDesignScreenPr
 
   useEffect(() => {
     document.title = 'New design — Axe Shaper';
+    // Opt out of the app shell's fixed-viewport layout (html/body/#root are
+    // height:100%+overflow:hidden globally, correct for .app-container's own
+    // internal panel scrolling) - this screen is a normal page and needs to
+    // scroll like one. Without it, "Open editor" was unreachable whenever the
+    // window was too short to fit every card above the fold: there was no
+    // scrolling ancestor for the page to scroll within. See the rule's own
+    // comment in styles/index.css; MarketingSite uses the same class.
+    document.documentElement.classList.add('page-scrolls');
+    return () => document.documentElement.classList.remove('page-scrolls');
   }, []);
 
   const byInstrument = useMemo(() => {
@@ -121,10 +151,15 @@ export function NewDesignScreen({ onOpenProject, onOpenFile }: NewDesignScreenPr
     setExtraOpen(false);
   };
 
+  const openWithTemplate = (id: string) => {
+    setTemplateId(id);
+    onOpenProject(createProject({ templateId: id }));
+  };
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!templateId) return;
-    onOpenProject(createProject({ templateId }));
+    openWithTemplate(templateId);
   };
 
   return (
@@ -188,6 +223,7 @@ export function NewDesignScreen({ onOpenProject, onOpenFile }: NewDesignScreenPr
                     template={template}
                     checked={templateId === template.id}
                     onSelect={setTemplateId}
+                    onActivate={openWithTemplate}
                   />
                 ))}
               </div>
@@ -212,6 +248,7 @@ export function NewDesignScreen({ onOpenProject, onOpenFile }: NewDesignScreenPr
                         template={template}
                         checked={templateId === template.id}
                         onSelect={setTemplateId}
+                        onActivate={openWithTemplate}
                       />
                     ))}
                   </div>
@@ -290,14 +327,36 @@ function BlueprintCard({
   template,
   checked,
   onSelect,
+  onActivate,
 }: {
   template: ReferenceTemplate;
   checked: boolean;
+  /** Arrow-key browsing within the radio group: preview only, no commit. */
   onSelect: (id: string) => void;
+  /** A real pointer click (mouse, touch, pen) on the card: select and open the editor in one step. */
+  onActivate: (id: string) => void;
 }): React.JSX.Element {
   const facts = templateFacts(template);
   return (
-    <label className={`design-card${checked ? ' is-selected' : ''}`}>
+    <label
+      className={`design-card${checked ? ' is-selected' : ''}`}
+      onClick={(event) => {
+        // Wrapping the input in a <label> is what makes the whole card
+        // clickable, but that means EVERY activation of the input - a real
+        // pointer click, *and* the click a browser synthesises when arrow
+        // keys move focus within a native radio group - bubbles through this
+        // handler as a 'click'. Those two are indistinguishable by event type
+        // (both are `detail: 0` for a plain keyboard Space too); the one
+        // reliable signal is `pointerType`, empty for anything keyboard-
+        // originated and "mouse"/"touch"/"pen" for a real pointer device.
+        // Gating on it is what keeps arrow-key browsing (still just a
+        // preview via onChange below) from instantly opening the editor on
+        // whichever card the second arrow press happens to land on - which a
+        // first version of this fix did, and it made browsing past the
+        // second card impossible for a keyboard-only user.
+        if ((event.nativeEvent as PointerEvent).pointerType) onActivate(template.id);
+      }}
+    >
       <input
         type="radio"
         name="blueprint"

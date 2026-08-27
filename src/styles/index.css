@@ -1080,10 +1080,17 @@ summary:focus-visible {
   font: 0.7rem var(--font-mono) !important;
 }
 
-/* Public site: a bright physical plan opened on the dark workshop bench. */
-html.marketing-document,
-html.marketing-document body,
-html.marketing-document #root {
+/* Opt-out of the app shell's fixed-viewport layout (body/html/#root below are
+   height:100% + overflow:hidden, correct for .app-container's own internal
+   panel scrolling) for a route that is just a normal page and needs to
+   scroll like one - the public marketing site, and the New Design screen.
+   Without this, content past the fold - on the New Design screen, the "Open
+   editor" button itself once enough blueprint cards or a short window pushed
+   it below the viewport - was completely unreachable: there was no scrolling
+   ancestor for the page to scroll within. */
+html.page-scrolls,
+html.page-scrolls body,
+html.page-scrolls #root {
   height: auto;
   min-height: 100%;
   overflow: visible;
