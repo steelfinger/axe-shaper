@@ -225,20 +225,6 @@
           "bass": 4.5
         },
         "saddleOffsetYMm": 24,
-        "mountingPoints": [
-          {
-            "x": -21,
-            "y": 15
-          },
-          {
-            "x": 0,
-            "y": 15
-          },
-          {
-            "x": 21,
-            "y": 15
-          }
-        ],
         "widthMm": 73,
         "lengthMm": 42
       },

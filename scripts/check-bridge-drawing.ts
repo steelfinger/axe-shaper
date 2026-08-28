@@ -38,13 +38,23 @@ try {
   assert.deepEqual(bridgeDrawing.bridgeReferenceLineXRange(fStyle), [-37.5, 35.5]);
   assert.equal(fStyle.armSocket.center.x, 39.5);
   assert.equal(fStyle.armSocket.radiusMm, 3.5);
-
-  const hardtailWithSameInputs = bridgeDrawing.getBridgeDrawingGeometry(neck, {
-    ...tremolo,
-    id: 'hardtail_6',
-  });
-  assert.deepEqual(hardtailWithSameInputs, fStyle);
   assert.equal(bridgeDrawing.bridgeMountingPointsAreVisible(fStyle), false);
+
+  // The hardtail is the same family but a distinct, simpler silhouette: one
+  // flat symmetric plate, no vibrato arm socket, no mounting points.
+  const hardtailGeom = bridgeDrawing.getBridgeDrawingGeometry(
+    neck,
+    hardware.BRIDGE_PRESETS.hardtail_6
+  );
+  assert.equal(hardtailGeom.kind, 'f-style');
+  assert.equal(hardtailGeom.armSocket, undefined);
+  assert.equal(bridgeDrawing.bridgeMountingPointsAreVisible(hardtailGeom), false);
+  assert.equal(hardware.BRIDGE_PRESETS.hardtail_6.mountingPoints, undefined);
+  assert.notDeepEqual(hardtailGeom.plateOutline, fStyle.plateOutline);
+  // Symmetric plate: the outline spans an equal distance either side of centre.
+  const hardtailXs = hardtailGeom.plateOutline.map((p: any) => p.x);
+  assert.equal(Math.min(...hardtailXs), -36.5);
+  assert.equal(Math.max(...hardtailXs), 36.5);
 
   const tom = hardware.BRIDGE_PRESETS.tune_o_matic;
   const tomDrawing = bridgeDrawing.getBridgeDrawingGeometry(neck, tom);
@@ -65,18 +75,31 @@ try {
   });
   assert.match(tomSVG, /rx="7\.00"[^>]*transform="rotate\(-3 0\.00 [\d.]+\)"/);
 
+  const tremoloSVG = exporter.exportProjectToSVG({
+    ...fixture,
+    neckPresetId: neck.id,
+    neckPreset: neck,
+    bridgePresetId: tremolo.id,
+    bridgePreset: tremolo,
+  });
+  const tremoloGroup = tremoloSVG.match(/<g id="bridge-hardware">([\s\S]*?)<\/g>/)?.[1] ?? '';
+  assert.match(tremoloGroup, /<path d="M -36\.50/);
+  assert.match(tremoloGroup, /<circle cx="39\.50"[^>]*r="3\.50"/);
+  assert.doesNotMatch(tremoloGroup, /cx="-21"/);
+
   const hardtail = hardware.BRIDGE_PRESETS.hardtail_6;
-  const fStyleSVG = exporter.exportProjectToSVG({
+  const hardtailSVG = exporter.exportProjectToSVG({
     ...fixture,
     neckPresetId: neck.id,
     neckPreset: neck,
     bridgePresetId: hardtail.id,
     bridgePreset: hardtail,
   });
-  const bridgeGroup = fStyleSVG.match(/<g id="bridge-hardware">([\s\S]*?)<\/g>/)?.[1] ?? '';
-  assert.match(bridgeGroup, /<path d="M -36\.50/);
-  assert.match(bridgeGroup, /<circle cx="39\.50"[^>]*r="3\.50"/);
-  assert.doesNotMatch(bridgeGroup, /cx="-21"/);
+  const hardtailGroup = hardtailSVG.match(/<g id="bridge-hardware">([\s\S]*?)<\/g>/)?.[1] ?? '';
+  // Symmetric single plate, no vibrato arm socket, no screw markers.
+  assert.match(hardtailGroup, /<path d="M -32\.50/);
+  assert.doesNotMatch(hardtailGroup, /r="3\.50"/);
+  assert.doesNotMatch(hardtailGroup, /<circle/);
 
   const layerSVG = exporter.exportProjectToSVG(fixture);
   assert.match(layerSVG, /\.body-line \{[^}]*stroke-width: 0\.4;/);

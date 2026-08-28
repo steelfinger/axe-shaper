@@ -34,7 +34,10 @@ export type BridgeDrawingGeometry =
       kind: 'f-style';
       plateOutline: Vector2D[];
       saddleHousing: BridgeDrawingRect;
-      armSocket: BridgeDrawingCircle;
+      // Present only for the vibrato bridge (`tremolo_strat`): the hole the
+      // arm screws into. A hardtail (`hardtail_6`) has no vibrato arm, so it
+      // omits this - its plate and saddle housing are the whole silhouette.
+      armSocket?: BridgeDrawingCircle;
     }
   | {
       kind: 'tom';
@@ -49,6 +52,8 @@ export type BridgeDrawingGeometry =
       saddlePlate?: BridgeDrawingRect;
     };
 
+// The vibrato bridge: an asymmetric plate with a tab on the bass side that
+// carries the arm socket.
 const fStyleLocalOutline: Vector2D[] = [
   { x: 0, y: 38.4 },
   { x: 0, y: 7.6 },
@@ -70,6 +75,29 @@ const fStyleLocalOutline: Vector2D[] = [
   { x: 2.6, y: 40 },
   { x: 1, y: 39.8 },
 ];
+
+// The hardtail: one flat plate, no vibrato tab. A plain rounded rectangle the
+// width (73) and length (42) of `hardtail_6`, in the same local frame as
+// `fStyleLocalOutline` (origin front-left, saddle line at local
+// y = F_STYLE_SADDLE_LINE_LOCAL_Y_MM).
+const fStyleHardtailLocalOutline: Vector2D[] = ((width = 73, length = 42, radius = 4) => [
+  { x: radius, y: 0 },
+  { x: width - radius, y: 0 },
+  { x: width - 1.2, y: 0.3 },
+  { x: width - 0.3, y: 1.2 },
+  { x: width, y: radius },
+  { x: width, y: length - radius },
+  { x: width - 0.3, y: length - 1.2 },
+  { x: width - 1.2, y: length - 0.3 },
+  { x: width - radius, y: length },
+  { x: radius, y: length },
+  { x: 1.2, y: length - 0.3 },
+  { x: 0.3, y: length - 1.2 },
+  { x: 0, y: length - radius },
+  { x: 0, y: radius },
+  { x: 0.3, y: 1.2 },
+  { x: 1.2, y: 0.3 },
+])();
 
 function rect(
   center: Vector2D,
@@ -99,18 +127,26 @@ export function getBridgeDrawingGeometry(
 ): BridgeDrawingGeometry {
   if (bridge.id === 'hardtail_6' || bridge.id === 'tremolo_strat') {
     const saddleY = getSaddleYMm(neck, bridge);
+    const isTremolo = bridge.id === 'tremolo_strat';
     return {
       kind: 'f-style',
-      plateOutline: fStyleLocalOutline.map((point) => fStylePoint(point, saddleY)),
+      plateOutline: (isTremolo ? fStyleLocalOutline : fStyleHardtailLocalOutline).map((point) =>
+        fStylePoint(point, saddleY)
+      ),
       saddleHousing: rect(
         { x: F_STYLE_LOCAL_X_OFFSET_MM + F_STYLE_SADDLE_HOUSING_WIDTH_MM / 2, y: saddleY + 17 },
         F_STYLE_SADDLE_HOUSING_WIDTH_MM,
         F_STYLE_SADDLE_HOUSING_HEIGHT_MM
       ),
-      armSocket: {
-        center: fStylePoint({ x: 76, y: 27.5 }, saddleY),
-        radiusMm: F_STYLE_ARM_SOCKET_RADIUS_MM,
-      },
+      // Only the vibrato bridge gets an arm socket.
+      ...(isTremolo
+        ? {
+            armSocket: {
+              center: fStylePoint({ x: 76, y: 27.5 }, saddleY),
+              radiusMm: F_STYLE_ARM_SOCKET_RADIUS_MM,
+            },
+          }
+        : {}),
     };
   }
 
@@ -180,10 +216,14 @@ export function bridgeDrawingBoundsPoints(geometry: BridgeDrawingGeometry): Vect
       return [
         ...geometry.plateOutline,
         ...rotatedRectCorners(geometry.saddleHousing),
-        { x: geometry.armSocket.center.x - geometry.armSocket.radiusMm, y: geometry.armSocket.center.y },
-        { x: geometry.armSocket.center.x + geometry.armSocket.radiusMm, y: geometry.armSocket.center.y },
-        { x: geometry.armSocket.center.x, y: geometry.armSocket.center.y - geometry.armSocket.radiusMm },
-        { x: geometry.armSocket.center.x, y: geometry.armSocket.center.y + geometry.armSocket.radiusMm },
+        ...(geometry.armSocket
+          ? [
+              { x: geometry.armSocket.center.x - geometry.armSocket.radiusMm, y: geometry.armSocket.center.y },
+              { x: geometry.armSocket.center.x + geometry.armSocket.radiusMm, y: geometry.armSocket.center.y },
+              { x: geometry.armSocket.center.x, y: geometry.armSocket.center.y - geometry.armSocket.radiusMm },
+              { x: geometry.armSocket.center.x, y: geometry.armSocket.center.y + geometry.armSocket.radiusMm },
+            ]
+          : []),
       ];
     case 'tom':
       return [...rotatedRectCorners(geometry.bridgeBar), ...rotatedRectCorners(geometry.tailpiece)];
@@ -211,6 +251,10 @@ export function bridgeReferenceLineXRange(geometry: BridgeDrawingGeometry): [num
 }
 
 export function bridgeMountingPointsAreVisible(geometry: BridgeDrawingGeometry): boolean {
+  // Neither F-style bridge draws mounting points: the vibrato has its arm
+  // socket, and a hardtail's real screw positions are a bridge-model-specific
+  // detail this app doesn't model (same call made for `tremolo_strat` and
+  // `tele_bridge_plate` in `constants/hardware.ts`).
   return geometry.kind !== 'f-style';
 }
 

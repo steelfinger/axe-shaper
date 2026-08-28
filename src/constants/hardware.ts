@@ -718,11 +718,11 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
       bass: 4.5,
     },
     saddleOffsetYMm: 24.0,
-    mountingPoints: [
-      { x: -21, y: 15 },
-      { x: 0, y: 15 },
-      { x: 21, y: 15 },
-    ],
+    // No mountingPoints: a hardtail's real screw positions are a
+    // bridge-model-specific detail this app doesn't model, and the old three
+    // (-21/0/21 at y:15) were an even guess, not a measurement. Same call as
+    // tremolo_strat and tele_bridge_plate below. The drawing is the plate
+    // outline plus saddle housing, nothing else.
     widthMm: 73.0,
     lengthMm: 42.0,
   },

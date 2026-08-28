@@ -67,7 +67,11 @@ function bridgeHardwareSVG(
       hardware = [
         `<path d="${path} Z" class="bridge-rout" />`,
         bridgeRectSVG(geometry.saddleHousing),
-        `<circle cx="${geometry.armSocket.center.x.toFixed(2)}" cy="${geometry.armSocket.center.y.toFixed(2)}" r="${geometry.armSocket.radiusMm.toFixed(2)}" class="bridge-rout" />`,
+        ...(geometry.armSocket
+          ? [
+              `<circle cx="${geometry.armSocket.center.x.toFixed(2)}" cy="${geometry.armSocket.center.y.toFixed(2)}" r="${geometry.armSocket.radiusMm.toFixed(2)}" class="bridge-rout" />`,
+            ]
+          : []),
       ].join('\n      ');
       break;
     }

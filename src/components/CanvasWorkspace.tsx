@@ -858,14 +858,16 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                       stroke="#3b82f6"
                       strokeWidth={1.5 / zoom}
                     />
-                    <Circle
-                      x={bridgeDrawing.armSocket.center.x}
-                      y={bridgeDrawing.armSocket.center.y}
-                      radius={bridgeDrawing.armSocket.radiusMm}
-                      fill="#0b0c10"
-                      stroke="#3b82f6"
-                      strokeWidth={1.5 / zoom}
-                    />
+                    {bridgeDrawing.armSocket && (
+                      <Circle
+                        x={bridgeDrawing.armSocket.center.x}
+                        y={bridgeDrawing.armSocket.center.y}
+                        radius={bridgeDrawing.armSocket.radiusMm}
+                        fill="#0b0c10"
+                        stroke="#3b82f6"
+                        strokeWidth={1.5 / zoom}
+                      />
+                    )}
                   </>
                 )}
                 {bridgeDrawing.kind === 'tom' && (
