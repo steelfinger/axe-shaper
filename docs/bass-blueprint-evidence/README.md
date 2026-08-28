@@ -2,9 +2,12 @@
 
 ## What these are, and what they are not
 
-The eight files in `src/constants/blueprints/` named `*_bass_style.axe.svg`
-are **first-draft starting shapes**, not photo-traced replicas of the named
-instrument. That was a deliberate product decision, not a shortcut:
+Seven of the eight files in `src/constants/blueprints/` named
+`*_bass_style.axe.svg` are **first-draft starting shapes**, not photo-traced
+replicas of the named instrument. (`p_bass_style` is the exception: its body,
+pickguard and control cavity are now traced from photos — see
+`p_bass_style.md` and `p_bass_style-traced-source.axe.svg`.) The first-draft
+call was a deliberate product decision, not a shortcut:
 
 > All final blueprint shapes were created by hand. An AI agent can't really
 > create good enough optimised bezier curves matching bitmap

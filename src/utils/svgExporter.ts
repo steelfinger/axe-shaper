@@ -75,7 +75,10 @@ function bridgeHardwareSVG(
       hardware = [bridgeRectSVG(geometry.bridgeBar), bridgeRectSVG(geometry.tailpiece)].join('\n      ');
       break;
     case 'generic':
-      hardware = [bridgeRectSVG(geometry.bridgePlate), bridgeRectSVG(geometry.saddlePlate)].join('\n      ');
+      hardware = [
+        bridgeRectSVG(geometry.bridgePlate),
+        ...(geometry.saddlePlate ? [bridgeRectSVG(geometry.saddlePlate)] : []),
+      ].join('\n      ');
       break;
   }
 

@@ -503,11 +503,20 @@ export const FINGERBOARD_OVERHANG_MM: Record<string, LengthMm> = {
   // Bass bodies (milestone W6), reference fret 20. Each bass body's "native
   // neck" is simply the curated bass neck matching its own scale length -
   // there is no separate per-body bass neck table the way NECK_PRESETS has
-  // 9 body-specific guitar entries - so every value below is exactly
+  // 9 body-specific guitar entries - so every value below is
   // fret20Distance(scale) - fret17Distance(scale) for that scale (see
   // FINGERBOARD_REFERENCE_FRET's own comment in utils/instrument.ts): a
-  // fixed offset per scale length, reused across every body sharing it.
-  p_bass_style: 51.4675, // bass_long_34, 34" scale
+  // fixed offset per scale length, reused across every body sharing it -
+  // EXCEPT p_bass_style, see below.
+  //
+  // p_bass_style does not use the fret-17 joint. On a real Precision the
+  // saddle line sits 368mm from the joint line (user-measured; ~fret 15.7 on
+  // this 34" scale), not the 323.5mm the fret-17 convention gives. So its
+  // overhang is fret20Distance(863.6) minus that measured nutToBodyEdgeMm of
+  // 495.6, and the saddle line lands at 368mm (the bass_precision_plate then
+  // spans 356..402). The other 34" bass bodies (j/mm/thunderbird/streamer)
+  // keep fret 17.
+  p_bass_style: 95.983, // bass_long_34, 34" scale; nutToBodyEdgeMm 495.6 -> saddle line at 368mm
   j_bass_style: 51.4675, // bass_long_34, 34" scale
   mm_bass_style: 51.4675, // bass_long_34, 34" scale
   r_bass_style: 50.3322, // bass_medium_33_25, 33.25" scale
@@ -681,6 +690,7 @@ export const BRIDGE_PRESET_INSTRUMENT: Record<string, InstrumentType> = {
   tune_o_matic: 'guitar',
   tele_bridge_plate: 'guitar',
   bass_vintage_plate: 'bass',
+  bass_precision_plate: 'bass',
 };
 
 export const PICKUP_TYPE_INSTRUMENT: Record<PickupType, InstrumentType> = {
@@ -860,6 +870,36 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
     // detail this app doesn't model accurately, and nothing in the scale or
     // saddle math reads it. Omitted rather than guessed - same call as
     // tremolo_strat above.
+  },
+  // The second bass bridge, the "measured with the body at W6" entry the
+  // milestone doc anticipated. Same family as bass_vintage_plate (a one-piece
+  // bent-steel top-load Fender bass plate) but every dimension is measured off
+  // a real Precision bridge rather than taken from the generic retrofit
+  // envelope: the plate is 84 x 46mm and the saddle line sits 12mm behind its
+  // front edge, not centred. Used by the P-Style and Mustang-Style blueprints.
+  bass_precision_plate: {
+    id: 'bass_precision_plate',
+    name: 'Bass Precision Plate (4-String)',
+    scaleReference: 'saddle_line',
+    // Same 34"-derived per-string compensation as bass_vintage_plate - a
+    // plate bridge has no structural post-to-saddle offset, and the string
+    // stretch that sets these numbers is a property of the strings, not the
+    // bridge model.
+    compensationMm: {
+      treble: 3.2,
+      bass: 9.5,
+    },
+    widthMm: 84,
+    lengthMm: 46,
+    // Measured: the saddle line is 12mm behind (toward the tail of) the
+    // plate's front edge, so on a build whose saddle line lands at Y the
+    // plate spans Y-12 .. Y+34.
+    saddleOffsetYMm: 12,
+    stringSpacingMm: 57.15,
+    heightMm: 12.0,
+    // One-piece plate: draw a single rectangle, not the base + saddle-carrier
+    // pair. See BridgePreset.singlePlate.
+    singlePlate: true,
   },
 };
 
@@ -1104,27 +1144,44 @@ export const PICKUP_SPECIFICATIONS: Record<
   //
   // Every dimension below is a *cavity* measurement where one was published,
   // and a pickup measurement plus 2.0mm total clearance (1mm a side) where
-  // only the pickup was - each entry says which. Outlines are rounded
-  // rectangles at a 3.175mm corner radius, the radius a 1/4" router bit
-  // leaves; the traced, ear-accurate outlines arrive with the bass
-  // blueprints at milestone W6, the same way the guitar shapes did.
+  // only the pickup was - each entry says which. The J, MM and soapbar
+  // outlines are rounded rectangles at a 3.175mm corner radius, the radius a
+  // 1/4" router bit leaves - which is what those cavities actually are;
+  // bass_split_coil is a real traced outline, like the guitar shapes.
   bass_split_coil: {
     name: 'Split Coil (P-Style)',
-    // ONE COIL HALF, which is the unit that actually gets routed - a P-style
-    // body carries two of these, the D/G half nearer the bridge than the
-    // E/A half. Modelling the pair as a single rout is not possible here
-    // (a PickupRoutSpec is one closed contour) and would not be right
-    // either: they are two separate cavities in the wood, and a stepped
-    // outline enclosing both would tell a router to remove material that
-    // should stay. The W6 P-Style blueprint ships both placements.
+    // ONE routed cavity for the whole pickup - traced verbatim from a real
+    // Fender Precision routing template (the user's
+    // `Fender-Precision-Pickup Cavity.svg`, mirrored into
+    // docs/bass-blueprint-evidence/). Two ~70 x 32mm bobbin pockets in the P
+    // "split" stagger - the E/A pocket toward the neck and bass side, the D/G
+    // pocket toward the bridge and treble side - joined by a short strip into
+    // one Z-shaped opening. The two pockets meet but do NOT overlap; this is
+    // not the symmetric-overlap rectangle pair an earlier draft used.
     //
-    // Cavity core from a P-Bass routing template: 2.28" x 1.15". The same
-    // template carries mounting tabs out to 2.7" (68.58mm); those are not in
-    // this outline yet, deliberately - under-routing is the recoverable
-    // direction, and the tab profile needs the traced template W6 supplies.
-    widthMm: 57.91,
-    heightMm: 29.21,
-    anchors: roundedRectAnchors('bass_split_coil', 57.91, 29.21, 3.175),
+    // Centred on (0,0), unrotated. widthMm/heightMm are the outline's bounding
+    // box; the ~62mm height is the sourced figure. Real routing depth is 3/4"
+    // (19.05mm), not modelled - the printable plan has no pickup-depth field.
+    widthMm: 105.106,
+    heightMm: 62.166,
+    anchors: [
+      { id: 'bass_split_coil_a0', position: { x: -18.834, y: 0.389 }, handleIn: { x: -8.553, y: 0 }, handleOut: { x: 2.471, y: 0.467 }, handleMode: 'corner' },
+      { id: 'bass_split_coil_a1', position: { x: -17.246, y: 5.643 }, handleIn: { x: -0.264, y: -1.787 }, handleOut: { x: 0.082, y: 6.787 }, handleMode: 'corner' },
+      { id: 'bass_split_coil_a2', position: { x: -17.117, y: 26.013 }, handleIn: { x: -0.295, y: -6.774 }, handleOut: { x: 0.628, y: 3.675 }, handleMode: 'corner' },
+      { id: 'bass_split_coil_a3', position: { x: -9.185, y: 31.083 }, handleIn: { x: -3.438, y: 0.47 }, handleOut: { x: 18.679, y: -0.022 }, handleMode: 'corner' },
+      { id: 'bass_split_coil_a4', position: { x: 46.852, y: 31.05 }, handleIn: { x: -18.677, y: 0.077 }, handleOut: { x: 3.966, y: -0.274 }, handleMode: 'corner' },
+      { id: 'bass_split_coil_a5', position: { x: 52.553, y: 23.022 }, handleIn: { x: 0.549, y: 3.661 }, handleOut: { x: -0.08, y: -6.91 }, handleMode: 'corner' },
+      { id: 'bass_split_coil_a6', position: { x: 52.424, y: 2.284 }, handleIn: { x: 0.294, y: 6.897 }, handleOut: { x: -0.628, y: -3.675 }, handleMode: 'corner' },
+      { id: 'bass_split_coil_a7', position: { x: 44.491, y: -2.786 }, handleIn: { x: 3.438, y: -0.47 }, handleOut: { x: -8.553, y: 0 }, handleMode: 'corner' },
+      { id: 'bass_split_coil_a8', position: { x: 18.832, y: -2.786 }, handleIn: { x: 8.553, y: 0 }, handleOut: { x: -2.471, y: -0.467 }, handleMode: 'corner' },
+      { id: 'bass_split_coil_a9', position: { x: 17.245, y: -8.041 }, handleIn: { x: 0.264, y: 1.787 }, handleOut: { x: -0.08, y: -5.988 }, handleMode: 'corner' },
+      { id: 'bass_split_coil_a10', position: { x: 17.116, y: -26.013 }, handleIn: { x: 0.293, y: 5.975 }, handleOut: { x: -0.628, y: -3.675 }, handleMode: 'corner' },
+      { id: 'bass_split_coil_a11', position: { x: 9.183, y: -31.083 }, handleIn: { x: 3.438, y: -0.47 }, handleOut: { x: -18.678, y: 0.022 }, handleMode: 'corner' },
+      { id: 'bass_split_coil_a12', position: { x: -46.852, y: -31.05 }, handleIn: { x: 18.677, y: -0.077 }, handleOut: { x: -3.966, y: 0.274 }, handleMode: 'corner' },
+      { id: 'bass_split_coil_a13', position: { x: -52.553, y: -23.022 }, handleIn: { x: -0.549, y: -3.661 }, handleOut: { x: 0.078, y: 6.111 }, handleMode: 'corner' },
+      { id: 'bass_split_coil_a14', position: { x: -52.424, y: -4.681 }, handleIn: { x: -0.291, y: -6.098 }, handleOut: { x: 0.628, y: 3.675 }, handleMode: 'corner' },
+      { id: 'bass_split_coil_a15', position: { x: -44.491, y: 0.389 }, handleIn: { x: -3.438, y: 0.47 }, handleOut: { x: 8.553, y: 0 }, handleMode: 'corner' },
+    ],
   },
   bass_j_single_coil: {
     name: 'J-Style Single Coil (Bass)',

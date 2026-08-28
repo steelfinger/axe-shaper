@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   sodipodi:docname="Fender-Precision-Pickup Cavity.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="0.56389414"
+     inkscape:cx="321.86892"
+     inkscape:cy="678.3188"
+     inkscape:window-width="1492"
+     inkscape:window-height="830"
+     inkscape:window-x="0"
+     inkscape:window-y="30"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       id="path200"
+       d="m 84.066807,148.84539 c 2.471201,0.46725 1.323625,3.46735 1.587494,5.25452 0.0815,6.78727 -0.166149,13.59539 0.12912,20.3692 0.628297,3.67502 4.494023,5.54045 7.93218,5.07023 18.678809,-0.0218 37.359729,0.0437 56.036769,-0.0328 3.96556,-0.27384 6.24978,-4.36748 5.70086,-8.02848 -0.0804,-6.91011 0.16441,-13.84077 -0.12912,-20.73746 -0.62828,-3.67502 -4.49401,-5.54044 -7.93216,-5.07022 -8.55307,0 -17.10614,0 -25.6592,0 -2.4712,-0.46709 -1.32362,-3.46737 -1.58749,-5.25452 -0.0797,-5.98831 0.16368,-11.99709 -0.12912,-17.97197 -0.6283,-3.67503 -4.49402,-5.54045 -7.93218,-5.07023 -18.678098,0.0218 -37.358668,-0.0437 -56.035358,0.0328 -3.965562,0.27383 -6.249788,4.36748 -5.700867,8.02848 0.07832,6.11114 -0.161573,12.24246 0.129115,18.34024 0.628294,3.67502 4.494016,5.54044 7.932183,5.07021 8.552708,0 17.105066,0 25.657774,0 z"
+       style="fill:none;stroke:#000000;stroke-width:0.0881237;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.8636;stroke-dasharray:none;stroke-opacity:1" />
+  </g>
+</svg>

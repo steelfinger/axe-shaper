@@ -50,9 +50,27 @@ async function main() {
   for (const id of manifest.BLUEPRINT_ORDER) {
     const path = join(ROOT, 'src', 'constants', 'blueprints', `${id}.axe.svg`);
     const project = decodeBlueprint(path);
+    const neck = presets.neckPresetFields(project.neckPresetId);
+    // For bass blueprints, nutToBodyEdgeMm has a per-body answer in
+    // FINGERBOARD_OVERHANG_MM (p_bass_style's is not the fret-17 value) - take
+    // it from there, the way the in-app neck re-pick does, so a refresh does
+    // not silently reset the bridge. Guitar blueprints already match their
+    // native-neck value, so this changes nothing for them; scoping it to bass
+    // keeps their pocket fields untouched too.
+    if (project.instrumentType === 'bass') {
+      const templateEdge = presets.neckPresetFieldsForTemplate(
+        project.neckPresetId,
+        id,
+        presets.defaultNeckJointMechanism(id),
+        'bass'
+      ).neckPreset.nutToBodyEdgeMm;
+      // 4dp, matching generate-bass-blueprint-drafts.ts and the hand-written
+      // NECK_PRESETS constants - so the non-P bass bodies re-embed unchanged.
+      neck.neckPreset.nutToBodyEdgeMm = Math.round(templateEdge * 1e4) / 1e4;
+    }
     const refreshed = {
       ...project,
-      ...presets.neckPresetFields(project.neckPresetId),
+      ...neck,
       ...presets.bridgePresetFields(project.bridgePresetId),
     };
     const svg = svgExporter.exportProjectToSVG(refreshed);

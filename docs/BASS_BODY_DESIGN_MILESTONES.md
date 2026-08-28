@@ -310,32 +310,39 @@ entry's comment records what from. Sourced values used:
 | --- | --- | --- |
 | Scale lengths | 762 / 774.7 / 844.55 / 863.6 mm | exact inch conversions |
 | Bass neck pocket | 2-1/2" x 3-7/8" (63.5 x 98.425 mm) | Fender-spec pocket, as used by every replacement neck and routing template |
-| Body joint fret | 17 | Fender's own setup instructions use the 17th fret as "where the neck joins the body" |
+| Body joint fret | 17 | Fender's own setup instructions use the 17th fret as "where the neck joins the body" (W6: `p_bass_style` overridden to a user-measured 356 mm joint-line-to-bridge, ≈ fret 15.4; the other 34" bodies keep 17) |
 | Bridge string spacing | .750" per string = **2-1/4" (57.15 mm) outer-to-outer** | published both ways on the same product — the total-spread reading, confirmed |
 | Bridge plate footprint | 3.19" x 2.09" (81.03 x 53.09 mm) | Fender-spec four-string retrofit envelope |
 | Compensation | G +3.2 mm, E +9.5 mm | a 34" bass intonates to ~34-1/8" on the G, ~34-3/8" on the E |
 | Nut string spread | 30 mm | ~10 mm centre-to-centre on a 38.2 mm four-string nut, x 3 intervals |
-| P split-coil cavity | 57.91 x 29.21 mm core | P-Bass routing template ("Core: 2.28" x 1.15"") |
+| P split-coil cavity | 57.91 x 29.21 mm core | P-Bass routing template ("Core: 2.28" x 1.15"") (W6: replaced by a full traced outline, ~105 x 62 mm, from a user-supplied Fender template) |
 | MM humbucker cavity | 103.7 x 50.5 mm | published routing-template cavity |
 | J pickup | 91.4 x 19.3 mm + 2 mm clearance | published pickup dimensions |
 | Soapbar | 88.9 x 38.1 mm + 2 mm clearance | the 3.5" four-string soapbar housing |
 
 Decisions and deliberate gaps, all recorded in the code:
 
-- **One bass bridge ships, not several.** `bass_vintage_plate` is the only
-  four-string bridge whose footprint, spacing and compensation could all be
-  sourced. A Gibson three-point and a high-mass variant were left out rather
-  than invented; each bass blueprint's own bridge is measured with the body
-  at W6, which is where a second entry belongs anyway.
-- **`bass_split_coil` is one coil half**, which is the unit that actually
-  gets routed — a P-style body carries two, staggered. A `PickupRoutSpec` is
-  one closed contour, so the pair cannot be a single spec, and a stepped
-  outline enclosing both would tell a router to remove material that should
-  stay.
-- **The split-coil mounting tabs (out to 68.58 mm) are not in the outline
-  yet.** Under-routing is the recoverable direction; the tab profile needs
-  the traced template W6 supplies. **This is the one approximation in W2** —
-  the P-Style blueprint's evidence packet must settle it.
+- **Two bass bridges ship** (revised at W6). W2 shipped only
+  `bass_vintage_plate` — the generic Fender four-string retrofit envelope,
+  81 × 53 mm, saddle centred on the plate for want of a measured offset. W6
+  adds `bass_precision_plate`: the same one-piece bent-steel family but every
+  dimension measured off a real Precision (84 × 46 mm, saddle line 12 mm
+  behind the front edge, `singlePlate: true` so it draws as one rectangle).
+  P-Style and Mustang-Style use it; the other six keep `bass_vintage_plate`.
+  A Gibson three-point and a high-mass variant are still left out rather than
+  invented.
+- **`bass_split_coil` is one traced cavity** (revised at W6, from the original
+  "one coil half" model). A real Precision split coil routs as one Z-shaped
+  opening — two ~70 × 32 mm bobbin pockets in the split stagger, joined by a
+  short strip, ~105 × 62 mm overall. The outline in `hardware.ts` is traced
+  verbatim from a user-supplied Fender routing template
+  (`docs/bass-blueprint-evidence/p_bass_style-pickup-cavity.svg`). Modelled as
+  one `PickupPlacement`, so the P-Style and Mustang-Style blueprints each
+  carry one, not two.
+- **The split-coil mounting tabs are part of the traced outline now** (the
+  template includes them). Real routing depth is 3/4" (19.05 mm), not modelled
+  — the printable plan has no pickup-depth field. Only the cavity's Y position
+  (220 mm on P) is still a plausible-placement estimate for hand refinement.
 - **`GENERIC_POCKET_SPEC.bass.glued` repeats the bolt-on bass pocket.** No
   measured set-neck bass tenon was available, and the two blueprints mapped
   to `glued` (R-Style, Thunderbird) are really neck-through, where the
@@ -410,9 +417,10 @@ Exit criteria — all asserted by `npm run bass:check`:
   zero deletions**.
 
 Verified end to end in the browser as well: a synthetic Bass/4 plan loads
-through the real `?plan=` path, draws its 63.5 mm pocket, two staggered
-split-coil halves and the bass bridge with no console errors, and every
-picker offers bass-only hardware.
+through the real `?plan=` path, draws its 63.5 mm pocket, a split-coil rout
+(two staggered halves at W2; one traced Z-shaped cavity from W6 on) and the
+bass bridge with no console errors, and every picker offers bass-only
+hardware.
 
 ## Web milestone W3 — New Design screen
 

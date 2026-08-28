@@ -13,7 +13,7 @@ length figure is the single best-sourced number of all eight drafts.
 | Frets | 19 | Sourced at W2 for `bass_short_30` (a real Mustang Bass has 19 frets) | High |
 | Neck pocket | 63.5 × 98.425mm | W2 | High |
 | Neck joint | Bolt-on | Real construction (a real Mustang Bass is also string-through-body with a 7-bolt bridge plate, neither of which is modelled) | High for the mechanism; unmodelled detail beyond that |
-| Pickup type/shape | `bass_split_coil`, 57.91 × 29.21mm | W2 catalogue; the original 1966 Mustang Bass shipped one split-coil humbucking pickup, matching this choice | High |
+| Pickup type/shape | `bass_split_coil` — one traced Fender Precision cavity outline (~105 × 62mm, two joined bobbin pockets) | W2 catalogue (traced outline added with the P-Style blueprint); the original 1966 Mustang Bass shipped one split-coil humbucking pickup, matching this choice | High |
 | Pickup Y position (230mm) | Not sourced | Plausible single-pickup placement, roughly centred in the lower two-thirds of the body | **Estimated** |
 | Body outline | Derived from `jag_style`, scaled | Not traced — see below | **First draft, not sourced** |
 
@@ -32,15 +32,19 @@ through specifics, which are unmodelled).
 
 ## Bridge, compensation, string spacing
 
-Unchanged from W2: `bass_vintage_plate`. A real Mustang Bass's string-through
-7-bolt bridge is a genuinely different physical part, not modelled — W2
-explicitly ships one generic bass bridge preset rather than several invented
-ones.
+`bass_precision_plate` — the measured Fender bass plate (84 × 46mm, saddle
+line 12mm behind the front edge, one rectangle), shared with the P-Style
+blueprint. The plate footprint is the same Fender bent-steel design; a real
+Mustang Bass's string-through 7-bolt specifics are not modelled. Saddle Y is
+unchanged (Mustang keeps the fret-17 joint); only the plate footprint and its
+front-edge-to-saddle offset moved from `bass_vintage_plate`.
 
 ## Pickup routs, pickguard, front/back routes
 
-One `bass_split_coil` rout at Y=230mm, unrotated, X=0. No pickguard or
-control routes.
+One `bass_split_coil` rout at Y=230mm, unrotated, X=0 — now the traced
+Fender Precision cavity outline shared with the P-Style blueprint
+(`p_bass_style-pickup-cavity.svg`, ~105 × 62mm), not the earlier single
+57.91 × 29.21mm rectangle. No pickguard or control routes.
 
 ## Body thickness and edge treatment
 

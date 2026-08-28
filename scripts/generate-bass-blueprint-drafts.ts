@@ -37,7 +37,8 @@
  * need their own sourced shapes and are deliberately left for the person
  * refining the draft, not guessed.
  *
- * Usage: npx tsx scripts/generate-bass-blueprint-drafts.ts
+ * Usage: npx tsx scripts/generate-bass-blueprint-drafts.ts [id ...]
+ * With no args, regenerates every draft; with ids, only those.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -74,6 +75,9 @@ interface DraftSpec {
   bodyLengthMm: number;
   bodyWidthMm: number;
   neckId: 'bass_long_34' | 'bass_medium_33_25' | 'bass_short_30_5' | 'bass_short_30';
+  // Defaults to bass_vintage_plate; the P/Mustang Fender-style bodies use the
+  // measured bass_precision_plate.
+  bridgeId?: 'bass_vintage_plate' | 'bass_precision_plate';
   pickups: Array<{ type: string; offsetYMm: number }>;
 }
 
@@ -81,15 +85,10 @@ interface DraftSpec {
 // convention - sourced where noted; each is repeated in the evidence
 // packet under docs/bass-blueprint-evidence/.
 const DRAFTS: DraftSpec[] = [
-  {
-    id: 'p_bass_style',
-    name: 'P-Style Bass',
-    sourceBlueprintId: 's_style',
-    bodyLengthMm: 511, // 20-1/8" - Fender-published P-Bass body length
-    bodyWidthMm: 330, // 13" - Fender-published P-Bass body width
-    neckId: 'bass_long_34',
-    pickups: [{ type: 'bass_split_coil', offsetYMm: 235 }, { type: 'bass_split_coil', offsetYMm: 265 }],
-  },
+  // p_bass_style is NOT here: its body outline, pickguard and control-cavity
+  // front route are traced from photos of a real Precision, not a scaled donor
+  // shape. It is built by scripts/build-p-bass-blueprint.ts instead; rerunning
+  // this generator must not touch it.
   {
     id: 'j_bass_style',
     name: 'J-Style Bass',
@@ -135,6 +134,7 @@ const DRAFTS: DraftSpec[] = [
     bodyLengthMm: 431.8, // 17" - published as "neck pocket to bottom of body," exactly this app's own Y=0-to-tail convention
     bodyWidthMm: 305, // 12" - published Mustang Bass lower-bout width ("just over 12 inches")
     neckId: 'bass_short_30',
+    bridgeId: 'bass_precision_plate',
     pickups: [{ type: 'bass_split_coil', offsetYMm: 230 }],
   },
   {
@@ -158,6 +158,16 @@ const DRAFTS: DraftSpec[] = [
 ];
 
 async function main() {
+  // Optional positional filter: regenerate only the named blueprint ids,
+  // leaving the rest (and their metadata timestamps) untouched.
+  const only = new Set(process.argv.slice(2));
+  const drafts = only.size > 0 ? DRAFTS.filter((d) => only.has(d.id)) : DRAFTS;
+  if (only.size > 0 && drafts.length !== only.size) {
+    const known = new Set(DRAFTS.map((d) => d.id));
+    const bad = [...only].filter((id) => !known.has(id));
+    throw new Error(`unknown blueprint id(s): ${bad.join(', ')}`);
+  }
+
   const server = await createServer({
     root: ROOT,
     configFile: false,
@@ -171,7 +181,7 @@ async function main() {
   const hardware = await load('/src/constants/hardware.ts');
   const svgExporter = await load('/src/utils/svgExporter.ts');
 
-  for (const draft of DRAFTS) {
+  for (const draft of drafts) {
     const sourcePath = join(ROOT, 'src', 'constants', 'blueprints', `${draft.sourceBlueprintId}.axe.svg`);
     const source = decodeBlueprint(sourcePath);
     const sourceXs = source.contour.anchors.map((a: any) => a.position.x);
@@ -192,6 +202,15 @@ async function main() {
       if (a.semanticRole === 'neck_pocket_left') a.position.x = -targetJointHalf;
       if (a.semanticRole === 'neck_pocket_right') a.position.x = targetJointHalf;
     }
+
+    // Template-aware neck fields, so the embedded neckPreset copy carries the
+    // per-body nutToBodyEdgeMm from FINGERBOARD_OVERHANG_MM (p_bass_style's is
+    // a user-measured 507.6, not the fret-17 value) - matching what New Design
+    // produces via neckPresetFieldsForNewTemplate. Rounded to 4dp like the
+    // hand-written NECK_PRESETS constants, so bodies whose overhang still
+    // equals fret20-fret17 (every one but P) re-embed their exact prior value.
+    const neckFields = presets.neckPresetFieldsForNewTemplate(draft.neckId, draft.id, 'bass');
+    neckFields.neckPreset.nutToBodyEdgeMm = Math.round(neckFields.neckPreset.nutToBodyEdgeMm * 1e4) / 1e4;
 
     const now = new Date().toISOString();
     const pickups = draft.pickups.map((p, i) => {
@@ -235,9 +254,9 @@ async function main() {
       },
       activeTemplateId: draft.id,
       contour,
-      ...presets.neckPresetFields(draft.neckId),
+      ...neckFields,
       neckJointMechanism: hardware.DEFAULT_NECK_JOINT_MECHANISM[draft.id] ?? 'bolt_on',
-      ...presets.bridgePresetFields('bass_vintage_plate'),
+      ...presets.bridgePresetFields(draft.bridgeId ?? 'bass_vintage_plate'),
       pickups,
       pickguards: [],
       frontRoutes: [],

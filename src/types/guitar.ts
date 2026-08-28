@@ -129,6 +129,15 @@ export interface BridgePreset {
   lengthMm: LengthMm;
   saddleOffsetYMm?: LengthMm; // Distance from top edge of plate to saddle line
   /**
+   * Draw the plate as a single rectangle instead of the default base-plate +
+   * saddle-carrier pair offset by the compensation. For a one-piece bent-steel
+   * plate (a vintage Fender bass bridge) there is no separate saddle plate to
+   * represent, so the pair reads as a doubled outline. Optional and
+   * rendering-only - `scaleMath.ts` is unaffected; an embedded copy that omits
+   * it falls back to the two-rect drawing.
+   */
+  singlePlate?: boolean;
+  /**
    * Total string spread at the saddles - outer string to outer string, NOT
    * the per-string pitch. A 4-string bass at ~19mm pitch is ~57 here, not 19.
    * axe-shaper-ios spends it as

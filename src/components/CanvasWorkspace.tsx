@@ -29,6 +29,7 @@ import {
   bridgeReferenceLineXRange,
   getBridgeDrawingGeometry,
 } from '../utils/bridgeDrawing';
+import type { BridgeDrawingRect } from '../utils/bridgeDrawing';
 import { ZoomIn, ZoomOut, Maximize2, Hand, Spline } from 'lucide-react';
 import {
   SCALE_BAR_STEPS,
@@ -899,19 +900,21 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 )}
                 {bridgeDrawing.kind === 'generic' && (
                   <>
-                    {[bridgeDrawing.bridgePlate, bridgeDrawing.saddlePlate].map((plate, index) => (
-                      <Rect
-                        key={index}
-                        x={plate.center.x - plate.widthMm / 2}
-                        y={plate.center.y - plate.heightMm / 2}
-                        width={plate.widthMm}
-                        height={plate.heightMm}
-                        fill="rgba(59, 130, 246, 0.15)"
-                        stroke="#3b82f6"
-                        strokeWidth={1.5 / zoom}
-                        cornerRadius={plate.cornerRadiusMm / zoom}
-                      />
-                    ))}
+                    {[bridgeDrawing.bridgePlate, bridgeDrawing.saddlePlate]
+                      .filter((plate): plate is BridgeDrawingRect => plate != null)
+                      .map((plate, index) => (
+                        <Rect
+                          key={index}
+                          x={plate.center.x - plate.widthMm / 2}
+                          y={plate.center.y - plate.heightMm / 2}
+                          width={plate.widthMm}
+                          height={plate.heightMm}
+                          fill="rgba(59, 130, 246, 0.15)"
+                          stroke="#3b82f6"
+                          strokeWidth={1.5 / zoom}
+                          cornerRadius={plate.cornerRadiusMm / zoom}
+                        />
+                      ))}
                   </>
                 )}
                 {/* Theoretical Scale-Length Line - exactly scaleLengthMm from

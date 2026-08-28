@@ -129,8 +129,8 @@ viewer's own Bass/4 rendering is verified. See `docs/AXE_SVG_FORMAT.md`.
 
 ## The bass blueprints are first drafts, not final shapes
 
-The eight `*_bass_style.axe.svg` files are structurally correct (real
-hardware, real neck pocket, non-self-intersecting contours - see
+Seven of the eight `*_bass_style.axe.svg` files are structurally correct
+(real hardware, real neck pocket, non-self-intersecting contours - see
 `npm run bass:check`) but their body outlines are affine-scaled donor guitar
 shapes, not photo-traced replicas. That was a deliberate call, not a
 shortcut: an AI agent cannot produce a well-optimised bezier trace of a
@@ -142,6 +142,16 @@ what each is built from and what to check first; `r_bass_style` and
 Never rerun `scripts/generate-bass-blueprint-drafts.ts` on a blueprint a
 person has started editing - it overwrites the file from scratch and would
 silently discard their work.
+
+**`p_bass_style` is the exception.** Its body outline, pickguard and
+control-cavity front route are traced from photos of a real Precision
+(`docs/bass-blueprint-evidence/p_bass_style-traced-source.axe.svg`); its
+pickup cavity and `bass_precision_plate` bridge are traced/measured from real
+hardware. It is out of `generate-bass-blueprint-drafts.ts` (not in its
+`DRAFTS`) and built by `scripts/build-p-bass-blueprint.ts` instead, which
+carries the traced contour through verbatim and only re-stamps the hardware
+from the catalogue. Run that after a `hardware.ts` change that touches the
+P-bass neck/bridge/split-coil.
 
 ## Regenerating the golden corpus is guarded
 

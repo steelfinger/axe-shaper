@@ -44,7 +44,9 @@ export type BridgeDrawingGeometry =
   | {
       kind: 'generic';
       bridgePlate: BridgeDrawingRect;
-      saddlePlate: BridgeDrawingRect;
+      // Absent when the preset is `singlePlate` - a one-piece plate has no
+      // separate saddle carrier to draw.
+      saddlePlate?: BridgeDrawingRect;
     };
 
 const fStyleLocalOutline: Vector2D[] = [
@@ -133,14 +135,18 @@ export function getBridgeDrawingGeometry(
     };
   }
 
+  const bridgePlate = rect(
+    { x: 0, y: getBridgePlateTopYMm(neck, bridge) + height / 2 },
+    width,
+    height,
+    3
+  );
+  if (bridge.singlePlate) {
+    return { kind: 'generic', bridgePlate };
+  }
   return {
     kind: 'generic',
-    bridgePlate: rect(
-      { x: 0, y: getBridgePlateTopYMm(neck, bridge) + height / 2 },
-      width,
-      height,
-      3
-    ),
+    bridgePlate,
     saddlePlate: rect(
       { x: 0, y: getSaddlePlateTopYMm(neck, bridge) + height / 2 },
       width,
@@ -182,7 +188,10 @@ export function bridgeDrawingBoundsPoints(geometry: BridgeDrawingGeometry): Vect
     case 'tom':
       return [...rotatedRectCorners(geometry.bridgeBar), ...rotatedRectCorners(geometry.tailpiece)];
     case 'generic':
-      return [...rotatedRectCorners(geometry.bridgePlate), ...rotatedRectCorners(geometry.saddlePlate)];
+      return [
+        ...rotatedRectCorners(geometry.bridgePlate),
+        ...(geometry.saddlePlate ? rotatedRectCorners(geometry.saddlePlate) : []),
+      ];
   }
 }
 
