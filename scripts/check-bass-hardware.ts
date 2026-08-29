@@ -706,18 +706,36 @@ async function main() {
       }
     });
 
-    check('bass scale math lands where the fret-17 joint convention says', () => {
-      // Guards the whole chain - scale length, nutToBodyEdgeMm and the
-      // bridge's own compensation - against a silent regression in any link.
-      const neck = bassNecks.find((n: any) => n.id === 'bass_long_34');
-      const bridge = bassBridges.find((b: any) => b.id === 'bass_vintage_plate');
-      const theoretical = scaleMath.getTheoreticalSaddleYMm(neck);
-      invariant(
-        Math.abs(theoretical - 323.4845) < 1e-3,
-        `34" bass theoretical saddle Y is ${theoretical}, expected ~323.4845`
-      );
-      const saddle = scaleMath.getSaddleYMm(neck, bridge);
-      invariant(Math.abs(saddle - (theoretical + 3.2)) < 1e-9, 'treble compensation is not being applied');
+    check('every bass master retains its approved theoretical scale line and bridge', () => {
+      const expected: Record<string, { scaleLineMm: number; bridgeId: string }> = {
+        p_bass_style: { scaleLineMm: 365, bridgeId: 'bass_vintage_plate' },
+        j_bass_style: { scaleLineMm: 365, bridgeId: 'bass_vintage_plate' },
+        mm_bass_style: { scaleLineMm: 350, bridgeId: 'bass_vintage_plate' },
+        r_bass_style: { scaleLineMm: 368, bridgeId: 'bass_r_style_plate' },
+        thunderbird_bass_style: { scaleLineMm: 412, bridgeId: 'bass_vintage_plate' },
+        mustang_bass_style: { scaleLineMm: 346, bridgeId: 'bass_vintage_plate' },
+        sg_bass_style: { scaleLineMm: 340, bridgeId: 'bass_vintage_plate' },
+        streamer_bass_style: { scaleLineMm: 315, bridgeId: 'bass_vintage_plate' },
+      };
+      for (const [id, target] of Object.entries(expected)) {
+        const raw = readFileSync(join(ROOT, 'src', 'constants', 'blueprints', `${id}.axe.svg`), 'utf8');
+        const encoded = raw.match(/<project:data>([\s\S]*?)<\/project:data>/)?.[1];
+        invariant(encoded, `${id}: no project payload`);
+        const project = JSON.parse(Buffer.from(encoded!.trim(), 'base64').toString('utf8'));
+        invariant(project.bridgePresetId === target.bridgeId, `${id}: bridge is ${project.bridgePresetId}`);
+        const theoretical = scaleMath.getTheoreticalSaddleYMm(project.neckPreset);
+        invariant(
+          Math.abs(theoretical - target.scaleLineMm) < 1e-6,
+          `${id}: theoretical saddle Y is ${theoretical}, expected ${target.scaleLineMm}`
+        );
+        invariant(
+          Math.abs(scaleMath.getSaddleYMm(project.neckPreset, project.bridgePreset) - (target.scaleLineMm + 3.2)) < 1e-6,
+          `${id}: treble compensation is not being applied`
+        );
+      }
+      const rStyle = JSON.parse(Buffer.from(readFileSync(join(ROOT, 'src', 'constants', 'blueprints', 'r_bass_style.axe.svg'), 'utf8').match(/<project:data>([\s\S]*?)<\/project:data>/)![1].trim(), 'base64').toString('utf8'));
+      invariant(rStyle.frontRoutes.length === 1, 'R-style bridge marker still exists as a front route');
+      invariant(rStyle.bridgePreset.outlineMm?.length === 4, 'R-style tapered bridge outline was not embedded');
     });
   } finally {
     await server.close();

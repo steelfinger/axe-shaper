@@ -500,30 +500,16 @@ export const FINGERBOARD_OVERHANG_MM: Record<string, LengthMm> = {
   gibson_flying_v: 74.0011, // gibson_flying_v_22
   jag_style: 70.9045, // jaguar_22
 
-  // Bass bodies (milestone W6), reference fret 20. Each bass body's "native
-  // neck" is simply the curated bass neck matching its own scale length -
-  // there is no separate per-body bass neck table the way NECK_PRESETS has
-  // 9 body-specific guitar entries - so every value below is
-  // fret20Distance(scale) - fret17Distance(scale) for that scale (see
-  // FINGERBOARD_REFERENCE_FRET's own comment in utils/instrument.ts): a
-  // fixed offset per scale length, reused across every body sharing it -
-  // EXCEPT p_bass_style, see below.
-  //
-  // p_bass_style does not use the fret-17 joint. On a real Precision the
-  // saddle line sits 368mm from the joint line (user-measured; ~fret 15.7 on
-  // this 34" scale), not the 323.5mm the fret-17 convention gives. So its
-  // overhang is fret20Distance(863.6) minus that measured nutToBodyEdgeMm of
-  // 495.6, and the saddle line lands at 368mm (the bass_precision_plate then
-  // spans 356..402). The other 34" bass bodies (j/mm/thunderbird/streamer)
-  // keep fret 17.
-  p_bass_style: 95.983, // bass_long_34, 34" scale; nutToBodyEdgeMm 495.6 -> saddle line at 368mm
-  j_bass_style: 51.4675, // bass_long_34, 34" scale
-  mm_bass_style: 51.4675, // bass_long_34, 34" scale
-  r_bass_style: 50.3322, // bass_medium_33_25, 33.25" scale
-  thunderbird_bass_style: 51.4675, // bass_long_34, 34" scale
-  mustang_bass_style: 45.4125, // bass_short_30, 30" scale
-  sg_bass_style: 46.1694, // bass_short_30_5, 30.5" scale
-  streamer_bass_style: 51.4675, // bass_long_34, 34" scale
+  // Bass masters: authoritative theoretical scale lines, measured from each
+  // body's fixed Y=0 joint line. Bridge compensation is applied separately.
+  p_bass_style: 92.983, // 34" / 365mm scale line
+  j_bass_style: 92.983, // 34" / 365mm scale line
+  mm_bass_style: 77.983, // 34" / 350mm scale line
+  r_bass_style: 101.9834, // 33.25" / 368mm scale line
+  thunderbird_bass_style: 139.983, // 34" / 412mm scale line
+  mustang_bass_style: 105.985, // 30" / 346mm scale line
+  sg_bass_style: 95.9848, // 30.5" / 340mm scale line
+  streamer_bass_style: 42.983, // 34" / 315mm scale line
 };
 
 /**
@@ -691,6 +677,7 @@ export const BRIDGE_PRESET_INSTRUMENT: Record<string, InstrumentType> = {
   tele_bridge_plate: 'guitar',
   bass_vintage_plate: 'bass',
   bass_precision_plate: 'bass',
+  bass_r_style_plate: 'bass',
 };
 
 export const PICKUP_TYPE_INSTRUMENT: Record<PickupType, InstrumentType> = {
@@ -900,6 +887,26 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
     // One-piece plate: draw a single rectangle, not the base + saddle-carrier
     // pair. See BridgePreset.singlePlate.
     singlePlate: true,
+  },
+  // R-style master blueprint: Front Route Shape 2 was a bridge-plate marker,
+  // not a rout. Its exact tapered 100mm-to-80mm, 110mm-long outline is
+  // expressed relative to the 368mm theoretical scale line.
+  bass_r_style_plate: {
+    id: 'bass_r_style_plate',
+    name: 'R-Style Tapered Plate (4-String)',
+    scaleReference: 'saddle_line',
+    compensationMm: { treble: 3.2, bass: 9.5 },
+    widthMm: 100,
+    lengthMm: 110,
+    saddleOffsetYMm: 33,
+    stringSpacingMm: 57.15,
+    heightMm: 12,
+    outlineMm: [
+      { x: -50, y: -33 },
+      { x: 50, y: -33 },
+      { x: 40, y: 77 },
+      { x: -40, y: 77 },
+    ],
   },
 };
 

@@ -84,6 +84,13 @@ function bridgeHardwareSVG(
         ...(geometry.saddlePlate ? [bridgeRectSVG(geometry.saddlePlate)] : []),
       ].join('\n      ');
       break;
+    case 'custom-outline': {
+      const path = geometry.plateOutline
+        .map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`)
+        .join(' ');
+      hardware = `<path d="${path} Z" class="bridge-rout" />`;
+      break;
+    }
   }
 
   const [lineMinX, lineMaxX] = bridgeReferenceLineXRange(geometry);

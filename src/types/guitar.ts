@@ -138,6 +138,12 @@ export interface BridgePreset {
    */
   singlePlate?: boolean;
   /**
+   * A bridge plate whose outline cannot be represented by a rectangle. Points
+   * are relative to the theoretical saddle line, so a scale change moves the
+   * complete hardware without changing its scale-line relationship.
+   */
+  outlineMm?: Vector2D[];
+  /**
    * Total string spread at the saddles - outer string to outer string, NOT
    * the per-string pitch. A 4-string bass at ~19mm pitch is ~57 here, not 19.
    * axe-shaper-ios spends it as

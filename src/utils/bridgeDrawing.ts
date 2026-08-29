@@ -50,6 +50,10 @@ export type BridgeDrawingGeometry =
       // Absent when the preset is `singlePlate` - a one-piece plate has no
       // separate saddle carrier to draw.
       saddlePlate?: BridgeDrawingRect;
+    }
+  | {
+      kind: 'custom-outline';
+      plateOutline: Vector2D[];
     };
 
 // The vibrato bridge: an asymmetric plate with a tab on the bass side that
@@ -171,6 +175,14 @@ export function getBridgeDrawingGeometry(
     };
   }
 
+  if (bridge.outlineMm?.length && bridge.outlineMm.length >= 3) {
+    const theoreticalSaddleY = getTheoreticalSaddleYMm(neck);
+    return {
+      kind: 'custom-outline',
+      plateOutline: bridge.outlineMm.map((point) => ({ x: point.x, y: theoreticalSaddleY + point.y })),
+    };
+  }
+
   const bridgePlate = rect(
     { x: 0, y: getBridgePlateTopYMm(neck, bridge) + height / 2 },
     width,
@@ -232,6 +244,8 @@ export function bridgeDrawingBoundsPoints(geometry: BridgeDrawingGeometry): Vect
         ...rotatedRectCorners(geometry.bridgePlate),
         ...(geometry.saddlePlate ? rotatedRectCorners(geometry.saddlePlate) : []),
       ];
+    case 'custom-outline':
+      return geometry.plateOutline;
   }
 }
 
@@ -255,7 +269,7 @@ export function bridgeMountingPointsAreVisible(geometry: BridgeDrawingGeometry):
   // socket, and a hardtail's real screw positions are a bridge-model-specific
   // detail this app doesn't model (same call made for `tremolo_strat` and
   // `tele_bridge_plate` in `constants/hardware.ts`).
-  return geometry.kind !== 'f-style';
+  return geometry.kind !== 'f-style' && geometry.kind !== 'custom-outline';
 }
 
 export function tomBridgePostLineY(neck: NeckPreset): number {

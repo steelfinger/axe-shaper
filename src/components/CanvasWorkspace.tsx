@@ -919,6 +919,15 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                       ))}
                   </>
                 )}
+                {bridgeDrawing.kind === 'custom-outline' && (
+                  <Line
+                    points={bridgeDrawing.plateOutline.flatMap((point) => [point.x, point.y])}
+                    closed
+                    fill="rgba(59, 130, 246, 0.15)"
+                    stroke="#3b82f6"
+                    strokeWidth={1.5 / zoom}
+                  />
+                )}
                 {/* Theoretical Scale-Length Line - exactly scaleLengthMm from
                     the nut, zero compensation, drawn through the bridge plate */}
                 <Line
