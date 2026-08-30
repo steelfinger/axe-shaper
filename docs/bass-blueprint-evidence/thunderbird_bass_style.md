@@ -13,7 +13,7 @@ genuine real-world analog rather than a generic substitute.
 | Scale length | 863.6mm (34") | `bass_long_34` (W2) | High |
 | Neck pocket | 63.5 × 98.425mm | W2 — same documented `glued`-pocket gap as R-Style, see there | Medium |
 | Neck joint | Modelled as `glued` | The real Thunderbird is neck-through; `glued` is the closer of the two available buckets — same modelling choice already used for the Firebird/Gretsch Thunderbird *guitar* blueprints in this repo | Modelling choice, not a construction claim |
-| Pickup type/shape | Humbucker, 103.7 × 50.5mm × 2 | W2 catalogue — a real Thunderbird's mini-humbuckers are not identical to this shape, but it's this app's closest existing humbucker-family type | Medium |
+| Pickup type/shape | Bass mini humbucker × 2 | User-supplied `bass-pickups.svg` cavity and 3D part outlines | High |
 | Pickup Y positions (230mm, 320mm) | Not sourced | Plausible neck/bridge placement | **Estimated** |
 | Body outline | Derived from `gretsch_thunderbird` (guitar), scaled | **Direct real-world analog** — the donor is genuinely the same archetype, not a substitute | Best available without a trace |
 
@@ -36,7 +36,7 @@ ships its own bridge, not modelled.
 
 ## Pickup routs, pickguard, front/back routes
 
-Two `bass_humbucker` routs at Y=230mm and Y=320mm, unrotated, X=0. No
+Two `bass_mini_humbucker` routs at Y=230mm and Y=320mm, unrotated, X=0. No
 pickguard or control routes.
 
 ## Body thickness and edge treatment

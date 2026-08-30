@@ -185,7 +185,11 @@ export type PickupType =
   | 'bass_split_coil'
   | 'bass_j_single_coil'
   | 'bass_humbucker'
-  | 'bass_soapbar';
+  | 'bass_soapbar'
+  | 'bass_r_toaster'
+  | 'bass_r_horseshoe'
+  | 'bass_mudbucker'
+  | 'bass_mini_humbucker';
 
 /** The real shape actually routed for a pickup - a traced cavity outline (mounting ears and all, where the real pickup has them), not a plain rectangle. */
 export interface PickupRoutSpec {

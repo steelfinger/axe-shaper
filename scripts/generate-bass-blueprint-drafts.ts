@@ -77,7 +77,7 @@ interface DraftSpec {
   neckId: 'bass_long_34' | 'bass_medium_33_25' | 'bass_short_30_5' | 'bass_short_30';
   // Defaults to bass_vintage_plate; the P/Mustang Fender-style bodies use the
   // measured bass_precision_plate.
-  bridgeId?: 'bass_vintage_plate' | 'bass_precision_plate';
+  bridgeId?: 'bass_vintage_plate' | 'bass_precision_plate' | 'bass_r_style_plate';
   pickups: Array<{ type: string; offsetYMm: number }>;
 }
 
@@ -116,7 +116,8 @@ const DRAFTS: DraftSpec[] = [
     bodyLengthMm: 478, // ESTIMATED - Rickenbacker publishes only overall instrument length (44-13/16"); no body-only figure found
     bodyWidthMm: 342.9, // 13.5" - published Rickenbacker 4003 overall width
     neckId: 'bass_medium_33_25',
-    pickups: [{ type: 'bass_j_single_coil', offsetYMm: 210 }, { type: 'bass_j_single_coil', offsetYMm: 310 }],
+    bridgeId: 'bass_r_style_plate',
+    pickups: [{ type: 'bass_r_toaster', offsetYMm: 210 }, { type: 'bass_r_horseshoe', offsetYMm: 310 }],
   },
   {
     id: 'thunderbird_bass_style',
@@ -125,7 +126,7 @@ const DRAFTS: DraftSpec[] = [
     bodyLengthMm: 508, // 20" - published reverse-body Thunderbird body length (mid-1970s reissue reference)
     bodyWidthMm: 330, // 13" - published reverse-body Thunderbird width (see body-length note above)
     neckId: 'bass_long_34',
-    pickups: [{ type: 'bass_humbucker', offsetYMm: 230 }, { type: 'bass_humbucker', offsetYMm: 320 }],
+    pickups: [{ type: 'bass_mini_humbucker', offsetYMm: 230 }, { type: 'bass_mini_humbucker', offsetYMm: 320 }],
   },
   {
     id: 'mustang_bass_style',
@@ -144,7 +145,7 @@ const DRAFTS: DraftSpec[] = [
     bodyLengthMm: 432, // 17" - published 1961 EB-3 body length; EB-3 is independently documented as sharing the SG guitar's body
     bodyWidthMm: 330, // 13" - published 1961 EB-3 body width
     neckId: 'bass_short_30_5',
-    pickups: [{ type: 'bass_humbucker', offsetYMm: 200 }, { type: 'bass_humbucker', offsetYMm: 280 }],
+    pickups: [{ type: 'bass_mudbucker', offsetYMm: 200 }, { type: 'bass_mudbucker', offsetYMm: 280 }],
   },
   {
     id: 'streamer_bass_style',
@@ -182,6 +183,10 @@ async function main() {
   const svgExporter = await load('/src/utils/svgExporter.ts');
 
   for (const draft of drafts) {
+    const outPath = join(ROOT, 'src', 'constants', 'blueprints', `${draft.id}.axe.svg`);
+    // Keep the R-style bridge marker, which was authored separately from this
+    // first-draft generator, when refreshing that template's pickup layout.
+    const existing = draft.id === 'r_bass_style' ? decodeBlueprint(outPath) : undefined;
     const sourcePath = join(ROOT, 'src', 'constants', 'blueprints', `${draft.sourceBlueprintId}.axe.svg`);
     const source = decodeBlueprint(sourcePath);
     const sourceXs = source.contour.anchors.map((a: any) => a.position.x);
@@ -259,12 +264,11 @@ async function main() {
       ...presets.bridgePresetFields(draft.bridgeId ?? 'bass_vintage_plate'),
       pickups,
       pickguards: [],
-      frontRoutes: [],
+      frontRoutes: existing?.frontRoutes ?? [],
       backRoutes: [],
     };
 
     const svg = svgExporter.exportProjectToSVG(project);
-    const outPath = join(ROOT, 'src', 'constants', 'blueprints', `${draft.id}.axe.svg`);
     writeFileSync(outPath, svg);
     console.log(`wrote ${draft.id} (from ${draft.sourceBlueprintId}, scaleX=${scaleX.toFixed(4)}, scaleY=${scaleY.toFixed(4)})`);
   }

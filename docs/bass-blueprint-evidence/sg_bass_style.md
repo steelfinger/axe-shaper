@@ -14,7 +14,7 @@ confirmed to be the same body as the real instrument.
 | Scale length | 774.7mm (30.5") | `bass_short_30_5` (W2), matches the plan's own sourcing table and the real EB-3's 30.5" scale | High |
 | Neck pocket | 63.5 × 98.425mm | W2 — same documented `glued`-pocket gap as R-Style/Thunderbird-Style; **this is the entry that most needs a real number**, since SG-Style is the one genuinely glued-neck (not neck-through) instrument among the three `glued` blueprints | Medium — flagged in W2 as the priority case |
 | Neck joint | `glued` | Matches the real EB-3's actual glued-neck construction (unlike R-Style/Thunderbird-Style, this is not a "closer bucket" modelling choice — it's the real mechanism) | High |
-| Pickup type/shape | Humbucker, 103.7 × 50.5mm × 2 | W2 catalogue; the real EB-3's "mudbucker" pickups are not identical in shape, but it's this app's closest existing type | Medium |
+| Pickup type/shape | EB-style mudbucker × 2 | User-supplied `bass-pickups.svg` cavity and 3D part outlines | High |
 | Pickup Y positions (200mm, 280mm) | Not sourced | Plausible neck/bridge placement | **Estimated** |
 | Body outline | Derived directly from `sg_style` (guitar), scaled | **The best-grounded donor choice of the eight** — see above | Best available without a trace |
 
@@ -38,7 +38,7 @@ preset.
 
 ## Pickup routs, pickguard, front/back routes
 
-Two `bass_humbucker` routs at Y=200mm and Y=280mm, unrotated, X=0. No
+Two `bass_mudbucker` routs at Y=200mm and Y=280mm, unrotated, X=0. No
 pickguard or control routes.
 
 ## Body thickness and edge treatment

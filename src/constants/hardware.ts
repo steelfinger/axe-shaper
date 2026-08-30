@@ -693,6 +693,10 @@ export const PICKUP_TYPE_INSTRUMENT: Record<PickupType, InstrumentType> = {
   bass_j_single_coil: 'bass',
   bass_humbucker: 'bass',
   bass_soapbar: 'bass',
+  bass_r_toaster: 'bass',
+  bass_r_horseshoe: 'bass',
+  bass_mudbucker: 'bass',
+  bass_mini_humbucker: 'bass',
 };
 
 export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
@@ -1215,6 +1219,34 @@ export const PICKUP_SPECIFICATIONS: Record<
     widthMm: 90.9,
     heightMm: 40.1,
     anchors: roundedRectAnchors('bass_soapbar', 90.9, 40.1, 3.175),
+  },
+  // The following four routs are transcribed from the user's
+  // `bass-pickups.svg` source sheet.  These are separate types because their
+  // cavity footprints genuinely differ, not merely because they are familiar
+  // model names.
+  bass_r_toaster: {
+    name: 'R-Style Toaster Pickup',
+    widthMm: 70.96314,
+    heightMm: 26.50078,
+    anchors: roundedRectAnchors('bass_r_toaster', 70.96314, 26.50078, 4),
+  },
+  bass_r_horseshoe: {
+    name: 'R-Style Horseshoe Bridge Pickup',
+    widthMm: 140.408386,
+    heightMm: 39.50052,
+    anchors: roundedRectAnchors('bass_r_horseshoe', 140.408386, 39.50052, 8),
+  },
+  bass_mudbucker: {
+    name: 'EB-Style Mudbucker',
+    widthMm: 68.30416,
+    heightMm: 43.233333,
+    anchors: roundedRectAnchors('bass_mudbucker', 68.30416, 43.233333, 4),
+  },
+  bass_mini_humbucker: {
+    name: 'Bass Mini Humbucker',
+    widthMm: 88.94165,
+    heightMm: 37.4125,
+    anchors: roundedRectAnchors('bass_mini_humbucker', 88.94165, 37.4125, 4),
   },
 };
 

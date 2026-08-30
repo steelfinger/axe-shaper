@@ -12,7 +12,7 @@ weakest of the eight drafts and should be the first one refined by hand.**
 | Scale length | 844.55mm (33.25") | `bass_medium_33_25` (W2), matches the plan's own sourcing table | High |
 | Neck pocket | 63.5 × 98.425mm | W2 — **known gap**: this is `GENERIC_POCKET_SPEC.bass.glued`, which W2 documents as repeating the bolt-on bass pocket because no real set-neck/neck-through tenon measurement was available | Medium (documented approximation, not this file's own) |
 | Neck joint | Modelled as `glued` | The real Rickenbacker 4001/4003 is **neck-through**, which this app does not model as a third option (deferred, per the plan). `glued` is the closer of the two available buckets | Modelling choice, not a construction claim |
-| Pickup type/shape | `bass_j_single_coil` × 2 | **Placeholder** — Rickenbacker's real "toaster" pickups have a distinctive shape this app's vocabulary has no entry for; single-coil family was chosen as the closest available type, not because the rout shape matches | **Weak — flagged for a dedicated pickup type later** |
+| Pickup type/shape | R-style toaster + R-style horseshoe | User-supplied `bass-pickups.svg` cavity and 3D part outlines | High |
 | Pickup Y positions (210mm, 310mm) | Not sourced | Plausible neck/bridge placement only | **Estimated** |
 | Body outline | Derived from `jag_style`, scaled | **Does not resemble a Rickenbacker's cresting-wave silhouette at all** | **First draft, weakest match of the eight** |
 
@@ -39,8 +39,8 @@ distinctive bridge/mute assembly, not modelled.
 
 ## Pickup routs, pickguard, front/back routes
 
-Two `bass_j_single_coil` routs at Y=210mm and Y=310mm — a placeholder shape
-and placement, not sourced. No pickguard or control routes; a real
+One `bass_r_toaster` rout at Y=210mm and one `bass_r_horseshoe` rout at
+Y=310mm. Their positions remain estimated. No pickguard or control routes; a real
 Rickenbacker's pickguard and control-cavity layout is distinctive and
 entirely unmodelled here.
 
@@ -52,7 +52,6 @@ binding, unmodelled.
 ## Approximations, explicitly — this file has the most
 
 - Body outline: placeholder, not resembling the real archetype.
-- Pickup type: placeholder, not the real pickup shape.
 - Pickup positions: not sourced.
 - Body length: estimated with low confidence.
 - Neck joint mechanism: a modelling choice, not a construction match.
