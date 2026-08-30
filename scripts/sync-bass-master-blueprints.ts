@@ -71,13 +71,16 @@ async function main() {
       project.bridgePresetId = bridgePresetId;
       project.bridgePreset = structuredClone(hardware.BRIDGE_PRESETS[bridgePresetId]);
       const pickupTypes = PICKUP_TYPES_BY_TEMPLATE[templateId as keyof typeof MASTERS];
-      if (pickupTypes) {
-        project.pickups = project.pickups.map((pickup: any, index: number) => {
-          const type = pickupTypes[Math.min(index, pickupTypes.length - 1)];
-          const spec = hardware.PICKUP_SPECIFICATIONS[type];
-          return { ...pickup, type, widthMm: spec.widthMm, heightMm: spec.heightMm, anchors: structuredClone(spec.anchors) };
-        });
-      }
+      project.pickups = project.pickups.map((pickup: any, index: number) => {
+        // Preserve the master pickup identity unless this template deliberately
+        // substitutes one of the curated bass-specific types. In both cases,
+        // regenerate its rout from the catalogue so literal SVG contours are
+        // written to every blueprint payload and visible SVG path.
+        const type = pickupTypes?.[Math.min(index, pickupTypes.length - 1)] ?? pickup.type;
+        const spec = hardware.PICKUP_SPECIFICATIONS[type];
+        if (!spec) throw new Error(`${templateId} references unsupported pickup type ${type}`);
+        return { ...pickup, type, widthMm: spec.widthMm, heightMm: spec.heightMm, anchors: structuredClone(spec.anchors) };
+      });
       // The second R-style front route is a supplied bridge-plate marker, not
       // a machinable body route. Its geometry now lives in bass_r_style_plate.
       if (templateId === 'r_bass_style') project.frontRoutes = project.frontRoutes.filter((_: unknown, index: number) => index !== 1);

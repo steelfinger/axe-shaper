@@ -1764,133 +1764,105 @@
       },
       "bass_split_coil": {
         "name": "Split Coil (P-Style)",
-        "widthMm": 105.106,
-        "heightMm": 62.166,
+        "widthMm": 103.145099,
+        "heightMm": 57.021331,
         "anchors": [
           {
             "id": "bass_split_coil_a0",
             "position": {
-              "x": -18.834,
-              "y": 0.389
-            },
-            "handleIn": {
-              "x": -8.553,
-              "y": 0
+              "x": -45.09595,
+              "y": -28.510666
             },
             "handleOut": {
-              "x": 2.471,
-              "y": 0.467
+              "x": -0.877,
+              "y": 0
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_split_coil_a1",
             "position": {
-              "x": -17.246,
-              "y": 5.643
+              "x": -46.68345,
+              "y": -26.923165
             },
             "handleIn": {
-              "x": -0.264,
-              "y": -1.787
-            },
-            "handleOut": {
-              "x": 0.082,
-              "y": 6.787
+              "x": 0,
+              "y": -0.87549
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_split_coil_a2",
             "position": {
-              "x": -17.117,
-              "y": 26.013
-            },
-            "handleIn": {
-              "x": -0.295,
-              "y": -6.774
+              "x": -46.68345,
+              "y": -20.461025
             },
             "handleOut": {
-              "x": 0.628,
-              "y": 3.675
+              "x": -2.8656,
+              "y": 0.67338
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_split_coil_a3",
             "position": {
-              "x": -9.185,
-              "y": 31.083
+              "x": -51.57255,
+              "y": -14.287754
             },
             "handleIn": {
-              "x": -3.438,
-              "y": 0.47
+              "x": 0,
+              "y": -2.943931
             },
             "handleOut": {
-              "x": 18.679,
-              "y": -0.022
+              "x": 0,
+              "y": 2.94411
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_split_coil_a4",
             "position": {
-              "x": 46.852,
-              "y": 31.05
+              "x": -46.68345,
+              "y": -8.113974
             },
             "handleIn": {
-              "x": -18.677,
-              "y": 0.077
-            },
-            "handleOut": {
-              "x": 3.966,
-              "y": -0.274
+              "x": -2.8656,
+              "y": -0.67356
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_split_coil_a5",
             "position": {
-              "x": 52.553,
-              "y": 23.022
-            },
-            "handleIn": {
-              "x": 0.549,
-              "y": 3.661
+              "x": -46.68345,
+              "y": -1.651834
             },
             "handleOut": {
-              "x": -0.08,
-              "y": -6.91
+              "x": 0,
+              "y": 0.87877
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_split_coil_a6",
             "position": {
-              "x": 52.424,
-              "y": 2.284
+              "x": -44.73665,
+              "y": -0.192954
             },
             "handleIn": {
-              "x": 0.294,
-              "y": 6.897
-            },
-            "handleOut": {
-              "x": -0.628,
-              "y": -3.675
+              "x": -0.877,
+              "y": 0
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_split_coil_a7",
             "position": {
-              "x": 44.491,
-              "y": -2.786
-            },
-            "handleIn": {
-              "x": 3.438,
-              "y": -0.47
+              "x": -12.986553,
+              "y": -0.064454
             },
             "handleOut": {
-              "x": -8.553,
+              "x": 0.9522,
               "y": 0
             },
             "handleMode": "corner"
@@ -1898,127 +1870,251 @@
           {
             "id": "bass_split_coil_a8",
             "position": {
-              "x": 18.832,
-              "y": -2.786
+              "x": -11.229253,
+              "y": 1.651836
             },
             "handleIn": {
-              "x": 8.553,
-              "y": 0
-            },
-            "handleOut": {
-              "x": -2.471,
-              "y": -0.467
+              "x": 0,
+              "y": -0.87549
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_split_coil_a9",
             "position": {
-              "x": 17.245,
-              "y": -8.041
-            },
-            "handleIn": {
-              "x": 0.264,
-              "y": 1.787
+              "x": -11.229253,
+              "y": 8.113976
             },
             "handleOut": {
-              "x": -0.08,
-              "y": -5.988
+              "x": -2.865697,
+              "y": 0.67338
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_split_coil_a10",
             "position": {
-              "x": 17.116,
-              "y": -26.013
+              "x": -16.118449,
+              "y": 14.287246
             },
             "handleIn": {
-              "x": 0.293,
-              "y": 5.975
+              "x": 0,
+              "y": -2.94393
             },
             "handleOut": {
-              "x": -0.628,
-              "y": -3.675
+              "x": 0,
+              "y": 2.9441
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_split_coil_a11",
             "position": {
-              "x": 9.183,
-              "y": -31.083
+              "x": -11.229253,
+              "y": 20.461026
             },
             "handleIn": {
-              "x": 3.438,
-              "y": -0.47
-            },
-            "handleOut": {
-              "x": -18.678,
-              "y": 0.022
+              "x": -2.865697,
+              "y": -0.67356
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_split_coil_a12",
             "position": {
-              "x": -46.852,
-              "y": -31.05
-            },
-            "handleIn": {
-              "x": 18.677,
-              "y": -0.077
+              "x": -11.229253,
+              "y": 26.923166
             },
             "handleOut": {
-              "x": -3.966,
-              "y": 0.274
+              "x": 0,
+              "y": 0.87877
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_split_coil_a13",
             "position": {
-              "x": -52.553,
-              "y": -23.022
+              "x": -9.641752,
+              "y": 28.510666
             },
             "handleIn": {
-              "x": -0.549,
-              "y": -3.661
-            },
-            "handleOut": {
-              "x": 0.078,
-              "y": 6.111
+              "x": -0.877,
+              "y": 0
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_split_coil_a14",
             "position": {
-              "x": -52.424,
-              "y": -4.681
-            },
-            "handleIn": {
-              "x": -0.291,
-              "y": -6.098
+              "x": 45.094349,
+              "y": 28.510666
             },
             "handleOut": {
-              "x": 0.628,
-              "y": 3.675
+              "x": 0.8788,
+              "y": 0
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_split_coil_a15",
             "position": {
-              "x": -44.491,
-              "y": 0.389
+              "x": 46.68195,
+              "y": 26.923166
             },
             "handleIn": {
-              "x": -3.438,
-              "y": 0.47
+              "x": 0,
+              "y": 0.87877
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a16",
+            "position": {
+              "x": 46.68195,
+              "y": 20.461026
             },
             "handleOut": {
-              "x": 8.553,
+              "x": 2.8656,
+              "y": -0.67356
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a17",
+            "position": {
+              "x": 51.57255,
+              "y": 14.287246
+            },
+            "handleIn": {
+              "x": 0,
+              "y": 2.9441
+            },
+            "handleOut": {
+              "x": 0,
+              "y": -2.94393
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a18",
+            "position": {
+              "x": 46.68195,
+              "y": 8.113976
+            },
+            "handleIn": {
+              "x": 2.8656,
+              "y": 0.67338
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a19",
+            "position": {
+              "x": 46.68195,
+              "y": 1.651836
+            },
+            "handleOut": {
+              "x": 0,
+              "y": -0.87549
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a20",
+            "position": {
+              "x": 45.094349,
+              "y": 0.064335
+            },
+            "handleIn": {
+              "x": 0.8788,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a21",
+            "position": {
+              "x": 13.873549,
+              "y": 0.144735
+            },
+            "handleOut": {
+              "x": -1.7867,
+              "y": 0.0986
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a22",
+            "position": {
+              "x": 11.227649,
+              "y": -1.651905
+            },
+            "handleIn": {
+              "x": -0.0001,
+              "y": 1.19235
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a23",
+            "position": {
+              "x": 11.22775,
+              "y": -8.113955
+            },
+            "handleOut": {
+              "x": 2.8656,
+              "y": -0.67356
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a24",
+            "position": {
+              "x": 16.11835,
+              "y": -14.287734
+            },
+            "handleIn": {
+              "x": 0,
+              "y": 2.94411
+            },
+            "handleOut": {
+              "x": 0,
+              "y": -2.943931
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a25",
+            "position": {
+              "x": 11.22775,
+              "y": -20.461005
+            },
+            "handleIn": {
+              "x": 2.8656,
+              "y": 0.67338
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a26",
+            "position": {
+              "x": 11.22775,
+              "y": -26.923146
+            },
+            "handleOut": {
+              "x": 0,
+              "y": -0.87549
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_split_coil_a27",
+            "position": {
+              "x": 9.640249,
+              "y": -28.510646
+            },
+            "handleIn": {
+              "x": 0.8788,
               "y": 0
             },
             "handleMode": "corner"
@@ -2027,29 +2123,33 @@
       },
       "bass_j_single_coil": {
         "name": "J-Style Single Coil (Bass)",
-        "widthMm": 93.4,
-        "heightMm": 21.3,
+        "widthMm": 96.510797,
+        "heightMm": 30.6974,
         "anchors": [
           {
             "id": "bass_j_single_coil_a0",
             "position": {
-              "x": -43.525,
-              "y": -10.65
+              "x": -13.333901,
+              "y": -9.7753
             },
-            "handleIn": {
-              "x": -1.754,
-              "y": 0
+            "handleOut": {
+              "x": -0.563697,
+              "y": -3.2217
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_j_single_coil_a1",
             "position": {
-              "x": 43.525,
-              "y": -10.65
+              "x": -19.965098,
+              "y": -15.3487
+            },
+            "handleIn": {
+              "x": 3.2717,
+              "y": 0
             },
             "handleOut": {
-              "x": 1.754,
+              "x": -3.2702,
               "y": 0
             },
             "handleMode": "corner"
@@ -2057,72 +2157,228 @@
           {
             "id": "bass_j_single_coil_a2",
             "position": {
-              "x": 46.7,
-              "y": -7.475
+              "x": -26.594798,
+              "y": -9.7753
             },
             "handleIn": {
-              "x": 0,
-              "y": -1.754
+              "x": 0.562,
+              "y": -3.2217
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_j_single_coil_a3",
             "position": {
-              "x": 46.7,
-              "y": 7.475
+              "x": -44.753698,
+              "y": -9.7753
             },
             "handleOut": {
-              "x": 0,
-              "y": 1.754
+              "x": -1.9339,
+              "y": 0
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_j_single_coil_a4",
             "position": {
-              "x": 43.525,
-              "y": 10.65
+              "x": -48.255398,
+              "y": -6.27491
             },
             "handleIn": {
-              "x": 1.754,
-              "y": 0
+              "x": 0,
+              "y": -1.93249
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_j_single_coil_a5",
             "position": {
-              "x": -43.525,
-              "y": 10.65
+              "x": -48.255398,
+              "y": 6.27489
             },
             "handleOut": {
-              "x": -1.754,
-              "y": 0
+              "x": 0,
+              "y": 1.9339
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_j_single_coil_a6",
             "position": {
-              "x": -46.7,
-              "y": 7.475
+              "x": -44.753698,
+              "y": 9.7751
             },
             "handleIn": {
-              "x": 0,
-              "y": 1.754
+              "x": -1.9339,
+              "y": 0
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_j_single_coil_a7",
             "position": {
-              "x": -46.7,
-              "y": -7.475
+              "x": -26.594798,
+              "y": 9.7751
+            },
+            "handleOut": {
+              "x": 0.562,
+              "y": 3.2217
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a8",
+            "position": {
+              "x": -19.965098,
+              "y": 15.3487
+            },
+            "handleIn": {
+              "x": -3.2702,
+              "y": 0
+            },
+            "handleOut": {
+              "x": 3.2717,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a9",
+            "position": {
+              "x": -13.333901,
+              "y": 9.7751
+            },
+            "handleIn": {
+              "x": -0.563697,
+              "y": 3.2217
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a10",
+            "position": {
+              "x": 13.334999,
+              "y": 9.7751
+            },
+            "handleOut": {
+              "x": 0.5624,
+              "y": 3.2217
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a11",
+            "position": {
+              "x": 19.964799,
+              "y": 15.3487
+            },
+            "handleIn": {
+              "x": -3.2703,
+              "y": 0
+            },
+            "handleOut": {
+              "x": 3.272,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a12",
+            "position": {
+              "x": 26.595999,
+              "y": 9.7751
+            },
+            "handleIn": {
+              "x": -0.5638,
+              "y": 3.2217
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a13",
+            "position": {
+              "x": 44.755199,
+              "y": 9.7751
+            },
+            "handleOut": {
+              "x": 1.9321,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a14",
+            "position": {
+              "x": 48.255399,
+              "y": 6.27489
+            },
+            "handleIn": {
+              "x": 0,
+              "y": 1.9339
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a15",
+            "position": {
+              "x": 48.255399,
+              "y": -6.27491
             },
             "handleOut": {
               "x": 0,
-              "y": -1.754
+              "y": -1.93249
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a16",
+            "position": {
+              "x": 44.755199,
+              "y": -9.7753
+            },
+            "handleIn": {
+              "x": 1.9321,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a17",
+            "position": {
+              "x": 26.595999,
+              "y": -9.7753
+            },
+            "handleOut": {
+              "x": -0.5638,
+              "y": -3.2217
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a18",
+            "position": {
+              "x": 19.964799,
+              "y": -15.3487
+            },
+            "handleIn": {
+              "x": 3.272,
+              "y": 0
+            },
+            "handleOut": {
+              "x": -3.2703,
+              "y": 0
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_j_single_coil_a19",
+            "position": {
+              "x": 13.334998,
+              "y": -9.7753
+            },
+            "handleIn": {
+              "x": 0.5624,
+              "y": -3.2217
             },
             "handleMode": "corner"
           }
@@ -2130,102 +2386,174 @@
       },
       "bass_humbucker": {
         "name": "Bass Humbucker (MM-Style)",
-        "widthMm": 103.7,
-        "heightMm": 50.5,
+        "widthMm": 89.027001,
+        "heightMm": 48.51409,
         "anchors": [
           {
             "id": "bass_humbucker_a0",
             "position": {
-              "x": -48.675,
-              "y": -25.25
+              "x": -41.465501,
+              "y": 24.257025
             },
-            "handleIn": {
-              "x": -1.754,
-              "y": 0
+            "handleOut": {
+              "x": -1.6138,
+              "y": 0.0351
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_humbucker_a1",
             "position": {
-              "x": 48.675,
-              "y": -25.25
+              "x": -44.513501,
+              "y": 21.209005
             },
-            "handleOut": {
-              "x": 1.754,
-              "y": 0
+            "handleIn": {
+              "x": -0.0354,
+              "y": 1.61352
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_humbucker_a2",
             "position": {
-              "x": 51.85,
-              "y": -22.075
+              "x": -44.513501,
+              "y": 18.224565
             },
-            "handleIn": {
-              "x": 0,
-              "y": -1.754
+            "handleOut": {
+              "x": -7.9419,
+              "y": -0.25791
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_humbucker_a3",
             "position": {
-              "x": 51.85,
-              "y": 22.075
+              "x": -44.513501,
+              "y": 5.524495
             },
-            "handleOut": {
-              "x": 0,
-              "y": 1.754
+            "handleIn": {
+              "x": -8.1059,
+              "y": -0.0325
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_humbucker_a4",
             "position": {
-              "x": 48.675,
-              "y": 25.25
+              "x": -44.513501,
+              "y": -5.524515
             },
-            "handleIn": {
-              "x": 1.754,
-              "y": 0
+            "handleOut": {
+              "x": -8.1889,
+              "y": 0.0705
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_humbucker_a5",
             "position": {
-              "x": -48.675,
-              "y": 25.25
+              "x": -44.513501,
+              "y": -18.224465
             },
-            "handleOut": {
-              "x": -1.754,
-              "y": 0
+            "handleIn": {
+              "x": -8.6788,
+              "y": -0.0338
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_humbucker_a6",
             "position": {
-              "x": -51.85,
-              "y": 22.075
+              "x": -44.513501,
+              "y": -21.208985
             },
-            "handleIn": {
-              "x": 0,
-              "y": 1.754
+            "handleOut": {
+              "x": -0.036,
+              "y": -1.61391
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_humbucker_a7",
             "position": {
-              "x": -51.85,
-              "y": -22.075
+              "x": -41.465501,
+              "y": -24.257025
+            },
+            "handleIn": {
+              "x": -1.6134,
+              "y": -0.0353
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_humbucker_a8",
+            "position": {
+              "x": 41.4655,
+              "y": -24.257045
             },
             "handleOut": {
-              "x": 0,
-              "y": -1.754
+              "x": 1.6138,
+              "y": -0.0351
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_humbucker_a9",
+            "position": {
+              "x": 44.5135,
+              "y": -21.208985
+            },
+            "handleIn": {
+              "x": 0.0354,
+              "y": -1.61356
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_humbucker_a10",
+            "position": {
+              "x": 44.5135,
+              "y": -6.349995
+            },
+            "handleOut": {
+              "x": 9.0909,
+              "y": -0.15218
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_humbucker_a11",
+            "position": {
+              "x": 44.5135,
+              "y": 6.350075
+            },
+            "handleIn": {
+              "x": 8.1868,
+              "y": 0.19761
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_humbucker_a12",
+            "position": {
+              "x": 44.5135,
+              "y": 21.209025
+            },
+            "handleOut": {
+              "x": 0.035,
+              "y": 1.61376
+            },
+            "handleMode": "corner"
+          },
+          {
+            "id": "bass_humbucker_a13",
+            "position": {
+              "x": 41.4655,
+              "y": 24.257045
+            },
+            "handleIn": {
+              "x": 1.6136,
+              "y": 0.03535
             },
             "handleMode": "corner"
           }
@@ -2342,11 +2670,11 @@
           {
             "id": "bass_r_toaster_a0",
             "position": {
-              "x": -31.482,
-              "y": -13.25
+              "x": -31.48099,
+              "y": -13.25039
             },
             "handleIn": {
-              "x": -2.209,
+              "x": -2.21632,
               "y": 0
             },
             "handleMode": "corner"
@@ -2354,11 +2682,11 @@
           {
             "id": "bass_r_toaster_a1",
             "position": {
-              "x": 31.482,
-              "y": -13.25
+              "x": 31.48099,
+              "y": -13.25039
             },
             "handleOut": {
-              "x": 2.209,
+              "x": 2.21632,
               "y": 0
             },
             "handleMode": "corner"
@@ -2366,35 +2694,35 @@
           {
             "id": "bass_r_toaster_a2",
             "position": {
-              "x": 35.482,
-              "y": -9.25
+              "x": 35.48157,
+              "y": -9.44689
             },
             "handleIn": {
               "x": 0,
-              "y": -2.209
+              "y": -2.10714
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_r_toaster_a3",
             "position": {
-              "x": 35.482,
-              "y": 9.25
+              "x": 35.48157,
+              "y": 9.44689
             },
             "handleOut": {
               "x": 0,
-              "y": 2.209
+              "y": 2.10714
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_r_toaster_a4",
             "position": {
-              "x": 31.482,
-              "y": 13.25
+              "x": 31.48099,
+              "y": 13.25039
             },
             "handleIn": {
-              "x": 2.209,
+              "x": 2.21632,
               "y": 0
             },
             "handleMode": "corner"
@@ -2402,11 +2730,11 @@
           {
             "id": "bass_r_toaster_a5",
             "position": {
-              "x": -31.482,
-              "y": 13.25
+              "x": -31.48099,
+              "y": 13.25039
             },
             "handleOut": {
-              "x": -2.209,
+              "x": -2.21632,
               "y": 0
             },
             "handleMode": "corner"
@@ -2414,24 +2742,24 @@
           {
             "id": "bass_r_toaster_a6",
             "position": {
-              "x": -35.482,
-              "y": 9.25
+              "x": -35.48157,
+              "y": 9.44689
             },
             "handleIn": {
               "x": 0,
-              "y": 2.209
+              "y": 2.10714
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_r_toaster_a7",
             "position": {
-              "x": -35.482,
-              "y": -9.25
+              "x": -35.48157,
+              "y": -9.44689
             },
             "handleOut": {
               "x": 0,
-              "y": -2.209
+              "y": -2.10714
             },
             "handleMode": "corner"
           }
@@ -2445,11 +2773,11 @@
           {
             "id": "bass_r_horseshoe_a0",
             "position": {
-              "x": -62.204,
-              "y": -19.75
+              "x": -62.204193,
+              "y": -19.75026
             },
             "handleIn": {
-              "x": -4.418,
+              "x": -4.432,
               "y": 0
             },
             "handleMode": "corner"
@@ -2457,11 +2785,11 @@
           {
             "id": "bass_r_horseshoe_a1",
             "position": {
-              "x": 62.204,
-              "y": -19.75
+              "x": 62.204193,
+              "y": -19.75026
             },
             "handleOut": {
-              "x": 4.418,
+              "x": 4.432,
               "y": 0
             },
             "handleMode": "corner"
@@ -2469,35 +2797,35 @@
           {
             "id": "bass_r_horseshoe_a2",
             "position": {
-              "x": 70.204,
-              "y": -11.75
+              "x": 70.204193,
+              "y": -11.75026
             },
             "handleIn": {
               "x": 0,
-              "y": -4.418
+              "y": -4.432
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_r_horseshoe_a3",
             "position": {
-              "x": 70.204,
-              "y": 11.75
+              "x": 70.204193,
+              "y": 11.75026
             },
             "handleOut": {
               "x": 0,
-              "y": 4.418
+              "y": 4.432
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_r_horseshoe_a4",
             "position": {
-              "x": 62.204,
-              "y": 19.75
+              "x": 62.204193,
+              "y": 19.75026
             },
             "handleIn": {
-              "x": 4.418,
+              "x": 4.432,
               "y": 0
             },
             "handleMode": "corner"
@@ -2505,11 +2833,11 @@
           {
             "id": "bass_r_horseshoe_a5",
             "position": {
-              "x": -62.204,
-              "y": 19.75
+              "x": -62.204193,
+              "y": 19.75026
             },
             "handleOut": {
-              "x": -4.418,
+              "x": -4.432,
               "y": 0
             },
             "handleMode": "corner"
@@ -2517,24 +2845,24 @@
           {
             "id": "bass_r_horseshoe_a6",
             "position": {
-              "x": -70.204,
-              "y": 11.75
+              "x": -70.204193,
+              "y": 11.75026
             },
             "handleIn": {
               "x": 0,
-              "y": 4.418
+              "y": 4.432
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_r_horseshoe_a7",
             "position": {
-              "x": -70.204,
-              "y": -11.75
+              "x": -70.204193,
+              "y": -11.75026
             },
             "handleOut": {
               "x": 0,
-              "y": -4.418
+              "y": -4.432
             },
             "handleMode": "corner"
           }
@@ -2548,11 +2876,11 @@
           {
             "id": "bass_mudbucker_a0",
             "position": {
-              "x": -30.152,
-              "y": -21.617
+              "x": -30.15208,
+              "y": -21.616667
             },
             "handleIn": {
-              "x": -2.209,
+              "x": -2.216,
               "y": 0
             },
             "handleMode": "corner"
@@ -2560,11 +2888,11 @@
           {
             "id": "bass_mudbucker_a1",
             "position": {
-              "x": 30.152,
-              "y": -21.617
+              "x": 30.15209,
+              "y": -21.616667
             },
             "handleOut": {
-              "x": 2.209,
+              "x": 2.216,
               "y": 0
             },
             "handleMode": "corner"
@@ -2572,35 +2900,35 @@
           {
             "id": "bass_mudbucker_a2",
             "position": {
-              "x": 34.152,
-              "y": -17.617
+              "x": 34.15208,
+              "y": -17.616667
             },
             "handleIn": {
               "x": 0,
-              "y": -2.209
+              "y": -2.216
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_mudbucker_a3",
             "position": {
-              "x": 34.152,
-              "y": 17.617
+              "x": 34.15208,
+              "y": 17.616667
             },
             "handleOut": {
               "x": 0,
-              "y": 2.209
+              "y": 2.216
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_mudbucker_a4",
             "position": {
-              "x": 30.152,
-              "y": 21.617
+              "x": 30.15209,
+              "y": 21.616667
             },
             "handleIn": {
-              "x": 2.209,
+              "x": 2.216,
               "y": 0
             },
             "handleMode": "corner"
@@ -2608,11 +2936,11 @@
           {
             "id": "bass_mudbucker_a5",
             "position": {
-              "x": -30.152,
-              "y": 21.617
+              "x": -30.15208,
+              "y": 21.616667
             },
             "handleOut": {
-              "x": -2.209,
+              "x": -2.216,
               "y": 0
             },
             "handleMode": "corner"
@@ -2620,24 +2948,24 @@
           {
             "id": "bass_mudbucker_a6",
             "position": {
-              "x": -34.152,
-              "y": 17.617
+              "x": -34.15208,
+              "y": 17.616667
             },
             "handleIn": {
               "x": 0,
-              "y": 2.209
+              "y": 2.216
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_mudbucker_a7",
             "position": {
-              "x": -34.152,
-              "y": -17.617
+              "x": -34.15208,
+              "y": -17.616667
             },
             "handleOut": {
               "x": 0,
-              "y": -2.209
+              "y": -2.216
             },
             "handleMode": "corner"
           }
@@ -2651,11 +2979,11 @@
           {
             "id": "bass_mini_humbucker_a0",
             "position": {
-              "x": -40.471,
-              "y": -18.706
+              "x": -40.470835,
+              "y": -18.70625
             },
             "handleIn": {
-              "x": -2.209,
+              "x": -2.216,
               "y": 0
             },
             "handleMode": "corner"
@@ -2663,11 +2991,11 @@
           {
             "id": "bass_mini_humbucker_a1",
             "position": {
-              "x": 40.471,
-              "y": -18.706
+              "x": 40.470825,
+              "y": -18.70625
             },
             "handleOut": {
-              "x": 2.209,
+              "x": 2.216,
               "y": 0
             },
             "handleMode": "corner"
@@ -2675,35 +3003,35 @@
           {
             "id": "bass_mini_humbucker_a2",
             "position": {
-              "x": 44.471,
-              "y": -14.706
+              "x": 44.470825,
+              "y": -14.70625
             },
             "handleIn": {
               "x": 0,
-              "y": -2.209
+              "y": -2.216
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_mini_humbucker_a3",
             "position": {
-              "x": 44.471,
-              "y": 14.706
+              "x": 44.470825,
+              "y": 14.70625
             },
             "handleOut": {
               "x": 0,
-              "y": 2.209
+              "y": 2.216
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_mini_humbucker_a4",
             "position": {
-              "x": 40.471,
-              "y": 18.706
+              "x": 40.470825,
+              "y": 18.70625
             },
             "handleIn": {
-              "x": 2.209,
+              "x": 2.216,
               "y": 0
             },
             "handleMode": "corner"
@@ -2711,11 +3039,11 @@
           {
             "id": "bass_mini_humbucker_a5",
             "position": {
-              "x": -40.471,
-              "y": 18.706
+              "x": -40.470835,
+              "y": 18.70625
             },
             "handleOut": {
-              "x": -2.209,
+              "x": -2.21599,
               "y": 0
             },
             "handleMode": "corner"
@@ -2723,24 +3051,24 @@
           {
             "id": "bass_mini_humbucker_a6",
             "position": {
-              "x": -44.471,
-              "y": 14.706
+              "x": -44.470825,
+              "y": 14.70625
             },
             "handleIn": {
               "x": 0,
-              "y": 2.209
+              "y": 2.216
             },
             "handleMode": "corner"
           },
           {
             "id": "bass_mini_humbucker_a7",
             "position": {
-              "x": -44.471,
-              "y": -14.706
+              "x": -44.470825,
+              "y": -14.70625
             },
             "handleOut": {
               "x": 0,
-              "y": -2.209
+              "y": -2.216
             },
             "handleMode": "corner"
           }
@@ -32245,10 +32573,10 @@
           "offsetYMm": 218.923309,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 95.4,
-            "heightMm": 43.94
+            "widthMm": 103.145099,
+            "heightMm": 57.021331
           },
-          "routPath": "M -42.70 196.95 C -42.70 196.95, 4.70 196.95, 4.70 196.95 C 7.46 196.95, 9.70 199.19, 9.70 201.95 C 9.70 201.95, 9.70 212.95, 9.70 212.95 C 9.70 212.95, 42.70 212.95, 42.70 212.95 C 45.46 212.95, 47.70 215.19, 47.70 217.95 C 47.70 217.95, 47.70 235.89, 47.70 235.89 C 47.70 238.65, 45.46 240.89, 42.70 240.89 C 42.70 240.89, -4.70 240.89, -4.70 240.89 C -7.46 240.89, -9.70 238.65, -9.70 235.89 C -9.70 235.89, -9.70 224.89, -9.70 224.89 C -9.70 224.89, -42.70 224.89, -42.70 224.89 C -45.46 224.89, -47.70 222.65, -47.70 219.89 C -47.70 219.89, -47.70 201.95, -47.70 201.95 C -47.70 199.19, -45.46 196.95, -42.70 196.95 Z"
+          "routPath": "M -45.10 190.41 C -45.97 190.41, -46.68 191.12, -46.68 192.00 C -46.68 192.00, -46.68 198.46, -46.68 198.46 C -49.55 199.14, -51.57 201.69, -51.57 204.64 C -51.57 207.58, -49.55 210.14, -46.68 210.81 C -46.68 210.81, -46.68 217.27, -46.68 217.27 C -46.68 218.15, -45.61 218.73, -44.74 218.73 C -44.74 218.73, -12.99 218.86, -12.99 218.86 C -12.03 218.86, -11.23 219.70, -11.23 220.58 C -11.23 220.58, -11.23 227.04, -11.23 227.04 C -14.09 227.71, -16.12 230.27, -16.12 233.21 C -16.12 236.15, -14.09 238.71, -11.23 239.38 C -11.23 239.38, -11.23 245.85, -11.23 245.85 C -11.23 246.73, -10.52 247.43, -9.64 247.43 C -9.64 247.43, 45.09 247.43, 45.09 247.43 C 45.97 247.43, 46.68 246.73, 46.68 245.85 C 46.68 245.85, 46.68 239.38, 46.68 239.38 C 49.55 238.71, 51.57 236.15, 51.57 233.21 C 51.57 230.27, 49.55 227.71, 46.68 227.04 C 46.68 227.04, 46.68 220.58, 46.68 220.58 C 46.68 219.70, 45.97 218.99, 45.09 218.99 C 45.09 218.99, 13.87 219.07, 13.87 219.07 C 12.09 219.17, 11.23 218.46, 11.23 217.27 C 11.23 217.27, 11.23 210.81, 11.23 210.81 C 14.09 210.14, 16.12 207.58, 16.12 204.64 C 16.12 201.69, 14.09 199.14, 11.23 198.46 C 11.23 198.46, 11.23 192.00, 11.23 192.00 C 11.23 191.12, 10.52 190.41, 9.64 190.41 C 9.64 190.41, -45.10 190.41, -45.10 190.41 Z"
         }
       ],
       "expected": {
@@ -35822,10 +36150,10 @@
           "offsetYMm": 201.881639,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 93.4,
-            "heightMm": 21.3
+            "widthMm": 96.510797,
+            "heightMm": 30.6974
           },
-          "routPath": "M -43.52 191.23 C -43.52 191.23, 43.52 191.23, 43.52 191.23 C 45.28 191.23, 46.70 192.65, 46.70 194.41 C 46.70 194.41, 46.70 209.36, 46.70 209.36 C 46.70 211.11, 45.28 212.53, 43.52 212.53 C 43.52 212.53, -43.52 212.53, -43.52 212.53 C -45.28 212.53, -46.70 211.11, -46.70 209.36 C -46.70 209.36, -46.70 194.41, -46.70 194.41 C -46.70 192.65, -45.28 191.23, -43.52 191.23 Z"
+          "routPath": "M -13.33 192.11 C -13.90 188.88, -16.69 186.53, -19.97 186.53 C -23.24 186.53, -26.03 188.88, -26.59 192.11 C -26.59 192.11, -44.75 192.11, -44.75 192.11 C -46.69 192.11, -48.26 193.67, -48.26 195.61 C -48.26 195.61, -48.26 208.16, -48.26 208.16 C -48.26 210.09, -46.69 211.66, -44.75 211.66 C -44.75 211.66, -26.59 211.66, -26.59 211.66 C -26.03 214.88, -23.24 217.23, -19.97 217.23 C -16.69 217.23, -13.90 214.88, -13.33 211.66 C -13.33 211.66, 13.33 211.66, 13.33 211.66 C 13.90 214.88, 16.69 217.23, 19.96 217.23 C 23.24 217.23, 26.03 214.88, 26.60 211.66 C 26.60 211.66, 44.76 211.66, 44.76 211.66 C 46.69 211.66, 48.26 210.09, 48.26 208.16 C 48.26 208.16, 48.26 195.61, 48.26 195.61 C 48.26 193.67, 46.69 192.11, 44.76 192.11 C 44.76 192.11, 26.60 192.11, 26.60 192.11 C 26.03 188.88, 23.24 186.53, 19.96 186.53 C 16.69 186.53, 13.90 188.88, 13.33 192.11 C 13.33 192.11, -13.33 192.11, -13.33 192.11 Z"
         },
         {
           "id": "j_bass_style_pickup_1",
@@ -35834,10 +36162,10 @@
           "offsetYMm": 292.406739,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 93.4,
-            "heightMm": 21.3
+            "widthMm": 96.510797,
+            "heightMm": 30.6974
           },
-          "routPath": "M -43.52 281.76 C -43.52 281.76, 43.52 281.76, 43.52 281.76 C 45.28 281.76, 46.70 283.18, 46.70 284.93 C 46.70 284.93, 46.70 299.88, 46.70 299.88 C 46.70 301.64, 45.28 303.06, 43.52 303.06 C 43.52 303.06, -43.52 303.06, -43.52 303.06 C -45.28 303.06, -46.70 301.64, -46.70 299.88 C -46.70 299.88, -46.70 284.93, -46.70 284.93 C -46.70 283.18, -45.28 281.76, -43.52 281.76 Z"
+          "routPath": "M -13.33 282.63 C -13.90 279.41, -16.69 277.06, -19.97 277.06 C -23.24 277.06, -26.03 279.41, -26.59 282.63 C -26.59 282.63, -44.75 282.63, -44.75 282.63 C -46.69 282.63, -48.26 284.20, -48.26 286.13 C -48.26 286.13, -48.26 298.68, -48.26 298.68 C -48.26 300.62, -46.69 302.18, -44.75 302.18 C -44.75 302.18, -26.59 302.18, -26.59 302.18 C -26.03 305.40, -23.24 307.76, -19.97 307.76 C -16.69 307.76, -13.90 305.40, -13.33 302.18 C -13.33 302.18, 13.33 302.18, 13.33 302.18 C 13.90 305.40, 16.69 307.76, 19.96 307.76 C 23.24 307.76, 26.03 305.40, 26.60 302.18 C 26.60 302.18, 44.76 302.18, 44.76 302.18 C 46.69 302.18, 48.26 300.62, 48.26 298.68 C 48.26 298.68, 48.26 286.13, 48.26 286.13 C 48.26 284.20, 46.69 282.63, 44.76 282.63 C 44.76 282.63, 26.60 282.63, 26.60 282.63 C 26.03 279.41, 23.24 277.06, 19.96 277.06 C 16.69 277.06, 13.90 279.41, 13.33 282.63 C 13.33 282.63, -13.33 282.63, -13.33 282.63 Z"
         }
       ],
       "expected": {
@@ -39402,10 +39730,10 @@
           "offsetYMm": 255.551865,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 103.7,
-            "heightMm": 50.5
+            "widthMm": 89.027001,
+            "heightMm": 48.51409
           },
-          "routPath": "M -48.67 230.30 C -48.67 230.30, 48.67 230.30, 48.67 230.30 C 50.43 230.30, 51.85 231.72, 51.85 233.48 C 51.85 233.48, 51.85 277.63, 51.85 277.63 C 51.85 279.38, 50.43 280.80, 48.67 280.80 C 48.67 280.80, -48.67 280.80, -48.67 280.80 C -50.43 280.80, -51.85 279.38, -51.85 277.63 C -51.85 277.63, -51.85 233.48, -51.85 233.48 C -51.85 231.72, -50.43 230.30, -48.67 230.30 Z"
+          "routPath": "M -41.47 279.81 C -43.08 279.84, -44.55 278.37, -44.51 276.76 C -44.51 276.76, -44.51 273.78, -44.51 273.78 C -52.46 273.52, -52.62 261.04, -44.51 261.08 C -44.51 261.08, -44.51 250.03, -44.51 250.03 C -52.70 250.10, -53.19 237.29, -44.51 237.33 C -44.51 237.33, -44.51 234.34, -44.51 234.34 C -44.55 232.73, -43.08 231.26, -41.47 231.29 C -41.47 231.29, 41.47 231.29, 41.47 231.29 C 43.08 231.26, 44.55 232.73, 44.51 234.34 C 44.51 234.34, 44.51 249.20, 44.51 249.20 C 53.60 249.05, 52.70 262.10, 44.51 261.90 C 44.51 261.90, 44.51 276.76, 44.51 276.76 C 44.55 278.37, 43.08 279.84, 41.47 279.81 C 41.47 279.81, -41.47 279.81, -41.47 279.81 Z"
         }
       ],
       "expected": {
@@ -42801,27 +43129,27 @@
       "pickups": [
         {
           "id": "r_bass_style_pickup_0",
-          "type": "bass_j_single_coil",
+          "type": "bass_r_toaster",
           "offsetXMm": 0,
           "offsetYMm": 140.161983,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 93.4,
-            "heightMm": 21.3
+            "widthMm": 70.96314,
+            "heightMm": 26.50078
           },
-          "routPath": "M -43.52 129.51 C -43.52 129.51, 43.52 129.51, 43.52 129.51 C 45.28 129.51, 46.70 130.93, 46.70 132.69 C 46.70 132.69, 46.70 147.64, 46.70 147.64 C 46.70 149.39, 45.28 150.81, 43.52 150.81 C 43.52 150.81, -43.52 150.81, -43.52 150.81 C -45.28 150.81, -46.70 149.39, -46.70 147.64 C -46.70 147.64, -46.70 132.69, -46.70 132.69 C -46.70 130.93, -45.28 129.51, -43.52 129.51 Z"
+          "routPath": "M -31.48 126.91 C -31.48 126.91, 31.48 126.91, 31.48 126.91 C 33.70 126.91, 35.48 128.61, 35.48 130.72 C 35.48 130.72, 35.48 149.61, 35.48 149.61 C 35.48 151.72, 33.70 153.41, 31.48 153.41 C 31.48 153.41, -31.48 153.41, -31.48 153.41 C -33.70 153.41, -35.48 151.72, -35.48 149.61 C -35.48 149.61, -35.48 130.72, -35.48 130.72 C -35.48 128.61, -33.70 126.91, -31.48 126.91 Z"
         },
         {
           "id": "r_bass_style_pickup_1",
-          "type": "bass_j_single_coil",
+          "type": "bass_r_horseshoe",
           "offsetXMm": 0,
           "offsetYMm": 259.867316,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 93.4,
-            "heightMm": 21.3
+            "widthMm": 140.408386,
+            "heightMm": 39.50052
           },
-          "routPath": "M -43.52 249.22 C -43.52 249.22, 43.52 249.22, 43.52 249.22 C 45.28 249.22, 46.70 250.64, 46.70 252.39 C 46.70 252.39, 46.70 267.34, 46.70 267.34 C 46.70 269.10, 45.28 270.52, 43.52 270.52 C 43.52 270.52, -43.52 270.52, -43.52 270.52 C -45.28 270.52, -46.70 269.10, -46.70 267.34 C -46.70 267.34, -46.70 252.39, -46.70 252.39 C -46.70 250.64, -45.28 249.22, -43.52 249.22 Z"
+          "routPath": "M -62.20 240.12 C -62.20 240.12, 62.20 240.12, 62.20 240.12 C 66.64 240.12, 70.20 243.69, 70.20 248.12 C 70.20 248.12, 70.20 271.62, 70.20 271.62 C 70.20 276.05, 66.64 279.62, 62.20 279.62 C 62.20 279.62, -62.20 279.62, -62.20 279.62 C -66.64 279.62, -70.20 276.05, -70.20 271.62 C -70.20 271.62, -70.20 248.12, -70.20 248.12 C -70.20 243.69, -66.64 240.12, -62.20 240.12 Z"
         }
       ],
       "expected": {
@@ -47160,27 +47488,27 @@
       "pickups": [
         {
           "id": "thunderbird_bass_style_pickup_0",
-          "type": "bass_humbucker",
+          "type": "bass_mini_humbucker",
           "offsetXMm": 0,
           "offsetYMm": 206.407725,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 103.7,
-            "heightMm": 50.5
+            "widthMm": 88.94165,
+            "heightMm": 37.4125
           },
-          "routPath": "M -48.67 181.16 C -48.67 181.16, 48.67 181.16, 48.67 181.16 C 50.43 181.16, 51.85 182.58, 51.85 184.33 C 51.85 184.33, 51.85 228.48, 51.85 228.48 C 51.85 230.24, 50.43 231.66, 48.67 231.66 C 48.67 231.66, -48.67 231.66, -48.67 231.66 C -50.43 231.66, -51.85 230.24, -51.85 228.48 C -51.85 228.48, -51.85 184.33, -51.85 184.33 C -51.85 182.58, -50.43 181.16, -48.67 181.16 Z"
+          "routPath": "M -40.47 187.70 C -40.47 187.70, 40.47 187.70, 40.47 187.70 C 42.69 187.70, 44.47 189.49, 44.47 191.70 C 44.47 191.70, 44.47 221.11, 44.47 221.11 C 44.47 223.33, 42.69 225.11, 40.47 225.11 C 40.47 225.11, -40.47 225.11, -40.47 225.11 C -42.69 225.11, -44.47 223.33, -44.47 221.11 C -44.47 221.11, -44.47 191.70, -44.47 191.70 C -44.47 189.49, -42.69 187.70, -40.47 187.70 Z"
         },
         {
           "id": "thunderbird_bass_style_pickup_1",
-          "type": "bass_humbucker",
+          "type": "bass_mini_humbucker",
           "offsetXMm": 0,
           "offsetYMm": 338.378838,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 103.7,
-            "heightMm": 50.5
+            "widthMm": 88.94165,
+            "heightMm": 37.4125
           },
-          "routPath": "M -48.67 313.13 C -48.67 313.13, 48.67 313.13, 48.67 313.13 C 50.43 313.13, 51.85 314.55, 51.85 316.30 C 51.85 316.30, 51.85 360.45, 51.85 360.45 C 51.85 362.21, 50.43 363.63, 48.67 363.63 C 48.67 363.63, -48.67 363.63, -48.67 363.63 C -50.43 363.63, -51.85 362.21, -51.85 360.45 C -51.85 360.45, -51.85 316.30, -51.85 316.30 C -51.85 314.55, -50.43 313.13, -48.67 313.13 Z"
+          "routPath": "M -40.47 319.67 C -40.47 319.67, 40.47 319.67, 40.47 319.67 C 42.69 319.67, 44.47 321.46, 44.47 323.67 C 44.47 323.67, 44.47 353.09, 44.47 353.09 C 44.47 355.30, 42.69 357.09, 40.47 357.09 C 40.47 357.09, -40.47 357.09, -40.47 357.09 C -42.69 357.09, -44.47 355.30, -44.47 353.09 C -44.47 353.09, -44.47 323.67, -44.47 323.67 C -44.47 321.46, -42.69 319.67, -40.47 319.67 Z"
         }
       ],
       "expected": {
@@ -50524,10 +50852,10 @@
           "offsetYMm": 190.72712,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 105.106,
-            "heightMm": 62.166
+            "widthMm": 103.145099,
+            "heightMm": 57.021331
           },
-          "routPath": "M -18.83 191.12 C -16.36 191.58, -17.51 194.58, -17.25 196.37 C -17.16 203.16, -17.41 209.97, -17.12 216.74 C -16.49 220.42, -12.62 222.28, -9.19 221.81 C 9.49 221.79, 28.17 221.85, 46.85 221.78 C 50.82 221.50, 53.10 217.41, 52.55 213.75 C 52.47 206.84, 52.72 199.91, 52.42 193.01 C 51.80 189.34, 47.93 187.47, 44.49 187.94 C 35.94 187.94, 27.39 187.94, 18.83 187.94 C 16.36 187.47, 17.51 184.47, 17.25 182.69 C 17.17 176.70, 17.41 170.69, 17.12 164.71 C 16.49 161.04, 12.62 159.17, 9.18 159.64 C -9.50 159.67, -28.17 159.60, -46.85 159.68 C -50.82 159.95, -53.10 164.04, -52.55 167.71 C -52.47 173.82, -52.71 179.95, -52.42 186.05 C -51.80 189.72, -47.93 191.59, -44.49 191.12 C -35.94 191.12, -27.39 191.12, -18.83 191.12 Z"
+          "routPath": "M -45.10 162.22 C -45.97 162.22, -46.68 162.93, -46.68 163.80 C -46.68 163.80, -46.68 170.27, -46.68 170.27 C -49.55 170.94, -51.57 173.50, -51.57 176.44 C -51.57 179.38, -49.55 181.94, -46.68 182.61 C -46.68 182.61, -46.68 189.08, -46.68 189.08 C -46.68 189.95, -45.61 190.53, -44.74 190.53 C -44.74 190.53, -12.99 190.66, -12.99 190.66 C -12.03 190.66, -11.23 191.50, -11.23 192.38 C -11.23 192.38, -11.23 198.84, -11.23 198.84 C -14.09 199.51, -16.12 202.07, -16.12 205.01 C -16.12 207.96, -14.09 210.51, -11.23 211.19 C -11.23 211.19, -11.23 217.65, -11.23 217.65 C -11.23 218.53, -10.52 219.24, -9.64 219.24 C -9.64 219.24, 45.09 219.24, 45.09 219.24 C 45.97 219.24, 46.68 218.53, 46.68 217.65 C 46.68 217.65, 46.68 211.19, 46.68 211.19 C 49.55 210.51, 51.57 207.96, 51.57 205.01 C 51.57 202.07, 49.55 199.51, 46.68 198.84 C 46.68 198.84, 46.68 192.38, 46.68 192.38 C 46.68 191.50, 45.97 190.79, 45.09 190.79 C 45.09 190.79, 13.87 190.87, 13.87 190.87 C 12.09 190.97, 11.23 190.27, 11.23 189.08 C 11.23 189.08, 11.23 182.61, 11.23 182.61 C 14.09 181.94, 16.12 179.38, 16.12 176.44 C 16.12 173.50, 14.09 170.94, 11.23 170.27 C 11.23 170.27, 11.23 163.80, 11.23 163.80 C 11.23 162.93, 10.52 162.22, 9.64 162.22 C 9.64 162.22, -45.10 162.22, -45.10 162.22 Z"
         }
       ],
       "expected": {
@@ -53882,15 +54210,15 @@
       "pickups": [
         {
           "id": "sg_bass_style_pickup_0",
-          "type": "bass_humbucker",
+          "type": "bass_mudbucker",
           "offsetXMm": 0,
           "offsetYMm": 127.076422,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 103.7,
-            "heightMm": 50.5
+            "widthMm": 68.30416,
+            "heightMm": 43.233333
           },
-          "routPath": "M -48.67 101.83 C -48.67 101.83, 48.67 101.83, 48.67 101.83 C 50.43 101.83, 51.85 103.25, 51.85 105.00 C 51.85 105.00, 51.85 149.15, 51.85 149.15 C 51.85 150.91, 50.43 152.33, 48.67 152.33 C 48.67 152.33, -48.67 152.33, -48.67 152.33 C -50.43 152.33, -51.85 150.91, -51.85 149.15 C -51.85 149.15, -51.85 105.00, -51.85 105.00 C -51.85 103.25, -50.43 101.83, -48.67 101.83 Z"
+          "routPath": "M -30.15 105.46 C -30.15 105.46, 30.15 105.46, 30.15 105.46 C 32.37 105.46, 34.15 107.24, 34.15 109.46 C 34.15 109.46, 34.15 144.69, 34.15 144.69 C 34.15 146.91, 32.37 148.69, 30.15 148.69 C 30.15 148.69, -30.15 148.69, -30.15 148.69 C -32.37 148.69, -34.15 146.91, -34.15 144.69 C -34.15 144.69, -34.15 109.46, -34.15 109.46 C -34.15 107.24, -32.37 105.46, -30.15 105.46 Z"
         }
       ],
       "expected": {
@@ -57444,10 +57772,10 @@
           "offsetYMm": 185.758035,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 105.106,
-            "heightMm": 62.166
+            "widthMm": 103.145099,
+            "heightMm": 57.021331
           },
-          "routPath": "M -18.83 186.15 C -16.36 186.61, -17.51 189.61, -17.25 191.40 C -17.16 198.19, -17.41 205.00, -17.12 211.77 C -16.49 215.45, -12.62 217.31, -9.19 216.84 C 9.49 216.82, 28.17 216.89, 46.85 216.81 C 50.82 216.53, 53.10 212.44, 52.55 208.78 C 52.47 201.87, 52.72 194.94, 52.42 188.04 C 51.80 184.37, 47.93 182.50, 44.49 182.97 C 35.94 182.97, 27.39 182.97, 18.83 182.97 C 16.36 182.51, 17.51 179.50, 17.25 177.72 C 17.17 171.73, 17.41 165.72, 17.12 159.75 C 16.49 156.07, 12.62 154.21, 9.18 154.68 C -9.50 154.70, -28.17 154.63, -46.85 154.71 C -50.82 154.98, -53.10 159.08, -52.55 162.74 C -52.47 168.85, -52.71 174.98, -52.42 181.08 C -51.80 184.75, -47.93 186.62, -44.49 186.15 C -35.94 186.15, -27.39 186.15, -18.83 186.15 Z"
+          "routPath": "M -45.10 157.25 C -45.97 157.25, -46.68 157.96, -46.68 158.83 C -46.68 158.83, -46.68 165.30, -46.68 165.30 C -49.55 165.97, -51.57 168.53, -51.57 171.47 C -51.57 174.41, -49.55 176.97, -46.68 177.64 C -46.68 177.64, -46.68 184.11, -46.68 184.11 C -46.68 184.98, -45.61 185.57, -44.74 185.57 C -44.74 185.57, -12.99 185.69, -12.99 185.69 C -12.03 185.69, -11.23 186.53, -11.23 187.41 C -11.23 187.41, -11.23 193.87, -11.23 193.87 C -14.09 194.55, -16.12 197.10, -16.12 200.05 C -16.12 202.99, -14.09 205.55, -11.23 206.22 C -11.23 206.22, -11.23 212.68, -11.23 212.68 C -11.23 213.56, -10.52 214.27, -9.64 214.27 C -9.64 214.27, 45.09 214.27, 45.09 214.27 C 45.97 214.27, 46.68 213.56, 46.68 212.68 C 46.68 212.68, 46.68 206.22, 46.68 206.22 C 49.55 205.55, 51.57 202.99, 51.57 200.05 C 51.57 197.10, 49.55 194.55, 46.68 193.87 C 46.68 193.87, 46.68 187.41, 46.68 187.41 C 46.68 186.53, 45.97 185.82, 45.09 185.82 C 45.09 185.82, 13.87 185.90, 13.87 185.90 C 12.09 186.00, 11.23 185.30, 11.23 184.11 C 11.23 184.11, 11.23 177.64, 11.23 177.64 C 14.09 176.97, 16.12 174.41, 16.12 171.47 C 16.12 168.53, 14.09 165.97, 11.23 165.30 C 11.23 165.30, 11.23 158.83, 11.23 158.83 C 11.23 157.96, 10.52 157.25, 9.64 157.25 C 9.64 157.25, -45.10 157.25, -45.10 157.25 Z"
         },
         {
           "id": "pickup_1787978050993_7kotz",
@@ -57456,10 +57784,10 @@
           "offsetYMm": 259.757301,
           "angleDegrees": 0,
           "rout": {
-            "widthMm": 93.4,
-            "heightMm": 21.3
+            "widthMm": 96.510797,
+            "heightMm": 30.6974
           },
-          "routPath": "M -43.52 249.11 C -43.52 249.11, 43.52 249.11, 43.52 249.11 C 45.28 249.11, 46.70 250.53, 46.70 252.28 C 46.70 252.28, 46.70 267.23, 46.70 267.23 C 46.70 268.99, 45.28 270.41, 43.52 270.41 C 43.52 270.41, -43.52 270.41, -43.52 270.41 C -45.28 270.41, -46.70 268.99, -46.70 267.23 C -46.70 267.23, -46.70 252.28, -46.70 252.28 C -46.70 250.53, -45.28 249.11, -43.52 249.11 Z"
+          "routPath": "M -13.33 249.98 C -13.90 246.76, -16.69 244.41, -19.97 244.41 C -23.24 244.41, -26.03 246.76, -26.59 249.98 C -26.59 249.98, -44.75 249.98, -44.75 249.98 C -46.69 249.98, -48.26 251.55, -48.26 253.48 C -48.26 253.48, -48.26 266.03, -48.26 266.03 C -48.26 267.97, -46.69 269.53, -44.75 269.53 C -44.75 269.53, -26.59 269.53, -26.59 269.53 C -26.03 272.75, -23.24 275.11, -19.97 275.11 C -16.69 275.11, -13.90 272.75, -13.33 269.53 C -13.33 269.53, 13.33 269.53, 13.33 269.53 C 13.90 272.75, 16.69 275.11, 19.96 275.11 C 23.24 275.11, 26.03 272.75, 26.60 269.53 C 26.60 269.53, 44.76 269.53, 44.76 269.53 C 46.69 269.53, 48.26 267.97, 48.26 266.03 C 48.26 266.03, 48.26 253.48, 48.26 253.48 C 48.26 251.55, 46.69 249.98, 44.76 249.98 C 44.76 249.98, 26.60 249.98, 26.60 249.98 C 26.03 246.76, 23.24 244.41, 19.96 244.41 C 16.69 244.41, 13.90 246.76, 13.33 249.98 C 13.33 249.98, -13.33 249.98, -13.33 249.98 Z"
         }
       ],
       "expected": {

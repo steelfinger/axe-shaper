@@ -7,6 +7,7 @@ import type {
   PickupRoutSpec,
   PickupType,
 } from '../types/guitar';
+import { BASS_CAVITY_SPECS } from './bassCavityAnchors';
 
 // pocketWidthMm/pocketDepthMm/pocketCornerRadiusMm duplicate
 // jointWidthMm/jointDepthMm/jointCornerRadiusMm below - the iOS writer's name
@@ -1153,64 +1154,20 @@ export const PICKUP_SPECIFICATIONS: Record<
 
   // --- Four-string bass ------------------------------------------------------
   //
-  // Every dimension below is a *cavity* measurement where one was published,
-  // and a pickup measurement plus 2.0mm total clearance (1mm a side) where
-  // only the pickup was - each entry says which. The J, MM and soapbar
-  // outlines are rounded rectangles at a 3.175mm corner radius, the radius a
-  // 1/4" router bit leaves - which is what those cavities actually are;
-  // bass_split_coil is a real traced outline, like the guitar shapes.
+  // The P, J and MM contours below come from the blue `Cavities` paths in
+  // the supplied source sheet. Bass routs hug the physical pickup housing;
+  // they must remain literal contours rather than rounded rectangles.
   bass_split_coil: {
     name: 'Split Coil (P-Style)',
-    // ONE routed cavity for the whole pickup - traced verbatim from a real
-    // Fender Precision routing template (the user's
-    // `Fender-Precision-Pickup Cavity.svg`, mirrored into
-    // docs/bass-blueprint-evidence/). Two ~70 x 32mm bobbin pockets in the P
-    // "split" stagger - the E/A pocket toward the neck and bass side, the D/G
-    // pocket toward the bridge and treble side - joined by a short strip into
-    // one Z-shaped opening. The two pockets meet but do NOT overlap; this is
-    // not the symmetric-overlap rectangle pair an earlier draft used.
-    //
-    // Centred on (0,0), unrotated. widthMm/heightMm are the outline's bounding
-    // box; the ~62mm height is the sourced figure. Real routing depth is 3/4"
-    // (19.05mm), not modelled - the printable plan has no pickup-depth field.
-    widthMm: 105.106,
-    heightMm: 62.166,
-    anchors: [
-      { id: 'bass_split_coil_a0', position: { x: -18.834, y: 0.389 }, handleIn: { x: -8.553, y: 0 }, handleOut: { x: 2.471, y: 0.467 }, handleMode: 'corner' },
-      { id: 'bass_split_coil_a1', position: { x: -17.246, y: 5.643 }, handleIn: { x: -0.264, y: -1.787 }, handleOut: { x: 0.082, y: 6.787 }, handleMode: 'corner' },
-      { id: 'bass_split_coil_a2', position: { x: -17.117, y: 26.013 }, handleIn: { x: -0.295, y: -6.774 }, handleOut: { x: 0.628, y: 3.675 }, handleMode: 'corner' },
-      { id: 'bass_split_coil_a3', position: { x: -9.185, y: 31.083 }, handleIn: { x: -3.438, y: 0.47 }, handleOut: { x: 18.679, y: -0.022 }, handleMode: 'corner' },
-      { id: 'bass_split_coil_a4', position: { x: 46.852, y: 31.05 }, handleIn: { x: -18.677, y: 0.077 }, handleOut: { x: 3.966, y: -0.274 }, handleMode: 'corner' },
-      { id: 'bass_split_coil_a5', position: { x: 52.553, y: 23.022 }, handleIn: { x: 0.549, y: 3.661 }, handleOut: { x: -0.08, y: -6.91 }, handleMode: 'corner' },
-      { id: 'bass_split_coil_a6', position: { x: 52.424, y: 2.284 }, handleIn: { x: 0.294, y: 6.897 }, handleOut: { x: -0.628, y: -3.675 }, handleMode: 'corner' },
-      { id: 'bass_split_coil_a7', position: { x: 44.491, y: -2.786 }, handleIn: { x: 3.438, y: -0.47 }, handleOut: { x: -8.553, y: 0 }, handleMode: 'corner' },
-      { id: 'bass_split_coil_a8', position: { x: 18.832, y: -2.786 }, handleIn: { x: 8.553, y: 0 }, handleOut: { x: -2.471, y: -0.467 }, handleMode: 'corner' },
-      { id: 'bass_split_coil_a9', position: { x: 17.245, y: -8.041 }, handleIn: { x: 0.264, y: 1.787 }, handleOut: { x: -0.08, y: -5.988 }, handleMode: 'corner' },
-      { id: 'bass_split_coil_a10', position: { x: 17.116, y: -26.013 }, handleIn: { x: 0.293, y: 5.975 }, handleOut: { x: -0.628, y: -3.675 }, handleMode: 'corner' },
-      { id: 'bass_split_coil_a11', position: { x: 9.183, y: -31.083 }, handleIn: { x: 3.438, y: -0.47 }, handleOut: { x: -18.678, y: 0.022 }, handleMode: 'corner' },
-      { id: 'bass_split_coil_a12', position: { x: -46.852, y: -31.05 }, handleIn: { x: 18.677, y: -0.077 }, handleOut: { x: -3.966, y: 0.274 }, handleMode: 'corner' },
-      { id: 'bass_split_coil_a13', position: { x: -52.553, y: -23.022 }, handleIn: { x: -0.549, y: -3.661 }, handleOut: { x: 0.078, y: 6.111 }, handleMode: 'corner' },
-      { id: 'bass_split_coil_a14', position: { x: -52.424, y: -4.681 }, handleIn: { x: -0.291, y: -6.098 }, handleOut: { x: 0.628, y: 3.675 }, handleMode: 'corner' },
-      { id: 'bass_split_coil_a15', position: { x: -44.491, y: 0.389 }, handleIn: { x: -3.438, y: 0.47 }, handleOut: { x: 8.553, y: 0 }, handleMode: 'corner' },
-    ],
+    ...BASS_CAVITY_SPECS.bass_split_coil,
   },
   bass_j_single_coil: {
     name: 'J-Style Single Coil (Bass)',
-    // Neck-position pickup 3.60" x 0.76" (91.4 x 19.3mm) + 2.0mm clearance.
-    // A J bridge pickup is ~2.7mm longer; because a PickupPlacement carries
-    // its own widthMm/heightMm, the bridge one is the same type resized
-    // rather than a second entry for what is the same rout shape.
-    widthMm: 93.4,
-    heightMm: 21.3,
-    anchors: roundedRectAnchors('bass_j_single_coil', 93.4, 21.3, 3.175),
+    ...BASS_CAVITY_SPECS.bass_j_single_coil,
   },
   bass_humbucker: {
     name: 'Bass Humbucker (MM-Style)',
-    // Published routing-template cavity, 103.7 x 50.5mm, for a 101.7 x
-    // 48.5mm pickup - a measured cavity, not a derived one.
-    widthMm: 103.7,
-    heightMm: 50.5,
-    anchors: roundedRectAnchors('bass_humbucker', 103.7, 50.5, 3.175),
+    ...BASS_CAVITY_SPECS.bass_humbucker,
   },
   bass_soapbar: {
     name: 'Bass Soapbar (4-String)',
