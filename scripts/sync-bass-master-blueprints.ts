@@ -24,6 +24,18 @@ const MASTERS = {
   streamer_bass_style: { file: 'streamer-style-blueprint.axe.svg', scaleLineMm: 315 },
 } as const;
 
+/**
+ * The master files own placement, count and orientation. The catalogue owns
+ * the rout geometry. Keep those responsibilities separate when a master is
+ * re-imported so its older placeholder type cannot undo the supported bass
+ * pickup vocabulary.
+ */
+const PICKUP_TYPES_BY_TEMPLATE: Partial<Record<keyof typeof MASTERS, string[]>> = {
+  r_bass_style: ['bass_r_toaster', 'bass_r_horseshoe'],
+  thunderbird_bass_style: ['bass_mini_humbucker'],
+  sg_bass_style: ['bass_mudbucker'],
+};
+
 function decode(path: string): any {
   const encoded = readFileSync(path, 'utf8').match(/<project:data>([\s\S]*?)<\/project:data>/)?.[1];
   if (!encoded) throw new Error(`No project payload in ${path}`);
@@ -42,7 +54,13 @@ async function main() {
     const hardware = await server.ssrLoadModule('/src/constants/hardware.ts');
     const exporter = await server.ssrLoadModule('/src/utils/svgExporter.ts');
 
-    for (const [templateId, rule] of Object.entries(MASTERS)) {
+    const requested = new Set(process.argv.slice(2));
+    const masters = Object.entries(MASTERS).filter(([templateId]) => requested.size === 0 || requested.has(templateId));
+    if (requested.size && masters.length !== requested.size) {
+      const known = new Set(Object.keys(MASTERS));
+      throw new Error(`Unknown template id(s): ${[...requested].filter((id) => !known.has(id)).join(', ')}`);
+    }
+    for (const [templateId, rule] of masters) {
       const masterPath = join(MASTER_ROOT, rule.file);
       const project = decode(masterPath);
       if (project.activeTemplateId !== templateId) {
@@ -52,6 +70,14 @@ async function main() {
       project.neckPreset.nutToBodyEdgeMm = project.neckPreset.scaleLengthMm - rule.scaleLineMm;
       project.bridgePresetId = bridgePresetId;
       project.bridgePreset = structuredClone(hardware.BRIDGE_PRESETS[bridgePresetId]);
+      const pickupTypes = PICKUP_TYPES_BY_TEMPLATE[templateId as keyof typeof MASTERS];
+      if (pickupTypes) {
+        project.pickups = project.pickups.map((pickup: any, index: number) => {
+          const type = pickupTypes[Math.min(index, pickupTypes.length - 1)];
+          const spec = hardware.PICKUP_SPECIFICATIONS[type];
+          return { ...pickup, type, widthMm: spec.widthMm, heightMm: spec.heightMm, anchors: structuredClone(spec.anchors) };
+        });
+      }
       // The second R-style front route is a supplied bridge-plate marker, not
       // a machinable body route. Its geometry now lives in bass_r_style_plate.
       if (templateId === 'r_bass_style') project.frontRoutes = project.frontRoutes.filter((_: unknown, index: number) => index !== 1);
