@@ -1,6 +1,6 @@
 import type { ReferenceTemplate } from '../types/guitar';
 import { defaultStringCount } from '../utils/instrument';
-import { withEmbeddedPickupSpecs } from '../utils/presets';
+import { PICKUP_SPECIFICATIONS } from './hardware';
 import { extractProjectFromSVG } from '../utils/svgExporter';
 import { BLUEPRINT_MANIFEST, BLUEPRINT_ORDER } from './blueprintManifest';
 
@@ -56,11 +56,17 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
       // only have meaning against the blueprint's own Beveled/German-Carve
       // dimensions. An absent profile deliberately means Slab.
       edgeProfile: project.edgeProfile,
-      // Position (offsetXMm/offsetYMm/angleDegrees) is the blueprint's own;
-      // size/shape is resolved fresh against this build's catalogue, not
-      // read from the blueprint's own widthMm/heightMm - same reasoning as
-      // neckPresetFieldsForNewTemplate/bridgePresetFields just above.
-      defaultPickups: withEmbeddedPickupSpecs(project.pickups),
+      // Position and orientation are authored by the blueprint; the rout
+      // geometry comes from the live catalogue. Blueprint SVGs are durable
+      // documents and may contain an older embedded anchor set, whereas a
+      // built-in template is expected to pick up an approved catalogue
+      // correction such as a newly traced pickup cavity. This deliberate
+      // exception does not apply to user-saved projects, whose embedded rout
+      // geometry remains authoritative.
+      defaultPickups: project.pickups.map((pickup) => {
+        const spec = PICKUP_SPECIFICATIONS[pickup.type];
+        return spec ? { ...pickup, ...structuredClone(spec) } : pickup;
+      }),
       // `?? []` - no bundled blueprint carries these yet, and
       // extractProjectFromSVG does a raw JSON.parse with no field defaulting.
       defaultPickguards: project.pickguards ?? [],
