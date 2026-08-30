@@ -544,17 +544,6 @@ function EditorApp({ initialProject, onNewDesign }: EditorAppProps): React.JSX.E
   };
 
   const handleView3D = async () => {
-    // Belt and braces on the same principle as handleSelectTemplate's own
-    // instrument guard: the header button is disabled for Bass/4 already
-    // (view3DAvailable), so this only matters if some future call site
-    // forgets to check first. The pinned 3D viewer has no instrument
-    // awareness - it would render a six-string preview of a bass design,
-    // silently wrong rather than merely unfinished - so refusing here is
-    // cheaper than a wrong drawing reaching a person's screen.
-    if (project.instrumentType === 'bass') {
-      alert("The 3D viewer doesn't render bass bodies accurately yet.");
-      return;
-    }
     // Open the tab synchronously, inside the click's user gesture, so
     // popup blockers don't get involved - the URL isn't ready yet, so it
     // starts blank and gets redirected below. `noopener` isn't used here
@@ -676,7 +665,7 @@ function EditorApp({ initialProject, onNewDesign }: EditorAppProps): React.JSX.E
         onSave={handleSaveProject}
         onShare={handleShareProject}
         onView3D={handleView3D}
-        view3DAvailable={project.instrumentType !== 'bass'}
+        view3DAvailable
         onPrintTiled={(paper) => printTiledProject(project, paper)}
         onNewDesign={handleNewDesign}
         onShowWelcome={() => setIsWelcomeModalOpen(true)}
