@@ -216,10 +216,56 @@ body, html, #root {
   color: var(--accent-blue);
 }
 
-/* The workspace remains three columns down to 1200px, but the header runs
-   out of useful room first. Move secondary actions into the hamburger at
-   1440px without changing either docked panel. */
-@media (max-width: 1440px) {
+/* Header degradation, in three tiers, because the workspace stays three
+   columns down to 1200px but the header runs out of room well before that.
+   Each tier is a measured point, not a guess - re-measure (DevTools: compare
+   `.header-project-controls` scrollWidth against its rendered width, with a
+   long name in the field) whenever a header button is added, removed or
+   relabelled. A squeezed project-name field is the regression these tiers
+   replaced.
+
+   Tier 1 (<= 1710px): drop the text labels on the secondary actions, keep the
+   icons. Every one has a title/aria-label already and Undo/Redo are icon-only
+   at every width, so nothing becomes unreachable - the whole toolbar stays
+   visible and clickable on a 1440/1512 laptop. 1710px is where a full-length
+   name first gets pushed below its 220px with the labels shown.
+
+   Tier 2 (<= 1400px): also narrow the name field to 180px, which is where the
+   icon-only row would otherwise start squeezing it.
+
+   Tier 3 (<= 1280px): the icons no longer fit either, so the secondary
+   actions collapse into the hamburger and the name field drops to 160px. This
+   is intentionally above the 1199px workspace breakpoint - the header loses
+   room before the three-column layout does. */
+@media (max-width: 1710px) {
+  .app-header .header-action-label {
+    display: none;
+  }
+
+  .header-actions {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 1400px) {
+  .header-project-controls .form-input {
+    width: 180px !important;
+  }
+}
+
+@media (max-width: 1280px) {
+  .header-project-controls {
+    gap: 8px;
+  }
+
+  .header-project-controls .form-input {
+    width: 160px !important;
+  }
+
+  .header-actions {
+    gap: 6px;
+  }
+
   .app-header .header-secondary-action {
     display: none;
   }
@@ -394,26 +440,6 @@ body, html, #root {
 
   .tools-panel-wrap .responsive-panel-close {
     display: none;
-  }
-
-  .header-project-controls {
-    gap: 8px;
-  }
-
-  .header-project-controls .form-input {
-    width: 160px !important;
-  }
-
-  .header-actions {
-    gap: 6px;
-  }
-
-  .header-secondary-action {
-    display: none;
-  }
-
-  .header-overflow {
-    display: block;
   }
 
   .mobile-editor-nav {

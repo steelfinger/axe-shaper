@@ -162,11 +162,11 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         <button className="btn btn-sm header-secondary-action" onClick={onNewDesign} title="Start a new design">
-          <FilePlus2 size={15} /> New&hellip;
+          <FilePlus2 size={15} /> <span className="header-action-label">New&hellip;</span>
         </button>
 
         <button className="btn btn-sm header-secondary-action" onClick={onResetTemplate} title="Reset to baseline blueprint">
-          <RotateCcw size={15} /> Reset
+          <RotateCcw size={15} /> <span className="header-action-label">Reset</span>
         </button>
 
         <input
@@ -177,11 +177,11 @@ export const Header: React.FC<HeaderProps> = ({
           onChange={onOpenFile}
         />
         <button className="btn btn-sm header-secondary-action" onClick={() => fileInputRef.current?.click()} title="Open a .axe.svg project file">
-          <Upload size={15} /> Open
+          <Upload size={15} /> <span className="header-action-label">Open</span>
         </button>
 
         <button className="btn btn-sm header-secondary-action" onClick={onShare} title="Share the current .axe.svg project file">
-          <Share2 size={15} /> Share
+          <Share2 size={15} /> <span className="header-action-label">Share</span>
         </button>
 
         <button
@@ -194,12 +194,12 @@ export const Header: React.FC<HeaderProps> = ({
               : "The 3D viewer doesn't render bass bodies accurately yet - a six-string preview would misrepresent this design."
           }
         >
-          <Box size={15} /> View in 3D
+          <Box size={15} /> <span className="header-action-label">View in 3D</span>
         </button>
 
         <details className="help-menu header-secondary-action">
           <summary className="btn btn-sm" aria-label="Print or save a tiled PDF">
-            <Printer size={15} /> Print
+            <Printer size={15} /> <span className="header-action-label">Print</span>
           </summary>
           <div className="help-menu-popover">
             <button onClick={() => onPrintTiled('a4')}><Printer size={15} /> Tiled PDF / print (A4)</button>
@@ -209,7 +209,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         <details className="help-menu header-secondary-action">
           <summary className="btn btn-sm" aria-label="Help and product information">
-            <CircleHelp size={15} /> Help
+            <CircleHelp size={15} /> <span className="header-action-label">Help</span>
           </summary>
           <div className="help-menu-popover">
             <button onClick={onShowWelcome}><CircleHelp size={15} /> Welcome guide</button>

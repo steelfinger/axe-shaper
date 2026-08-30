@@ -248,6 +248,34 @@ Two things are load-bearing in `planParamFromLocation` / its effect in
   measurements. Changes here should be checked against published specs, not
   eyeballed.
 
+## The editor header degrades in measured tiers
+
+`.app-header` is a three-group flexbox (brand / `.header-project-controls` /
+`.header-actions`) with nothing capping how far the project-name field is
+allowed to shrink. When the action row grows, the browser takes the space out
+of the name field first - it just silently clips. Adding the "New..." button
+did exactly this and is what the tier system in `src/styles/index.css`
+(search `Header degradation`) now guards against:
+
+- **> 1710px** - secondary actions show icon + text.
+- **<= 1710px** - `.header-action-label` spans hide, actions go icon-only
+  (every one has a `title`/`aria-label`, so nothing becomes unreachable). This
+  is the tier a 1440/1512 laptop sits in - the full toolbar stays visible
+  rather than collapsing to the hamburger.
+- **<= 1400px** - name field down to 180px.
+- **<= 1280px** - secondary actions collapse into `.header-overflow` (the
+  hamburger); name field 160px. Deliberately above the 1199px workspace
+  breakpoint: the header runs out of room before the three-column layout does.
+
+Every number is a measured point, not a guess. If you add, remove or relabel
+a header button, **re-measure**: dev server running, editor open with a long
+name in the field, in the console compare
+`document.querySelector('.header-project-controls').scrollWidth` against that
+element's rendered width at each breakpoint and move the tier if the name is
+being squeezed. New buttons belong in **both** the main `.header-actions` row
+(with a `.header-action-label` span around the text) and the
+`.header-overflow-popover` list.
+
 ## Konva and React gotchas
 
 - A Stage sized 0 throws when it builds its buffer canvas, which shows up as a
