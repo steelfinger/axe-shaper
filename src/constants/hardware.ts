@@ -574,6 +574,27 @@ export const GENERIC_POCKET_SPEC: Record<
 };
 
 /**
+ * Body-specific default neck-pocket dimensions. These are deliberately
+ * narrower in scope than `GENERIC_POCKET_SPEC`: a matching entry applies
+ * only while the template's native neck-joint mechanism is selected.
+ *
+ * R-Style is neck-through in reality. The app represents that construction
+ * with `.glued`, and its narrow centre strip needs a 40 mm notional pocket
+ * rather than the 63.5 mm generic bass mortise.
+ */
+export const TEMPLATE_NECK_POCKET_SPEC: Record<
+  string,
+  { mechanism: NeckJointMechanism } & Pick<NeckPreset, 'jointWidthMm' | 'jointDepthMm' | 'jointCornerRadiusMm'>
+> = {
+  r_bass_style: {
+    mechanism: 'glued',
+    jointWidthMm: 40,
+    jointDepthMm: 98.425,
+    jointCornerRadiusMm: 6.35,
+  },
+};
+
+/**
  * Each bundled body's own real-world construction, seeded as its default
  * `NeckJointMechanism` when a new project/document is created on it (the
  * user can always override via the Neck Joint picker). Fender/Jaguar/

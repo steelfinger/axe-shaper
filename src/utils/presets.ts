@@ -6,6 +6,7 @@ import {
   GENERIC_POCKET_SPEC,
   NECK_PRESETS,
   PICKUP_SPECIFICATIONS,
+  TEMPLATE_NECK_POCKET_SPEC,
 } from '../constants/hardware';
 import { PROJECT_SCHEMA_VERSION, isSupportedSchemaVersion } from '../constants/schema';
 import type {
@@ -159,7 +160,10 @@ export function neckPresetFieldsForTemplate(
     overhang === undefined
       ? base.nutToBodyEdgeMm
       : getFretDistanceFromNutMm(referenceFret, base.scaleLengthMm) - overhang;
-  const pocket = GENERIC_POCKET_SPEC[instrumentType][mechanism];
+  const templatePocket = TEMPLATE_NECK_POCKET_SPEC[activeTemplateId];
+  const pocket = templatePocket?.mechanism === mechanism
+    ? templatePocket
+    : GENERIC_POCKET_SPEC[instrumentType][mechanism];
   return {
     neckPresetId: id,
     neckPreset: {

@@ -141,6 +141,12 @@ async function main() {
       // ...and a guitar is untouched by the new axis.
       const guitarFields = presets.neckPresetFieldsForTemplate('fender_scale', 's_style', 'bolt_on', 'guitar');
       deepStrictEqual(guitarFields.neckPreset.jointWidthMm, 55.56);
+
+      const rStyleGlued = presets.neckPresetFieldsForTemplate('bass_medium_33_25', 'r_bass_style', 'glued', 'bass');
+      deepStrictEqual(rStyleGlued.neckPreset.jointWidthMm, 40);
+      deepStrictEqual(rStyleGlued.neckPreset.pocketWidthMm, 40);
+      const rStyleBoltOn = presets.neckPresetFieldsForTemplate('bass_medium_33_25', 'r_bass_style', 'bolt_on', 'bass');
+      deepStrictEqual(rStyleBoltOn.neckPreset.jointWidthMm, 63.5);
     });
 
     check('every bass blueprint has an explicit neck joint mechanism', () => {
