@@ -4,18 +4,18 @@
  * web app. The blueprints are this app's half of the guarantee; the iOS suite
  * decodes them there.
  *
- * Reads tests/fixtures/ios-written/*.axe.svg — copies of the files the iOS
- * writer produces, synced from the iOS repo by its
- * Scripts/sync-fixtures-to-web.sh and kept byte-identical to the writer's
- * output by a test on that side.
+ * Reads copies of the files the iOS writer produces, synced from the iOS
+ * repo by its Scripts/sync-fixtures-to-web.sh and kept byte-identical to the
+ * writer's output by a test on that side. Two directories:
  *
- * The fixtures currently in the tree are schema version 2 - iOS has not
- * written version 3 yet (its milestone M24). They are therefore checked as
- * *legacy* payloads: readable, and migrating to a semantically identical
- * Guitar/6 version 3 project. `tests/fixtures/ios-written-v3/` is the
- * placeholder that turns this into a current-version check the moment iOS
- * starts writing there; see the "iOS-written version 3 fixtures" section at
- * the end.
+ *   - tests/fixtures/ios-written/ — the frozen schema version 2 set, checked
+ *     as *legacy* payloads: readable, and migrating to a semantically
+ *     identical Guitar/6 version 3 project.
+ *   - tests/fixtures/ios-written-v3/ — the schema version 3 set iOS has
+ *     written since its milestone M24. Checked as *current* payloads: a
+ *     strict no-op load, with the instrument axis present and inside the
+ *     supported matrix. See the "iOS-written version 3 fixtures" section at
+ *     the end.
  *
  * Per file this asserts:
  *   - the payload decodes, is at a schemaVersion this build supports, and
@@ -55,9 +55,10 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const FIXTURE_DIR = join(ROOT, 'tests', 'fixtures', 'ios-written');
 
 /**
- * Where iOS's schema version 3 fixtures land (its milestone M24). Absent
- * today; the check below reports that rather than passing silently, so the
- * day the directory appears its contents are asserted instead of ignored.
+ * Where iOS's schema version 3 fixtures land (synced since its milestone
+ * M24). If the directory is ever missing the check below reports that rather
+ * than passing silently, so "iOS version 3 decoding is covered" cannot
+ * become true by omission.
  */
 const V3_FIXTURE_DIR = join(ROOT, 'tests', 'fixtures', 'ios-written-v3');
 
@@ -381,11 +382,10 @@ async function main() {
     }
     // --- iOS-written version 3 fixtures (M24) ---------------------------
     //
-    // The placeholder the web half of the version 3 contract needs: the
-    // moment iOS starts writing the instrument axis, its fixtures land here
-    // and are asserted rather than assumed. Until then this reports the gap
-    // instead of quietly passing, so "iOS version 3 decoding is covered"
-    // never becomes true by omission.
+    // The web half of the version 3 contract: iOS writes the instrument axis
+    // and its fixtures land here, asserted rather than assumed. A missing
+    // directory is still reported as a gap rather than quietly passing, so
+    // "iOS version 3 decoding is covered" never becomes true by omission.
     console.log('\ntests/fixtures/ios-written-v3/ (iOS milestone M24)');
     if (!existsSync(V3_FIXTURE_DIR)) {
       console.log(

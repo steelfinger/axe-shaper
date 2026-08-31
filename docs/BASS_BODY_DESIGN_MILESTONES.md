@@ -266,10 +266,12 @@ Exit criteria:
 - ✅ Unknown future schema versions cannot enter the editable project path.
   `migrateProject()` throws `UnsupportedProjectError`; `loadProject()` is the
   single door and returns the refusal as a value.
-- ✅ iOS-written v3 fixture decoding has a test placeholder ready for M24:
-  `tests/fixtures/ios-written-v3/`, reported as *pending* by
-  `fixtures:check` until iOS syncs files there, then asserted (strict no-op
-  load, instrument axis present and inside the supported matrix).
+- ✅ iOS-written v3 fixture decoding is asserted, not just placeholdered:
+  iOS milestone M24 synced 19 fixtures into `tests/fixtures/ios-written-v3/`
+  (byte-identical to `axe-shaper-ios` `AxeShaperTests/Fixtures/IOSWritten/`),
+  and `fixtures:check` now asserts each — strict no-op load, instrument axis
+  present and inside the supported matrix, Bass/4 payloads included. A
+  missing directory still reports *pending* rather than passing silently.
 - ⚠️ Readers opening a v3 *guitar* project written by this build:
   - **web** — verified end to end in the browser (export → extract → load →
     v3 Guitar/6, geometry unchanged).

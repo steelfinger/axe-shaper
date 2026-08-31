@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:project="https://axe-shaper.app/ns/project/1" width="425.68mm" height="805.45mm" viewBox="-181.67 -97.47 425.68 805.45">
+<metadata>
+<project:name>P-Style Bass</project:name>
+<project:units>millimeters</project:units>
+<project:schemaVersion>3</project:schemaVersion>
+<project:appVersion>1.0.0</project:appVersion>
+<project:data>eyJhY3RpdmVUZW1wbGF0ZUlkIjoicF9iYXNzX3N0eWxlIiwiYXBwVmVyc2lvbiI6IjEuMC4wIiwiYmFja1JvdXRlcyI6W10sImJvZHlUaGlja25lc3NNbSI6NDUsImJyaWRnZVByZXNldCI6eyJjb21wZW5zYXRpb25NbSI6eyJiYXNzIjo5LjUsInRyZWJsZSI6My4yfSwiaGVpZ2h0TW0iOjEyLCJpZCI6ImJhc3NfdmludGFnZV9wbGF0ZSIsImxlbmd0aE1tIjo1My4wOSwibmFtZSI6IkJhc3MgVmludGFnZSBQbGF0ZSAoNC1TdHJpbmcpIiwic2FkZGxlT2Zmc2V0WU1tIjoyNi41LCJzY2FsZVJlZmVyZW5jZSI6InNhZGRsZV9saW5lIiwic3RyaW5nU3BhY2luZ01tIjo1Ny4xNSwid2lkdGhNbSI6ODEuMDN9LCJicmlkZ2VQcmVzZXRJZCI6ImJhc3NfdmludGFnZV9wbGF0ZSIsImNvbnRvdXIiOnsiYW5jaG9ycyI6W3siaGFuZGxlSW4iOnsieCI6MjUuOTE2LCJ5IjotMC4zMDV9LCJoYW5kbGVNb2RlIjoiY29ybmVyIiwiaGFuZGxlT3V0Ijp7IngiOjAuMjkxLCJ5IjoxMy4wMDF9LCJpZCI6InNfcG9ja2V0X2xlZnQiLCJwb3NpdGlvbiI6eyJ4IjotMzEuNzUsInkiOjB9LCJzZW1hbnRpY1JvbGUiOiJuZWNrX3BvY2tldF9sZWZ0In0seyJoYW5kbGVJbiI6eyJ4IjoxOC42MDIsInkiOjEuMDkzfSwiaGFuZGxlTW9kZSI6InNtb290aCIsImhhbmRsZU91dCI6eyJ4IjotMTUuMTM0LCJ5IjotMC44ODl9LCJpZCI6InNfaG9ybl9zY29vcF9sZWZ0IiwicG9zaXRpb24iOnsieCI6LTUyLjg1MSwieSI6MjUuMDEzfX0seyJoYW5kbGVJbiI6eyJ4Ijo3LjE2NiwieSI6MjUuMzMyfSwiaGFuZGxlTW9kZSI6InNtb290aCIsImhhbmRsZU91dCI6eyJ4IjotOC4xNzIsInkiOi0yOC44ODZ9LCJpZCI6ImFuY2hvcl8xNzg1MDc2MDc4MDU3X3NmMWo3IiwicG9zaXRpb24iOnsieCI6LTkyLjEzLCJ5IjotMTYuNzY2fSwic2VtYW50aWNSb2xlIjoiY3VzdG9tIn0seyJoYW5kbGVJbiI6eyJ4IjoxOS40MDEsInkiOjMuMDUzfSwiaGFuZGxlTW9kZSI6InNtb290aCIsImhhbmRsZU91dCI6eyJ4IjotMjYuOTg2LCJ5IjotNC4yNDd9LCJpZCI6InNfdXBwZXJfaG9ybl90aXAiLCJwb3NpdGlvbiI6eyJ4IjotMTA5LjAyNCwieSI6LTc4LjIyMn0sInNlbWFudGljUm9sZSI6InVwcGVyX2hvcm5fbGVmdCJ9LHsiaGFuZGxlSW4iOnsieCI6LTMuMTUsInkiOi00NC41MTl9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwiaGFuZGxlT3V0Ijp7IngiOjQuMjE2LCJ5Ijo1OS41OX0sImlkIjoic191cHBlcl9ib3V0X291dGVyX2xlZnQiLCJwb3NpdGlvbiI6eyJ4IjotMTQ0LjIxNywieSI6MTkuODYzfX0seyJoYW5kbGVJbiI6eyJ4IjowLjQ5MywieSI6LTQ3Ljg5OH0sImhhbmRsZU1vZGUiOiJzbW9vdGgiLCJoYW5kbGVPdXQiOnsieCI6LTAuNTA1LCJ5Ijo0OS4wMTR9LCJpZCI6InNfd2Fpc3RfbGVmdCIsInBvc2l0aW9uIjp7IngiOi0xMTcuNDY3LCJ5IjoxNzAuNDYzfSwic2VtYW50aWNSb2xlIjoid2Fpc3RfbGVmdCJ9LHsiaGFuZGxlSW4iOnsieCI6LTAuMDU4LCJ5IjotODEuMjA3fSwiaGFuZGxlTW9kZSI6InNtb290aCIsImhhbmRsZU91dCI6eyJ4IjowLjAyNSwieSI6MzUuMjM2fSwiaWQiOiJzX2xvd2VyX2JvdXRfbGVmdCIsInBvc2l0aW9uIjp7IngiOi0xNjYuNjE2LCJ5IjozODMuOTE0fSwic2VtYW50aWNSb2xlIjoibG93ZXJfYm91dF9sZWZ0In0seyJoYW5kbGVJbiI6eyJ4IjotMjcuNzE0LCJ5IjotMjIuNzAzfSwiaGFuZGxlTW9kZSI6InNtb290aCIsImhhbmRsZU91dCI6eyJ4IjozOS44NDcsInkiOjMyLjY0Mn0sImlkIjoiYW5jaG9yXzE3ODYwNTI2ODAxNjBfNzc1OGsiLCJwb3NpdGlvbiI6eyJ4IjotMTMxLjc0MiwieSI6NDc2Ljg5Nn0sInNlbWFudGljUm9sZSI6ImN1c3RvbSJ9LHsiaGFuZGxlSW4iOnsieCI6LTY5LjM0OCwieSI6LTAuOTU5fSwiaGFuZGxlTW9kZSI6InN5bW1ldHJpYyIsImhhbmRsZU91dCI6eyJ4Ijo3MC44ODksInkiOjAuOTgxfSwiaWQiOiJzX3RhaWxfY2VudGVyIiwicG9zaXRpb24iOnsieCI6Mi4wMTQsInkiOjUxMX0sInNlbWFudGljUm9sZSI6InRhaWxfY2VudGVyIn0seyJoYW5kbGVJbiI6eyJ4IjotMzAuMTM2LCJ5IjoyOC4wNzV9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwiaGFuZGxlT3V0Ijp7IngiOjI2LjM3OCwieSI6LTI0LjU3NX0sImlkIjoiYW5jaG9yXzE3ODYwNTI3MDg0MThfNTk1dWsiLCJwb3NpdGlvbiI6eyJ4IjoxMzAuMjg0LCJ5Ijo0NzkuMjI3fSwic2VtYW50aWNSb2xlIjoiY3VzdG9tIn0seyJoYW5kbGVJbiI6eyJ4IjowLjYyMiwieSI6MzEuMDA4fSwiaGFuZGxlTW9kZSI6InNtb290aCIsImhhbmRsZU91dCI6eyJ4IjotMS42NjYsInkiOi04Mi45OTd9LCJpZCI6InNfbG93ZXJfYm91dF9yaWdodCIsInBvc2l0aW9uIjp7IngiOjE2My4zODQsInkiOjM4NS4wNTR9LCJzZW1hbnRpY1JvbGUiOiJsb3dlcl9ib3V0X3JpZ2h0In0seyJoYW5kbGVJbiI6eyJ4IjotMC42NywieSI6MzMuNjExfSwiaGFuZGxlTW9kZSI6InNtb290aCIsImhhbmRsZU91dCI6eyJ4IjowLjkyNSwieSI6LTQ2LjQwOX0sImlkIjoic193YWlzdF9yaWdodCIsInBvc2l0aW9uIjp7IngiOjExNi44NjgsInkiOjE4OS45NzZ9LCJzZW1hbnRpY1JvbGUiOiJ3YWlzdF9yaWdodCJ9LHsiaGFuZGxlSW4iOnsieCI6LTEuMTUzLCJ5Ijo1Ni43MTl9LCJoYW5kbGVNb2RlIjoic21vb3RoIiwiaGFuZGxlT3V0Ijp7IngiOjAuNTU2LCJ5IjotMjcuMzIzfSwiaWQiOiJzX3VwcGVyX2JvdXRfb3V0ZXJfcmlnaHQiLCJwb3NpdGlvbiI6eyJ4IjoxNDMuMTg0LCJ5Ijo2My4xOTl9fSx7ImhhbmRsZUluIjp7IngiOjIxLjkxNiwieSI6LTAuNzQxfSwiaGFuZGxlTW9kZSI6InNtb290aCIsImhhbmRsZU91dCI6eyJ4IjotMjMuMDU4LCJ5IjowLjc4fSwiaWQiOiJzX3RyZWJsZV9ob3JuX3RpcCIsInBvc2l0aW9uIjp7IngiOjExNi43MjUsInkiOjUuOTY0fSwic2VtYW50aWNSb2xlIjoidXBwZXJfaG9ybl9yaWdodCJ9LHsiaGFuZGxlSW4iOnsieCI6MzAuMzIxLCJ5IjotMjYuMzE4fSwiaGFuZGxlTW9kZSI6InNtb290aCIsImhhbmRsZU91dCI6eyJ4IjotMTguMDYxLCJ5IjoxNS42NzZ9LCJpZCI6ImFuY2hvcl8xNzg1MDc1OTcxNTAxXzZuYTV6IiwicG9zaXRpb24iOnsieCI6ODEuODg3LCJ5Ijo3NC41NjV9LCJzZW1hbnRpY1JvbGUiOiJjdXN0b20ifSx7ImhhbmRsZUluIjp7IngiOjkuNTk5LCJ5IjoxNS4yNjV9LCJoYW5kbGVNb2RlIjoiY29ybmVyIiwiaWQiOiJzX2hvcm5fc2Nvb3BfcmlnaHQiLCJwb3NpdGlvbiI6eyJ4IjoyOS4zODcsInkiOjY3LjM1NX19LHsiaGFuZGxlTW9kZSI6ImNvcm5lciIsImhhbmRsZU91dCI6eyJ4IjotMjEuNTI3LCJ5IjowLjMyMn0sImlkIjoic19wb2NrZXRfcmlnaHQiLCJwb3NpdGlvbiI6eyJ4IjozMS43NSwieSI6MH0sInNlbWFudGljUm9sZSI6Im5lY2tfcG9ja2V0X3JpZ2h0In1dLCJjbG9zZWQiOnRydWV9LCJlZGdlUHJvZmlsZSI6eyJlYXNlTW0iOjAsImtpbmQiOiJzbGFiIn0sImZyb250Um91dGVzIjpbXSwiaW5zdHJ1bWVudFR5cGUiOiJiYXNzIiwibWV0YWRhdGEiOnsiYXV0aG9yIjoiQXhlIFNoYXBlciBMdXRoaWVyIiwiY3JlYXRlZCI6IjIwMjYtMDgtMjZUMTI6MDQ6MzMuMDE1WiIsIm1vZGlmaWVkIjoiMjAyNi0wOC0yNlQxMjowNDozMy4wMTVaIn0sIm5lY2tKb2ludE1lY2hhbmlzbSI6ImJvbHRfb24iLCJuZWNrUHJlc2V0Ijp7ImZyZXRzIjoyMCwiaWQiOiJiYXNzX2xvbmdfMzQiLCJqb2ludENvcm5lclJhZGl1c01tIjo2LjM1LCJqb2ludERlcHRoTW0iOjk4LjQyNSwiam9pbnRXaWR0aE1tIjo2My41LCJuYW1lIjoiQmFzcyBMb25nIFNjYWxlICgzNFwiIFNjYWxlLCAyMCBGcmV0cykiLCJudXRTdHJpbmdTcGFjaW5nTW0iOjMwLCJudXRUb0JvZHlFZGdlTW0iOjU0MC4xMTU1LCJudXRUb0pvaW50TW0iOjU5Ni41ODMsInBvY2tldENvcm5lclJhZGl1c01tIjo2LjM1LCJwb2NrZXREZXB0aE1tIjo5OC40MjUsInBvY2tldFdpZHRoTW0iOjYzLjUsInNjYWxlTGVuZ3RoTW0iOjg2My42LCJzdHlsZSI6ImZlbmRlcl9zdHlsZSJ9LCJuZWNrUHJlc2V0SWQiOiJiYXNzX2xvbmdfMzQiLCJwaWNrZ3VhcmRzIjpbXSwicGlja3VwcyI6W3siYW5jaG9ycyI6W3siaGFuZGxlSW4iOnsieCI6LTEuNzU0LCJ5IjowfSwiaGFuZGxlTW9kZSI6ImNvcm5lciIsImlkIjoiYmFzc19zcGxpdF9jb2lsX2EwIiwicG9zaXRpb24iOnsieCI6LTI1Ljc4LCJ5IjotMTQuNjA1fX0seyJoYW5kbGVNb2RlIjoiY29ybmVyIiwiaGFuZGxlT3V0Ijp7IngiOjEuNzU0LCJ5IjowfSwiaWQiOiJiYXNzX3NwbGl0X2NvaWxfYTEiLCJwb3NpdGlvbiI6eyJ4IjoyNS43OCwieSI6LTE0LjYwNX19LHsiaGFuZGxlSW4iOnsieCI6MCwieSI6LTEuNzU0fSwiaGFuZGxlTW9kZSI6ImNvcm5lciIsImlkIjoiYmFzc19zcGxpdF9jb2lsX2EyIiwicG9zaXRpb24iOnsieCI6MjguOTU1LCJ5IjotMTEuNDN9fSx7ImhhbmRsZU1vZGUiOiJjb3JuZXIiLCJoYW5kbGVPdXQiOnsieCI6MCwieSI6MS43NTR9LCJpZCI6ImJhc3Nfc3BsaXRfY29pbF9hMyIsInBvc2l0aW9uIjp7IngiOjI4Ljk1NSwieSI6MTEuNDN9fSx7ImhhbmRsZUluIjp7IngiOjEuNzU0LCJ5IjowfSwiaGFuZGxlTW9kZSI6ImNvcm5lciIsImlkIjoiYmFzc19zcGxpdF9jb2lsX2E0IiwicG9zaXRpb24iOnsieCI6MjUuNzgsInkiOjE0LjYwNX19LHsiaGFuZGxlTW9kZSI6ImNvcm5lciIsImhhbmRsZU91dCI6eyJ4IjotMS43NTQsInkiOjB9LCJpZCI6ImJhc3Nfc3BsaXRfY29pbF9hNSIsInBvc2l0aW9uIjp7IngiOi0yNS43OCwieSI6MTQuNjA1fX0seyJoYW5kbGVJbiI6eyJ4IjowLCJ5IjoxLjc1NH0sImhhbmRsZU1vZGUiOiJjb3JuZXIiLCJpZCI6ImJhc3Nfc3BsaXRfY29pbF9hNiIsInBvc2l0aW9uIjp7IngiOi0yOC45NTUsInkiOjExLjQzfX0seyJoYW5kbGVNb2RlIjoiY29ybmVyIiwiaGFuZGxlT3V0Ijp7IngiOjAsInkiOi0xLjc1NH0sImlkIjoiYmFzc19zcGxpdF9jb2lsX2E3IiwicG9zaXRpb24iOnsieCI6LTI4Ljk1NSwieSI6LTExLjQzfX1dLCJhbmdsZURlZ3JlZXMiOjAsImhlaWdodE1tIjoyOS4yMSwiaWQiOiJwX2Jhc3Nfc3R5bGVfcGlja3VwXzAiLCJvZmZzZXRYTW0iOjAsIm9mZnNldFlNbSI6MjM1LCJ0eXBlIjoiYmFzc19zcGxpdF9jb2lsIiwid2lkdGhNbSI6NTcuOTF9LHsiYW5jaG9ycyI6W3siaGFuZGxlSW4iOnsieCI6LTEuNzU0LCJ5IjowfSwiaGFuZGxlTW9kZSI6ImNvcm5lciIsImlkIjoiYmFzc19zcGxpdF9jb2lsX2EwIiwicG9zaXRpb24iOnsieCI6LTI1Ljc4LCJ5IjotMTQuNjA1fX0seyJoYW5kbGVNb2RlIjoiY29ybmVyIiwiaGFuZGxlT3V0Ijp7IngiOjEuNzU0LCJ5IjowfSwiaWQiOiJiYXNzX3NwbGl0X2NvaWxfYTEiLCJwb3NpdGlvbiI6eyJ4IjoyNS43OCwieSI6LTE0LjYwNX19LHsiaGFuZGxlSW4iOnsieCI6MCwieSI6LTEuNzU0fSwiaGFuZGxlTW9kZSI6ImNvcm5lciIsImlkIjoiYmFzc19zcGxpdF9jb2lsX2EyIiwicG9zaXRpb24iOnsieCI6MjguOTU1LCJ5IjotMTEuNDN9fSx7ImhhbmRsZU1vZGUiOiJjb3JuZXIiLCJoYW5kbGVPdXQiOnsieCI6MCwieSI6MS43NTR9LCJpZCI6ImJhc3Nfc3BsaXRfY29pbF9hMyIsInBvc2l0aW9uIjp7IngiOjI4Ljk1NSwieSI6MTEuNDN9fSx7ImhhbmRsZUluIjp7IngiOjEuNzU0LCJ5IjowfSwiaGFuZGxlTW9kZSI6ImNvcm5lciIsImlkIjoiYmFzc19zcGxpdF9jb2lsX2E0IiwicG9zaXRpb24iOnsieCI6MjUuNzgsInkiOjE0LjYwNX19LHsiaGFuZGxlTW9kZSI6ImNvcm5lciIsImhhbmRsZU91dCI6eyJ4IjotMS43NTQsInkiOjB9LCJpZCI6ImJhc3Nfc3BsaXRfY29pbF9hNSIsInBvc2l0aW9uIjp7IngiOi0yNS43OCwieSI6MTQuNjA1fX0seyJoYW5kbGVJbiI6eyJ4IjowLCJ5IjoxLjc1NH0sImhhbmRsZU1vZGUiOiJjb3JuZXIiLCJpZCI6ImJhc3Nfc3BsaXRfY29pbF9hNiIsInBvc2l0aW9uIjp7IngiOi0yOC45NTUsInkiOjExLjQzfX0seyJoYW5kbGVNb2RlIjoiY29ybmVyIiwiaGFuZGxlT3V0Ijp7IngiOjAsInkiOi0xLjc1NH0sImlkIjoiYmFzc19zcGxpdF9jb2lsX2E3IiwicG9zaXRpb24iOnsieCI6LTI4Ljk1NSwieSI6LTExLjQzfX1dLCJhbmdsZURlZ3JlZXMiOjAsImhlaWdodE1tIjoyOS4yMSwiaWQiOiJwX2Jhc3Nfc3R5bGVfcGlja3VwXzEiLCJvZmZzZXRYTW0iOjAsIm9mZnNldFlNbSI6MjY1LCJ0eXBlIjoiYmFzc19zcGxpdF9jb2lsIiwid2lkdGhNbSI6NTcuOTF9XSwic2NoZW1hVmVyc2lvbiI6Mywic2V0dGluZ3MiOnsiYm9keUNvbG9yIjoiIzNiODJmNiIsImJvZHlGaWxsT3BhY2l0eSI6MC4xNSwiY2FudmFzT3JpZW50YXRpb24iOiJ2ZXJ0aWNhbCIsImZpbmlzaFN0eWxlIjoic3VuYnVyc3QiLCJncmlkU2l6ZU1tIjo1MCwibmFtZSI6IlAtU3R5bGUgQmFzcyIsInBpY2tndWFyZENvbG9yIjoiI2ZmZmZmZiIsInBpY2tndWFyZEVuYWJsZWQiOmZhbHNlLCJzZWNvbmRhcnlDb2xvciI6IiNmNTllMGIiLCJzaG93Q2VudGVyQXhpcyI6dHJ1ZSwic2hvd0RpbWVuc2lvbnMiOnRydWUsInNob3dHaG9zdEd1aWRlIjp0cnVlLCJzaG93R3JpZCI6dHJ1ZSwic2hvd0hhcmR3YXJlQ2F2aXRpZXMiOnRydWUsInNuYXBUb0dyaWRFbmFibGVkIjpmYWxzZSwic3ltbWV0cnkiOnsibW9kZSI6Im5vbmUiLCJzb3VyY2VTaWRlIjoibGVmdCJ9LCJ1bml0RGlzcGxheSI6Im1tIn0sInN0cmluZ0NvdW50Ijo0fQ==</project:data>
+</metadata>
+<style>
+.outline{fill:none;stroke:#111;stroke-width:0.40;stroke-linecap:round;stroke-linejoin:round}
+.edge-inset{fill:none;stroke:#555;stroke-width:0.30;stroke-dasharray:3 2}
+.neck-pocket{fill:#e5e7eb;stroke:#374151;stroke-width:0.40}
+.pickup-rout{fill:#ccfbf1;stroke:#0f766e;stroke-width:0.30}
+.pickup-cover{fill:none;stroke:#111;stroke-width:0.30}
+.bridge-rout{fill:none;stroke:#007bff;stroke-width:0.30}
+.back-route{fill:#f3e8ff;stroke:#7e22ce;stroke-width:0.30;stroke-dasharray:3.00 2.00}
+.front-route{fill:#ccfbf1;stroke:#0f766e;stroke-width:0.30}
+.pickguard{fill:#fff;fill-opacity:0.35;stroke:#6b7280;stroke-width:0.30}
+.center-axis{fill:none;stroke:#6c757d;stroke-width:0.20;stroke-dasharray:6 4;opacity:0.7}
+.bridge-reference{fill:none;stroke:#dc3545;stroke-width:0.30}
+.mounting-hole{fill:#007bff;stroke:none}
+.calibration-box{fill:none;stroke:#d9534f;stroke-width:0.40;stroke-dasharray:3 3}
+.band-rule{fill:none;stroke:#adb5bd;stroke-width:0.20}
+.text-label{font-family:monospace,sans-serif;font-size:5px;fill:#d9534f}
+.disclaimer-label{font-family:monospace,sans-serif;font-size:4.5px;font-style:italic;fill:#6c757d}
+.axis-label{font-family:monospace,sans-serif;font-size:5px;fill:#6c757d}
+.title-label{font-family:sans-serif;font-size:10px;font-weight:bold;fill:#222}
+</style>
+<g id="guides">
+<line class="center-axis" x1="0" y1="-97.47" x2="0" y2="526.98"/>
+<line class="center-axis" x1="-181.67" y1="0" x2="164.01" y2="0"/>
+<text class="axis-label" x="168.01" y="3">Y=0 (Joint Line)</text>
+<line class="center-axis" x1="-181.67" y1="323.48" x2="164.01" y2="323.48" stroke="#007bff"/>
+<text class="axis-label" x="168.01" y="326.48" fill="#007bff">Scale Line (323.5mm)</text>
+</g>
+<g id="body">
+<path class="outline" d="M -31.75 0.00 C -31.46 13.00, -34.25 26.11, -52.85 25.01 C -67.98 24.12, -84.96 8.57, -92.13 -16.77 C -100.30 -45.65, -89.62 -75.17, -109.02 -78.22 C -136.01 -82.47, -147.37 -24.66, -144.22 19.86 C -140.00 79.45, -116.97 122.56, -117.47 170.46 C -117.97 219.48, -166.67 302.71, -166.62 383.91 C -166.59 419.15, -159.46 454.19, -131.74 476.90 C -91.89 509.54, -67.33 510.04, 2.01 511.00 C 72.90 511.98, 100.15 507.30, 130.28 479.23 C 156.66 454.65, 164.01 416.06, 163.38 385.05 C 161.72 302.06, 116.20 223.59, 116.87 189.98 C 117.79 143.57, 142.03 119.92, 143.18 63.20 C 143.74 35.88, 138.64 5.22, 116.72 5.96 C 93.67 6.74, 112.21 48.25, 81.89 74.56 C 63.83 90.24, 38.99 82.62, 29.39 67.36 C 29.39 67.36, 31.75 0.00, 31.75 0.00 C 10.22 0.32, -5.83 -0.30, -31.75 0.00 Z"/>
+</g>
+<g id="neck-pocket">
+<rect class="neck-pocket" x="-31.75" y="0" width="63.50" height="98.42" rx="6.35"/>
+</g>
+<g id="pickups">
+<g transform="rotate(0.00 0.00 235.00)">
+<path class="pickup-rout" d="M -25.78 220.40 C -25.78 220.40, 25.78 220.40, 25.78 220.40 C 27.53 220.40, 28.95 221.82, 28.95 223.57 C 28.95 223.57, 28.95 246.43, 28.95 246.43 C 28.95 248.18, 27.53 249.60, 25.78 249.60 C 25.78 249.60, -25.78 249.60, -25.78 249.60 C -27.53 249.60, -28.95 248.18, -28.95 246.43 C -28.95 246.43, -28.95 223.57, -28.95 223.57 C -28.95 221.82, -27.53 220.40, -25.78 220.40 Z"/>
+<circle cx="0.00" cy="235.00" r="1.5" fill="#28a745"/>
+</g>
+<g transform="rotate(0.00 0.00 265.00)">
+<path class="pickup-rout" d="M -25.78 250.40 C -25.78 250.40, 25.78 250.40, 25.78 250.40 C 27.53 250.40, 28.95 251.82, 28.95 253.57 C 28.95 253.57, 28.95 276.43, 28.95 276.43 C 28.95 278.18, 27.53 279.61, 25.78 279.61 C 25.78 279.61, -25.78 279.61, -25.78 279.61 C -27.53 279.61, -28.95 278.18, -28.95 276.43 C -28.95 276.43, -28.95 253.57, -28.95 253.57 C -28.95 251.82, -27.53 250.40, -25.78 250.40 Z"/>
+<circle cx="0.00" cy="265.00" r="1.5" fill="#28a745"/>
+</g>
+</g>
+<g id="bridge">
+<path class="bridge-rout" d="M -40.52 296.98 L 40.52 296.98 L 40.52 350.07 L -40.52 350.07 Z"/>
+<path class="bridge-rout" d="M -40.52 300.18 L 40.52 300.18 L 40.52 353.27 L -40.52 353.27 Z"/>
+<line class="bridge-reference" x1="-35.52" y1="323.48" x2="35.52" y2="323.48"/>
+</g>
+<g id="information-band">
+<line class="band-rule" x1="-181.67" y1="526.98" x2="244.01" y2="526.98"/>
+<text class="title-label" x="-169.67" y="546.98">P-Style Bass - 1:1 Scale Print Template</text>
+<text class="text-label" x="-169.67" y="559.98">Scale: 863.6mm (34.00&quot;) | Joint: 63.50mm W x 98.42mm D | Saddle Y: 326.68mm</text>
+<text class="text-label" x="-169.67" y="569.98">Date: Not recorded | Printable 100% True Scale (Do Not Scale Page)</text>
+<text class="disclaimer-label" x="-169.67" y="582.98">Editing this file in another app will not update Axe Shaper - re-importing it may discard your changes.</text>
+<g id="calibration" transform="translate(-169.67 594.98)">
+<rect class="calibration-box" x="0" y="0" width="100" height="100"/>
+<text class="text-label" x="5" y="15" font-weight="bold">CALIBRATION BOX</text>
+<text class="text-label" x="5" y="30">100 mm x 100 mm</text>
+<text class="text-label" x="5" y="45">Measure with ruler</text>
+<text class="text-label" x="5" y="60">to verify 100% print</text>
+</g>
+</g>
+</svg>
