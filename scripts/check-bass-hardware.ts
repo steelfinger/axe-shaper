@@ -703,6 +703,22 @@ async function main() {
       deepStrictEqual(decompressed.stringCount, 4);
     });
 
+    check('blueprint binding reaches the 3D viewer link unchanged', () => {
+      // App.tsx passes withEmbeddedPresets(project) directly to
+      // buildViewer3DPath. Guard the two blueprints whose authored default is
+      // top-only binding, so a template-to-project regression cannot quietly
+      // remove the detail before the viewer sees it.
+      for (const id of ['single_cut', 'r_bass_style']) {
+        const blueprint = decodePayload(join(ROOT, 'src', 'constants', 'blueprints', `${id}.axe.svg`));
+        deepStrictEqual(blueprint.binding, { appliesTo: 'top_only' }, `${id} blueprint has the wrong binding`);
+        deepStrictEqual(
+          presets.withEmbeddedPresets(blueprint).binding,
+          blueprint.binding,
+          `${id} binding was lost before the viewer link`
+        );
+      }
+    });
+
     console.log('golden corpus');
 
     check('the scale matrix covers every bass neck x bass bridge pairing', () => {

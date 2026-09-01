@@ -325,6 +325,8 @@ export interface ReferenceTemplate {
   defaultAnchors: PathAnchor[];
   /** Edge profile restored with the blueprint; absent means Slab. */
   edgeProfile?: EdgeProfile;
+  /** Binding restored with the blueprint; absent means no binding. */
+  binding?: BindingParams;
   defaultPickups: PickupPlacement[];
   defaultPickguards?: PickguardPlacement[];
   defaultFrontRoutes?: RoutedCavity[];

@@ -322,10 +322,9 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       edgeProfile: template.edgeProfile
         ? JSON.parse(JSON.stringify(template.edgeProfile))
         : undefined,
-      // No blueprint or user template carries a binding choice yet - reset
-      // explicitly rather than via the `...prev` spread above, so a binding
-      // picked on the previous body doesn't linger on an unrelated new one.
-      binding: undefined,
+      // Binding belongs to a blueprint's body treatment. An absent binding
+      // explicitly clears a choice made on the previously selected body.
+      binding: template.binding ? JSON.parse(JSON.stringify(template.binding)) : undefined,
       pickups: JSON.parse(JSON.stringify(template.defaultPickups)),
       pickguards: JSON.parse(JSON.stringify(template.defaultPickguards ?? [])),
       frontRoutes: JSON.parse(JSON.stringify(template.defaultFrontRoutes ?? [])),

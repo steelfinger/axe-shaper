@@ -56,6 +56,10 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
       // only have meaning against the blueprint's own Beveled/German-Carve
       // dimensions. An absent profile deliberately means Slab.
       edgeProfile: project.edgeProfile,
+      // Binding is a body-level blueprint choice, just like its edge
+      // treatment. Preserve it so new designs and the 3D viewer handoff use
+      // the blueprint's intended top-only or two-sided binding.
+      binding: project.binding,
       // Position and orientation are authored by the blueprint; the rout
       // geometry comes from the live catalogue. Blueprint SVGs are durable
       // documents and may contain an older embedded anchor set, whereas a
