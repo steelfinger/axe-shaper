@@ -91,6 +91,13 @@ export function resolveNeckPreset(ref: NeckRef): NeckPreset {
 
 /** Effective bridge geometry: the project's embedded copy, else the built-in table, else the default. */
 export function resolveBridgePreset(ref: BridgeRef): BridgePreset {
+  // R-style files saved before the master-geometry correction contain the
+  // former rectangular approximation as their embedded preset. The named
+  // preset is an authoritative physical plate, so upgrade that one stale
+  // representation at read time instead of continuing to draw a box.
+  if (ref.bridgePresetId === 'bass_r_style_plate' && !ref.bridgePreset?.outlineMm) {
+    return BRIDGE_PRESETS.bass_r_style_plate;
+  }
   return (
     ref.bridgePreset ?? BRIDGE_PRESETS[ref.bridgePresetId] ?? BRIDGE_PRESETS[DEFAULT_BRIDGE_PRESET_ID]
   );

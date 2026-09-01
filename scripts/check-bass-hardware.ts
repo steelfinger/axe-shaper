@@ -742,6 +742,11 @@ async function main() {
       const rStyle = JSON.parse(Buffer.from(readFileSync(join(ROOT, 'src', 'constants', 'blueprints', 'r_bass_style.axe.svg'), 'utf8').match(/<project:data>([\s\S]*?)<\/project:data>/)![1].trim(), 'base64').toString('utf8'));
       invariant(rStyle.frontRoutes.length === 1, 'R-style bridge marker still exists as a front route');
       invariant(rStyle.bridgePreset.outlineMm?.length === 4, 'R-style tapered bridge outline was not embedded');
+      const legacyRBridge = presets.resolveBridgePreset({
+        bridgePresetId: 'bass_r_style_plate',
+        bridgePreset: { ...rStyle.bridgePreset, outlineMm: undefined },
+      });
+      invariant(legacyRBridge.outlineMm?.length === 4, 'legacy R-style projects still resolve to a rectangular bridge');
     });
   } finally {
     await server.close();
