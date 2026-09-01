@@ -506,7 +506,7 @@ export const FINGERBOARD_OVERHANG_MM: Record<string, LengthMm> = {
   p_bass_style: 92.983, // 34" / 365mm scale line
   j_bass_style: 92.983, // 34" / 365mm scale line
   mm_bass_style: 77.983, // 34" / 350mm scale line
-  r_bass_style: 101.9834, // 33.25" / 368mm scale line
+  r_bass_style: 23.9834, // 33.25" / 290mm scale line
   thunderbird_bass_style: 139.983, // 34" / 412mm scale line
   mustang_bass_style: 105.985, // 30" / 346mm scale line
   sg_bass_style: 95.9848, // 30.5" / 340mm scale line
@@ -916,7 +916,7 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
   },
   // R-style master blueprint: Front Route Shape 2 was a bridge-plate marker,
   // not a rout. Its exact tapered 100mm-to-80mm, 110mm-long outline is
-  // expressed relative to the 368mm theoretical scale line.
+  // expressed relative to the 290mm theoretical scale line.
   bass_r_style_plate: {
     id: 'bass_r_style_plate',
     name: 'R-Style Tapered Plate (4-String)',

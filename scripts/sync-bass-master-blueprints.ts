@@ -17,7 +17,7 @@ const MASTERS = {
   p_bass_style: { file: 'p-style-blueprint.axe.svg', scaleLineMm: 365 },
   j_bass_style: { file: 'j-style-blueprint.axe.svg', scaleLineMm: 365 },
   mm_bass_style: { file: 'mm-style-blueprint.axe.svg', scaleLineMm: 350 },
-  r_bass_style: { file: 'r-style-blueprint.axe.svg', scaleLineMm: 368, bridgeId: 'bass_r_style_plate' },
+  r_bass_style: { file: 'r-style-blueprint.axe.svg', scaleLineMm: 290, bridgeId: 'bass_r_style_plate' },
   thunderbird_bass_style: { file: 'thunderbird-style-blueprint.axe.svg', scaleLineMm: 412 },
   mustang_bass_style: { file: 'mustang-style-blueprint.axe.svg', scaleLineMm: 346 },
   sg_bass_style: { file: 'sg-style-blueprint.axe.svg', scaleLineMm: 340 },

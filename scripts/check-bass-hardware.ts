@@ -167,6 +167,23 @@ async function main() {
       }
     });
 
+    check('every bass blueprint locks its neck-pocket anchors to the joint line', () => {
+      for (const id of manifest.BLUEPRINT_ORDER.filter((id: string) => manifest.BLUEPRINT_MANIFEST[id].instrumentType === 'bass')) {
+        const raw = readFileSync(join(ROOT, 'src', 'constants', 'blueprints', `${id}.axe.svg`), 'utf8');
+        const encoded = raw.match(/<project:data>([\s\S]*?)<\/project:data>/)?.[1];
+        invariant(encoded, `${id}: no project payload`);
+        const project = JSON.parse(Buffer.from(encoded!.trim(), 'base64').toString('utf8'));
+        const pocketAnchors = project.contour.anchors.filter((anchor: { semanticRole?: string }) =>
+          anchor.semanticRole === 'neck_pocket_left' || anchor.semanticRole === 'neck_pocket_right'
+        );
+        invariant(pocketAnchors.length === 2, `${id}: expected two neck-pocket anchors`);
+        invariant(
+          pocketAnchors.every((anchor: { locked?: boolean; position: { y: number } }) => anchor.locked === true && anchor.position.y === 0),
+          `${id}: neck-pocket anchors must be locked at Y=0`
+        );
+      }
+    });
+
     console.log('selectors offer only compatible hardware');
 
     check('no selector returns an entry belonging to the other instrument', () => {
@@ -717,7 +734,7 @@ async function main() {
         p_bass_style: { scaleLineMm: 365, bridgeId: 'bass_vintage_plate' },
         j_bass_style: { scaleLineMm: 365, bridgeId: 'bass_vintage_plate' },
         mm_bass_style: { scaleLineMm: 350, bridgeId: 'bass_vintage_plate' },
-        r_bass_style: { scaleLineMm: 368, bridgeId: 'bass_r_style_plate' },
+        r_bass_style: { scaleLineMm: 290, bridgeId: 'bass_r_style_plate' },
         thunderbird_bass_style: { scaleLineMm: 412, bridgeId: 'bass_vintage_plate' },
         mustang_bass_style: { scaleLineMm: 346, bridgeId: 'bass_vintage_plate' },
         sg_bass_style: { scaleLineMm: 340, bridgeId: 'bass_vintage_plate' },
@@ -740,6 +757,15 @@ async function main() {
         );
       }
       const rStyle = JSON.parse(Buffer.from(readFileSync(join(ROOT, 'src', 'constants', 'blueprints', 'r_bass_style.axe.svg'), 'utf8').match(/<project:data>([\s\S]*?)<\/project:data>/)![1].trim(), 'base64').toString('utf8'));
+      const rStyleJointAnchors = rStyle.contour.anchors.filter((anchor: { id: string }) => anchor.id === 's_pocket_left' || anchor.id === 's_pocket_right');
+      invariant(rStyleJointAnchors.length === 2 && rStyleJointAnchors.every((anchor: { position: { y: number } }) => anchor.position.y === 0), 'R-style joint anchors must remain at Y=0');
+      invariant(rStyleJointAnchors.find((anchor: { id: string }) => anchor.id === 's_pocket_left')?.position.x === -20, 'R-style left joint anchor must remain at X=-20');
+      invariant(rStyleJointAnchors.find((anchor: { id: string }) => anchor.id === 's_pocket_right')?.position.x === 20, 'R-style right joint anchor must remain at X=20');
+      invariant(Math.abs(rStyle.contour.anchors.find((anchor: { id: string }) => anchor.id === 's_tail_center').position.y - 375.0001219913025) < 1e-6, 'R-style contour was not shifted 78mm toward the joint');
+      invariant(Math.abs(rStyle.pickups[0].offsetYMm - 62.161983286631965) < 1e-6, 'R-style neck pickup was not shifted 78mm toward the joint');
+      invariant(Math.abs(rStyle.pickups[1].offsetYMm - 181.86731580326693) < 1e-6, 'R-style bridge pickup was not shifted 78mm toward the joint');
+      invariant(Math.abs(rStyle.pickguards[0].contour.anchors[0].position.y - 16.049278064377972) < 1e-6, 'R-style pickguard was not shifted 78mm toward the joint');
+      invariant(Math.abs(rStyle.frontRoutes[0].contour.anchors[0].position.y - 152.14868899439634) < 1e-6, 'R-style front route was not shifted 78mm toward the joint');
       invariant(rStyle.frontRoutes.length === 1, 'R-style bridge marker still exists as a front route');
       invariant(rStyle.bridgePreset.outlineMm?.length === 4, 'R-style tapered bridge outline was not embedded');
       const legacyRBridge = presets.resolveBridgePreset({
