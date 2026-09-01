@@ -3058,9 +3058,10 @@ html.marketing-document {
   }
 }
 
-/* Project context in the header: the instrument a document was created as.
-   Deliberately not styled as a control - it is not one, and gold is reserved
-   for "this is the active choice" among things you can actually choose. */
+/* The header's instrument control: shows the instrument a document was created
+   as, and opens the New Design screen (the only way to design the other one -
+   instrument is fixed for a document's life). Quiet by default; gold stays
+   reserved for "this is the active choice" among things you pick between. */
 .header-instrument {
   display: inline-flex;
   align-items: baseline;
@@ -3068,10 +3069,20 @@ html.marketing-document {
   padding: 4px 10px;
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-sm);
+  font-family: inherit;
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-secondary);
+  background: transparent;
   white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.header-instrument:hover {
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
 }
 
 .header-instrument-strings {
@@ -3084,14 +3095,30 @@ html.marketing-document {
    .header-instrument, kept because the header hides its project controls in
    the narrow layout. */
 .sidebar-instrument {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   margin-left: auto;
   padding: 2px 7px;
   border: 1px solid var(--panel-border);
   border-radius: 4px;
+  font-family: inherit;
   font-size: 0.68rem;
   font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
   color: var(--text-muted);
+  background: transparent;
   white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-instrument:hover {
+  border-color: var(--text-muted);
+  color: var(--text-secondary);
+}
+
+.sidebar-instrument > svg {
+  flex-shrink: 0;
 }

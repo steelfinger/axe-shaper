@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, ChevronDown, ChevronRight, Bookmark, Plus, Zap, Scissors, Info } from 'lucide-react';
+import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, ChevronDown, ChevronRight, Bookmark, Plus, Zap, Scissors, Info, ArrowLeftRight } from 'lucide-react';
 import { NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import {
@@ -45,6 +45,10 @@ interface SidebarProps {
   project: GuitarProject;
   onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject, coalesceKey?: string) => void;
   onSelectTemplate: (templateId: string) => void;
+  /** Open the New Design screen - the way to switch instrument, which can't
+   *  happen in place. Mirrors the header's instrument control for the narrow
+   *  layout, where the header hides its project controls. */
+  onNewDesign: () => void;
   guideImage: GuideImageState;
   onUploadGuideImage: (file: File) => void;
   onUpdateGuideImage: (
@@ -75,6 +79,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   project,
   onUpdateProject,
   onSelectTemplate,
+  onNewDesign,
   guideImage,
   onUploadGuideImage,
   onUpdateGuideImage,
@@ -389,10 +394,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {/* The header carries this too, but the header's project
                     controls are hidden in the narrow layout - and this is the
                     panel where "which instrument am I designing" actually
-                    decides what the lists below contain. */}
-                <span className="sidebar-instrument">
+                    decides what the lists below contain. Opens the New Design
+                    screen: instrument can't change in place. */}
+                <button
+                  type="button"
+                  className="sidebar-instrument"
+                  onClick={onNewDesign}
+                  title="Change instrument or blueprint — starts a new design"
+                >
+                  <ArrowLeftRight size={12} aria-hidden="true" />
                   {instrumentLabel(project.instrumentType)} · {project.stringCount}-string
-                </span>
+                </button>
               </div>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
                 {compatibleTemplates.length === 0 ? (

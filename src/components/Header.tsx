@@ -83,14 +83,23 @@ export const Header: React.FC<HeaderProps> = ({
           placeholder="Project Name..."
         />
 
-        {/* Project context, not a control. The instrument is fixed for the
-            life of a document - changing it replaces the contour and every
-            piece of hardware, which is New..., not a toggle - so this states
-            what is being designed rather than offering to change it. */}
-        <span className="header-instrument" title="Set when the design was created. Use New… to design the other instrument.">
+        {/* The instrument a document was created as - and the way back to the
+            chooser to design the other one. The instrument is fixed for the
+            life of a document (changing it replaces the contour and every
+            piece of hardware), so this opens the New Design screen rather than
+            toggling in place - `onNewDesign` runs the unsaved-changes confirm
+            and seeds the chooser with this design. No icon here on purpose:
+            the box keeps the exact footprint of the old static chip, so the
+            header-degradation tiers in index.css don't need re-measuring. */}
+        <button
+          type="button"
+          className="header-instrument"
+          onClick={onNewDesign}
+          title="Change instrument or blueprint — starts a new design"
+        >
           {instrumentLabel(project.instrumentType)}
           <span className="header-instrument-strings">{project.stringCount}-string</span>
-        </span>
+        </button>
 
         <div className="header-unit-controls" style={{ display: 'flex', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', padding: '2px' }}>
           <button

@@ -88,6 +88,17 @@ templates, necks, bridges and pickup types are all filtered to it, and
 filtering. Changing instrument is **New...**, not a switch - it replaces the
 contour and every piece of hardware.
 
+The way back to that choice is the **instrument badge** (`.header-instrument`
+in `Header`, `.sidebar-instrument` in the Templates panel for the narrow
+layout) - both are buttons that call `onNewDesign`, seeding
+`NewDesignScreen` with the current instrument/blueprint via a `NewDesignHint`
+so guitar<->bass is one click. `EditorRoute` also pushes **one** history
+entry (`history.state.axe === 'editing'`) when the editor opens, so browser
+Back returns to the chooser instead of leaving `/app`; the `popstate`
+handler runs the unsaved-changes confirm on that Back (the one editor exit
+`handleNewDesign`'s own confirm can't intercept). The `?plan=` open does not
+push - its effect already normalises the URL.
+
 The filter that matters most is on **user templates**. A `UserTemplate`
 stores preset ids with *no embedded copy*, so applying one from the other
 instrument resolves its neck and bridge purely through the catalogue - the

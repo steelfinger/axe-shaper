@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { PanelLeft, SlidersHorizontal, X } from 'lucide-react';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
@@ -18,6 +18,7 @@ import type {
   GuitarProject,
   GuideImageState,
   CalibrationState,
+  InstrumentType,
   StoredProject,
   Vector2D,
   PickupType,
@@ -97,6 +98,17 @@ const planParamFromLocation = (): string | null => {
   return raw;
 };
 
+/** What the editor was showing when it left for the New Design screen, so the
+ *  chooser can open on that instrument/blueprint instead of the guitar default -
+ *  which is what makes guitar <-> bass a single click. `instrumentType` is fixed
+ *  for a document's life so it is always exact; `templateId` is only a starting
+ *  selection, so an in-editor blueprint change not being reflected is harmless. */
+export type NewDesignHint = { instrumentType: InstrumentType; templateId: string };
+
+function hintFromProject(project: GuitarProject): NewDesignHint {
+  return { instrumentType: project.instrumentType, templateId: project.activeTemplateId };
+}
+
 interface EditorAppProps {
   /** The chosen document. The shell has already decided; the editor never
    *  renders without one, which is why nothing below checks for null. */
@@ -104,16 +116,23 @@ interface EditorAppProps {
   /** Return to the New Design screen. The editor owns the unsaved-changes
    *  confirmation because it is the only thing that knows whether there are
    *  any. */
-  onNewDesign: () => void;
+  onNewDesign: (from: NewDesignHint) => void;
+  /** Report the unsaved-changes flag up to the shell, which needs it to guard
+   *  a browser Back out of the editor (the one exit the editor's own confirm
+   *  can't intercept). */
+  onDirtyChange: (dirty: boolean) => void;
 }
 
-function EditorApp({ initialProject, onNewDesign }: EditorAppProps): React.JSX.Element {
+function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProps): React.JSX.Element {
   const [project, setProject] = useState<GuitarProject>(initialProject);
   // Whether anything has changed since the document was opened or last
   // saved. Not the same as `canUndo`: undoing back to the start still leaves
   // a redo stack, and saving does not clear history. Only used to decide
   // whether leaving for a new design needs a confirmation.
   const [isDirty, setIsDirty] = useState(false);
+  useEffect(() => {
+    onDirtyChange(isDirty);
+  }, [isDirty, onDirtyChange]);
   const [selectedAnchorIds, setSelectedAnchorIds] = useState<Set<string>>(() => new Set());
   // The single selected anchor's id, when exactly one is selected - most
   // existing single-node logic (position edit, add-node-here, delete
@@ -570,7 +589,7 @@ function EditorApp({ initialProject, onNewDesign }: EditorAppProps): React.JSX.E
    */
   const handleNewDesign = () => {
     if (isDirty && !window.confirm('Start a new design? Unsaved changes to this one will be lost.')) return;
-    onNewDesign();
+    onNewDesign(hintFromProject(project));
   };
 
   const handleContinueFromSaveInfo = () => {
@@ -702,6 +721,7 @@ function EditorApp({ initialProject, onNewDesign }: EditorAppProps): React.JSX.E
         project={project}
         onUpdateProject={handleUpdateProject}
         onSelectTemplate={handleSelectTemplate}
+        onNewDesign={handleNewDesign}
         guideImage={guideImage}
         onUploadGuideImage={handleUploadGuideImage}
         onUpdateGuideImage={handleUpdateGuideImage}
@@ -799,8 +819,21 @@ function EditorApp({ initialProject, onNewDesign }: EditorAppProps): React.JSX.E
  */
 type EditorRouteState =
   | { kind: 'loading' }
-  | { kind: 'choosing' }
+  | { kind: 'choosing'; from?: NewDesignHint }
   | { kind: 'editing'; project: GuitarProject; session: number };
+
+/**
+ * `history.state.axe === 'editing'` marks the one extra history entry the
+ * editor pushes on top of the chooser. It exists so the browser Back button
+ * returns to the New Design screen instead of leaving `/app` entirely, and so
+ * the popstate handler below can tell "Back out of the editor" from navigation
+ * between two chooser entries.
+ */
+const EDITING_HISTORY_STATE = { axe: 'editing' } as const;
+
+function isEditingHistoryEntry(): boolean {
+  return (window.history.state as { axe?: string } | null)?.axe === 'editing';
+}
 
 function EditorRoute(): React.JSX.Element {
   const [state, setState] = useState<EditorRouteState>(() =>
@@ -811,11 +844,68 @@ function EditorRoute(): React.JSX.Element {
   // image all belong to the document that was open, and none of them should
   // survive into the next one.
   const sessionRef = useRef(0);
+  // Mirrors of state the popstate listener needs but must not close over: it
+  // is registered once, so a captured `state` would go stale.
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+  // The editor's unsaved-changes flag, reported up by EditorApp. Read only
+  // when a browser Back is about to tear the editor down.
+  const dirtyRef = useRef(false);
+  const handleDirtyChange = useCallback((dirty: boolean) => {
+    dirtyRef.current = dirty;
+  }, []);
 
   const openProject = (project: GuitarProject) => {
     sessionRef.current += 1;
+    // One history entry for the editor, pushed only when coming from the
+    // chooser - not for a `?plan=` open (still `loading` here), whose own
+    // effect normalises the URL, and not if somehow already on the editor
+    // entry. Back from the editor then lands on the chooser.
+    if (stateRef.current.kind === 'choosing' && !isEditingHistoryEntry()) {
+      window.history.pushState(EDITING_HISTORY_STATE, '');
+    }
     setState({ kind: 'editing', project, session: sessionRef.current });
   };
+
+  /**
+   * Leave the editor for the chooser via the in-editor control. EditorApp has
+   * already run the unsaved-changes confirm. Rather than push another entry,
+   * demote the current editor entry to a plain one so Back from the chooser
+   * doesn't drop back onto a torn-down editor.
+   */
+  const returnToChooser = (from: NewDesignHint) => {
+    if (isEditingHistoryEntry()) window.history.replaceState(null, '');
+    dirtyRef.current = false;
+    setState({ kind: 'choosing', from });
+  };
+
+  // Browser Back/Forward across the editor's history entry.
+  useEffect(() => {
+    const onPopState = () => {
+      const prev = stateRef.current;
+      if (isEditingHistoryEntry()) {
+        // Forward, back into the editor entry - but its EditorApp is gone and
+        // there is no project to restore. Normalise the entry and stay put.
+        if (prev.kind !== 'editing') window.history.replaceState(null, '');
+        return;
+      }
+      if (prev.kind !== 'editing') return;
+      if (
+        dirtyRef.current &&
+        !window.confirm('Leave this design for the New Design screen? Unsaved changes will be lost.')
+      ) {
+        // Cancelled: re-push the entry the browser just popped.
+        window.history.pushState(EDITING_HISTORY_STATE, '');
+        return;
+      }
+      dirtyRef.current = false;
+      setState({ kind: 'choosing', from: hintFromProject(prev.project) });
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
 
   const openFile = (file: File) => {
     const reader = new FileReader();
@@ -878,14 +968,21 @@ function EditorRoute(): React.JSX.Element {
   }
 
   if (state.kind === 'choosing') {
-    return <NewDesignScreen onOpenProject={openProject} onOpenFile={openFile} />;
+    return (
+      <NewDesignScreen
+        onOpenProject={openProject}
+        onOpenFile={openFile}
+        initialSelection={state.from}
+      />
+    );
   }
 
   return (
     <EditorApp
       key={state.session}
       initialProject={state.project}
-      onNewDesign={() => setState({ kind: 'choosing' })}
+      onNewDesign={returnToChooser}
+      onDirtyChange={handleDirtyChange}
     />
   );
 }

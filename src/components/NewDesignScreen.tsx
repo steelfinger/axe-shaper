@@ -52,6 +52,15 @@ import { formatLength } from '../utils/units';
 interface NewDesignScreenProps {
   onOpenProject: (project: GuitarProject) => void;
   onOpenFile: (file: File) => void;
+  /**
+   * When the chooser is reopened from the editor (via the header's instrument
+   * control or a browser Back), the design that was open - so the screen lands
+   * on that instrument and blueprint rather than the guitar default, and
+   * switching guitar <-> bass is a single click. `templateId` is only honoured
+   * when it names a bundled reference blueprint for that instrument; a user
+   * template or a stale id falls back to the instrument's first reference.
+   */
+  initialSelection?: { instrumentType: InstrumentType; templateId: string };
 }
 
 /** A blueprint's headline facts, for the card and the detail line. */
@@ -98,7 +107,11 @@ function BlueprintPreview({ template }: { template: ReferenceTemplate }): React.
   );
 }
 
-export function NewDesignScreen({ onOpenProject, onOpenFile }: NewDesignScreenProps): React.JSX.Element {
+export function NewDesignScreen({
+  onOpenProject,
+  onOpenFile,
+  initialSelection,
+}: NewDesignScreenProps): React.JSX.Element {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -131,10 +144,22 @@ export function NewDesignScreen({ onOpenProject, onOpenFile }: NewDesignScreenPr
     return (templates.find((t) => t.tier === 'reference') ?? templates[0])?.id ?? null;
   };
 
-  // Guitar first, for continuity with every build before this screen existed.
-  const [instrumentType, setInstrumentType] = useState<InstrumentType>('guitar');
-  const [templateId, setTemplateId] = useState<string | null>(() => firstTemplateFor('guitar'));
-  const [extraOpen, setExtraOpen] = useState(false);
+  // A chooser reopened from the editor lands on the design that was open, when
+  // its id names a bundled reference blueprint for that instrument; otherwise
+  // on that instrument's first reference. A cold start is Guitar, for
+  // continuity with every build before this screen existed.
+  const seededInstrument = initialSelection?.instrumentType ?? 'guitar';
+  const seededTemplate =
+    initialSelection &&
+    REFERENCE_TEMPLATES[initialSelection.templateId]?.instrumentType === seededInstrument
+      ? initialSelection.templateId
+      : firstTemplateFor(seededInstrument);
+
+  const [instrumentType, setInstrumentType] = useState<InstrumentType>(() => seededInstrument);
+  const [templateId, setTemplateId] = useState<string | null>(() => seededTemplate);
+  const [extraOpen, setExtraOpen] = useState(
+    () => !!seededTemplate && REFERENCE_TEMPLATES[seededTemplate]?.tier === 'extra'
+  );
 
   const templates = byInstrument.get(instrumentType) ?? [];
   const reference = templates.filter((t) => t.tier === 'reference');
@@ -175,7 +200,11 @@ export function NewDesignScreen({ onOpenProject, onOpenFile }: NewDesignScreenPr
       <form className="new-design-body" onSubmit={handleSubmit}>
         <div className="new-design-intro">
           <h1>New design</h1>
-          <p>Pick the instrument and a baseline blueprint. Everything stays editable afterwards.</p>
+          <p>
+            Pick the instrument and a baseline blueprint. Everything stays editable afterwards.
+            {initialSelection &&
+              ' Opening one here starts a new design — the one you were editing is left untouched.'}
+          </p>
         </div>
 
         <fieldset className="design-instrument-group">
