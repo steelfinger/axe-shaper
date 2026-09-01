@@ -18,7 +18,7 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps): React.JSX.Elem
           <img className="about-brand-mark" src="/brand/axe-shaper-mark.png" alt="" aria-hidden="true" />
           <div><h2 id="about-title">Axe Shaper</h2><span>Web editor · version 1.0</span></div>
         </div>
-        <p>A precision 2D workbench for designing electric guitar bodies and exporting the drawing you can actually build from.</p>
+        <p>A precision 2D workbench for designing solid-body electric guitar and bass bodies, then exporting the drawing you can actually build from.</p>
         <div className="about-facts">
           <div><Ruler size={18} /><span><strong>Measured throughout</strong>Geometry is stored in physical millimetres.</span></div>
           <div><Disc size={18} /><span><strong>One portable file</strong>The printable SVG also carries the editable project.</span></div>

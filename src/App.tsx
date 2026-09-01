@@ -530,7 +530,7 @@ function EditorApp({ initialProject, onNewDesign }: EditorAppProps): React.JSX.E
       try {
         await navigator.share({
           title: project.settings.name,
-          text: 'An electric guitar body design made with Axe Shaper.',
+          text: `An electric ${project.instrumentType === 'bass' ? 'bass' : 'guitar'} body design made with Axe Shaper.`,
           files: [file],
         });
         return;

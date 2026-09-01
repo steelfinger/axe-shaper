@@ -1,6 +1,6 @@
-# 🎸 Axe Shaper - 2D Custom Electric Guitar Body Designer
+# 🎸 Axe Shaper - 2D Custom Electric Guitar & Bass Body Designer
 
-**Axe Shaper** is a modern, high-precision 2D vector web application for designing custom electric guitar body shapes from scratch or starting from iconic luthier blueprints (Stratocaster, Telecaster, Les Paul, and Double-Cut SG).
+**Axe Shaper** is a modern, high-precision 2D vector web application for designing custom solid-body electric guitar and bass shapes from scratch or from built-in luthier blueprints. It supports six-string guitar and four-string bass—not acoustic or hollow-body instruments.
 
 Built with **React 18**, **TypeScript**, **Konva.js**, **Lucide Icons**, and a sleek **Dark Luthier Studio** design system.
 
@@ -11,7 +11,7 @@ Built with **React 18**, **TypeScript**, **Konva.js**, **Lucide Icons**, and a s
 - 📐 **Physical Millimeter Coordinate System (`LengthMm`)**: All geometry, anchors, and cavity dimensions are stored in physical millimeters. Viewport zoom and pan operate as an independent camera, preserving exact model dimensions.
 - 🎨 **Node-Based Bezier Curve Editor**: Drag anchor points and handle bars with cubic Bezier path evaluation. Subdivide curve segments on-the-fly using De Casteljau's algorithm without distorting existing curves.
 - ↔️ **Switchable Canvas Orientation**: Toggle between **Vertical** (neck pocket at top) and **Horizontal** (neck joint pointing right in standard right-handed playing orientation).
-- 🎸 **Iconic Luthier Templates**:
+- 🎸 **Built-in Guitar & Bass Templates**: 16 starting points in total—eight guitar and eight bass.
   - **Double-Cut SG Vintage** (Symmetric Gibson/Yamaha style double-cutaway)
   - **Single-Cut Vintage** (Les Paul style with authentic cutaway scoop and teardrop lower bout)
   - **S-Style Standard** (Double cutaway with sweeping horns and waist contours)

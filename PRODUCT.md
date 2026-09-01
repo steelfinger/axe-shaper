@@ -8,20 +8,20 @@ web
 
 ## Users
 
-Hobbyist luthiers and builders designing custom electric guitar bodies before
-cutting them — starting from Tero's own use, extended to other hobbyists via
-an MIT-licensed public repo. They are designing a body they intend to
-physically produce (hand tools, router, or CNC), not just sketching for
-visualization.
+Hobbyist luthiers and builders designing custom solid-body electric guitar and
+bass bodies before cutting them — starting from Tero's own use, extended to
+other hobbyists via an MIT-licensed public repo. They are designing a body
+they intend to physically produce (hand tools, router, or CNC), not just
+sketching for visualization.
 
 ## Product Purpose
 
-Axe Shaper is a high-precision 2D vector tool for designing electric guitar
-body shapes from scratch or from iconic luthier blueprints (Stratocaster,
-Telecaster, Les Paul, Double-Cut SG), then exporting them true-to-scale for
-physical fabrication. Success means the exported shape is both geometrically
-correct and physically buildable — hardware lands where it needs to for the
-instrument to play in tune.
+Axe Shaper is a high-precision 2D vector tool for designing solid-body
+electric guitar and bass shapes from scratch or from built-in luthier
+blueprints, then exporting them true-to-scale for physical fabrication.
+Success means the exported shape is both geometrically correct and physically
+buildable — hardware lands where it needs to for the instrument to play in
+tune.
 
 ## Positioning
 
@@ -54,8 +54,9 @@ awareness that moving a curve also has to move the bridge.
   hardware a later build has never heard of still renders correctly.
 - Bezier curve editing (drag anchors/handles, De Casteljau subdivision) is a
   core interaction, not incidental.
-- Supports 25.5" Fender, 24.75" Gibson, and 27" baritone scale lengths, with
-  neck-pocket presets for Fender square/rounded and mortise joints.
+- Supports six-string guitar and four-string bass. The bundled library has 16
+  blueprints: eight guitar and eight bass. Acoustic, hollow-body, five-string,
+  multiscale, and left-handed instruments are outside the current scope.
 
 ## Brand Commitments
 
