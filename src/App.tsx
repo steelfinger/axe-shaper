@@ -29,6 +29,7 @@ import { withMirroredInsertion } from './utils/symmetry';
 import { buildProjectFilename, downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
 import { getUserTemplate } from './utils/userTemplates';
 import { printTiledProject } from './utils/tiledPrint';
+import { projectNameFromTemplate } from './utils/projectNaming';
 import {
   loadHandleAngleSnapPreference,
   saveHandleAngleSnapPreference,
@@ -331,7 +332,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       backRoutes: JSON.parse(JSON.stringify(template.defaultBackRoutes ?? [])),
       settings: {
         ...prev.settings,
-        name: `Custom ${template.name}`,
+        name: projectNameFromTemplate(template.name),
       },
     }));
     setSelectedAnchorIds(new Set());

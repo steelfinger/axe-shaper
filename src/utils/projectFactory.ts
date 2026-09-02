@@ -3,6 +3,7 @@ import { PROJECT_SCHEMA_VERSION } from '../constants/schema';
 import type { GuitarProject, InstrumentType, ReferenceTemplate } from '../types/guitar';
 import { defaultStringCount } from './instrument';
 import { bridgePresetFields, defaultNeckJointMechanism, neckPresetFieldsForNewTemplate } from './presets';
+import { projectNameFromTemplate } from './projectNaming';
 import { getUserTemplate, userTemplateInstrument } from './userTemplates';
 
 /**
@@ -30,7 +31,7 @@ export const DEFAULT_AUTHOR = 'Axe Shaper Luthier';
 interface CreateProjectOptions {
   /** A built-in blueprint id or a user template id. Defaults to `DEFAULT_TEMPLATE_ID`. */
   templateId?: string;
-  /** Overrides the `Custom <blueprint name>` default. */
+  /** Overrides the default name derived from the blueprint. */
   name?: string;
   author?: string;
   /** Injectable so tests and fixtures can pin a timestamp. */
@@ -83,7 +84,7 @@ export function createProject(options: CreateProjectOptions = {}): GuitarProject
       author: options.author ?? DEFAULT_AUTHOR,
     },
     settings: {
-      name: options.name ?? `Custom ${template.name}`,
+      name: options.name ?? projectNameFromTemplate(template.name),
       unitDisplay: 'mm',
       canvasOrientation: 'vertical',
       symmetry: {

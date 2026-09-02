@@ -66,6 +66,7 @@ async function main() {
     const exporter = await load('/src/utils/svgExporter.ts');
     const manifest = await load('/src/constants/blueprintManifest.ts');
     const bezier = await load('/src/utils/bezier.ts');
+    const projectNaming = await load('/src/utils/projectNaming.ts');
 
     const bassNecks = presets.offeredNeckPresets('bass');
     const bassBridges = presets.offeredBridgePresets('bass');
@@ -668,6 +669,16 @@ async function main() {
     });
 
     console.log('output is type-aware, and instrument travels to the 3D viewer link');
+
+    check('default project names add Custom exactly once', () => {
+      deepStrictEqual(projectNaming.projectNameFromTemplate('S-Style Standard'), 'Custom S-Style Standard');
+      deepStrictEqual(
+        projectNaming.projectNameFromTemplate('Custom P-Style Bass Blueprint'),
+        'Custom P-Style Bass Blueprint'
+      );
+      deepStrictEqual(projectNaming.projectNameFromTemplate('custom one-off'), 'custom one-off');
+      deepStrictEqual(projectNaming.projectNameFromTemplate('Customizer'), 'Custom Customizer');
+    });
 
     check('the exported SVG names the instrument, not a hardcoded "Guitar"', () => {
       const guitarSVG = exporter.exportProjectToSVG(baseline);
