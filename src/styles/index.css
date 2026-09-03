@@ -350,12 +350,15 @@ body, html, #root {
   flex: 1;
   min-width: 0;
   padding: 12px 4px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   font-weight: 500;
   text-align: center;
   color: var(--text-muted);
   cursor: pointer;
-  border-bottom: 2px solid transparent;
   transition: all 0.15s ease;
 }
 
@@ -363,6 +366,11 @@ body, html, #root {
   color: var(--accent-gold);
   border-bottom-color: var(--accent-gold);
   background: rgba(209, 165, 61, 0.05);
+}
+
+.sidebar-tab:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: -3px;
 }
 
 .sidebar-content {
@@ -669,6 +677,78 @@ body, html, #root {
   border-color: var(--accent-blue);
 }
 
+.measured-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.measured-input {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.measured-input-row > span {
+  min-width: 22px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.body-color-input {
+  width: 100%;
+  height: 38px;
+  padding: 3px;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  cursor: pointer;
+}
+
+.body-color-input:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+.layer-body-choice {
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 9px 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font: 500 0.8rem var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+}
+
+.layer-body-choice:hover {
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
+.layer-body-choice.is-selected {
+  border-color: rgba(209, 165, 61, 0.58);
+  background: rgba(209, 165, 61, 0.08);
+  color: var(--accent-gold);
+}
+
+.layer-shape-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.layer-shape-heading > span {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
 .fabrication-advisory {
   display: flex;
   align-items: flex-start;
@@ -919,6 +999,215 @@ summary:focus-visible {
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-md);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.blueprint-chooser-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(760px, 100%);
+  max-height: min(86vh, 780px);
+  padding: 0;
+  overflow: hidden;
+}
+
+.blueprint-chooser-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 26px 64px 22px 26px;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.blueprint-chooser-heading h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.blueprint-chooser-heading p {
+  max-width: 55ch;
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.blueprint-chooser-heading > .btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.blueprint-chooser-scroll {
+  min-height: 0;
+  padding: 22px 26px 28px;
+  overflow-y: auto;
+}
+
+.blueprint-chooser-section + .blueprint-chooser-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--panel-border);
+}
+
+.blueprint-chooser-section h3,
+.blueprint-extra-toggle {
+  margin: 0 0 10px;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.blueprint-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.blueprint-section-heading h3 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+}
+
+.blueprint-choice-list {
+  display: grid;
+  gap: 7px;
+}
+
+.blueprint-choice-list[hidden] {
+  display: none;
+}
+
+.blueprint-choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  color: var(--text-muted);
+  font: 400 0.74rem var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.blueprint-choice:hover {
+  border-color: var(--text-muted);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.blueprint-choice.is-selected {
+  border-color: rgba(209, 165, 61, 0.58);
+  background: rgba(209, 165, 61, 0.08);
+}
+
+.blueprint-choice > span:first-child {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.blueprint-choice strong {
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.blueprint-choice.is-selected strong {
+  color: var(--accent-gold);
+}
+
+.blueprint-choice > span:last-child {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  text-transform: capitalize;
+}
+
+.blueprint-extra-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.blueprint-extra-toggle:hover {
+  color: var(--text-primary);
+}
+
+.blueprint-user-choice {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 40px;
+  gap: 7px;
+}
+
+.blueprint-delete {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.blueprint-delete:hover {
+  border-color: rgba(239, 68, 68, 0.45);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--accent-red);
+}
+
+.blueprint-empty {
+  padding: 16px;
+  border: 1px dashed var(--panel-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .modal-backdrop {
+    align-items: stretch;
+    padding: 12px;
+  }
+
+  .blueprint-chooser-modal {
+    max-height: none;
+  }
+
+  .blueprint-chooser-heading {
+    flex-direction: column;
+    gap: 14px;
+    padding: 22px 52px 18px 20px;
+  }
+
+  .blueprint-chooser-heading > .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .blueprint-chooser-scroll {
+    padding: 18px 20px 24px;
+  }
+
+  .blueprint-choice > span:last-child {
+    display: none;
+  }
 }
 
 .modal-close {

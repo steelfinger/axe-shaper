@@ -4,16 +4,6 @@ import { BEVEL_INTENSITY_MAX, EDGE_PROFILE_CONTROLS } from '../constants/edgePro
 import { variableInsetWidthMm } from '../utils/bevelIntensity';
 import { formatLength, unitLabel, type UnitDisplay } from '../utils/units';
 
-/**
- * How far down the section is drawn. A project carries no body thickness, so
- * the cut is simply clipped here rather than inventing one - everything above
- * this line is real geometry, and nothing below it is claimed. Deep enough
- * that the widest bevel the picker offers still falls inside it at full
- * intensity 1, so the drop keeps growing with the width instead of flattening
- * off against the bottom of the box partway along the slider.
- */
-const SECTION_DEPTH_MM = 26;
-
 /** Flat top face shown inboard of the treatment, and air outside the edge. */
 const BODY_MARGIN_MM = 12;
 const OUTSIDE_MARGIN_MM = 4;
@@ -38,6 +28,8 @@ interface EdgeProfilePreviewProps {
   /** The selected node's bevel intensity - a multiplier on the profile's width. */
   intensity: number;
   unitDisplay: UnitDisplay;
+  /** The project's resolved body thickness, in millimetres. */
+  bodyThicknessMm: number;
 }
 
 const numberOr = (value: unknown, fallback: number): number =>
@@ -58,6 +50,7 @@ export const EdgeProfilePreview: React.FC<EdgeProfilePreviewProps> = ({
   profile,
   intensity,
   unitDisplay,
+  bodyThicknessMm,
 }) => {
   const baseWidthMm = variableInsetWidthMm(profile);
   if (!profile || baseWidthMm === null || baseWidthMm <= 0) return null;
@@ -67,6 +60,7 @@ export const EdgeProfilePreview: React.FC<EdgeProfilePreviewProps> = ({
   // the fixed span; that one keeps its whole section rather than being cropped.
   const spanMm = Math.max(MAX_REACH_MM, reachMm);
   const innerX = -(spanMm + BODY_MARGIN_MM);
+  const sectionDepthMm = Math.max(1, bodyThicknessMm);
 
   // The top face, walked from deep inside the body out to the edge at x = 0.
   // y grows downward from the top face, matching the plan's own convention.
@@ -109,10 +103,10 @@ export const EdgeProfilePreview: React.FC<EdgeProfilePreviewProps> = ({
     const angle = numberOr(profile.angleDegrees, DEFAULT_BEVEL_ANGLE_DEGREES);
     const dropMm = reachMm * Math.tan((angle * Math.PI) / 180);
     topFace.push(`L ${mm(-reachMm)} 0`);
-    if (dropMm > SECTION_DEPTH_MM) {
-      const crossX = -reachMm * (1 - SECTION_DEPTH_MM / dropMm);
-      topFace.push(`L ${mm(crossX)} ${SECTION_DEPTH_MM}`);
-      sideTopY = SECTION_DEPTH_MM;
+    if (dropMm > sectionDepthMm) {
+      const crossX = -reachMm * (1 - sectionDepthMm / dropMm);
+      topFace.push(`L ${mm(crossX)} ${sectionDepthMm}`);
+      sideTopY = sectionDepthMm;
     } else {
       topFace.push(`L 0 ${mm(dropMm)}`);
       sideTopY = dropMm;
@@ -123,8 +117,8 @@ export const EdgeProfilePreview: React.FC<EdgeProfilePreviewProps> = ({
   // Close the section: down the outer side, along the cut, and back up.
   const material = [
     ...topFace,
-    `L 0 ${SECTION_DEPTH_MM}`,
-    `L ${mm(innerX)} ${SECTION_DEPTH_MM}`,
+    `L 0 ${sectionDepthMm}`,
+    `L ${mm(innerX)} ${sectionDepthMm}`,
     'Z',
   ].join(' ');
   const treatedFace = topFace.join(' ');
@@ -134,7 +128,7 @@ export const EdgeProfilePreview: React.FC<EdgeProfilePreviewProps> = ({
   return (
     <div style={{ marginTop: '8px' }}>
       <svg
-        viewBox={`${innerX} -3 ${-innerX + OUTSIDE_MARGIN_MM} ${SECTION_DEPTH_MM + 3}`}
+        viewBox={`${innerX} -3 ${-innerX + OUTSIDE_MARGIN_MM} ${sectionDepthMm + 3}`}
         style={{
           width: '100%',
           display: 'block',
@@ -152,7 +146,7 @@ export const EdgeProfilePreview: React.FC<EdgeProfilePreviewProps> = ({
             x1={-reachMm}
             y1={-3}
             x2={-reachMm}
-            y2={SECTION_DEPTH_MM}
+            y2={sectionDepthMm}
             stroke="var(--text-muted)"
             strokeWidth={1}
             strokeDasharray="3 2"
@@ -173,7 +167,7 @@ export const EdgeProfilePreview: React.FC<EdgeProfilePreviewProps> = ({
           x1={0}
           y1={sideTopY}
           x2={0}
-          y2={SECTION_DEPTH_MM}
+          y2={sectionDepthMm}
           stroke="var(--text-secondary)"
           strokeWidth={2}
           vectorEffect="non-scaling-stroke"

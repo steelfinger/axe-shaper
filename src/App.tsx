@@ -50,6 +50,7 @@ import { WelcomeModal } from './components/WelcomeModal';
 import { AboutModal } from './components/AboutModal';
 import { MarketingSite } from './components/MarketingSite';
 import { NewDesignScreen } from './components/NewDesignScreen';
+import { BlueprintChooserModal } from './components/BlueprintChooserModal';
 
 /** Matches the floor InspectorPanel's delete button enforces - a contour needs at least this many nodes to stay a sane shape. */
 export const MIN_ANCHOR_COUNT = 4;
@@ -155,6 +156,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
   // is that surface now, and carries the same primer below its choices.
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
+  const [isBlueprintChooserOpen, setIsBlueprintChooserOpen] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<'tools' | 'inspector' | null>(null);
   // In-memory only - reappears on reload, deliberately not persisted to localStorage.
   const hasSeenSaveInfoRef = useRef(false);
@@ -323,6 +325,10 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       edgeProfile: template.edgeProfile
         ? JSON.parse(JSON.stringify(template.edgeProfile))
         : undefined,
+      // Thickness belongs to the blueprint's body in exactly the same way as
+      // its edge treatment. Missing stays missing so legacy templates keep the
+      // viewer's documented 45mm fallback rather than being rewritten.
+      bodyThicknessMm: template.bodyThicknessMm,
       // Binding belongs to a blueprint's body treatment. An absent binding
       // explicitly clears a choice made on the previously selected body.
       binding: template.binding ? JSON.parse(JSON.stringify(template.binding)) : undefined,
@@ -681,6 +687,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         onUndo={handleUndo}
         onRedo={handleRedo}
         onResetTemplate={handleResetTemplate}
+        onSwitchBlueprint={() => setIsBlueprintChooserOpen(true)}
         onSave={handleSaveProject}
         onShare={handleShareProject}
         onView3D={handleView3D}
@@ -720,8 +727,6 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       <Sidebar
         project={project}
         onUpdateProject={handleUpdateProject}
-        onSelectTemplate={handleSelectTemplate}
-        onNewDesign={handleNewDesign}
         guideImage={guideImage}
         onUploadGuideImage={handleUploadGuideImage}
         onUpdateGuideImage={handleUpdateGuideImage}
@@ -792,6 +797,16 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
 
       <WelcomeModal isOpen={isWelcomeModalOpen} onClose={() => setIsWelcomeModalOpen(false)} />
       <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} />
+      <BlueprintChooserModal
+        isOpen={isBlueprintChooserOpen}
+        project={project}
+        onClose={() => setIsBlueprintChooserOpen(false)}
+        onSelectTemplate={handleSelectTemplate}
+        onNewDesign={() => {
+          setIsBlueprintChooserOpen(false);
+          handleNewDesign();
+        }}
+      />
 
       <SaveInfoModal
         isOpen={isSaveInfoModalOpen}

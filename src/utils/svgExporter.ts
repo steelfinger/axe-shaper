@@ -152,6 +152,14 @@ function decodeProjectData(base64: string): StoredProject {
  */
 export function extractProjectFromSVG(svgText: string): StoredProject | null {
   try {
+    // Vite's Node-side contract checks load the same blueprint catalogue as
+    // the browser, but Node has no DOMParser. Bundled/project SVGs write the
+    // payload as one namespaced element, so the narrow fallback keeps that
+    // catalogue testable without changing the browser's XML validation path.
+    if (typeof DOMParser === 'undefined') {
+      const match = svgText.match(/<project:data>([\s\S]*?)<\/project:data>/);
+      return match ? decodeProjectData(match[1].trim()) : null;
+    }
     const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
     if (doc.querySelector('parsererror')) return null;
     const dataEl = doc.getElementsByTagNameNS(PROJECT_NS, 'data')[0];

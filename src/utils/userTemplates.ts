@@ -1,6 +1,7 @@
 import type {
   EdgeProfile,
   InstrumentType,
+  LengthMm,
   PathAnchor,
   PickupPlacement,
   PickguardPlacement,
@@ -35,6 +36,7 @@ export interface UserTemplate {
   bridgePresetId: string;
   defaultAnchors: PathAnchor[];
   edgeProfile?: EdgeProfile;
+  bodyThicknessMm?: LengthMm;
   defaultPickups: PickupPlacement[];
   defaultPickguards?: PickguardPlacement[];
   defaultFrontRoutes?: RoutedCavity[];

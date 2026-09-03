@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Layers, Sliders, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, ChevronDown, ChevronRight, Bookmark, Plus, Zap, Scissors, Info, ArrowLeftRight } from 'lucide-react';
+import { Layers, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, Plus, Zap, Scissors, Info } from 'lucide-react';
 import { NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
-import { REFERENCE_TEMPLATES } from '../constants/templates';
 import {
   DEFAULT_EDGE_PROFILES,
   EDGE_PROFILE_CONTROLS,
@@ -25,7 +24,6 @@ import type {
 } from '../types/guitar';
 import {
   bridgePresetFields,
-  isTemplateCompatible,
   neckPresetFieldsForTemplate,
   offeredBridgePresets,
   offeredNeckPresets,
@@ -36,19 +34,17 @@ import {
 } from '../utils/presets';
 import { type ActiveLayer, activeLayersEqual } from '../utils/layerShapes';
 import { getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
-import { GRID_PRESETS, formatLength, gridMinorDivisor, toMm, unitLabel } from '../utils/units';
-import { deleteUserTemplate, loadUserTemplates, saveUserTemplate, type UserTemplate } from '../utils/userTemplates';
-import { instrumentLabel } from '../utils/instrument';
+import { GRID_PRESETS, formatLength, gridMinorDivisor, toDisplayUnits, toMm, unitLabel } from '../utils/units';
 import type { HandleAngleSnapPreference } from '../utils/handleAngleSnap';
+import {
+  MAX_BODY_THICKNESS_MM,
+  MIN_BODY_THICKNESS_MM,
+  resolvedBodyThickness,
+} from '../utils/bodyThickness';
 
 interface SidebarProps {
   project: GuitarProject;
   onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject, coalesceKey?: string) => void;
-  onSelectTemplate: (templateId: string) => void;
-  /** Open the New Design screen - the way to switch instrument, which can't
-   *  happen in place. Mirrors the header's instrument control for the narrow
-   *  layout, where the header hides its project controls. */
-  onNewDesign: () => void;
   guideImage: GuideImageState;
   onUploadGuideImage: (file: File) => void;
   onUpdateGuideImage: (
@@ -78,8 +74,6 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({
   project,
   onUpdateProject,
-  onSelectTemplate,
-  onNewDesign,
   guideImage,
   onUploadGuideImage,
   onUpdateGuideImage,
@@ -101,63 +95,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   handleAngleSnap,
   onHandleAngleSnapChange,
 }) => {
-  const [activeTab, setActiveTab] = useState<'templates' | 'hardware' | 'guide' | 'finishes' | 'layers'>('templates');
+  const [activeTab, setActiveTab] = useState<'body' | 'hardware' | 'layers' | 'guide'>('body');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-
-  // The "Extra Blueprints" panel starts closed unless the active template
-  // already lives there, so a long tail of extra templates doesn't bury the
-  // curated reference list by default.
-  const [extraOpen, setExtraOpen] = useState<boolean>(
-    () => REFERENCE_TEMPLATES[project.activeTemplateId]?.tier === 'extra'
-  );
-  // Blueprints are filtered to the project's own instrument, and Switch
-  // Blueprint therefore only ever offers bodies this document can actually
-  // become. Changing Guitar <-> Bass is New..., not a switch: it would
-  // replace the contour and every piece of hardware, which is a new design.
-  const compatibleTemplates = Object.values(REFERENCE_TEMPLATES).filter((t) =>
-    isTemplateCompatible(t, project)
-  );
-  const referenceTemplates = compatibleTemplates.filter((t) => t.tier === 'reference');
-  const extraTemplates = compatibleTemplates.filter((t) => t.tier === 'extra');
-  const instrument = instrumentLabel(project.instrumentType).toLowerCase();
-
-  const [userTemplates, setUserTemplates] = useState<UserTemplate[]>(loadUserTemplates);
-  // Same rule for saved templates, and it matters more here: a UserTemplate
-  // stores preset *ids only*, with no embedded copy, so applying one from the
-  // other instrument resolves its hardware purely through the catalogue -
-  // the one path in the app where "the embedded copy wins" cannot rescue a
-  // wrong lookup. Untagged records predate the field and read as Guitar/6.
-  const compatibleUserTemplates = userTemplates.filter((t) => isTemplateCompatible(t, project));
-
-  const handleSaveAsTemplate = () => {
-    const name = window.prompt('Name this template:', project.settings.name)?.trim();
-    if (!name) return;
-    const template: UserTemplate = {
-      id: `user_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-      name,
-      // Stamped on save, never backfilled onto existing records: a stored
-      // template has no version field to migrate on, so reads default an
-      // untagged one to Guitar/6 instead (userTemplateInstrument).
-      instrumentType: project.instrumentType,
-      stringCount: project.stringCount,
-      neckPresetId: project.neckPresetId,
-      bridgePresetId: project.bridgePresetId,
-      defaultAnchors: JSON.parse(JSON.stringify(project.contour.anchors)),
-      edgeProfile: project.edgeProfile
-        ? JSON.parse(JSON.stringify(project.edgeProfile))
-        : undefined,
-      defaultPickups: JSON.parse(JSON.stringify(project.pickups)),
-      defaultPickguards: JSON.parse(JSON.stringify(project.pickguards ?? [])),
-      defaultFrontRoutes: JSON.parse(JSON.stringify(project.frontRoutes ?? [])),
-      defaultBackRoutes: JSON.parse(JSON.stringify(project.backRoutes ?? [])),
-      createdAt: new Date().toISOString(),
-    };
-    setUserTemplates(saveUserTemplate(template));
-  };
-
-  const handleDeleteUserTemplate = (id: string) => {
-    setUserTemplates(deleteUserTemplate(id));
-  };
+  const [bodyThicknessError, setBodyThicknessError] = useState<string | null>(null);
 
   const edgeProfileKind = edgeProfileKindOf(project.edgeProfile);
   const knownEdgeKind: EdgeProfileKind = isKnownEdgeProfileKind(edgeProfileKind) ? edgeProfileKind : 'slab';
@@ -193,6 +133,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
       }),
       `edgeProfile.${field}`
     );
+  };
+
+  const bodyThicknessMm = resolvedBodyThickness(project);
+  // formatLength gives imperial values one extra digit, so this yields one
+  // decimal place in millimetres and three in inches.
+  const bodyThicknessDigits = project.settings.unitDisplay === 'mm' ? 1 : 2;
+  const bodyThicknessOutOfEditableRange =
+    bodyThicknessMm < MIN_BODY_THICKNESS_MM || bodyThicknessMm > MAX_BODY_THICKNESS_MM;
+
+  const commitBodyThickness = (input: HTMLInputElement) => {
+    const nextMm = toMm(Number(input.value), project.settings.unitDisplay);
+    if (!Number.isFinite(nextMm) || nextMm < MIN_BODY_THICKNESS_MM || nextMm > MAX_BODY_THICKNESS_MM) {
+      setBodyThicknessError(
+        `Enter ${formatLength(MIN_BODY_THICKNESS_MM, project.settings.unitDisplay, bodyThicknessDigits)}–${formatLength(MAX_BODY_THICKNESS_MM, project.settings.unitDisplay, bodyThicknessDigits)} ${unitLabel(project.settings.unitDisplay)}.`
+      );
+      input.value = formatLength(bodyThicknessMm, project.settings.unitDisplay, bodyThicknessDigits);
+      return;
+    }
+    setBodyThicknessError(null);
+    onUpdateProject((prev) => ({ ...prev, bodyThicknessMm: nextMm }));
+    onEndEdit();
   };
 
   type LayerShapeKind = 'pickguard' | 'frontRoute' | 'backRoute';
@@ -348,228 +309,148 @@ export const Sidebar: React.FC<SidebarProps> = ({
     };
   };
 
+  const bodyLayersPanel = (
+    <div className="panel-section">
+      <div className="section-title">
+        <Layers size={16} /> Body Layers
+      </div>
+      <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
+        Editable shapes on top of the body outline - a pickguard, and cavities routed from the
+        front or back. Select one to edit its own anchors and handles, exactly like the body.
+      </p>
+
+      <button
+        type="button"
+        className={`layer-body-choice${activeLayer.kind === 'body' ? ' is-selected' : ''}`}
+        onClick={() => onSetActiveLayer({ kind: 'body' })}
+      >
+        Body Outline{activeLayer.kind === 'body' ? ' (editing)' : ''}
+      </button>
+
+      <div style={{ marginBottom: '16px' }}>
+        <div className="layer-shape-heading">
+          <span>Pickguard</span>
+          <button className="btn btn-sm" onClick={onAddPickguard} title="Add a pickguard shape">
+            <Plus size={13} /> Add
+          </button>
+        </div>
+        {renderLayerShapeList('pickguard', project.pickguards ?? [], 'No pickguard yet.')}
+      </div>
+
+      <div style={{ marginBottom: '16px' }}>
+        <div className="layer-shape-heading">
+          <span>Front Routed Cavities</span>
+          <button className="btn btn-sm" onClick={onAddFrontRoute} title="Add a front-routed cavity">
+            <Plus size={13} /> Add
+          </button>
+        </div>
+        {renderLayerShapeList('frontRoute', project.frontRoutes ?? [], 'No front routes yet.')}
+      </div>
+
+      <div>
+        <div className="layer-shape-heading">
+          <span>Back Routed Cavities</span>
+          <button className="btn btn-sm" onClick={onAddBackRoute} title="Add a back-routed cavity">
+            <Plus size={13} /> Add
+          </button>
+        </div>
+        {renderLayerShapeList('backRoute', project.backRoutes ?? [], 'No back routes yet.')}
+      </div>
+    </div>
+  );
+
   return (
     <aside className="app-sidebar">
-      <div className="sidebar-tabs">
-        <div
-          className={`sidebar-tab ${activeTab === 'templates' ? 'active' : ''}`}
-          onClick={() => setActiveTab('templates')}
+      <div className="sidebar-tabs" role="tablist" aria-label="Editor tools">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'body'}
+          className={`sidebar-tab ${activeTab === 'body' ? 'active' : ''}`}
+          onClick={() => setActiveTab('body')}
         >
-          Templates
-        </div>
-        <div
-          className={`sidebar-tab ${activeTab === 'guide' ? 'active' : ''}`}
-          onClick={() => setActiveTab('guide')}
-          title="Upload & transform background guide image"
-        >
-          Guide
-        </div>
-        <div
+          Body
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'hardware'}
           className={`sidebar-tab ${activeTab === 'hardware' ? 'active' : ''}`}
           onClick={() => setActiveTab('hardware')}
         >
           Hardware
-        </div>
-        <div
-          className={`sidebar-tab ${activeTab === 'finishes' ? 'active' : ''}`}
-          onClick={() => setActiveTab('finishes')}
-        >
-          Finishes
-        </div>
-        <div
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'layers'}
           className={`sidebar-tab ${activeTab === 'layers' ? 'active' : ''}`}
           onClick={() => setActiveTab('layers')}
         >
           Layers
-        </div>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'guide'}
+          className={`sidebar-tab ${activeTab === 'guide' ? 'active' : ''}`}
+          onClick={() => setActiveTab('guide')}
+          title="Upload and transform a background guide image"
+        >
+          Guide
+        </button>
       </div>
 
       <div className="sidebar-content">
-        {/* TEMPLATES TAB */}
-        {activeTab === 'templates' && (
+        {/* BODY TAB */}
+        {activeTab === 'body' && (
           <div>
             <div className="panel-section">
               <div className="section-title">
-                <Sliders size={16} /> Reference Blueprints
-                {/* The header carries this too, but the header's project
-                    controls are hidden in the narrow layout - and this is the
-                    panel where "which instrument am I designing" actually
-                    decides what the lists below contain. Opens the New Design
-                    screen: instrument can't change in place. */}
-                <button
-                  type="button"
-                  className="sidebar-instrument"
-                  onClick={onNewDesign}
-                  title="Change instrument or blueprint — starts a new design"
-                >
-                  <ArrowLeftRight size={12} aria-hidden="true" />
-                  {instrumentLabel(project.instrumentType)} · {project.stringCount}-string
-                </button>
+                <Scissors size={16} /> Body Construction
               </div>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-                {compatibleTemplates.length === 0 ? (
-                  <>
-                    No {instrument} blueprints are bundled yet, so there is nothing to switch to. The hardware
-                    and neck pocket for this design are still {instrument}-specific.
-                  </>
-                ) : (
-                  <>
-                    Select a baseline {instrument} blueprint to initialize editable Bezier nodes and hardware
-                    alignment. To design the other instrument, use <strong>New&hellip;</strong> - it replaces the
-                    contour and all of the hardware.
-                  </>
-                )}
+                Physical body dimensions and edge treatment used by the 3D preview.
               </p>
 
-              {referenceTemplates.map((tmpl) => (
-                <div
-                  key={tmpl.id}
-                  onClick={() => onSelectTemplate(tmpl.id)}
-                  style={{
-                    padding: '12px',
-                    borderRadius: 'var(--radius-sm)',
-                    background: project.activeTemplateId === tmpl.id ? 'rgba(209, 165, 61, 0.12)' : 'var(--bg-primary)',
-                    border: project.activeTemplateId === tmpl.id ? '1px solid var(--accent-gold)' : '1px solid var(--panel-border)',
-                    marginBottom: '10px',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                    <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{tmpl.name}</span>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', background: 'var(--bg-tertiary)', padding: '2px 6px', borderRadius: '4px' }}>
-                      {tmpl.category}
-                    </span>
-                  </div>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{tmpl.description}</p>
-                </div>
-              ))}
-            </div>
-
-            {extraTemplates.length > 0 && (
-              <div className="panel-section">
-                <div
-                  onClick={() => setExtraOpen((prev) => !prev)}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '8px 10px',
-                    borderRadius: 'var(--radius-sm)',
-                    background: 'var(--bg-tertiary)',
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                    marginBottom: extraOpen ? '10px' : 0,
-                  }}
-                >
-                  <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>
-                    Extra Blueprints <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>({extraTemplates.length})</span>
-                  </span>
-                  {extraOpen ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
-                </div>
-
-                {extraOpen && (
-                  <>
-                    <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
-                      Additional community/experimental blueprints - hardware placement may still need verifying.
-                    </p>
-                    <div style={{ maxHeight: '340px', overflowY: 'auto', paddingRight: '4px' }}>
-                      {extraTemplates.map((tmpl) => (
-                        <div
-                          key={tmpl.id}
-                          onClick={() => onSelectTemplate(tmpl.id)}
-                          style={{
-                            padding: '12px',
-                            borderRadius: 'var(--radius-sm)',
-                            background: project.activeTemplateId === tmpl.id ? 'rgba(209, 165, 61, 0.12)' : 'var(--bg-primary)',
-                            border: project.activeTemplateId === tmpl.id ? '1px solid var(--accent-gold)' : '1px solid var(--panel-border)',
-                            marginBottom: '10px',
-                            cursor: 'pointer',
-                            transition: 'all 0.15s ease',
-                          }}
-                        >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                            <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{tmpl.name}</span>
-                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', background: 'var(--bg-tertiary)', padding: '2px 6px', borderRadius: '4px' }}>
-                              {tmpl.category}
-                            </span>
-                          </div>
-                          <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{tmpl.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-
-            <div className="panel-section">
-              <div className="section-title">
-                <Bookmark size={16} /> My Templates
-              </div>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-                Save the current design as a reusable starting point. Stored in this browser only.
-              </p>
-
-              <button
-                className="btn btn-sm"
-                style={{ width: '100%', justifyContent: 'center', marginBottom: '12px' }}
-                onClick={handleSaveAsTemplate}
-              >
-                <Plus size={15} /> Save Current Design as Template
-              </button>
-
-              {compatibleUserTemplates.length === 0 ? (
-                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  {userTemplates.length === 0
-                    ? 'No saved templates yet.'
-                    : `No saved ${instrument} templates. Templates saved for the other instrument are hidden here.`}
-                </p>
-              ) : (
-                compatibleUserTemplates.map((tmpl) => (
-                  <div
-                    key={tmpl.id}
-                    onClick={() => onSelectTemplate(tmpl.id)}
-                    style={{
-                      padding: '12px',
-                      borderRadius: 'var(--radius-sm)',
-                      background: project.activeTemplateId === tmpl.id ? 'rgba(209, 165, 61, 0.12)' : 'var(--bg-primary)',
-                      border: project.activeTemplateId === tmpl.id ? '1px solid var(--accent-gold)' : '1px solid var(--panel-border)',
-                      marginBottom: '10px',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease',
+              <div className="form-group">
+                <label className="form-label" htmlFor="body-thickness-input">Body Thickness</label>
+                <div className="measured-input-row">
+                  <input
+                    key={`${settings.unitDisplay}-${bodyThicknessMm}`}
+                    id="body-thickness-input"
+                    type="number"
+                    className="form-input measured-input"
+                    defaultValue={formatLength(bodyThicknessMm, settings.unitDisplay, bodyThicknessDigits)}
+                    min={toDisplayUnits(MIN_BODY_THICKNESS_MM, settings.unitDisplay)}
+                    max={toDisplayUnits(MAX_BODY_THICKNESS_MM, settings.unitDisplay)}
+                    step={settings.unitDisplay === 'mm' ? 0.5 : 0.01}
+                    aria-invalid={bodyThicknessError !== null || bodyThicknessOutOfEditableRange}
+                    aria-describedby="body-thickness-help"
+                    onBlur={(event) => commitBodyThickness(event.currentTarget)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') event.currentTarget.blur();
                     }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{tmpl.name}</span>
-                      <button
-                        className="btn btn-sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteUserTemplate(tmpl.id);
-                        }}
-                        style={{ padding: '4px 6px', border: 'none', background: 'transparent', color: 'var(--accent-red)' }}
-                        title="Delete template"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                    <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                      Saved {new Date(tmpl.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <div className="panel-section">
-              <div className="section-title">
-                <Scissors size={16} /> Edge Style
+                  />
+                  <span>{unitLabel(settings.unitDisplay)}</span>
+                </div>
+                <p
+                  id="body-thickness-help"
+                  style={{
+                    fontSize: '0.75rem',
+                    color: bodyThicknessError || bodyThicknessOutOfEditableRange ? 'var(--accent-red)' : 'var(--text-muted)',
+                    marginTop: '4px',
+                  }}
+                >
+                  {bodyThicknessError ?? (bodyThicknessOutOfEditableRange
+                    ? `Saved value is outside the editable ${formatLength(MIN_BODY_THICKNESS_MM, settings.unitDisplay, bodyThicknessDigits)}–${formatLength(MAX_BODY_THICKNESS_MM, settings.unitDisplay, bodyThicknessDigits)} ${unitLabel(settings.unitDisplay)} range.`
+                    : 'Stored in millimetres and carried into the 3D preview.')}
+                </p>
               </div>
+
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-                How the body edge is cut away from the flat top. Beveled and German Carve draw the
-                top-face boundary on the plan; the per-node bevel intensities saved with the outline
-                shape how far it runs at each node.
+                Beveled and German Carve draw the top-face boundary on the plan; per-node edge
+                intensities shape how far the treatment runs at each node.
               </p>
 
               <div className="form-group">
@@ -677,7 +558,86 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             <div className="panel-section">
               <div className="section-title">
-                <Shield size={16} /> Live Centerline Symmetry
+                <Palette size={16} /> Appearance
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="finish-style-select">Finish Style</label>
+                <select
+                  id="finish-style-select"
+                  value={settings.finishStyle}
+                  onChange={(event) =>
+                    onUpdateProject((prev) => ({
+                      ...prev,
+                      settings: {
+                        ...prev.settings,
+                        finishStyle: event.target.value as GuitarProject['settings']['finishStyle'],
+                      },
+                    }))
+                  }
+                  className="form-select"
+                >
+                  <option value="sunburst">Vintage 3-Tone Sunburst</option>
+                  <option value="flame_maple">Amber Flame Maple</option>
+                  <option value="natural_wood">Natural Mahogany Wood</option>
+                  <option value="solid">Solid Gloss Color</option>
+                </select>
+              </div>
+
+              {settings.finishStyle === 'solid' && (
+                <div className="form-group">
+                  <label className="form-label" htmlFor="body-color-input">Body Color</label>
+                  <input
+                    id="body-color-input"
+                    type="color"
+                    value={settings.bodyColor}
+                    onChange={(event) =>
+                      onUpdateProject(
+                        (prev) => ({
+                          ...prev,
+                          settings: { ...prev.settings, bodyColor: event.target.value },
+                        }),
+                        'settings.bodyColor'
+                      )
+                    }
+                    onBlur={onEndEdit}
+                    className="body-color-input"
+                  />
+                </div>
+              )}
+
+              <div className="form-group">
+                <label className="form-label">
+                  Body Fill: <strong>{(settings.bodyFillOpacity * 100).toFixed(0)}%</strong>
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={settings.bodyFillOpacity}
+                  onChange={(event) =>
+                    onUpdateProject(
+                      (prev) => ({
+                        ...prev,
+                        settings: { ...prev.settings, bodyFillOpacity: Number(event.target.value) },
+                      }),
+                      'settings.bodyFillOpacity'
+                    )
+                  }
+                  onPointerUp={onEndEdit}
+                  onBlur={onEndEdit}
+                  style={{ width: '100%' }}
+                />
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                  Lower the fill while tracing a guide image; raise it to judge the finish on its own.
+                </p>
+              </div>
+            </div>
+
+            <div className="panel-section">
+              <div className="section-title">
+                <Shield size={16} /> Outline Editing
               </div>
               <div className="form-group">
                 <label className="form-label">Symmetry Mode</label>
@@ -934,36 +894,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               )}
             </div>
 
-            <div className="panel-section">
-              <div className="section-title">Design Fill Opacity</div>
-              <div className="form-group">
-                <label className="form-label">
-                  Body Fill Opacity: <strong>{(settings.bodyFillOpacity * 100).toFixed(0)}%</strong>
-                </label>
-                <input
-                  type="range"
-                  min="0.0"
-                  max="1.0"
-                  step="0.05"
-                  value={settings.bodyFillOpacity}
-                  onChange={(e) =>
-                    onUpdateProject(
-                      (prev) => ({
-                        ...prev,
-                        settings: { ...prev.settings, bodyFillOpacity: parseFloat(e.target.value) },
-                      }),
-                      'settings.bodyFillOpacity'
-                    )
-                  }
-                  onPointerUp={onEndEdit}
-                  onBlur={onEndEdit}
-                  style={{ width: '100%' }}
-                />
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                  Lowering fill opacity allows underlying guide images and blueprints to be seen clearly while tracing anchor nodes.
-                </p>
-              </div>
-            </div>
           </div>
         )}
 
@@ -1133,64 +1063,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        {/* FINISHES TAB */}
-        {activeTab === 'finishes' && (
-          <div>
-            <div className="panel-section">
-              <div className="section-title">
-                <Palette size={16} /> Wood Finish & Color
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Finish Style</label>
-                <select
-                  value={settings.finishStyle}
-                  onChange={(e) =>
-                    onUpdateProject((prev) => ({
-                      ...prev,
-                      settings: { ...prev.settings, finishStyle: e.target.value as any },
-                    }))
-                  }
-                  className="form-select"
-                >
-                  <option value="sunburst">Vintage 3-Tone Sunburst</option>
-                  <option value="flame_maple">Amber Flame Maple</option>
-                  <option value="natural_wood">Natural Mahogany Wood</option>
-                  <option value="solid">Solid Gloss Color</option>
-                </select>
-              </div>
-
-              {settings.finishStyle === 'solid' && (
-                <div className="form-group">
-                  <label className="form-label">Body Color</label>
-                  <input
-                    type="color"
-                    value={settings.bodyColor}
-                    onChange={(e) =>
-                      onUpdateProject(
-                        (prev) => ({
-                          ...prev,
-                          settings: { ...prev.settings, bodyColor: e.target.value },
-                        }),
-                        // Colour pickers stream a change per pixel of the gradient
-                        'settings.bodyColor'
-                      )
-                    }
-                    onBlur={onEndEdit}
-                    style={{ width: '100%', height: '36px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* LAYERS TAB */}
         {activeTab === 'layers' && (
           <div>
+            {bodyLayersPanel}
             <div className="panel-section">
               <div className="section-title">
-                <Layers size={16} /> Visibility Toggles
+                <Layers size={16} /> Canvas Display &amp; Snapping
               </div>
 
               <div className="toggle-row">
@@ -1380,61 +1259,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
 
-            <div className="panel-section">
-              <div className="section-title">
-                <Layers size={16} /> Body Layers
-              </div>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-                Editable shapes on top of the body outline - a pickguard, and cavities routed from the
-                front or back. Select one to edit its own anchors and handles, exactly like the body.
-              </p>
-
-              <div
-                onClick={() => onSetActiveLayer({ kind: 'body' })}
-                style={{
-                  padding: '8px 10px',
-                  borderRadius: 'var(--radius-sm)',
-                  background: activeLayer.kind === 'body' ? 'rgba(209, 165, 61, 0.12)' : 'var(--bg-primary)',
-                  border: activeLayer.kind === 'body' ? '1px solid var(--accent-gold)' : '1px solid var(--panel-border)',
-                  marginBottom: '14px',
-                  cursor: 'pointer',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                }}
-              >
-                Body Outline{activeLayer.kind === 'body' ? ' (editing)' : ''}
-              </div>
-
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Pickguard</span>
-                  <button className="btn btn-sm" onClick={onAddPickguard} title="Add a pickguard shape">
-                    <Plus size={13} /> Add
-                  </button>
-                </div>
-                {renderLayerShapeList('pickguard', project.pickguards ?? [], 'No pickguard yet.')}
-              </div>
-
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Front Routed Cavities</span>
-                  <button className="btn btn-sm" onClick={onAddFrontRoute} title="Add a front-routed cavity">
-                    <Plus size={13} /> Add
-                  </button>
-                </div>
-                {renderLayerShapeList('frontRoute', project.frontRoutes ?? [], 'No front routes yet.')}
-              </div>
-
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Back Routed Cavities</span>
-                  <button className="btn btn-sm" onClick={onAddBackRoute} title="Add a back-routed cavity">
-                    <Plus size={13} /> Add
-                  </button>
-                </div>
-                {renderLayerShapeList('backRoute', project.backRoutes ?? [], 'No back routes yet.')}
-              </div>
-            </div>
           </div>
         )}
       </div>

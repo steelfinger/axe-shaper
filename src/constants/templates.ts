@@ -56,6 +56,10 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
       // only have meaning against the blueprint's own Beveled/German-Carve
       // dimensions. An absent profile deliberately means Slab.
       edgeProfile: project.edgeProfile,
+      // Thickness is authored alongside the outline and edge treatment. The
+      // 3D viewer already reads this field; omitting it here made every
+      // blueprint-created project fall back to 45mm, including the 35mm SG.
+      bodyThicknessMm: project.bodyThicknessMm,
       // Binding is a body-level blueprint choice, just like its edge
       // treatment. Preserve it so new designs and the 3D viewer handoff use
       // the blueprint's intended top-only or two-sided binding.

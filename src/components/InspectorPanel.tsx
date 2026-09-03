@@ -23,6 +23,7 @@ import { offeredPickupTypes } from '../utils/presets';
 import { withMirroredBevelIntensity } from '../utils/symmetry';
 import { formatLength } from '../utils/units';
 import { EdgeProfilePreview } from './EdgeProfilePreview';
+import { resolvedBodyThickness } from '../utils/bodyThickness';
 
 interface InspectorPanelProps {
   project: GuitarProject;
@@ -322,6 +323,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
                   profile={project.edgeProfile}
                   intensity={bevelIntensityOf(selectedAnchor)}
                   unitDisplay={settings.unitDisplay}
+                  bodyThicknessMm={resolvedBodyThickness(project)}
                 />
               </div>
             )}
@@ -384,6 +386,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
                     profile={project.edgeProfile}
                     intensity={sharedBevelIntensity}
                     unitDisplay={settings.unitDisplay}
+                    bodyThicknessMm={resolvedBodyThickness(project)}
                   />
                 )}
               </div>

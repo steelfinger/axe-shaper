@@ -325,6 +325,8 @@ export interface ReferenceTemplate {
   defaultAnchors: PathAnchor[];
   /** Edge profile restored with the blueprint; absent means Slab. */
   edgeProfile?: EdgeProfile;
+  /** Overall body thickness restored with the blueprint; absent resolves to 45mm. */
+  bodyThicknessMm?: LengthMm;
   /** Binding restored with the blueprint; absent means no binding. */
   binding?: BindingParams;
   defaultPickups: PickupPlacement[];
@@ -382,6 +384,8 @@ export interface GuitarProject {
   contour: BodyContour;
   /** Optional for pre-edge-profile files; absent resolves to Slab. */
   edgeProfile?: EdgeProfile;
+  /** Overall body thickness. Optional for older files; absent resolves to 45mm. */
+  bodyThicknessMm?: LengthMm;
   /** A thin trim strip glued around the body's edge (Les Paul binding).
    *  Absent means no binding - the 3D preview is the only surface that
    *  currently draws it; this app just carries the field through. */

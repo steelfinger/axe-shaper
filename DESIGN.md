@@ -327,6 +327,13 @@ visitor can take away, so they belong to the paper, not to the copy column.
 - **Active:** text and bottom border both switch to `--accent-gold`, with a
   faint gold-tinted background (`rgba(209,165,61,0.05)`) — the same gold
   language as the active-template card.
+- **Structure:** `Body`, `Hardware`, `Layers`, `Guide`. Body groups physical
+  construction, appearance and outline editing; Hardware groups neck, bridge
+  and pickups; Layers groups editable body layers with canvas visibility and
+  snapping; Guide contains reference-image calibration and transforms.
+- **Document actions:** choosing a blueprint is not a tool tab because it
+  replaces settings across several groups. Keep it in the header's
+  `Blueprint…` chooser, alongside New, Open, Save and other document actions.
 
 ### Modals
 - **Backdrop:** `rgba(0,0,0,0.75)` with `blur(4px)`.

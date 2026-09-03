@@ -1,5 +1,5 @@
 import React from 'react';
-import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, Box, CircleHelp, Info, Menu, Printer, FilePlus2 } from 'lucide-react';
+import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, Box, CircleHelp, Info, Menu, Printer, FilePlus2, Copy } from 'lucide-react';
 import type { PrintPaper } from '../utils/tiledPrint';
 import type { GuitarProject } from '../types/guitar';
 import { snapGridToUnit } from '../utils/units';
@@ -14,6 +14,7 @@ interface HeaderProps {
   onUndo: () => void;
   onRedo: () => void;
   onResetTemplate: () => void;
+  onSwitchBlueprint: () => void;
   /** Back to the New Design screen. Distinct from Reset, which reloads the
    *  current blueprint's baseline into the document that is already open. */
   onNewDesign: () => void;
@@ -46,6 +47,7 @@ export const Header: React.FC<HeaderProps> = ({
   onUndo,
   onRedo,
   onResetTemplate,
+  onSwitchBlueprint,
   onNewDesign,
   onSave,
   onShare,
@@ -172,6 +174,10 @@ export const Header: React.FC<HeaderProps> = ({
 
         <button className="btn btn-sm header-secondary-action" onClick={onNewDesign} title="Start a new design">
           <FilePlus2 size={15} /> <span className="header-action-label">New&hellip;</span>
+        </button>
+
+        <button className="btn btn-sm header-secondary-action" onClick={onSwitchBlueprint} title="Switch the current design to another blueprint">
+          <Copy size={15} /> <span className="header-action-label">Blueprint&hellip;</span>
         </button>
 
         <button className="btn btn-sm header-secondary-action" onClick={onResetTemplate} title="Reset to baseline blueprint">
@@ -304,6 +310,14 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
             <button onClick={onNewDesign}><FilePlus2 size={15} /> New design&hellip;</button>
+            <button
+              onClick={(event) => {
+                event.currentTarget.closest('details')?.removeAttribute('open');
+                onSwitchBlueprint();
+              }}
+            >
+              <Copy size={15} /> Switch blueprint&hellip;
+            </button>
             <button onClick={onResetTemplate}><RotateCcw size={15} /> Reset blueprint</button>
             <button onClick={() => fileInputRef.current?.click()}><Upload size={15} /> Open project</button>
             <button onClick={onShare}><Share2 size={15} /> Share project</button>

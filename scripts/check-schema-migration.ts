@@ -74,6 +74,9 @@ async function main() {
     const exporter = await load('/src/utils/svgExporter.ts');
     const userTemplates = await load('/src/utils/userTemplates.ts');
     const hardware = await load('/src/constants/hardware.ts');
+    const templates = await load('/src/constants/templates.ts');
+    const projectFactory = await load('/src/utils/projectFactory.ts');
+    const bodyThickness = await load('/src/utils/bodyThickness.ts');
 
     const v2 = decodePayload(readFileSync(BASE_BLUEPRINT, 'utf8'));
     invariant(v2.schemaVersion === 2, `expected the bundled blueprint to still be version 2, got ${v2.schemaVersion}`);
@@ -253,6 +256,32 @@ async function main() {
         ...Object.keys(hardware.PICKUP_SPECIFICATIONS).filter((t) => !hardware.PICKUP_TYPE_INSTRUMENT[t]),
       ];
       invariant(missing.length === 0, `no instrument declared for: ${missing.join(', ')}`);
+    });
+
+    console.log('blueprint-authored body thickness');
+
+    check('the SG template retains its authored 35mm thickness', () => {
+      deepStrictEqual(templates.REFERENCE_TEMPLATES.sg_style.bodyThicknessMm, 35);
+    });
+
+    check('a new SG project carries 35mm into the editable document', () => {
+      const project = projectFactory.createProject({
+        templateId: 'sg_style',
+        now: () => new Date('2026-01-01T00:00:00.000Z'),
+      });
+      deepStrictEqual(project.bodyThicknessMm, 35);
+      deepStrictEqual(bodyThickness.resolvedBodyThickness(project), 35);
+    });
+
+    check('thickness survives a project save and legacy files still preview at 45mm', () => {
+      const project = projectFactory.createProject({ templateId: 'sg_style' });
+      const written = exporter.exportProjectToSVG(project);
+      deepStrictEqual(decodePayload(written).bodyThicknessMm, 35);
+      deepStrictEqual(
+        bodyThickness.resolvedBodyThickness({ bodyThicknessMm: undefined }),
+        bodyThickness.FALLBACK_BODY_THICKNESS_MM
+      );
+      deepStrictEqual(bodyThickness.FALLBACK_BODY_THICKNESS_MM, 45);
     });
   } finally {
     await server.close();
