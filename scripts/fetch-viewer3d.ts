@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Composes the standalone 3D viewer into this site at /viewer3d.
 //
-// The viewer is developed in steelfinger/axe-shape-3D-viewer and publishes a
+// The viewer is developed in steelfinger/axe-shaper-3D-viewer and publishes a
 // static bundle, built for the /viewer3d/ base path, as a release asset. A
 // Firebase Hosting deploy replaces the whole site, so the viewer cannot deploy
 // itself into a path here; this repository pins a viewer release and owns the
@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
-const repo = 'steelfinger/axe-shape-3D-viewer';
+const repo = 'steelfinger/axe-shaper-3D-viewer';
 const asset = 'viewer3d-dist.tgz';
 
 const pinPath = join(root, 'viewer3d.version');
