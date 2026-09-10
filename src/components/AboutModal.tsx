@@ -22,13 +22,14 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps): React.JSX.Elem
         <div className="about-facts">
           <div><Ruler size={18} /><span><strong>Measured throughout</strong>Geometry is stored in physical millimetres.</span></div>
           <div><Disc size={18} /><span><strong>One portable file</strong>The printable SVG also carries the editable project.</span></div>
-          <div><Tablet size={18} /><span><strong>Two native workbenches</strong>The web and upcoming iPad apps agree through the same file contract and geometry corpus.</span></div>
+          <div><Tablet size={18} /><span><strong>Two workbenches</strong>The web editor and Axe Shaper for iPad agree through the same file contract and geometry corpus.</span></div>
         </div>
         <div className="about-links">
           <a href="/" target="_blank">Product site <ExternalLink size={14} /></a>
           <a href="https://github.com/steelfinger/axe-shaper" target="_blank">GitHub <Code2 size={14} /></a>
           <a href="/privacy" target="_blank">Privacy <ExternalLink size={14} /></a>
           <a href="/support" target="_blank">Support <ExternalLink size={14} /></a>
+          <a href="https://apps.apple.com/app/id6799075557" target="_blank" rel="noopener noreferrer">iPad app <ExternalLink size={14} /></a>
         </div>
         <p className="about-license">Open-source web app · MIT License</p>
       </section>

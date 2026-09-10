@@ -38,8 +38,9 @@ awareness that moving a curve also has to move the bridge.
 - Design happens at a desktop/laptop, with the output printed 1:1 on a home
   printer/plotter or sent to a CNC router — the drawing is a working pattern,
   not decorative art.
-- The web app is also the public testbed for a planned native iPad app (a
-  separate, clean-room Swift/SwiftUI rewrite, not a code-sharing port). The
+- The web app is also the public testbed for Axe Shaper for iPad (a separate,
+  clean-room Swift/SwiftUI rewrite, not a code-sharing port), released on the
+  App Store at 4.99 EUR: https://apps.apple.com/app/id6799075557. The
   `.axe.svg` export format and the golden geometry corpus
   (`tests/golden/geometry-corpus.json`) are the contract that keeps the two
   implementations in agreement.
@@ -79,8 +80,8 @@ established.
    intonate is a failed output.
 2. The export is the product. Every feature earns its place by improving what
    comes out of the printer/CNC, not just what's on screen.
-3. One geometry engine, two frontends. The web app and the future native iPad
-   app must agree on output via the `.axe.svg` contract and golden corpus,
+3. One geometry engine, two frontends. The web app and the native iPad app
+   must agree on output via the `.axe.svg` contract and golden corpus,
    even though they share no code.
 4. Precision math stays invisible until needed — hobbyist builders shouldn't
    have to understand intonation compensation to trust the result is correct.

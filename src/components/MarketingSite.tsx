@@ -23,9 +23,34 @@ import {
 const PLAN_PRINT_URL = '/marketing/custom-s-style-plan.axe.svg';
 const PLAN_DISPLAY_URL = '/marketing/custom-s-style-plan-display.svg';
 
+/**
+ * A real screenshot of the shipping iPad app, not a CSS mockup. It replaces
+ * one: the frame used to draw its own toolbar, measure chip and Apple Pencil
+ * over the plan SVG, and every one of those is in the picture itself now -
+ * drawing them again on top would double the toolbar.
+ *
+ * 4:3 landscape, from a 2732x2048 iPad Pro shot. `.ipad-device` and
+ * `.ipad-hero-screen` set that ratio explicitly, so a replacement from a
+ * differently-shaped iPad needs those two rules revisited, not just the file
+ * swapped.
+ */
+const IPAD_SCREENSHOT_URL = '/photos/axe-shaper-ipad-editor.webp';
+const IPAD_SCREENSHOT_ALT =
+  'Axe Shaper running on iPad: an S-style guitar body under edit, its outline anchors, '
+  + 'pickguard, three pickup routes and neck pocket drawn on the canvas, a node panel reading '
+  + 'X 136.1 mm and Y 64.4 mm, and an inspector listing the body layers beside a Guitar - 6 '
+  + 'String instrument, its neck, bridge and 647.7 mm scale length.';
+
 const GITHUB_URL = 'https://github.com/steelfinger/axe-shaper';
-const IPAD_EMAIL = 'steelfinger@steelfinger.fi';
-const IPAD_MAILTO = `mailto:${IPAD_EMAIL}?subject=Axe%20Shaper%20for%20iPad%20updates&body=Please%20let%20me%20know%20when%20Axe%20Shaper%20for%20iPad%20is%20available.`;
+/**
+ * No `/<country>/` segment on purpose. A localized listing URL pins every
+ * visitor to one storefront; the bare `/app/id...` form lets Apple redirect
+ * to the reader's own, which is the difference between a working Buy button
+ * and a "not available in your country" page for most of the audience.
+ */
+const APP_STORE_URL = 'https://apps.apple.com/app/id6799075557';
+/** Euro storefront price. Other storefronts differ, so the note says so. */
+const IPAD_PRICE_NOTE = '4.99 \u20ac on the EU App Store \u00b7 one-time purchase \u00b7 no subscription, no account';
 
 /** Every off-site link opens in a new tab so the page is never lost mid-evaluation. */
 const external = { target: '_blank', rel: 'noopener noreferrer' } as const;
@@ -72,6 +97,25 @@ function BetaPlate(): React.JSX.Element {
   );
 }
 
+/**
+ * Apple's own badge artwork, unmodified, per the App Store marketing
+ * guidelines - the black variant, whose #a6a6a6 hairline is what keeps it
+ * legible on this page's near-black sections. Sized by height so the
+ * intrinsic 119.66x40 ratio is never stretched.
+ */
+function AppStoreBadge(): React.JSX.Element {
+  return (
+    <a className="app-store-badge" href={APP_STORE_URL} {...external}>
+      <img
+        src="/badges/download-on-the-app-store.svg"
+        alt="Download Axe Shaper on the App Store"
+        width={144}
+        height={48}
+      />
+    </a>
+  );
+}
+
 function Footer(): React.JSX.Element {
   return (
     <footer className="marketing-footer">
@@ -107,7 +151,7 @@ function StaticPage({ kind }: { kind: 'privacy' | 'support' }): React.JSX.Elemen
             <h2>Browser editor</h2>
             <p>The browser editor keeps your working project in the browser unless you choose to download or share it. Guide images are decoded locally for use on the canvas, and saved projects are exported to your device as <code>.axe.svg</code> files.</p>
             <h2>Website services and links</h2>
-            <p>The website is hosted with Firebase Hosting and loads web fonts from Google Fonts. Following the GitHub or email links leaves this site and is governed by the destination service’s privacy terms. The iPad release-updates link opens your email app; Axe Shaper does not silently collect the address you enter there.</p>
+            <p>The website is hosted with Firebase Hosting and loads web fonts from Google Fonts. Following the GitHub, App Store, or email links leaves this site and is governed by the destination service’s privacy terms. Purchases and downloads of Axe Shaper for iPad are handled entirely by Apple; the App Store reports only aggregate sales figures, and Axe Shaper never receives your Apple Account details.</p>
             <h2>Contact</h2>
             <p>For privacy questions, email <a href="mailto:steelfinger@steelfinger.fi?subject=Axe%20Shaper%20privacy">steelfinger@steelfinger.fi</a>.</p>
             <p className="page-updated">Updated 24 August 2026</p>
@@ -143,8 +187,9 @@ function IpadPage(): React.JSX.Element {
           <a href="#workflow">How it works</a>
           <a href="#features">Features</a>
           <a href="/support">Support</a>
+          <a href="/app">Web editor</a>
         </nav>
-        <a className="marketing-nav-cta" href="/app">Open web editor <ArrowRight size={15} /></a>
+        <a className="marketing-nav-cta" href={APP_STORE_URL} {...external}>App Store <ArrowRight size={15} /></a>
       </header>
       <main>
         <section className="ipad-hero">
@@ -152,17 +197,14 @@ function IpadPage(): React.JSX.Element {
             <h1>Shape a solid body. Take it to the bench.</h1>
             <p>Design solid-body electric guitar and bass bodies on iPad with exact millimetre dimensions, live symmetry, and an export you can print at full scale.</p>
             <div className="ipad-hero-actions">
-              <a className="marketing-button primary" href={IPAD_MAILTO}><Mail size={17} /> Get iPad release updates</a>
+              <a className="marketing-button primary" href={APP_STORE_URL} {...external}>Download on the App Store <ArrowRight size={17} /></a>
               <a className="marketing-button secondary" href="#features">Explore the tool <ArrowRight size={17} /></a>
             </div>
-            <p className="ipad-release-note">App Store availability is being prepared. This link opens your email app; Axe Shaper does not collect your address.</p>
+            <p className="ipad-release-note">{IPAD_PRICE_NOTE}.</p>
           </div>
-          <div className="ipad-hero-device" aria-hidden="true">
+          <div className="ipad-hero-device">
             <div className="ipad-hero-screen">
-              <div className="ipad-hero-toolbar"><span>Axe Shaper</span><i /><i /><i /></div>
-              <img src={PLAN_DISPLAY_URL} alt="" />
-              <div className="ipad-hero-measure">100 mm</div>
-              <div className="ipad-hero-pencil" />
+              <img src={IPAD_SCREENSHOT_URL} alt={IPAD_SCREENSHOT_ALT} width={1600} height={1199} />
             </div>
           </div>
         </section>
@@ -206,11 +248,12 @@ function IpadPage(): React.JSX.Element {
 
         <section className="closing-section">
           <h2>Start with a familiar body. End with your own.</h2>
-          <p>Get release updates for Axe Shaper on iPad, or start designing in the browser today.</p>
+          <p>Get Axe Shaper for iPad, or start designing in the browser today.</p>
           <div className="ipad-hero-actions">
-            <a className="marketing-button primary" href={IPAD_MAILTO}><Mail size={17} /> Get iPad release updates</a>
+            <a className="marketing-button primary" href={APP_STORE_URL} {...external}>Download on the App Store <ArrowRight size={17} /></a>
             <a className="marketing-button secondary" href="/app">Open web editor <ArrowRight size={17} /></a>
           </div>
+          <p className="ipad-release-note">{IPAD_PRICE_NOTE}.</p>
         </section>
       </main>
       <Footer />
@@ -354,18 +397,19 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
         </section>
 
         <section className="ipad-section" id="ipad">
-          <div className="ipad-device" aria-hidden="true">
+          <div className="ipad-device">
             <div className="ipad-screen">
-              <div className="ipad-toolbar"><span /><span /><span /></div>
-              <img src={PLAN_DISPLAY_URL} alt="" />
-              <div className="pencil-line" />
+              <img src={IPAD_SCREENSHOT_URL} alt={IPAD_SCREENSHOT_ALT} width={1600} height={1199} loading="lazy" />
             </div>
           </div>
           <div className="ipad-copy">
             <h2>A solid-body workbench, built for iPad.</h2>
             <p>Design solid-body electric guitar and bass bodies with the same measured approach: start from 16 templates, trace a real-world reference, shape every curve, and export a full-size pattern for the shop.</p>
-            <a className="marketing-button primary" href="/ipad">Explore Axe Shaper for iPad <ArrowRight size={17} /></a>
-            <small>App Store availability is being prepared. Get release updates from the iPad page.</small>
+            <div className="ipad-copy-actions">
+              <AppStoreBadge />
+              <a className="marketing-button secondary" href="/ipad">Explore Axe Shaper for iPad <ArrowRight size={17} /></a>
+            </div>
+            <small>{IPAD_PRICE_NOTE}.</small>
           </div>
         </section>
 
