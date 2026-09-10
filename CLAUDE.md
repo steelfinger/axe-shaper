@@ -9,7 +9,8 @@ get wrong.
 ```bash
 npm run dev        # vite dev server on :5173
 npm run build      # tsc -b && vite build
-npm run build:zip  # rebuilds dist and axe-shaper-dist.zip (the deliverable)
+npm run build:site # build + viewer3d:fetch - what CI deploys
+npm run deploy     # build:site && firebase deploy (rarely needed - see below)
 npm run lint       # oxlint
 npm run corpus     # regenerate tests/golden/geometry-corpus.json
 npm run corpus:check  # fail if the committed corpus is stale
@@ -18,10 +19,34 @@ npm run bass:check    # bass catalogue: pocket, selectors, pickups, corpus pairs
 npm run fixtures:check # iOS-written payloads decode, load and re-save intact
 ```
 
-`corpus:check`, `schema:check`, `bass:check` and `fixtures:check` are not in CI (which only
-runs `build`, and therefore `bridge:check`). Run them by hand before
-committing anything that touches the file format, the hardware tables or the
-geometry utils.
+`corpus:check`, `schema:check`, `bass:check` and `fixtures:check` are not in CI
+(which runs `build:site`, and therefore `build` and `bridge:check`). Run them
+by hand before committing anything that touches the file format, the hardware
+tables or the geometry utils.
+
+## Deploying is a push
+
+`.github/workflows/firebase-hosting-merge.yml` runs on every push to `main`:
+`npm run build:site`, then a Firebase Hosting deploy to the live channel.
+**There is no manual publish step** - `git push` is the deploy.
+
+`npm run deploy` does the same thing from a laptop and exists for the case
+where CI is unavailable. Prefer the push; a local deploy ships whatever is in
+the working tree, which is how `main` and the live site drift apart.
+
+The `viewer3d:fetch` half matters: it downloads the release tarball pinned in
+`viewer3d.version` into `dist/viewer3d`. A plain `npm run build` does *not*
+run it, so `dist/viewer3d` then holds whatever the gitignored, dev-only
+`public/viewer3d/` happens to contain on that machine - which is not
+necessarily the pinned version. Anything that publishes must go through
+`build:site`.
+
+There used to be a `build:zip` / `package` pair that produced
+`axe-shaper-dist.zip`, described here as "the deliverable". Nothing consumed
+it - not the workflows, not a script, and it was gitignored so it was never
+committed - and it ran plain `build`, so its viewer3d was the unpinned local
+copy. Removed rather than fixed; if a handoff ever needs an archive, zip a
+`build:site` tree.
 
 `npx tsc -b --noEmit` before committing. `src/App.tsx` has two known lint
 warnings (unused catch param, exhaustive-deps); anything else is new.
