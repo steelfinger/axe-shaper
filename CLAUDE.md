@@ -28,7 +28,8 @@ tables or the geometry utils.
 
 `.github/workflows/firebase-hosting-merge.yml` runs on every push to `main`:
 `npm run build:site`, then a Firebase Hosting deploy to the live channel.
-**There is no manual publish step** - `git push` is the deploy.
+**There is no manual publish step** - `git push` is the deploy, *as long as
+CI is green*. It silently was not for ten days; see the token below.
 
 `npm run deploy` does the same thing from a laptop and exists for the case
 where CI is unavailable. Prefer the push; a local deploy ships whatever is in
@@ -40,6 +41,42 @@ run it, so `dist/viewer3d` then holds whatever the gitignored, dev-only
 `public/viewer3d/` happens to contain on that machine - which is not
 necessarily the pinned version. Anything that publishes must go through
 `build:site`.
+
+### The deploy depends on a token that expires
+
+`viewer3d:fetch` runs `gh release download` against
+`steelfinger/axe-shaper-3D-viewer`, which is **private**. The workflow feeds
+it `GH_TOKEN: ${{ secrets.VIEWER3D_RELEASE_TOKEN }}` - a fine-grained PAT
+with **Contents: Read** on that one repo, and nothing else.
+
+When that secret is missing or expired, `GH_TOKEN` resolves to empty, the
+download fails, `build:site` exits 1 and the deploy step never runs. The push
+still succeeds, so **nothing about your local experience says anything is
+wrong** - the website just quietly stops changing. That is exactly what
+happened: the secret was never created, every deploy from 2 Sep 2026 failed,
+and it went unnoticed until 12 Sep. Two releases and a full marketing change
+sat unpublished on `main`.
+
+To recreate it: a fine-grained PAT at
+`github.com/settings/personal-access-tokens/new`, resource owner
+`steelfinger`, **Only select repositories** -> `axe-shaper-3D-viewer`,
+Repository permissions -> Contents: Read-only. Then
+`gh secret set VIEWER3D_RELEASE_TOKEN --repo steelfinger/axe-shaper`. Note
+the `--repo`: run it from the viewer checkout without that flag and `gh`
+targets the wrong repository.
+
+**Check after any deploy you care about** - `gh run list --limit 1` is the
+whole test. Making the viewer repo public would remove this failure mode
+entirely, at the cost of publishing that source.
+
+### A 404 from the live site looks like a 200
+
+`firebase.json` rewrites `**` to `/index.html`, so a missing asset is served
+as the SPA shell with **status 200 and `content-type: text/html`**. Checking
+a deploy with `curl -o /dev/null -w '%{http_code}'` therefore passes for
+files that are not there. Compare `content-type`, or the body, instead. This
+is also why a half-composed `dist/viewer3d` cannot be caught by status code -
+`fetch-viewer3d.ts` asserts `index.html` exists for the same reason.
 
 There used to be a `build:zip` / `package` pair that produced
 `axe-shaper-dist.zip`, described here as "the deliverable". Nothing consumed
