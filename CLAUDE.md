@@ -19,10 +19,11 @@ npm run bass:check    # bass catalogue: pocket, selectors, pickups, corpus pairs
 npm run fixtures:check # iOS-written payloads decode, load and re-save intact
 ```
 
-`corpus:check`, `schema:check`, `bass:check` and `fixtures:check` are not in CI
-(which runs `build:site`, and therefore `build` and `bridge:check`). Run them
-by hand before committing anything that touches the file format, the hardware
-tables or the geometry utils.
+`corpus:check`, `schema:check`, `bass:check` and `fixtures:check` all run in
+CI now, in the `verify` workflow. Still run them by hand before committing
+anything that touches the file format, the hardware tables or the geometry
+utils - they are seconds locally, and the point of them is to stop a bad
+contract change being written down, not to find out after it is pushed.
 
 ## Deploying is a push
 
@@ -68,6 +69,24 @@ targets the wrong repository.
 **Check after any deploy you care about** - `gh run list --limit 1` is the
 whole test. Making the viewer repo public would remove this failure mode
 entirely, at the cost of publishing that source.
+
+### `verify` is required, and its name is load-bearing
+
+The `main-protection` ruleset requires a status check named exactly
+`verify`, produced by GitHub Actions. `.github/workflows/verify.yml` is what
+produces it, and the **job** is what the name comes from - not the workflow's
+`name:`. Rename the job and the ruleset waits forever on a check nothing
+emits, which presents as a PR that can never merge.
+
+`verify` runs lint, `build` and the four contract checks, and deliberately
+stops short of `build:site`: it must not depend on VIEWER3D_RELEASE_TOKEN, or
+an expired token would take out the correctness gate as well as the deploy.
+
+The ruleset also requires pull requests and linear history, but repository
+admins are `bypass_actors` with `bypass_mode: always`, which is why pushing
+straight to `main` works and only prints the rules as warnings. If that
+bypass is ever removed, direct pushes stop and everything has to go through a
+PR.
 
 ### A 404 from the live site looks like a 200
 

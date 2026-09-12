@@ -1,0 +1,61 @@
+# The `verify` status check required by the `main-protection` ruleset.
+#
+# The job MUST stay named `verify`: the ruleset matches the check run by that
+# exact name, and a check run takes the job's `name`. Renaming the job (or
+# this file's workflow `name`, which is not what matches, but is easy to
+# confuse for it) leaves the ruleset waiting forever on a check nothing
+# produces.
+#
+# This is deliberately the half of CI that needs no secrets. The deploy
+# workflows call `build:site`, which needs VIEWER3D_RELEASE_TOKEN to read the
+# private viewer repo; `verify` stops at `build` so that a missing or expired
+# token can never make the correctness gate unavailable. See "Deploying is a
+# push" in CLAUDE.md.
+name: Verify
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      # `build` is `bridge:check && tsc -b && vite build`, so this covers
+      # type-checking and the bridge drawing check too.
+      - name: Build
+        run: npm run build
+
+      # The four contract checks CLAUDE.md used to ask people to remember by
+      # hand. They are cheap, they have no secrets, and forgetting one is how
+      # a format or hardware change reaches a second implementation broken.
+      - name: Golden corpus is current
+        run: npm run corpus:check
+
+      - name: Schema v3 contract
+        run: npm run schema:check
+
+      - name: Bass catalogue
+        run: npm run bass:check
+
+      - name: iOS-written fixtures round-trip
+        run: npm run fixtures:check
