@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layers, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, Plus, Zap, Scissors, Info } from 'lucide-react';
+import { Layers, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, Plus, Zap, Scissors, Info, CircleDot } from 'lucide-react';
 import { NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import {
   DEFAULT_EDGE_PROFILES,
@@ -21,6 +21,8 @@ import type {
   PickguardPlacement,
   RoutedCavity,
   PickupType,
+  SelectedHardwarePlacement,
+  SwitchType,
 } from '../types/guitar';
 import {
   bridgePresetFields,
@@ -41,6 +43,7 @@ import {
   MIN_BODY_THICKNESS_MM,
   resolvedBodyThickness,
 } from '../utils/bodyThickness';
+import { SWITCH_TYPE_LABELS } from '../utils/controlEditing';
 
 interface SidebarProps {
   project: GuitarProject;
@@ -63,10 +66,13 @@ interface SidebarProps {
   onAddFrontRoute: () => void;
   onAddBackRoute: () => void;
   onDeleteLayerShape: (layer: Exclude<ActiveLayer, { kind: 'body' }>) => void;
-  selectedPickupId: string | null;
-  onSelectPickup: (id: string | null) => void;
+  selectedHardware: SelectedHardwarePlacement | null;
+  onSelectHardware: (selection: SelectedHardwarePlacement | null) => void;
   onAddPickup: (type: PickupType) => void;
   onDeletePickup: (id: string) => void;
+  onAddPotentiometer: () => void;
+  onAddSwitch: (type: SwitchType) => void;
+  onDeleteHardware: (selection: SelectedHardwarePlacement) => void;
   handleAngleSnap: HandleAngleSnapPreference;
   onHandleAngleSnapChange: (preference: HandleAngleSnapPreference) => void;
 }
@@ -88,10 +94,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onAddFrontRoute,
   onAddBackRoute,
   onDeleteLayerShape,
-  selectedPickupId,
-  onSelectPickup,
+  selectedHardware,
+  onSelectHardware,
   onAddPickup,
   onDeletePickup,
+  onAddPotentiometer,
+  onAddSwitch,
+  onDeleteHardware,
   handleAngleSnap,
   onHandleAngleSnapChange,
 }) => {
@@ -1015,42 +1024,114 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   No pickups yet.
                 </p>
               ) : (
-                <div style={{ marginTop: '10px' }}>
+                <div className="hardware-placement-list">
                   {project.pickups.map((pickup) => {
-                    const isSelected = pickup.id === selectedPickupId;
+                    const isSelected = selectedHardware?.kind === 'pickup' && pickup.id === selectedHardware.id;
                     return (
-                      <div
-                        key={pickup.id}
-                        onClick={() => onSelectPickup(isSelected ? null : pickup.id)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          padding: '8px 10px',
-                          borderRadius: 'var(--radius-sm)',
-                          background: isSelected ? 'rgba(56, 189, 248, 0.15)' : 'var(--bg-primary)',
-                          border: isSelected ? '1px solid #38bdf8' : '1px solid var(--panel-border)',
-                          marginBottom: '6px',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <div>
-                          <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>
+                      <div key={pickup.id} className={`hardware-placement-row${isSelected ? ' is-selected' : ''}`}>
+                        <button
+                          type="button"
+                          className="hardware-placement-select"
+                          onClick={() => onSelectHardware(isSelected ? null : { kind: 'pickup', id: pickup.id })}
+                        >
+                          <span className="hardware-placement-name">
                             {PICKUP_SPECIFICATIONS[pickup.type]?.name ?? pickup.type}
-                          </div>
-                          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                          </span>
+                          <span className="hardware-placement-detail">
                             {pickup.widthMm.toFixed(0)} &times; {pickup.heightMm.toFixed(0)} mm,{' '}
                             {pickup.angleDegrees.toFixed(1)}&deg;
-                          </div>
-                        </div>
+                          </span>
+                        </button>
                         <button
-                          className="btn btn-sm"
+                          type="button"
+                          className="hardware-placement-delete"
                           onClick={(e) => {
                             e.stopPropagation();
                             onDeletePickup(pickup.id);
                           }}
-                          style={{ padding: '4px 6px', border: 'none', background: 'transparent', color: 'var(--accent-red)' }}
-                          title="Delete pickup"
+                          aria-label={`Delete ${PICKUP_SPECIFICATIONS[pickup.type]?.name ?? 'pickup'}`}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="panel-section">
+              <div className="section-title">
+                <CircleDot size={16} /> Controls
+              </div>
+              <p className="panel-help">
+                Place potentiometer knobs and selector switches. Electrical values and switch state are not modelled.
+              </p>
+
+              <div className="control-add-row">
+                <button type="button" className="btn btn-sm" onClick={onAddPotentiometer}>
+                  <CircleDot size={13} /> Potentiometer
+                </button>
+                <select
+                  value=""
+                  onChange={(event) => {
+                    if (event.target.value) onAddSwitch(event.target.value as SwitchType);
+                    event.target.value = '';
+                  }}
+                  className="form-select control-add-select"
+                  aria-label="Add selector switch"
+                >
+                  <option value="">+ Switch&hellip;</option>
+                  {(Object.entries(SWITCH_TYPE_LABELS) as [SwitchType, string][]).map(([type, label]) => (
+                    <option key={type} value={type}>{label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {(project.potentiometers ?? []).length === 0 && (project.switches ?? []).length === 0 ? (
+                <p className="hardware-placement-empty">No controls yet.</p>
+              ) : (
+                <div className="hardware-placement-list">
+                  {(project.potentiometers ?? []).map((potentiometer, index) => {
+                    const isSelected = selectedHardware?.kind === 'potentiometer' && potentiometer.id === selectedHardware.id;
+                    return (
+                      <div key={potentiometer.id} className={`hardware-placement-row${isSelected ? ' is-selected' : ''}`}>
+                        <button
+                          type="button"
+                          className="hardware-placement-select"
+                          onClick={() => onSelectHardware(isSelected ? null : { kind: 'potentiometer', id: potentiometer.id })}
+                        >
+                          <span className="hardware-placement-name">Potentiometer {index + 1}</span>
+                          <span className="hardware-placement-detail">{potentiometer.bodyDiameterMm.toFixed(0)} mm body · knob visible</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="hardware-placement-delete"
+                          onClick={() => onDeleteHardware({ kind: 'potentiometer', id: potentiometer.id })}
+                          aria-label={`Delete potentiometer ${index + 1}`}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    );
+                  })}
+                  {(project.switches ?? []).map((selector, index) => {
+                    const isSelected = selectedHardware?.kind === 'switch' && selector.id === selectedHardware.id;
+                    return (
+                      <div key={selector.id} className={`hardware-placement-row${isSelected ? ' is-selected' : ''}`}>
+                        <button
+                          type="button"
+                          className="hardware-placement-select"
+                          onClick={() => onSelectHardware(isSelected ? null : { kind: 'switch', id: selector.id })}
+                        >
+                          <span className="hardware-placement-name">{SWITCH_TYPE_LABELS[selector.type] ?? 'Selector Switch'} {index + 1}</span>
+                          <span className="hardware-placement-detail">{selector.angleDegrees.toFixed(1)}&deg;</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="hardware-placement-delete"
+                          onClick={() => onDeleteHardware({ kind: 'switch', id: selector.id })}
+                          aria-label={`Delete ${SWITCH_TYPE_LABELS[selector.type] ?? 'selector switch'} ${index + 1}`}
                         >
                           <Trash2 size={14} />
                         </button>
@@ -1109,6 +1190,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onUpdateProject((prev) => ({
                       ...prev,
                       settings: { ...prev.settings, showHardwareCavities: e.target.checked },
+                    }))
+                  }
+                />
+              </div>
+
+              <div className="toggle-row">
+                <span style={{ fontSize: '0.85rem' }}>Knobs &amp; Switches</span>
+                <input
+                  type="checkbox"
+                  aria-label="Show knobs and switches"
+                  checked={settings.showControls !== false}
+                  onChange={(e) =>
+                    onUpdateProject((prev) => ({
+                      ...prev,
+                      settings: { ...prev.settings, showControls: e.target.checked },
                     }))
                   }
                 />
@@ -1179,7 +1275,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               {settings.snapToGridEnabled && (
                 <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                  Nodes and pickups snap to{' '}
+                  Nodes, pickups and controls snap to{' '}
                   {formatLength(settings.gridSizeMm / gridMinorDivisor(settings.unitDisplay), settings.unitDisplay, 1)}{' '}
                   {unitLabel(settings.unitDisplay)} increments.
                 </p>

@@ -4,8 +4,10 @@ import type {
   LengthMm,
   PathAnchor,
   PickupPlacement,
+  PotentiometerPlacement,
   PickguardPlacement,
   RoutedCavity,
+  SwitchPlacement,
 } from '../types/guitar';
 import { LEGACY_INSTRUMENT_TYPE, defaultStringCount, isInstrumentType } from './instrument';
 
@@ -38,6 +40,8 @@ export interface UserTemplate {
   edgeProfile?: EdgeProfile;
   bodyThicknessMm?: LengthMm;
   defaultPickups: PickupPlacement[];
+  defaultPotentiometers?: PotentiometerPlacement[];
+  defaultSwitches?: SwitchPlacement[];
   defaultPickguards?: PickguardPlacement[];
   defaultFrontRoutes?: RoutedCavity[];
   defaultBackRoutes?: RoutedCavity[];

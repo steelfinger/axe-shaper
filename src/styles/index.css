@@ -644,6 +644,139 @@ body, html, #root {
   gap: 8px;
 }
 
+.panel-help {
+  margin: -2px 0 12px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.control-add-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.control-add-row .btn {
+  justify-content: center;
+  min-width: 0;
+}
+
+.control-add-select {
+  min-width: 0;
+  padding: 5px 7px;
+  font-size: 0.78rem;
+}
+
+.hardware-placement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.hardware-placement-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 34px;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+}
+
+.hardware-placement-row.is-selected {
+  border-color: var(--accent-blue);
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.hardware-placement-select,
+.hardware-placement-delete {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.hardware-placement-select {
+  min-width: 0;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.hardware-placement-select:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.hardware-placement-name,
+.hardware-placement-detail {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hardware-placement-name {
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.hardware-placement-detail {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
+.hardware-placement-delete {
+  display: grid;
+  place-items: center;
+  color: var(--accent-red);
+}
+
+.hardware-placement-delete:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.hardware-placement-empty {
+  margin: 10px 0 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.hardware-placement-select:focus-visible,
+.hardware-placement-delete:focus-visible {
+  position: relative;
+  outline: 2px solid var(--accent-blue);
+  outline-offset: -2px;
+}
+
+.control-inspector-title {
+  margin-bottom: 14px;
+  color: var(--text-primary);
+}
+
+.coordinate-input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.inspector-help {
+  margin: -2px 0 12px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.destructive-outline-button {
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
 /* Form Controls */
 .form-group {
   margin-bottom: 12px;

@@ -22,6 +22,8 @@ import type {
   StoredProject,
   Vector2D,
   PickupType,
+  SelectedHardwarePlacement,
+  SwitchType,
 } from './types/guitar';
 import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
@@ -44,7 +46,12 @@ import {
   getActiveContour,
   withActiveContour,
 } from './utils/layerShapes';
-import { addingPickup, removingPickup } from './utils/pickupEditing';
+import { addingPickup } from './utils/pickupEditing';
+import {
+  addingPotentiometer,
+  addingSwitch,
+  removingHardwarePlacement,
+} from './utils/controlEditing';
 import { SaveInfoModal } from './components/SaveInfoModal';
 import { WelcomeModal } from './components/WelcomeModal';
 import { AboutModal } from './components/AboutModal';
@@ -141,7 +148,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
   // cascade) only makes sense for one anchor at a time.
   const selectedAnchorId = selectedAnchorIds.size === 1 ? [...selectedAnchorIds][0] : null;
   const [selectedSegmentIndex, setSelectedSegmentIndex] = useState<number | null>(null);
-  const [selectedPickupId, setSelectedPickupId] = useState<string | null>(null);
+  const [selectedHardware, setSelectedHardware] = useState<SelectedHardwarePlacement | null>(null);
   // Live model-space cursor position for the sidebar readout - null while the pointer is off the canvas.
   const [cursorPos, setCursorPos] = useState<Vector2D | null>(null);
   // Which contour a canvas gesture or inspector edit targets - body by default,
@@ -271,7 +278,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
     // active pickguard/route id has no guarantee of surviving one either
     setSelectedAnchorIds(new Set());
     setSelectedSegmentIndex(null);
-    setSelectedPickupId(null);
+    setSelectedHardware(null);
     setActiveLayer({ kind: 'body' });
     updateHistoryState();
   };
@@ -333,6 +340,8 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       // explicitly clears a choice made on the previously selected body.
       binding: template.binding ? JSON.parse(JSON.stringify(template.binding)) : undefined,
       pickups: JSON.parse(JSON.stringify(template.defaultPickups)),
+      potentiometers: JSON.parse(JSON.stringify(template.defaultPotentiometers ?? [])),
+      switches: JSON.parse(JSON.stringify(template.defaultSwitches ?? [])),
       pickguards: JSON.parse(JSON.stringify(template.defaultPickguards ?? [])),
       frontRoutes: JSON.parse(JSON.stringify(template.defaultFrontRoutes ?? [])),
       backRoutes: JSON.parse(JSON.stringify(template.defaultBackRoutes ?? [])),
@@ -343,7 +352,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
     }));
     setSelectedAnchorIds(new Set());
     setSelectedSegmentIndex(null);
-    setSelectedPickupId(null);
+    setSelectedHardware(null);
     setActiveLayer({ kind: 'body' });
   };
 
@@ -351,7 +360,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
     handleSelectTemplate(project.activeTemplateId);
   };
 
-  // Anchor, segment and pickup selection are mutually exclusive - the Inspector
+  // Anchor, segment and movable-hardware selection are mutually exclusive - the Inspector
   // shows one set of controls, and it should never be ambiguous which one an
   // action applies to.
   const handleSelectAnchor = (id: string | null, shiftKey = false) => {
@@ -367,20 +376,21 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       return next;
     });
     setSelectedSegmentIndex(null);
-    setSelectedPickupId(null);
+    setSelectedHardware(null);
   };
 
   const handleSelectSegment = (index: number | null) => {
     setSelectedSegmentIndex(index);
     if (index !== null) {
       setSelectedAnchorIds(new Set());
-      setSelectedPickupId(null);
+      setSelectedHardware(null);
     }
   };
 
-  const handleSelectPickup = (id: string | null) => {
-    setSelectedPickupId(id);
-    if (id) {
+  const handleSelectHardware = (selection: SelectedHardwarePlacement | null) => {
+    setSelectedHardware(selection);
+    if (selection) {
+      setActiveLayer({ kind: 'body' });
       setSelectedAnchorIds(new Set());
       setSelectedSegmentIndex(null);
     }
@@ -488,6 +498,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
     setActiveLayer(layer);
     setSelectedAnchorIds(new Set());
     setSelectedSegmentIndex(null);
+    setSelectedHardware(null);
   };
 
   const handleAddPickguard = () => {
@@ -518,16 +529,35 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
   const handleAddPickup = (type: PickupType) => {
     const { project: next, id } = addingPickup(project, type);
     handleUpdateProject(() => next);
-    handleSelectPickup(id);
+    handleSelectHardware({ kind: 'pickup', id });
   };
 
   const handleDeletePickup = (id: string) => {
-    handleUpdateProject((prev) => removingPickup(prev, id));
-    if (selectedPickupId === id) setSelectedPickupId(null);
+    handleUpdateProject((prev) => removingHardwarePlacement(prev, { kind: 'pickup', id }));
+    if (selectedHardware?.kind === 'pickup' && selectedHardware.id === id) setSelectedHardware(null);
   };
 
-  const handleDeleteSelectedPickup = () => {
-    if (selectedPickupId) handleDeletePickup(selectedPickupId);
+  const handleAddPotentiometer = () => {
+    const { project: next, selection } = addingPotentiometer(project);
+    handleUpdateProject(() => next);
+    handleSelectHardware(selection);
+  };
+
+  const handleAddSwitch = (type: SwitchType) => {
+    const { project: next, selection } = addingSwitch(project, type);
+    handleUpdateProject(() => next);
+    handleSelectHardware(selection);
+  };
+
+  const handleDeleteHardware = (selection: SelectedHardwarePlacement) => {
+    handleUpdateProject((prev) => removingHardwarePlacement(prev, selection));
+    if (selectedHardware?.kind === selection.kind && selectedHardware.id === selection.id) {
+      setSelectedHardware(null);
+    }
+  };
+
+  const handleDeleteSelectedHardware = () => {
+    if (selectedHardware) handleDeleteHardware(selectedHardware);
   };
 
   // Save the project as a .axe.svg - a printable 1:1 true-scale SVG that
@@ -635,7 +665,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         setIsDirty(false);
         setSelectedAnchorIds(new Set());
         setSelectedSegmentIndex(null);
-        setSelectedPickupId(null);
+        setSelectedHardware(null);
         setActiveLayer({ kind: 'body' });
       } else {
         alert(result.message);
@@ -665,16 +695,16 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         if (selectedAnchorIds.size > 0) {
           e.preventDefault();
           handleDeleteSelectedAnchors();
-        } else if (selectedPickupId) {
+        } else if (selectedHardware) {
           e.preventDefault();
-          handleDeleteSelectedPickup();
+          handleDeleteSelectedHardware();
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedAnchorIds, selectedPickupId, canUndo, canRedo]);
+  }, [selectedAnchorIds, selectedHardware, canUndo, canRedo]);
 
   return (
     <div className={`app-container${mobilePanel ? ` mobile-panel-${mobilePanel}` : ''}`}>
@@ -741,10 +771,13 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         onAddFrontRoute={handleAddFrontRoute}
         onAddBackRoute={handleAddBackRoute}
         onDeleteLayerShape={handleDeleteLayerShape}
-        selectedPickupId={selectedPickupId}
-        onSelectPickup={handleSelectPickup}
+        selectedHardware={selectedHardware}
+        onSelectHardware={handleSelectHardware}
         onAddPickup={handleAddPickup}
         onDeletePickup={handleDeletePickup}
+        onAddPotentiometer={handleAddPotentiometer}
+        onAddSwitch={handleAddSwitch}
+        onDeleteHardware={handleDeleteHardware}
         handleAngleSnap={handleAngleSnap}
         onHandleAngleSnapChange={(preference) => {
           setHandleAngleSnap(preference);
@@ -759,8 +792,8 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         onSelectAnchor={handleSelectAnchor}
         selectedSegmentIndex={selectedSegmentIndex}
         onSelectSegment={handleSelectSegment}
-        selectedPickupId={selectedPickupId}
-        onSelectPickup={handleSelectPickup}
+        selectedHardware={selectedHardware}
+        onSelectHardware={handleSelectHardware}
         onCursorMove={setCursorPos}
         onUpdateProject={handleUpdateProject}
         onBeginEdit={beginEdit}
@@ -783,14 +816,14 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         project={project}
         selectedAnchorIds={selectedAnchorIds}
         selectedSegmentIndex={selectedSegmentIndex}
-        selectedPickupId={selectedPickupId}
+        selectedHardware={selectedHardware}
         cursorPos={cursorPos}
         onUpdateProject={handleUpdateProject}
         onEndEdit={endEdit}
         onDeleteSelectedAnchors={handleDeleteSelectedAnchors}
         onAddAnchorOnSegment={handleAddAnchorOnSegment}
         onToggleSegmentStraight={handleToggleSegmentStraight}
-        onDeleteSelectedPickup={handleDeleteSelectedPickup}
+        onDeleteSelectedHardware={handleDeleteSelectedHardware}
         activeLayer={activeLayer}
       />
       </div>

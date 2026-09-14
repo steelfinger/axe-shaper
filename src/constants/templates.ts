@@ -75,6 +75,8 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
         const spec = PICKUP_SPECIFICATIONS[pickup.type];
         return spec ? { ...pickup, ...structuredClone(spec) } : pickup;
       }),
+      defaultPotentiometers: project.potentiometers ?? [],
+      defaultSwitches: project.switches ?? [],
       // `?? []` - no bundled blueprint carries these yet, and
       // extractProjectFromSVG does a raw JSON.parse with no field defaulting.
       defaultPickguards: project.pickguards ?? [],

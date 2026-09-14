@@ -389,7 +389,7 @@ async function main() {
     console.log('\ntests/fixtures/ios-written-v3/ (iOS milestone M24)');
     if (!existsSync(V3_FIXTURE_DIR)) {
       console.log(
-        `  pending  no iOS-written version ${schema.PROJECT_SCHEMA_VERSION} fixtures yet - ` +
+        '  pending  no iOS-written version 3 fixtures yet - ' +
           `sync them into ${V3_FIXTURE_DIR} when iOS M24 lands`
       );
     } else {
@@ -400,7 +400,7 @@ async function main() {
       for (const fileName of v3Files.sort()) {
         const project = scan(readFileSync(join(V3_FIXTURE_DIR, fileName), 'utf8')).project;
         check(`${fileName}: is a version 3 payload carrying its own instrument axis`, () => {
-          deepStrictEqual(project.schemaVersion, schema.PROJECT_SCHEMA_VERSION);
+          deepStrictEqual(project.schemaVersion, 3);
           invariant(
             instrument.isInstrumentType(project.instrumentType),
             `instrumentType is ${String(project.instrumentType)}`
@@ -410,12 +410,13 @@ async function main() {
             `${project.stringCount}-string ${project.instrumentType} is outside the supported matrix`
           );
         });
-        check(`${fileName}: loading a current file is a no-op`, () => {
-          // No migration is due at the current version, so unlike the legacy
-          // fixtures above this is the original, strict no-op assertion.
+        check(`${fileName}: migrating to the current version changes only the version stamp`, () => {
+          // Version 4 adds optional control arrays, so an untouched version 3
+          // payload gains no geometry; only the schema stamp advances.
           deepStrictEqual(presets.migrateProject(project), {
             ...project,
             pickups: presets.withEmbeddedPickupSpecs(project.pickups ?? []),
+            schemaVersion: schema.PROJECT_SCHEMA_VERSION,
           });
         });
       }

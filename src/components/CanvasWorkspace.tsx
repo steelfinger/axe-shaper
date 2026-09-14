@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Stage, Layer, Line, Circle, Rect, Path, Text, Group, Image as KonvaImage } from 'react-konva';
 import Konva from 'konva';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
-import type { GuitarProject, GuideImageState, Vector2D, CalibrationState } from '../types/guitar';
+import type { GuitarProject, GuideImageState, Vector2D, CalibrationState, SelectedHardwarePlacement } from '../types/guitar';
 import {
   anchorsToSVGPath,
   findClosestSegment,
@@ -41,6 +41,12 @@ import {
 } from '../utils/units';
 import { PLAN_DRAWING_STYLE, colorWithAlpha } from '../constants/planDrawingStyle';
 import { snapHandleAngle } from '../utils/handleAngleSnap';
+import {
+  movingPotentiometer,
+  movingSwitch,
+  rotatingSwitchToward,
+  switchRotationHandlePosition,
+} from '../utils/controlEditing';
 
 /**
  * The body Path's hit area is its fill, so a click a few pixels *outside* the
@@ -51,6 +57,9 @@ const BODY_OUTLINE_NAME = 'body-outline';
 
 /** How close to the outline a click has to land to select or split a segment. */
 const PICK_TOLERANCE_PX = 12;
+const ROTATION_GUIDE_COLOR = '#10b981';
+const ROTATION_GRIP_RADIUS_PX = 5;
+const ROTATION_GRIP_HIT_RADIUS_PX = 12;
 
 // One undo step per drag, not per mousemove: every update in a gesture carries
 // the same key, so history records only the first.
@@ -59,6 +68,9 @@ const handleDragKey = (id: string, type: 'in' | 'out') => `handle:${id}:${type}`
 const GUIDE_DRAG_KEY = 'guide:move';
 const pickupMoveKey = (id: string) => `pickup:move:${id}`;
 const pickupRotateKey = (id: string) => `pickup:rotate:${id}`;
+const potentiometerMoveKey = (id: string) => `potentiometer:move:${id}`;
+const switchMoveKey = (id: string) => `switch:move:${id}`;
+const switchRotateKey = (id: string) => `switch:rotate:${id}`;
 // Konva only ever has one drag gesture in flight, so a single fixed key -
 // rather than one derived from the selected id set - is enough to coalesce
 // a whole multi-anchor drag into one undo step.
@@ -70,8 +82,8 @@ interface CanvasWorkspaceProps {
   onSelectAnchor: (id: string | null, shiftKey?: boolean) => void;
   selectedSegmentIndex: number | null;
   onSelectSegment: (index: number | null) => void;
-  selectedPickupId: string | null;
-  onSelectPickup: (id: string | null) => void;
+  selectedHardware: SelectedHardwarePlacement | null;
+  onSelectHardware: (selection: SelectedHardwarePlacement | null) => void;
   /** Model-space cursor position, live, for the sidebar readout - null while the pointer is off the canvas. */
   onCursorMove: (pos: Vector2D | null) => void;
   onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject, coalesceKey?: string) => void;
@@ -101,8 +113,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   onSelectAnchor,
   selectedSegmentIndex,
   onSelectSegment,
-  selectedPickupId,
-  onSelectPickup,
+  selectedHardware,
+  onSelectHardware,
   onCursorMove,
   onUpdateProject,
   onBeginEdit,
@@ -139,7 +151,18 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   // pickguards/frontRoutes/backRoutes are optional on GuitarProject - a file
   // from before this feature existed genuinely lacks the key - so default
   // here rather than at every .map()/.filter() below.
-  const { contour, settings, pickups, pickguards = [], frontRoutes = [], backRoutes = [], activeTemplateId } = project;
+  const {
+    contour,
+    settings,
+    pickups,
+    potentiometers = [],
+    switches = [],
+    pickguards = [],
+    frontRoutes = [],
+    backRoutes = [],
+    activeTemplateId,
+  } = project;
+  const selectedPickupId = selectedHardware?.kind === 'pickup' ? selectedHardware.id : null;
   const neck = resolveNeckPreset(project);
   const bridge = resolveBridgePreset(project);
   const activeTemplate = REFERENCE_TEMPLATES[activeTemplateId] || REFERENCE_TEMPLATES.s_style;
@@ -521,7 +544,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           // A click out in open space, or well inside the body, clears everything
           if (index === null) {
             onSelectAnchor(null);
-            onSelectPickup(null);
+            onSelectHardware(null);
           }
         }}
         onDblClick={(e) => {
@@ -820,8 +843,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
             above for why). Hardware/routs stay display-only via an explicit
             listening={false} on their Group; pickups keep the layer's own
             listening flag so their drag/rotate handles still hit-test. */}
-        {settings.showHardwareCavities && (
-          <Layer listening={!isPanMode && !calibration.active && isBodyActive}>
+        <Layer listening={!isPanMode && !calibration.active && isBodyActive}>
+          {settings.showHardwareCavities && (
             <Group listening={false} x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               {/* Neck Pocket Cavity */}
               <Rect
@@ -946,10 +969,12 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 </Group>
               </Group>
             </Group>
+          )}
 
-            {/* Pickups - interactive, body-layer-only (the same "not the active
-                layer doesn't hit-test" rule the pickguard/route content follows,
-                applied to pickups instead - see EditingController.ActiveLayer on iOS) */}
+          {/* Pickups - interactive, body-layer-only (the same "not the active
+              layer doesn't hit-test" rule the pickguard/route content follows,
+              applied to pickups instead - see EditingController.ActiveLayer on iOS) */}
+          {settings.showHardwareCavities && (
             <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               {pickups.map((p) => {
                 const { anchors } = resolvePickupSpec(p);
@@ -977,10 +1002,10 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                         return toScreen({ x: 0, y });
                       }}
                       onClick={() => {
-                        if (!isPanMode) onSelectPickup(p.id);
+                        if (!isPanMode) onSelectHardware({ kind: 'pickup', id: p.id });
                       }}
                       onDragStart={() => {
-                        onSelectPickup(p.id);
+                        onSelectHardware({ kind: 'pickup', id: p.id });
                         onBeginEdit(pickupMoveKey(p.id));
                       }}
                       onDragMove={(e) =>
@@ -997,33 +1022,239 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                       <Circle x={0} y={0} radius={2 / zoom} fill={isSelected ? '#38bdf8' : '#10b981'} />
                     </Group>
 
-                    {/* Rotation handle - only hittable once this pickup is already
-                        selected, matching CanvasRenderer/ContourEditing on iOS */}
+                    {/* Keep the visible grip model-driven, like iOS. A separate
+                        transparent drag target may follow the pointer while the
+                        line and dot show only the stable, snapped angle. */}
                     {isSelected && (
-                      <Circle
-                        x={handlePos.x}
-                        y={handlePos.y}
-                        radius={5 / zoom}
-                        fill="#38bdf8"
-                        stroke="#fff"
-                        strokeWidth={1.5 / zoom}
-                        draggable={!isPanMode && isBodyActive}
-                        onDragStart={() => onBeginEdit(pickupRotateKey(p.id))}
-                        onDragMove={(e) =>
-                          onUpdateProject(
-                            (prev) => rotatingPickupToward(prev, p.id, { x: e.target.x(), y: e.target.y() }),
-                            pickupRotateKey(p.id)
-                          )
-                        }
-                        onDragEnd={onEndEdit}
-                      />
+                      <>
+                        <Line
+                          points={[p.offsetXMm, p.offsetYMm, handlePos.x, handlePos.y]}
+                          stroke={ROTATION_GUIDE_COLOR}
+                          strokeWidth={1.5 / zoom}
+                          lineCap="round"
+                          listening={false}
+                        />
+                        <Circle
+                          x={handlePos.x}
+                          y={handlePos.y}
+                          radius={ROTATION_GRIP_RADIUS_PX / zoom}
+                          fill={ROTATION_GUIDE_COLOR}
+                          stroke="#ecfdf5"
+                          strokeWidth={1.25 / zoom}
+                          listening={false}
+                        />
+                        <Circle
+                          x={handlePos.x}
+                          y={handlePos.y}
+                          radius={ROTATION_GRIP_HIT_RADIUS_PX / zoom}
+                          fill="rgba(16, 185, 129, 0.001)"
+                          draggable={!isPanMode && isBodyActive}
+                          onDragStart={() => onBeginEdit(pickupRotateKey(p.id))}
+                          onDragMove={(event) => {
+                            const pointer = event.target.getStage()?.getPointerPosition();
+                            if (!pointer) return;
+                            onUpdateProject(
+                              (prev) => rotatingPickupToward(prev, p.id, toModel(pointer)),
+                              pickupRotateKey(p.id)
+                            );
+                          }}
+                          onDragEnd={onEndEdit}
+                        />
+                      </>
                     )}
                   </Group>
                 );
               })}
             </Group>
-          </Layer>
-        )}
+          )}
+
+          {/* Controls are a logical hardware layer, kept in this existing
+              Konva layer so the stage stays within its rendering budget. */}
+          {settings.showControls !== false && (
+              <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
+              {potentiometers.map((potentiometer) => {
+                const isSelected =
+                  selectedHardware?.kind === 'potentiometer' && selectedHardware.id === potentiometer.id;
+                return (
+                  <Group
+                    key={potentiometer.id}
+                    x={potentiometer.position.x}
+                    y={potentiometer.position.y}
+                    draggable={!isPanMode && isBodyActive}
+                    dragBoundFunc={(position) => {
+                      const model = toModel(position);
+                      const snapped = settings.snapToGridEnabled
+                        ? {
+                            x: snapToGridMm(model.x, settings.gridSizeMm, settings.unitDisplay),
+                            y: snapToGridMm(model.y, settings.gridSizeMm, settings.unitDisplay),
+                          }
+                        : model;
+                      return toScreen(snapped);
+                    }}
+                    onClick={() => {
+                      if (!isPanMode) onSelectHardware({ kind: 'potentiometer', id: potentiometer.id });
+                    }}
+                    onDragStart={() => {
+                      onSelectHardware({ kind: 'potentiometer', id: potentiometer.id });
+                      onBeginEdit(potentiometerMoveKey(potentiometer.id));
+                    }}
+                    onDragMove={(event) =>
+                      onUpdateProject(
+                        (prev) => movingPotentiometer(prev, potentiometer.id, {
+                          x: event.target.x(),
+                          y: event.target.y(),
+                        }),
+                        potentiometerMoveKey(potentiometer.id)
+                      )
+                    }
+                    onDragEnd={onEndEdit}
+                  >
+                    {isSelected && (
+                      <Circle
+                        radius={potentiometer.bodyDiameterMm / 2}
+                        fill="rgba(56, 189, 248, 0.05)"
+                        stroke="rgba(56, 189, 248, 0.7)"
+                        strokeWidth={1 / zoom}
+                        dash={[4 / zoom, 3 / zoom]}
+                        listening={false}
+                      />
+                    )}
+                    <Circle
+                      radius={9}
+                      fill="#d6d3d1"
+                      stroke={isSelected ? '#38bdf8' : '#57534e'}
+                      strokeWidth={(isSelected ? 2.2 : 1.2) / zoom}
+                    />
+                    <Circle radius={5.7} fill="#292524" stroke="#a8a29e" strokeWidth={0.8 / zoom} />
+                    <Line
+                      points={[0, -5, 0, -7.8]}
+                      stroke="#f5f5f4"
+                      strokeWidth={1.2 / zoom}
+                      lineCap="round"
+                    />
+                    <Circle radius={1.2 / zoom} fill={isSelected ? '#38bdf8' : '#d1a53d'} />
+                  </Group>
+                );
+              })}
+
+              {switches.map((selector) => {
+                const isSelected = selectedHardware?.kind === 'switch' && selectedHardware.id === selector.id;
+                const handlePosition = switchRotationHandlePosition(selector);
+                return (
+                  <Group key={selector.id}>
+                    <Group
+                      x={selector.position.x}
+                      y={selector.position.y}
+                      rotation={selector.angleDegrees}
+                      draggable={!isPanMode && isBodyActive}
+                      dragBoundFunc={(position) => {
+                        const model = toModel(position);
+                        const snapped = settings.snapToGridEnabled
+                          ? {
+                              x: snapToGridMm(model.x, settings.gridSizeMm, settings.unitDisplay),
+                              y: snapToGridMm(model.y, settings.gridSizeMm, settings.unitDisplay),
+                            }
+                          : model;
+                        return toScreen(snapped);
+                      }}
+                      onClick={() => {
+                        if (!isPanMode) onSelectHardware({ kind: 'switch', id: selector.id });
+                      }}
+                      onDragStart={() => {
+                        onSelectHardware({ kind: 'switch', id: selector.id });
+                        onBeginEdit(switchMoveKey(selector.id));
+                      }}
+                      onDragMove={(event) =>
+                        onUpdateProject(
+                          (prev) => movingSwitch(prev, selector.id, {
+                            x: event.target.x(),
+                            y: event.target.y(),
+                          }),
+                          switchMoveKey(selector.id)
+                        )
+                      }
+                      onDragEnd={onEndEdit}
+                    >
+                      {selector.type === 'fender_blade' ? (
+                        <>
+                          <Rect
+                            x={-5}
+                            y={-14}
+                            width={10}
+                            height={28}
+                            cornerRadius={2}
+                            fill="#d6d3d1"
+                            stroke={isSelected ? '#38bdf8' : '#57534e'}
+                            strokeWidth={(isSelected ? 2.2 : 1.2) / zoom}
+                          />
+                          <Line points={[0, -9, 0, 9]} stroke="#292524" strokeWidth={2 / zoom} lineCap="round" />
+                          <Line points={[0, 1, 0, -9]} stroke="#78716c" strokeWidth={2.2 / zoom} lineCap="round" />
+                          <Rect x={-2.8} y={-12} width={5.6} height={7} cornerRadius={1.4} fill="#1c1917" />
+                        </>
+                      ) : (
+                        <>
+                          <Circle
+                            radius={7.5}
+                            fill="#d6d3d1"
+                            stroke={isSelected ? '#38bdf8' : '#57534e'}
+                            strokeWidth={(isSelected ? 2.2 : 1.2) / zoom}
+                          />
+                          <Circle radius={3.4} fill="#78716c" stroke="#292524" strokeWidth={0.8 / zoom} />
+                          <Line points={[0, 0, 0, -10]} stroke="#e7e5e4" strokeWidth={2.4 / zoom} lineCap="round" />
+                          <Circle x={0} y={-10} radius={2.5} fill="#292524" />
+                        </>
+                      )}
+                      <Circle radius={1.2 / zoom} fill={isSelected ? '#38bdf8' : '#d1a53d'} />
+                    </Group>
+
+                    {isSelected && (
+                      <>
+                        <Line
+                          points={[
+                            selector.position.x,
+                            selector.position.y,
+                            handlePosition.x,
+                            handlePosition.y,
+                          ]}
+                          stroke={ROTATION_GUIDE_COLOR}
+                          strokeWidth={1.5 / zoom}
+                          lineCap="round"
+                          listening={false}
+                        />
+                        <Circle
+                          x={handlePosition.x}
+                          y={handlePosition.y}
+                          radius={ROTATION_GRIP_RADIUS_PX / zoom}
+                          fill={ROTATION_GUIDE_COLOR}
+                          stroke="#ecfdf5"
+                          strokeWidth={1.25 / zoom}
+                          listening={false}
+                        />
+                        <Circle
+                          x={handlePosition.x}
+                          y={handlePosition.y}
+                          radius={ROTATION_GRIP_HIT_RADIUS_PX / zoom}
+                          fill="rgba(16, 185, 129, 0.001)"
+                          draggable={!isPanMode && isBodyActive}
+                          onDragStart={() => onBeginEdit(switchRotateKey(selector.id))}
+                          onDragMove={(event) => {
+                            const pointer = event.target.getStage()?.getPointerPosition();
+                            if (!pointer) return;
+                            onUpdateProject(
+                              (prev) => rotatingSwitchToward(prev, selector.id, toModel(pointer)),
+                              switchRotateKey(selector.id)
+                            );
+                          }}
+                          onDragEnd={onEndEdit}
+                        />
+                      </>
+                    )}
+                  </Group>
+                );
+              })}
+              </Group>
+          )}
+        </Layer>
 
         {/* LAYER 3: INTERACTIVE BEZIER NODE CONTROLS & CALIBRATION PICKS - merged
             into one Layer (see LAYER 0 above for why). Calibration content only

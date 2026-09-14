@@ -1,8 +1,8 @@
 import React from 'react';
-import { MousePointer, Trash2, PlusCircle, Ruler, Spline, Slash, Zap, Crosshair } from 'lucide-react';
+import { MousePointer, Trash2, PlusCircle, Ruler, Spline, Slash, Zap, Crosshair, CircleDot, ToggleLeft } from 'lucide-react';
 import { MIN_ANCHOR_COUNT } from '../App';
 import { PICKUP_SPECIFICATIONS } from '../constants/hardware';
-import type { GuitarProject, HandleMode, PathAnchor, PickupType, Vector2D } from '../types/guitar';
+import type { GuitarProject, HandleMode, PathAnchor, PickupType, SelectedHardwarePlacement, SwitchType, Vector2D } from '../types/guitar';
 import {
   BEVEL_INTENSITY_DEFAULT,
   BEVEL_INTENSITY_MAX,
@@ -24,12 +24,20 @@ import { withMirroredBevelIntensity } from '../utils/symmetry';
 import { formatLength } from '../utils/units';
 import { EdgeProfilePreview } from './EdgeProfilePreview';
 import { resolvedBodyThickness } from '../utils/bodyThickness';
+import {
+  movingPotentiometer,
+  movingSwitch,
+  settingPotentiometerBodyDiameter,
+  settingSwitchAngle,
+  settingSwitchType,
+  SWITCH_TYPE_LABELS,
+} from '../utils/controlEditing';
 
 interface InspectorPanelProps {
   project: GuitarProject;
   selectedAnchorIds: Set<string>;
   selectedSegmentIndex: number | null;
-  selectedPickupId: string | null;
+  selectedHardware: SelectedHardwarePlacement | null;
   /** Live model-space cursor position over the canvas, null while the pointer is off it. */
   cursorPos: Vector2D | null;
   onUpdateProject: (updater: (prev: GuitarProject) => GuitarProject, coalesceKey?: string) => void;
@@ -38,7 +46,7 @@ interface InspectorPanelProps {
   onDeleteSelectedAnchors: () => void;
   onAddAnchorOnSegment: () => void;
   onToggleSegmentStraight: () => void;
-  onDeleteSelectedPickup: () => void;
+  onDeleteSelectedHardware: () => void;
   /** Which contour the selected anchor/segment - and any edit below - belongs to. */
   activeLayer: ActiveLayer;
 }
@@ -47,14 +55,14 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
   project,
   selectedAnchorIds,
   selectedSegmentIndex,
-  selectedPickupId,
+  selectedHardware,
   cursorPos,
   onUpdateProject,
   onEndEdit,
   onDeleteSelectedAnchors,
   onAddAnchorOnSegment,
   onToggleSegmentStraight,
-  onDeleteSelectedPickup,
+  onDeleteSelectedHardware,
   activeLayer,
 }) => {
   const { contour, settings } = project;
@@ -81,7 +89,15 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
         }
       : null;
 
-  const selectedPickup = project.pickups.find((p) => p.id === selectedPickupId) ?? null;
+  const selectedPickup = selectedHardware?.kind === 'pickup'
+    ? project.pickups.find((p) => p.id === selectedHardware.id) ?? null
+    : null;
+  const selectedPotentiometer = selectedHardware?.kind === 'potentiometer'
+    ? (project.potentiometers ?? []).find((item) => item.id === selectedHardware.id) ?? null
+    : null;
+  const selectedSwitch = selectedHardware?.kind === 'switch'
+    ? (project.switches ?? []).find((item) => item.id === selectedHardware.id) ?? null
+    : null;
 
   const mmFromInput = (raw: string) => {
     const val = parseFloat(raw) || 0;
@@ -560,16 +576,189 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
             <button
               className="btn btn-sm"
               style={{ borderColor: 'var(--accent-red)', color: 'var(--accent-red)' }}
-              onClick={onDeleteSelectedPickup}
+              onClick={onDeleteSelectedHardware}
               title="Delete this pickup"
             >
               <Trash2 size={14} /> Delete Pickup
             </button>
           </div>
+        ) : selectedPotentiometer ? (
+          <div>
+            <div className="section-title control-inspector-title">
+              <CircleDot size={15} /> Potentiometer
+            </div>
+            <div className="coordinate-input-grid">
+              <div className="form-group">
+                <label className="form-label">X ({unitLabel})</label>
+                <input
+                  type="number"
+                  step={isMm ? '0.5' : '0.05'}
+                  className="form-input"
+                  value={(selectedPotentiometer.position.x * factor).toFixed(2)}
+                  onChange={(event) =>
+                    onUpdateProject(
+                      (prev) => movingPotentiometer(prev, selectedPotentiometer.id, {
+                        ...selectedPotentiometer.position,
+                        x: mmFromInput(event.target.value),
+                      }),
+                      `potentiometer.x:${selectedPotentiometer.id}`
+                    )
+                  }
+                  onBlur={onEndEdit}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Y ({unitLabel})</label>
+                <input
+                  type="number"
+                  step={isMm ? '0.5' : '0.05'}
+                  className="form-input"
+                  value={(selectedPotentiometer.position.y * factor).toFixed(2)}
+                  onChange={(event) =>
+                    onUpdateProject(
+                      (prev) => movingPotentiometer(prev, selectedPotentiometer.id, {
+                        ...selectedPotentiometer.position,
+                        y: mmFromInput(event.target.value),
+                      }),
+                      `potentiometer.y:${selectedPotentiometer.id}`
+                    )
+                  }
+                  onBlur={onEndEdit}
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Hidden Body Diameter ({unitLabel})</label>
+              <input
+                type="number"
+                min={isMm ? 1 : 0.04}
+                step={isMm ? '0.5' : '0.05'}
+                className="form-input"
+                value={(selectedPotentiometer.bodyDiameterMm * factor).toFixed(2)}
+                onChange={(event) =>
+                  onUpdateProject(
+                    (prev) => settingPotentiometerBodyDiameter(
+                      prev,
+                      selectedPotentiometer.id,
+                      Math.max(1, mmFromInput(event.target.value))
+                    ),
+                    `potentiometer.body:${selectedPotentiometer.id}`
+                  )
+                }
+                onBlur={onEndEdit}
+              />
+            </div>
+            <p className="inspector-help">
+              The 24 mm body is a clearance reference below the top. Only the knob is normally visible.
+            </p>
+
+            <button
+              className="btn btn-sm destructive-outline-button"
+              onClick={onDeleteSelectedHardware}
+              title="Delete this potentiometer"
+            >
+              <Trash2 size={14} /> Delete Potentiometer
+            </button>
+          </div>
+        ) : selectedSwitch ? (
+          <div>
+            <div className="section-title control-inspector-title">
+              <ToggleLeft size={15} /> Selector Switch
+            </div>
+            <div className="form-group">
+              <label className="form-label">Switch Type</label>
+              <select
+                className="form-select"
+                value={selectedSwitch.type}
+                onChange={(event) =>
+                  onUpdateProject((prev) => settingSwitchType(
+                    prev,
+                    selectedSwitch.id,
+                    event.target.value as SwitchType
+                  ))
+                }
+              >
+                {(Object.entries(SWITCH_TYPE_LABELS) as [SwitchType, string][]).map(([type, label]) => (
+                  <option key={type} value={type}>{label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="coordinate-input-grid">
+              <div className="form-group">
+                <label className="form-label">X ({unitLabel})</label>
+                <input
+                  type="number"
+                  step={isMm ? '0.5' : '0.05'}
+                  className="form-input"
+                  value={(selectedSwitch.position.x * factor).toFixed(2)}
+                  onChange={(event) =>
+                    onUpdateProject(
+                      (prev) => movingSwitch(prev, selectedSwitch.id, {
+                        ...selectedSwitch.position,
+                        x: mmFromInput(event.target.value),
+                      }),
+                      `switch.x:${selectedSwitch.id}`
+                    )
+                  }
+                  onBlur={onEndEdit}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Y ({unitLabel})</label>
+                <input
+                  type="number"
+                  step={isMm ? '0.5' : '0.05'}
+                  className="form-input"
+                  value={(selectedSwitch.position.y * factor).toFixed(2)}
+                  onChange={(event) =>
+                    onUpdateProject(
+                      (prev) => movingSwitch(prev, selectedSwitch.id, {
+                        ...selectedSwitch.position,
+                        y: mmFromInput(event.target.value),
+                      }),
+                      `switch.y:${selectedSwitch.id}`
+                    )
+                  }
+                  onBlur={onEndEdit}
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Angle (deg)</label>
+              <input
+                type="number"
+                step="0.5"
+                className="form-input"
+                value={selectedSwitch.angleDegrees.toFixed(1)}
+                onChange={(event) =>
+                  onUpdateProject(
+                    (prev) => settingSwitchAngle(
+                      prev,
+                      selectedSwitch.id,
+                      Number.parseFloat(event.target.value) || 0
+                    ),
+                    `switch.angle:${selectedSwitch.id}`
+                  )
+                }
+                onBlur={onEndEdit}
+              />
+            </div>
+
+            <button
+              className="btn btn-sm destructive-outline-button"
+              onClick={onDeleteSelectedHardware}
+              title="Delete this selector switch"
+            >
+              <Trash2 size={14} /> Delete Switch
+            </button>
+          </div>
         ) : (
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
             Click any blue anchor circle to inspect coordinates and edit Bezier handles, click a green
-            pickup rout to move or rotate it, or click the{' '}
+            pickup rout or control to move it, or click the{' '}
             {activeLayer.kind === 'body' ? 'body outline' : 'outline'} between two anchors to select
             that edge and make it straight or curved. Double-click the outline to add a node where you
             clicked.

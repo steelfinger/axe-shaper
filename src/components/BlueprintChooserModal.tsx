@@ -78,6 +78,8 @@ export function BlueprintChooserModal({
       edgeProfile: project.edgeProfile ? structuredClone(project.edgeProfile) : undefined,
       bodyThicknessMm: project.bodyThicknessMm,
       defaultPickups: structuredClone(project.pickups),
+      defaultPotentiometers: structuredClone(project.potentiometers ?? []),
+      defaultSwitches: structuredClone(project.switches ?? []),
       defaultPickguards: structuredClone(project.pickguards ?? []),
       defaultFrontRoutes: structuredClone(project.frontRoutes ?? []),
       defaultBackRoutes: structuredClone(project.backRoutes ?? []),

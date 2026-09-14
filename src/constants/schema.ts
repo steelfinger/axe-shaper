@@ -31,12 +31,16 @@
  *       `BridgePreset.heightMm` and `NeckPreset.nutStringSpacingMm`. Both
  *       string-spacing fields are the *total spread* across all strings, not
  *       the per-string pitch (docs/AXE_SVG_FORMAT.md).
+ *   4 - Adds independently placed potentiometers and selector switches.
+ *       Potentiometers store a 24mm default body diameter but draw only their
+ *       knob during normal editing; switch types are Gibson toggle and Fender
+ *       blade. Electrical values and switch state are intentionally absent.
  *
  *       Note that the version bump is not a bass-only event: from this build
  *       on, every saved *guitar* project is version 3 too, and reaches iOS
  *       and the 3D viewer as version 3.
  */
-export const PROJECT_SCHEMA_VERSION = 3;
+export const PROJECT_SCHEMA_VERSION = 4;
 
 /**
  * The oldest payload this build can read. Nothing has been dropped yet, so

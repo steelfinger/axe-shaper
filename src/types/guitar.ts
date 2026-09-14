@@ -225,6 +225,35 @@ export interface PickupPlacement {
   anchors?: PathAnchor[];
 }
 
+/** Appearance-only knob vocabulary. The placed potentiometer remains the
+ * physical source of truth; an unknown style is preserved and rendered with
+ * the generic fallback by readers that do not recognise it. */
+export type KnobStyleId = 'generic' | (string & {});
+
+export interface PotentiometerPlacement {
+  id: string;
+  position: Vector2D;
+  /** Diameter of the hidden potentiometer body below the visible knob. */
+  bodyDiameterMm: LengthMm;
+  /** Blueprint-owned appearance. The editor deliberately has no style picker. */
+  knobStyleId: KnobStyleId;
+}
+
+export type SwitchType = 'gibson_toggle' | 'fender_blade';
+
+export interface SwitchPlacement {
+  id: string;
+  type: SwitchType;
+  position: Vector2D;
+  angleDegrees: number;
+}
+
+/** A movable, directly-selectable hardware item on the body canvas. */
+export type SelectedHardwarePlacement =
+  | { kind: 'pickup'; id: string }
+  | { kind: 'potentiometer'; id: string }
+  | { kind: 'switch'; id: string };
+
 export interface PickguardPlacement {
   id: string;
   name?: string;
@@ -301,6 +330,8 @@ export interface ProjectSettings {
   showPickguard?: boolean;
   showFrontRoutes?: boolean;
   showBackRoutes?: boolean;
+  /** Screen-only visibility for placed knobs and selector switches. */
+  showControls?: boolean;
 }
 
 export interface ReferenceTemplate {
@@ -330,6 +361,8 @@ export interface ReferenceTemplate {
   /** Binding restored with the blueprint; absent means no binding. */
   binding?: BindingParams;
   defaultPickups: PickupPlacement[];
+  defaultPotentiometers?: PotentiometerPlacement[];
+  defaultSwitches?: SwitchPlacement[];
   defaultPickguards?: PickguardPlacement[];
   defaultFrontRoutes?: RoutedCavity[];
   defaultBackRoutes?: RoutedCavity[];
@@ -417,6 +450,10 @@ export interface GuitarProject {
    */
   neckJointMechanism?: NeckJointMechanism;
   pickups: PickupPlacement[];
+  /** Optional for schema 1-3 files. New projects write an empty collection. */
+  potentiometers?: PotentiometerPlacement[];
+  /** Optional for schema 1-3 files. New projects write an empty collection. */
+  switches?: SwitchPlacement[];
   /**
    * Optional, unlike `pickups` - a file from before this feature existed
    * genuinely lacks the key, and `migrateProject()` deliberately does not

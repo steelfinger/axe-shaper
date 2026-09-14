@@ -104,6 +104,41 @@ function bridgeHardwareSVG(
       <g transform="translate(0, ${mountingOriginY.toFixed(2)})">${mountingPoints}</g>`;
 }
 
+function potentiometerSVG(project: GuitarProject): string {
+  return (project.potentiometers ?? [])
+    .map((potentiometer) => `
+      <g transform="translate(${potentiometer.position.x.toFixed(2)}, ${potentiometer.position.y.toFixed(2)})" data-knob-style="${escapeXml(potentiometer.knobStyleId)}">
+        <circle cx="0" cy="0" r="9" class="control-hardware" />
+        <circle cx="0" cy="0" r="5.7" class="control-detail" />
+        <line x1="0" y1="-5" x2="0" y2="-7.8" class="control-indicator" />
+        <circle cx="0" cy="0" r="1.2" class="control-center" />
+      </g>`)
+    .join('');
+}
+
+function selectorSwitchSVG(project: GuitarProject): string {
+  return (project.switches ?? [])
+    .map((selector) => {
+      const drawing = selector.type === 'fender_blade'
+        ? `
+        <rect x="-5" y="-14" width="10" height="28" rx="2" class="control-hardware" />
+        <line x1="0" y1="-9" x2="0" y2="9" class="control-slot" />
+        <line x1="0" y1="1" x2="0" y2="-9" class="control-lever" />
+        <rect x="-2.8" y="-12" width="5.6" height="7" rx="1.4" class="control-cap" />`
+        : `
+        <circle cx="0" cy="0" r="7.5" class="control-hardware" />
+        <circle cx="0" cy="0" r="3.4" class="control-detail" />
+        <line x1="0" y1="0" x2="0" y2="-10" class="control-lever" />
+        <circle cx="0" cy="-10" r="2.5" class="control-cap" />`;
+      return `
+      <g transform="translate(${selector.position.x.toFixed(2)}, ${selector.position.y.toFixed(2)}) rotate(${selector.angleDegrees.toFixed(2)})" data-switch-type="${escapeXml(selector.type)}">
+        ${drawing}
+        <circle cx="0" cy="0" r="1.2" class="control-center" />
+      </g>`;
+    })
+    .join('');
+}
+
 /** Escape a string for safe interpolation into XML text or attribute values. */
 function escapeXml(value: string): string {
   return value
@@ -176,7 +211,7 @@ export function extractProjectFromSVG(svgText: string): StoredProject | null {
  * Bezier control points are included, which bounds the curve conservatively.
  */
 function getContentBoundsMm(project: GuitarProject): BoundsMm {
-  const { contour, pickups, pickguards, frontRoutes, backRoutes } = project;
+  const { contour, pickups, potentiometers, switches, pickguards, frontRoutes, backRoutes } = project;
   const neck = resolveNeckPreset(project);
   const bridge = resolveBridgePreset(project);
 
@@ -227,6 +262,17 @@ function getContentBoundsMm(project: GuitarProject): BoundsMm {
     const reach = Math.hypot(spec.widthMm, spec.heightMm) / 2;
     add(p.offsetXMm - reach, p.offsetYMm - reach);
     add(p.offsetXMm + reach, p.offsetYMm + reach);
+  }
+
+  // Visible controls. The potentiometer's hidden body diameter is metadata
+  // and a selected-editor clearance guide, so it does not enlarge the print.
+  for (const potentiometer of potentiometers ?? []) {
+    add(potentiometer.position.x - 10, potentiometer.position.y - 10);
+    add(potentiometer.position.x + 10, potentiometer.position.y + 10);
+  }
+  for (const selector of switches ?? []) {
+    add(selector.position.x - 18, selector.position.y - 18);
+    add(selector.position.x + 18, selector.position.y + 18);
   }
 
   // Degenerate project (no geometry at all): fall back to a sane sheet
@@ -327,6 +373,13 @@ export function exportProjectToSVG(rawProject: StoredProject): string {
     .back-route { fill: ${PLAN_DRAWING_STYLE.print.backRouteFill}; stroke: ${PLAN_DRAWING_STYLE.print.backRouteStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; stroke-dasharray: ${PLAN_DRAWING_STYLE.print.backRouteDashMm}; }
     .front-route { fill: ${PLAN_DRAWING_STYLE.print.frontRouteFill}; stroke: ${PLAN_DRAWING_STYLE.print.frontRouteStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
     .pickguard { fill: #ffffff; fill-opacity: ${PLAN_DRAWING_STYLE.print.pickguardFillOpacity}; stroke: ${PLAN_DRAWING_STYLE.print.pickguardStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
+    .control-hardware { fill: #e7e5e4; stroke: #44403c; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
+    .control-detail { fill: #292524; stroke: #78716c; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
+    .control-indicator { fill: none; stroke: #ffffff; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; stroke-linecap: round; }
+    .control-slot { fill: none; stroke: #292524; stroke-width: 0.6; stroke-linecap: round; }
+    .control-lever { fill: none; stroke: #78716c; stroke-width: 0.8; stroke-linecap: round; }
+    .control-cap { fill: #1c1917; stroke: #292524; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
+    .control-center { fill: #d1a53d; }
     .center-axis { fill: none; stroke: #6c757d; stroke-width: ${PLAN_DRAWING_STYLE.print.guideStrokeMm}; stroke-dasharray: 6,4; opacity: 0.7; }
     .calibration-box { fill: none; stroke: #d9534f; stroke-width: ${PLAN_DRAWING_STYLE.print.bodyStrokeMm}; stroke-dasharray: 3,3; }
     .band-rule { fill: none; stroke: #adb5bd; stroke-width: ${PLAN_DRAWING_STYLE.print.guideStrokeMm}; }
@@ -402,6 +455,16 @@ export function exportProjectToSVG(rawProject: StoredProject): string {
         `;
       })
       .join('')}
+
+    <!-- Visible potentiometer knobs. Hidden body diameters remain in project metadata. -->
+    <g id="control-knobs">
+      ${potentiometerSVG(project)}
+    </g>
+
+    <!-- Selector switch hardware. Special mounting cavities are outside this version's scope. -->
+    <g id="control-switches">
+      ${selectorSwitchSVG(project)}
+    </g>
 
     <!-- Family-specific bridge hardware and scale-length reference line -->
     <g id="bridge-hardware">

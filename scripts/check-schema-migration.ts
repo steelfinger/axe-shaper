@@ -1,6 +1,6 @@
 /**
- * Schema version 3's contract: the instrument axis, the migration of older
- * files onto it, and the two gates that keep a payload this build does not
+ * The current schema contract: the instrument axis, visible controls, the
+ * migration of older files, and the two gates that keep a payload this build does not
  * understand out of the editable project path.
  *
  * Cases are built in memory from the bundled s_style blueprint rather than
@@ -77,11 +77,12 @@ async function main() {
     const templates = await load('/src/constants/templates.ts');
     const projectFactory = await load('/src/utils/projectFactory.ts');
     const bodyThickness = await load('/src/utils/bodyThickness.ts');
+    const controls = await load('/src/utils/controlEditing.ts');
 
     const v2 = decodePayload(readFileSync(BASE_BLUEPRINT, 'utf8'));
     invariant(v2.schemaVersion === 2, `expected the bundled blueprint to still be version 2, got ${v2.schemaVersion}`);
 
-    console.log('version 2 -> 3 (the bundled blueprints and every existing save)');
+    console.log('version 2 -> current (the bundled blueprints and every existing save)');
 
     check('migrates to a Guitar/6 project at the current version', () => {
       const migrated = presets.migrateProject(v2);
@@ -101,7 +102,7 @@ async function main() {
       });
     });
 
-    console.log('version 1 -> 3 (ids only, no embedded hardware)');
+    console.log('version 1 -> current (ids only, no embedded hardware)');
 
     // A real version 1 payload: preset ids, no embedded copies, no instrument
     // axis. This app has not written one since schema version 2 shipped.
@@ -283,6 +284,49 @@ async function main() {
       );
       deepStrictEqual(bodyThickness.FALLBACK_BODY_THICKNESS_MM, 45);
     });
+
+    console.log('visible controls');
+
+    check('new projects start with explicit empty control collections', () => {
+      const project = projectFactory.createProject({ templateId: 's_style' });
+      deepStrictEqual(project.potentiometers, []);
+      deepStrictEqual(project.switches, []);
+    });
+
+    check('new potentiometers use a 24mm body and generic knob appearance', () => {
+      const project = projectFactory.createProject({ templateId: 's_style' });
+      const added = controls.addingPotentiometer(project);
+      deepStrictEqual(added.selection.kind, 'potentiometer');
+      deepStrictEqual(added.project.potentiometers.length, 1);
+      deepStrictEqual(added.project.potentiometers[0].bodyDiameterMm, 24);
+      deepStrictEqual(added.project.potentiometers[0].knobStyleId, 'generic');
+    });
+
+    check('both switch families are freely placeable and editable', () => {
+      const project = projectFactory.createProject({ templateId: 's_style' });
+      const gibson = controls.addingSwitch(project, 'gibson_toggle');
+      const fender = controls.addingSwitch(gibson.project, 'fender_blade');
+      const moved = controls.movingSwitch(fender.project, fender.selection.id, { x: 72, y: 245 });
+      const rotated = controls.settingSwitchAngle(moved, fender.selection.id, 35);
+      const selector = rotated.switches.find((item: any) => item.id === fender.selection.id);
+      deepStrictEqual(selector.type, 'fender_blade');
+      deepStrictEqual(selector.position, { x: 72, y: 245 });
+      deepStrictEqual(selector.angleDegrees, 35);
+      deepStrictEqual(rotated.switches[0].type, 'gibson_toggle');
+    });
+
+    check('controls survive SVG save/reload and produce visible SVG groups', () => {
+      let project = projectFactory.createProject({ templateId: 's_style' });
+      project = controls.addingPotentiometer(project).project;
+      project = controls.addingSwitch(project, 'fender_blade').project;
+      const written = exporter.exportProjectToSVG(project);
+      const payload = decodePayload(written);
+      deepStrictEqual(payload.potentiometers, project.potentiometers);
+      deepStrictEqual(payload.switches, project.switches);
+      invariant(written.includes('id="control-knobs"'), 'print SVG omitted the knob group');
+      invariant(written.includes('id="control-switches"'), 'print SVG omitted the switch group');
+      invariant(written.includes('data-switch-type="fender_blade"'), 'print SVG omitted the blade drawing');
+    });
   } finally {
     await server.close();
   }
@@ -291,7 +335,7 @@ async function main() {
     console.error(`\n${failures} check(s) failed.`);
     process.exit(1);
   }
-  console.log('\nSchema version 3 contract holds.');
+  console.log('\nCurrent schema contract holds.');
 }
 
 main().catch((error) => {

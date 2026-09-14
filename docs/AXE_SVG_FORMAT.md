@@ -34,6 +34,7 @@ project name could contain one.
 | 1 | Hardware referenced by id only. |
 | 2 | `neckPreset` / `bridgePreset`: full embedded copies of the hardware. |
 | 3 | `instrumentType`, `stringCount`; reserves `stringSpacingMm`, `heightMm`, `nutStringSpacingMm`. |
+| 4 | `potentiometers`, `switches`: independently placed visible controls. |
 
 ### The embedded copy wins
 
@@ -117,6 +118,25 @@ one door into the editable project path.
 
 **Both are the distance from the outer string to the outer string, across all
 strings. Neither is the per-string pitch.**
+
+## Version 4: visible controls
+
+Projects may carry `potentiometers` and `switches`. Both collections are
+optional at the decode boundary: absence means that a version 1-3 file has no
+placed controls.
+
+- A potentiometer stores its centre position, hidden body diameter and
+  `knobStyleId`. New placements use a 24mm body. Resistance, taper and current
+  value are deliberately not modelled. Normal canvas and print rendering show
+  the knob, not the hidden body; the editor may show the body as a selected
+  clearance guide.
+- A switch stores its centre position, rotation and visible type. Version 4
+  defines `gibson_toggle` and `fender_blade`. Electrical state and special
+  mounting cavities are deliberately not modelled.
+- Controls are freely placeable on the body. Their mounting surface is not
+  inferred from overlap with a pickguard and is not stored in this version.
+- Unknown knob style ids are preserved and may render with the generic knob
+  fallback. Placement geometry remains authoritative.
 
 `BridgePreset.stringSpacingMm` — total spread at the saddles.
 `NeckPreset.nutStringSpacingMm` — total spread at the nut.
@@ -202,14 +222,16 @@ changed while the bass catalogue existed but no bass blueprint did, so no
 stored overhang constant had to be recomputed; after bass bodies ship, changing
 it means recomputing every one of them on both platforms.
 
-## The 3D viewer has no instrument awareness yet
+## The 3D viewer has no instrument or control awareness yet
 
 `steelfinger/axe-shape-3D-viewer` (the pinned bundle in `public/viewer3d`)
-tolerates schema version 3 - its `validateProject` only checks `typeof
-schemaVersion === 'number'`, with no upper bound and an index-signature
-project type, so the new fields pass through untouched. **Passing through is
-all it does.** Nothing in the viewer reads `instrumentType` or `stringCount`
-yet: string count, pole spacing and headstock posts are fixed at six.
+tolerates numeric schema versions including version 4 - its `validateProject`
+only checks `typeof schemaVersion === 'number'`, with no upper bound and an
+index-signature project type, so the new fields pass through untouched.
+**Passing through is all it does.** Nothing in the viewer reads
+`instrumentType`, `stringCount`, `potentiometers` or `switches` yet: string
+count, pole spacing and headstock posts are fixed at six, and body controls
+are not drawn.
 
 Consequence: opening a Bass/4 project there today would render a six-string
 guitar interpretation of it, silently wrong rather than visibly broken. Web

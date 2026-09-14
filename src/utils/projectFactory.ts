@@ -48,6 +48,8 @@ type TemplateSource = Pick<
   | 'bodyThicknessMm'
   | 'binding'
   | 'defaultPickups'
+  | 'defaultPotentiometers'
+  | 'defaultSwitches'
   | 'defaultPickguards'
   | 'defaultFrontRoutes'
   | 'defaultBackRoutes'
@@ -95,6 +97,7 @@ export function createProject(options: CreateProjectOptions = {}): GuitarProject
       showCenterAxis: true,
       showGhostGuide: true,
       showHardwareCavities: true,
+      showControls: true,
       showDimensions: true,
       showGrid: true,
       gridSizeMm: 50,
@@ -121,6 +124,8 @@ export function createProject(options: CreateProjectOptions = {}): GuitarProject
     neckJointMechanism: defaultNeckJointMechanism(templateId),
     ...bridgePresetFields(template.bridgePresetId),
     pickups: structuredClone(template.defaultPickups),
+    potentiometers: structuredClone(template.defaultPotentiometers ?? []),
+    switches: structuredClone(template.defaultSwitches ?? []),
     pickguards: structuredClone(template.defaultPickguards ?? []),
     frontRoutes: structuredClone(template.defaultFrontRoutes ?? []),
     backRoutes: structuredClone(template.defaultBackRoutes ?? []),
