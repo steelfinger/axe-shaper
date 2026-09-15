@@ -5,8 +5,8 @@
  *
  * Cases are built in memory from the bundled s_style blueprint rather than
  * committed as fixture files, because three of them are payloads this app
- * cannot produce (a version 1 file, a version 4 file, a Bass/6 file) and a
- * committed file that no writer can write is a file nobody can regenerate.
+ * cannot produce (a version 1 file, a future-version file, a Bass/6 file) and
+ * a committed file that no writer can write is a file nobody can regenerate.
  * The cross-platform fixture corpus is a separate, later job (milestone W7);
  * this script is the local contract test.
  *
@@ -79,8 +79,32 @@ async function main() {
     const bodyThickness = await load('/src/utils/bodyThickness.ts');
     const controls = await load('/src/utils/controlEditing.ts');
 
-    const v2 = decodePayload(readFileSync(BASE_BLUEPRINT, 'utf8'));
-    invariant(v2.schemaVersion === 2, `expected the bundled blueprint to still be version 2, got ${v2.schemaVersion}`);
+    const currentBlueprint = decodePayload(readFileSync(BASE_BLUEPRINT, 'utf8'));
+    invariant(
+      currentBlueprint.schemaVersion === schema.PROJECT_SCHEMA_VERSION,
+      `expected the bundled blueprint at schema ${schema.PROJECT_SCHEMA_VERSION}, got ${currentBlueprint.schemaVersion}`
+    );
+
+    // Production blueprints now carry schema-v4 controls, so derive the
+    // historical v2 shape explicitly instead of requiring the shipped assets
+    // to remain frozen at an obsolete version just to exercise migration.
+    const {
+      instrumentType: _instrumentType,
+      stringCount: _stringCount,
+      potentiometers: _potentiometers,
+      switches: _switches,
+      ...withoutV3AndV4Fields
+    } = currentBlueprint;
+    const {
+      showControls: _showControls,
+      snapToGridEnabled: _snapToGridEnabled,
+      ...v2Settings
+    } = withoutV3AndV4Fields.settings;
+    const v2 = {
+      ...withoutV3AndV4Fields,
+      schemaVersion: 2,
+      settings: v2Settings,
+    };
 
     console.log('version 2 -> current (the bundled blueprints and every existing save)');
 
@@ -185,8 +209,8 @@ async function main() {
       });
 
     // The gate that did not exist before version 3: migrateProject stamped
-    // PROJECT_SCHEMA_VERSION unconditionally, so this payload was previously
-    // accepted, editable, and written back out as version 2.
+    // PROJECT_SCHEMA_VERSION unconditionally, so a future payload was
+    // previously accepted, editable, and written back as an older version.
     rejects(
       'a future schema version cannot enter the editable project path',
       { ...v2, schemaVersion: schema.PROJECT_SCHEMA_VERSION + 1 },
@@ -287,14 +311,20 @@ async function main() {
 
     console.log('visible controls');
 
-    check('new projects start with explicit empty control collections', () => {
+    check('new projects copy the blueprint control collections', () => {
       const project = projectFactory.createProject({ templateId: 's_style' });
-      deepStrictEqual(project.potentiometers, []);
-      deepStrictEqual(project.switches, []);
+      deepStrictEqual(project.potentiometers, templates.REFERENCE_TEMPLATES.s_style.defaultPotentiometers);
+      deepStrictEqual(project.switches, templates.REFERENCE_TEMPLATES.s_style.defaultSwitches);
+      invariant(project.potentiometers.length > 0, 'the bundled S-style blueprint has no potentiometers');
+      invariant(project.switches.length > 0, 'the bundled S-style blueprint has no switch');
     });
 
     check('new potentiometers use a 24mm body and generic knob appearance', () => {
-      const project = projectFactory.createProject({ templateId: 's_style' });
+      const project = {
+        ...projectFactory.createProject({ templateId: 's_style' }),
+        potentiometers: [],
+        switches: [],
+      };
       const added = controls.addingPotentiometer(project);
       deepStrictEqual(added.selection.kind, 'potentiometer');
       deepStrictEqual(added.project.potentiometers.length, 1);
@@ -303,7 +333,11 @@ async function main() {
     });
 
     check('both switch families are freely placeable and editable', () => {
-      const project = projectFactory.createProject({ templateId: 's_style' });
+      const project = {
+        ...projectFactory.createProject({ templateId: 's_style' }),
+        potentiometers: [],
+        switches: [],
+      };
       const gibson = controls.addingSwitch(project, 'gibson_toggle');
       const fender = controls.addingSwitch(gibson.project, 'fender_blade');
       const moved = controls.movingSwitch(fender.project, fender.selection.id, { x: 72, y: 245 });
@@ -316,7 +350,11 @@ async function main() {
     });
 
     check('controls survive SVG save/reload and produce visible SVG groups', () => {
-      let project = projectFactory.createProject({ templateId: 's_style' });
+      let project = {
+        ...projectFactory.createProject({ templateId: 's_style' }),
+        potentiometers: [],
+        switches: [],
+      };
       project = controls.addingPotentiometer(project).project;
       project = controls.addingSwitch(project, 'fender_blade').project;
       const written = exporter.exportProjectToSVG(project);
