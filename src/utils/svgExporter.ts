@@ -22,7 +22,7 @@ import {
   type BridgeDrawingGeometry,
   type BridgeDrawingRect,
 } from './bridgeDrawing';
-import { PLAN_DRAWING_STYLE } from '../constants/planDrawingStyle';
+import { CONTROL_DRAWING_GEOMETRY, PLAN_DRAWING_STYLE } from '../constants/planDrawingStyle';
 
 /** Namespace for the <project:*> metadata elements. Must be declared or the file is not well-formed XML. */
 const PROJECT_NS = 'https://axe-shaper.app/ns/project/1';
@@ -108,10 +108,9 @@ function potentiometerSVG(project: GuitarProject): string {
   return (project.potentiometers ?? [])
     .map((potentiometer) => `
       <g transform="translate(${potentiometer.position.x.toFixed(2)}, ${potentiometer.position.y.toFixed(2)})" data-knob-style="${escapeXml(potentiometer.knobStyleId)}">
-        <circle cx="0" cy="0" r="9" class="control-hardware" />
-        <circle cx="0" cy="0" r="5.7" class="control-detail" />
-        <line x1="0" y1="-5" x2="0" y2="-7.8" class="control-indicator" />
-        <circle cx="0" cy="0" r="1.2" class="control-center" />
+        <circle cx="0" cy="0" r="${(potentiometer.bodyDiameterMm / 2).toFixed(2)}" class="control-body" />
+        <circle cx="0" cy="0" r="${(CONTROL_DRAWING_GEOMETRY.potentiometerKnobDiameterMm / 2).toFixed(2)}" class="control-outline" />
+        <circle cx="0" cy="0" r="${(CONTROL_DRAWING_GEOMETRY.potentiometerShaftHoleDiameterMm / 2).toFixed(2)}" class="control-outline" />
       </g>`)
     .join('');
 }
@@ -121,19 +120,18 @@ function selectorSwitchSVG(project: GuitarProject): string {
     .map((selector) => {
       const drawing = selector.type === 'fender_blade'
         ? `
-        <rect x="-5" y="-14" width="10" height="28" rx="2" class="control-hardware" />
+        <rect x="-5" y="-14" width="10" height="28" rx="2" class="control-outline" />
         <line x1="0" y1="-9" x2="0" y2="9" class="control-slot" />
         <line x1="0" y1="1" x2="0" y2="-9" class="control-lever" />
         <rect x="-2.8" y="-12" width="5.6" height="7" rx="1.4" class="control-cap" />`
         : `
-        <circle cx="0" cy="0" r="7.5" class="control-hardware" />
-        <circle cx="0" cy="0" r="3.4" class="control-detail" />
+        <circle cx="0" cy="0" r="7.5" class="control-outline" />
+        <circle cx="0" cy="0" r="3.4" class="control-outline" />
         <line x1="0" y1="0" x2="0" y2="-10" class="control-lever" />
         <circle cx="0" cy="-10" r="2.5" class="control-cap" />`;
       return `
       <g transform="translate(${selector.position.x.toFixed(2)}, ${selector.position.y.toFixed(2)}) rotate(${selector.angleDegrees.toFixed(2)})" data-switch-type="${escapeXml(selector.type)}">
         ${drawing}
-        <circle cx="0" cy="0" r="1.2" class="control-center" />
       </g>`;
     })
     .join('');
@@ -264,11 +262,16 @@ function getContentBoundsMm(project: GuitarProject): BoundsMm {
     add(p.offsetXMm + reach, p.offsetYMm + reach);
   }
 
-  // Visible controls. The potentiometer's hidden body diameter is metadata
-  // and a selected-editor clearance guide, so it does not enlarge the print.
+  // Visible controls. Potentiometer body, knob and shaft-hole outlines are
+  // fabrication geometry, so the largest circle must fit inside the page.
   for (const potentiometer of potentiometers ?? []) {
-    add(potentiometer.position.x - 10, potentiometer.position.y - 10);
-    add(potentiometer.position.x + 10, potentiometer.position.y + 10);
+    const radius = Math.max(
+      potentiometer.bodyDiameterMm,
+      CONTROL_DRAWING_GEOMETRY.potentiometerKnobDiameterMm,
+      CONTROL_DRAWING_GEOMETRY.potentiometerShaftHoleDiameterMm
+    ) / 2;
+    add(potentiometer.position.x - radius, potentiometer.position.y - radius);
+    add(potentiometer.position.x + radius, potentiometer.position.y + radius);
   }
   for (const selector of switches ?? []) {
     add(selector.position.x - 18, selector.position.y - 18);
@@ -373,13 +376,11 @@ export function exportProjectToSVG(rawProject: StoredProject): string {
     .back-route { fill: ${PLAN_DRAWING_STYLE.print.backRouteFill}; stroke: ${PLAN_DRAWING_STYLE.print.backRouteStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; stroke-dasharray: ${PLAN_DRAWING_STYLE.print.backRouteDashMm}; }
     .front-route { fill: ${PLAN_DRAWING_STYLE.print.frontRouteFill}; stroke: ${PLAN_DRAWING_STYLE.print.frontRouteStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
     .pickguard { fill: #ffffff; fill-opacity: ${PLAN_DRAWING_STYLE.print.pickguardFillOpacity}; stroke: ${PLAN_DRAWING_STYLE.print.pickguardStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
-    .control-hardware { fill: #e7e5e4; stroke: #44403c; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
-    .control-detail { fill: #292524; stroke: #78716c; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
-    .control-indicator { fill: none; stroke: #ffffff; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; stroke-linecap: round; }
-    .control-slot { fill: none; stroke: #292524; stroke-width: 0.6; stroke-linecap: round; }
-    .control-lever { fill: none; stroke: #78716c; stroke-width: 0.8; stroke-linecap: round; }
-    .control-cap { fill: #1c1917; stroke: #292524; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
-    .control-center { fill: #d1a53d; }
+    .control-outline { fill: none; stroke: ${PLAN_DRAWING_STYLE.print.controlStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
+    .control-body { fill: none; stroke: ${PLAN_DRAWING_STYLE.print.controlStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; stroke-dasharray: ${PLAN_DRAWING_STYLE.print.controlBodyDashMm}; stroke-linecap: round; }
+    .control-slot { fill: none; stroke: ${PLAN_DRAWING_STYLE.print.controlStroke}; stroke-width: 0.6; stroke-linecap: round; }
+    .control-lever { fill: none; stroke: ${PLAN_DRAWING_STYLE.print.controlStroke}; stroke-width: 0.8; stroke-linecap: round; }
+    .control-cap { fill: none; stroke: ${PLAN_DRAWING_STYLE.print.controlStroke}; stroke-width: ${PLAN_DRAWING_STYLE.print.detailStrokeMm}; }
     .center-axis { fill: none; stroke: #6c757d; stroke-width: ${PLAN_DRAWING_STYLE.print.guideStrokeMm}; stroke-dasharray: 6,4; opacity: 0.7; }
     .calibration-box { fill: none; stroke: #d9534f; stroke-width: ${PLAN_DRAWING_STYLE.print.bodyStrokeMm}; stroke-dasharray: 3,3; }
     .band-rule { fill: none; stroke: #adb5bd; stroke-width: ${PLAN_DRAWING_STYLE.print.guideStrokeMm}; }
@@ -456,7 +457,7 @@ export function exportProjectToSVG(rawProject: StoredProject): string {
       })
       .join('')}
 
-    <!-- Visible potentiometer knobs. Hidden body diameters remain in project metadata. -->
+    <!-- Potentiometer body, knob and shaft-hole footprints. -->
     <g id="control-knobs">
       ${potentiometerSVG(project)}
     </g>

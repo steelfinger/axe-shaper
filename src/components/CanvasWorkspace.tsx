@@ -39,7 +39,11 @@ import {
   toMm,
   unitLabel,
 } from '../utils/units';
-import { PLAN_DRAWING_STYLE, colorWithAlpha } from '../constants/planDrawingStyle';
+import {
+  CONTROL_DRAWING_GEOMETRY,
+  PLAN_DRAWING_STYLE,
+  colorWithAlpha,
+} from '../constants/planDrawingStyle';
 import { snapHandleAngle } from '../utils/handleAngleSnap';
 import {
   movingPotentiometer,
@@ -1075,6 +1079,9 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               {potentiometers.map((potentiometer) => {
                 const isSelected =
                   selectedHardware?.kind === 'potentiometer' && selectedHardware.id === potentiometer.id;
+                const controlStroke = isSelected
+                  ? PLAN_DRAWING_STYLE.screen.controlSelectedStroke
+                  : PLAN_DRAWING_STYLE.screen.controlStroke;
                 return (
                   <Group
                     key={potentiometer.id}
@@ -1109,36 +1116,47 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                     }
                     onDragEnd={onEndEdit}
                   >
-                    {isSelected && (
-                      <Circle
-                        radius={potentiometer.bodyDiameterMm / 2}
-                        fill="rgba(56, 189, 248, 0.05)"
-                        stroke="rgba(56, 189, 248, 0.7)"
-                        strokeWidth={1 / zoom}
-                        dash={[4 / zoom, 3 / zoom]}
-                        listening={false}
-                      />
-                    )}
+                    {/* Keep the whole footprint easy to grab while the visible
+                        plan remains pure linework. */}
                     <Circle
-                      radius={9}
-                      fill="#d6d3d1"
-                      stroke={isSelected ? '#38bdf8' : '#57534e'}
-                      strokeWidth={(isSelected ? 2.2 : 1.2) / zoom}
+                      radius={Math.max(
+                        potentiometer.bodyDiameterMm,
+                        CONTROL_DRAWING_GEOMETRY.potentiometerKnobDiameterMm
+                      ) / 2}
+                      fill="rgba(255, 255, 255, 0.001)"
                     />
-                    <Circle radius={5.7} fill="#292524" stroke="#a8a29e" strokeWidth={0.8 / zoom} />
-                    <Line
-                      points={[0, -5, 0, -7.8]}
-                      stroke="#f5f5f4"
-                      strokeWidth={1.2 / zoom}
+                    <Circle
+                      radius={potentiometer.bodyDiameterMm / 2}
+                      fillEnabled={false}
+                      stroke={controlStroke}
+                      strokeWidth={(isSelected ? 2 : 1.2) / zoom}
+                      dash={PLAN_DRAWING_STYLE.screen.controlBodyDashPx.map((length) => length / zoom)}
                       lineCap="round"
+                      listening={false}
                     />
-                    <Circle radius={1.2 / zoom} fill={isSelected ? '#38bdf8' : '#d1a53d'} />
+                    <Circle
+                      radius={CONTROL_DRAWING_GEOMETRY.potentiometerKnobDiameterMm / 2}
+                      fillEnabled={false}
+                      stroke={controlStroke}
+                      strokeWidth={(isSelected ? 2 : 1.2) / zoom}
+                      listening={false}
+                    />
+                    <Circle
+                      radius={CONTROL_DRAWING_GEOMETRY.potentiometerShaftHoleDiameterMm / 2}
+                      fillEnabled={false}
+                      stroke={controlStroke}
+                      strokeWidth={(isSelected ? 2 : 1.2) / zoom}
+                      listening={false}
+                    />
                   </Group>
                 );
               })}
 
               {switches.map((selector) => {
                 const isSelected = selectedHardware?.kind === 'switch' && selectedHardware.id === selector.id;
+                const controlStroke = isSelected
+                  ? PLAN_DRAWING_STYLE.screen.controlSelectedStroke
+                  : PLAN_DRAWING_STYLE.screen.controlStroke;
                 const handlePosition = switchRotationHandlePosition(selector);
                 return (
                   <Group key={selector.id}>
@@ -1178,33 +1196,85 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                       {selector.type === 'fender_blade' ? (
                         <>
                           <Rect
+                            x={-7}
+                            y={-16}
+                            width={14}
+                            height={32}
+                            cornerRadius={3}
+                            fill="rgba(255, 255, 255, 0.001)"
+                          />
+                          <Rect
                             x={-5}
                             y={-14}
                             width={10}
                             height={28}
                             cornerRadius={2}
-                            fill="#d6d3d1"
-                            stroke={isSelected ? '#38bdf8' : '#57534e'}
-                            strokeWidth={(isSelected ? 2.2 : 1.2) / zoom}
+                            fillEnabled={false}
+                            stroke={controlStroke}
+                            strokeWidth={(isSelected ? 2 : 1.2) / zoom}
+                            listening={false}
                           />
-                          <Line points={[0, -9, 0, 9]} stroke="#292524" strokeWidth={2 / zoom} lineCap="round" />
-                          <Line points={[0, 1, 0, -9]} stroke="#78716c" strokeWidth={2.2 / zoom} lineCap="round" />
-                          <Rect x={-2.8} y={-12} width={5.6} height={7} cornerRadius={1.4} fill="#1c1917" />
+                          <Line
+                            points={[0, -9, 0, 9]}
+                            stroke={controlStroke}
+                            strokeWidth={(isSelected ? 2 : 1.2) / zoom}
+                            lineCap="round"
+                            listening={false}
+                          />
+                          <Line
+                            points={[0, 1, 0, -9]}
+                            stroke={controlStroke}
+                            strokeWidth={(isSelected ? 2.4 : 1.8) / zoom}
+                            lineCap="round"
+                            listening={false}
+                          />
+                          <Rect
+                            x={-2.8}
+                            y={-12}
+                            width={5.6}
+                            height={7}
+                            cornerRadius={1.4}
+                            fillEnabled={false}
+                            stroke={controlStroke}
+                            strokeWidth={(isSelected ? 2 : 1.2) / zoom}
+                            listening={false}
+                          />
                         </>
                       ) : (
                         <>
+                          <Circle radius={13} fill="rgba(255, 255, 255, 0.001)" />
                           <Circle
                             radius={7.5}
-                            fill="#d6d3d1"
-                            stroke={isSelected ? '#38bdf8' : '#57534e'}
-                            strokeWidth={(isSelected ? 2.2 : 1.2) / zoom}
+                            fillEnabled={false}
+                            stroke={controlStroke}
+                            strokeWidth={(isSelected ? 2 : 1.2) / zoom}
+                            listening={false}
                           />
-                          <Circle radius={3.4} fill="#78716c" stroke="#292524" strokeWidth={0.8 / zoom} />
-                          <Line points={[0, 0, 0, -10]} stroke="#e7e5e4" strokeWidth={2.4 / zoom} lineCap="round" />
-                          <Circle x={0} y={-10} radius={2.5} fill="#292524" />
+                          <Circle
+                            radius={3.4}
+                            fillEnabled={false}
+                            stroke={controlStroke}
+                            strokeWidth={(isSelected ? 2 : 1.2) / zoom}
+                            listening={false}
+                          />
+                          <Line
+                            points={[0, 0, 0, -10]}
+                            stroke={controlStroke}
+                            strokeWidth={(isSelected ? 2.4 : 1.8) / zoom}
+                            lineCap="round"
+                            listening={false}
+                          />
+                          <Circle
+                            x={0}
+                            y={-10}
+                            radius={2.5}
+                            fillEnabled={false}
+                            stroke={controlStroke}
+                            strokeWidth={(isSelected ? 2 : 1.2) / zoom}
+                            listening={false}
+                          />
                         </>
                       )}
-                      <Circle radius={1.2 / zoom} fill={isSelected ? '#38bdf8' : '#d1a53d'} />
                     </Group>
 
                     {isSelected && (

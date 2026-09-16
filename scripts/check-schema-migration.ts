@@ -364,6 +364,11 @@ async function main() {
       invariant(written.includes('id="control-knobs"'), 'print SVG omitted the knob group');
       invariant(written.includes('id="control-switches"'), 'print SVG omitted the switch group');
       invariant(written.includes('data-switch-type="fender_blade"'), 'print SVG omitted the blade drawing');
+      invariant(written.includes('r="12.00" class="control-body"'), 'print SVG omitted the 24mm pot body');
+      invariant(written.includes('r="10.00" class="control-outline"'), 'print SVG omitted the 20mm knob');
+      invariant(written.includes('r="4.50" class="control-outline"'), 'print SVG omitted the 9mm shaft hole');
+      invariant(written.includes('.control-outline { fill: none;'), 'print SVG controls are not outline-only');
+      invariant(written.includes('.control-cap { fill: none;'), 'print SVG switch caps are not outline-only');
     });
   } finally {
     await server.close();

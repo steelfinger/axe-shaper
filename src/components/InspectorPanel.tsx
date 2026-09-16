@@ -32,6 +32,7 @@ import {
   settingSwitchType,
   SWITCH_TYPE_LABELS,
 } from '../utils/controlEditing';
+import { CONTROL_DRAWING_GEOMETRY } from '../constants/planDrawingStyle';
 
 interface InspectorPanelProps {
   project: GuitarProject;
@@ -629,7 +630,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
             </div>
 
             <div className="form-group">
-              <label className="form-label">Hidden Body Diameter ({unitLabel})</label>
+              <label className="form-label">Pot Body Diameter ({unitLabel})</label>
               <input
                 type="number"
                 min={isMm ? 1 : 0.04}
@@ -650,7 +651,11 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               />
             </div>
             <p className="inspector-help">
-              The 24 mm body is a clearance reference below the top. Only the knob is normally visible.
+              The dotted {formatLength(selectedPotentiometer.bodyDiameterMm, settings.unitDisplay)} {unitLabel}{' '}
+              circle marks the below-top body. Solid circles mark the{' '}
+              {formatLength(CONTROL_DRAWING_GEOMETRY.potentiometerKnobDiameterMm, settings.unitDisplay)} {unitLabel}{' '}
+              knob and {formatLength(CONTROL_DRAWING_GEOMETRY.potentiometerShaftHoleDiameterMm, settings.unitDisplay)} {unitLabel}{' '}
+              shaft hole.
             </p>
 
             <button

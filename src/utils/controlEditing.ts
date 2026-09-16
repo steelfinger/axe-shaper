@@ -6,8 +6,10 @@ import type {
   SwitchType,
   Vector2D,
 } from '../types/guitar';
+import { CONTROL_DRAWING_GEOMETRY } from '../constants/planDrawingStyle';
 
-export const DEFAULT_POTENTIOMETER_BODY_DIAMETER_MM = 24;
+export const DEFAULT_POTENTIOMETER_BODY_DIAMETER_MM =
+  CONTROL_DRAWING_GEOMETRY.potentiometerBodyDiameterMm;
 export const DEFAULT_KNOB_STYLE_ID = 'generic';
 export const SWITCH_TYPE_LABELS: Record<SwitchType, string> = {
   gibson_toggle: 'Gibson Toggle',

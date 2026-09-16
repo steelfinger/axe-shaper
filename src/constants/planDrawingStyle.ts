@@ -19,6 +19,9 @@ export const PLAN_DRAWING_STYLE = {
     backRouteFill: 'rgba(192, 132, 252, 0.12)',
     backRouteStroke: '#d8b4fe',
     backRouteDashPx: [4, 3] as const,
+    controlStroke: '#cbd5e1',
+    controlSelectedStroke: '#38bdf8',
+    controlBodyDashPx: [2.5, 2.5] as const,
   },
   print: {
     bodyStrokeMm: 0.4,
@@ -34,7 +37,20 @@ export const PLAN_DRAWING_STYLE = {
     backRouteFill: '#f3e8ff',
     backRouteStroke: '#7e22ce',
     backRouteDashMm: '3,2',
+    controlStroke: '#475569',
+    controlBodyDashMm: '1.2,1.2',
   },
+} as const;
+
+/**
+ * Physical control dimensions shared by the editor and printable SVG.
+ * Diameters are stored here so the on-screen drawing and fabrication plan
+ * cannot quietly drift apart.
+ */
+export const CONTROL_DRAWING_GEOMETRY = {
+  potentiometerBodyDiameterMm: 24,
+  potentiometerKnobDiameterMm: 20,
+  potentiometerShaftHoleDiameterMm: 9,
 } as const;
 
 /** Apply fill alpha without dimming the shape's outline. */

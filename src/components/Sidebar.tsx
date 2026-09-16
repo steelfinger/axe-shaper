@@ -44,6 +44,7 @@ import {
   resolvedBodyThickness,
 } from '../utils/bodyThickness';
 import { SWITCH_TYPE_LABELS } from '../utils/controlEditing';
+import { CONTROL_DRAWING_GEOMETRY } from '../constants/planDrawingStyle';
 
 interface SidebarProps {
   project: GuitarProject;
@@ -1102,7 +1103,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           onClick={() => onSelectHardware(isSelected ? null : { kind: 'potentiometer', id: potentiometer.id })}
                         >
                           <span className="hardware-placement-name">Potentiometer {index + 1}</span>
-                          <span className="hardware-placement-detail">{potentiometer.bodyDiameterMm.toFixed(0)} mm body · knob visible</span>
+                          <span className="hardware-placement-detail">
+                            {potentiometer.bodyDiameterMm.toFixed(0)} mm body ·{' '}
+                            {CONTROL_DRAWING_GEOMETRY.potentiometerKnobDiameterMm} mm knob ·{' '}
+                            {CONTROL_DRAWING_GEOMETRY.potentiometerShaftHoleDiameterMm} mm shaft hole
+                          </span>
                         </button>
                         <button
                           type="button"
