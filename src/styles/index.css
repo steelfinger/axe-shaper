@@ -1718,10 +1718,14 @@ html.marketing-document {
   bottom: 7%;
   width: calc(var(--hero-inner) * 0.85);
   aspect-ratio: 1844 / 1314;
-  background: image-set(
-    url('/photos/hero-guitar-nebula-1000.webp') 1x,
-    url('/photos/hero-guitar-nebula-1844.webp') 2x
-  ) center / cover no-repeat;
+  /* The tint is a layer of this element, not of ::after, so the mask clips it
+     to the image - on ::after it would also blue the empty page around it. */
+  background:
+    linear-gradient(var(--hero-art-tint, rgba(9, 16, 38, 0.32)), var(--hero-art-tint, rgba(9, 16, 38, 0.32))),
+    image-set(
+      url('/photos/hero-guitar-nebula-1000.webp') 1x,
+      url('/photos/hero-guitar-nebula-1844.webp') 2x
+    ) center / cover no-repeat;
   -webkit-mask-image:
     linear-gradient(90deg, transparent 0%, #000 32%, #000 86%, transparent 100%),
     linear-gradient(180deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
@@ -1730,6 +1734,10 @@ html.marketing-document {
     linear-gradient(90deg, transparent 0%, #000 32%, #000 86%, transparent 100%),
     linear-gradient(180deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
   mask-composite: intersect;
+  /* Knocked back on the wide layout, where the guitar sits beside the copy
+     rather than under a scrim and otherwise outshouts the headline and the
+     plan. Mobile's vertical scrim already does this, so it resets there. */
+  filter: brightness(var(--hero-art-brightness, 0.66)) saturate(var(--hero-art-saturate, 0.7));
 }
 
 .hero-backdrop::after {
@@ -2687,6 +2695,11 @@ html.marketing-document {
     left: 50%;
     width: max(100%, 720px);
     transform: translateX(-42%);
+  }
+
+  .hero-backdrop::before {
+    --hero-art-tint: transparent;
+    filter: none;
   }
 
   .hero-backdrop::after {
