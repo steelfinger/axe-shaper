@@ -1674,6 +1674,11 @@ html.marketing-document {
 .hero-copy {
   position: relative;
   z-index: 3;
+  /* Top of the row rather than centred: the title rises out of the way, and the
+     lede below it gets the height to wrap narrow, over the dark side of the
+     backdrop instead of the guitar body. */
+  align-self: start;
+  padding-top: clamp(8px, 3vh, 36px);
 }
 
 /*
@@ -1709,7 +1714,7 @@ html.marketing-document {
 }
 
 .hero-backdrop::before {
-  right: calc(var(--hero-gutter) - var(--hero-inner) * 0.17);
+  right: calc(var(--hero-gutter) - var(--hero-inner) * 0.05);
   bottom: 7%;
   width: calc(var(--hero-inner) * 0.85);
   aspect-ratio: 1844 / 1314;
@@ -1718,11 +1723,11 @@ html.marketing-document {
     url('/photos/hero-guitar-nebula-1844.webp') 2x
   ) center / cover no-repeat;
   -webkit-mask-image:
-    linear-gradient(90deg, transparent 0%, #000 32%),
+    linear-gradient(90deg, transparent 0%, #000 32%, #000 86%, transparent 100%),
     linear-gradient(180deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
   -webkit-mask-composite: source-in;
   mask-image:
-    linear-gradient(90deg, transparent 0%, #000 32%),
+    linear-gradient(90deg, transparent 0%, #000 32%, #000 86%, transparent 100%),
     linear-gradient(180deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
   mask-composite: intersect;
 }
@@ -1732,9 +1737,9 @@ html.marketing-document {
   background: linear-gradient(
     90deg,
     #0f1117 0,
-    rgba(15, 17, 23, 0.94) calc(var(--hero-gutter) + var(--hero-inner) * 0.3),
-    rgba(15, 17, 23, 0.55) calc(var(--hero-gutter) + var(--hero-inner) * 0.47),
-    rgba(15, 17, 23, 0) calc(var(--hero-gutter) + var(--hero-inner) * 0.6)
+    rgba(15, 17, 23, 0.94) calc(var(--hero-gutter) + var(--hero-inner) * 0.2),
+    rgba(15, 17, 23, 0.6) calc(var(--hero-gutter) + var(--hero-inner) * 0.34),
+    rgba(15, 17, 23, 0) calc(var(--hero-gutter) + var(--hero-inner) * 0.46)
   );
 }
 
@@ -1753,7 +1758,7 @@ html.marketing-document {
 }
 
 .hero-lede {
-  max-width: 58ch;
+  max-width: min(58ch, 75%);
   margin-top: 28px;
   color: var(--text-secondary);
   font-size: clamp(1rem, 1.4vw, 1.14rem);
@@ -2664,6 +2669,11 @@ html.marketing-document {
 
   .hero-copy {
     max-width: 720px;
+    padding-top: 0;
+  }
+
+  .hero-lede {
+    max-width: 58ch;
   }
 
   /* One column: the copy stacks over the sheet, so there is no gap beside it
