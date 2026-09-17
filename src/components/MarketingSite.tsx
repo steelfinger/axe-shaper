@@ -320,11 +320,11 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
           </div>
 
           <figure className="blueprint-stage">
-            <div className="sheet-tab"><span>Custom S-style body</span><span>647.7 mm scale</span></div>
+            <div className="sheet-tab"><span>Custom S-style body</span><span>647.7 mm · slanted pickups · 2 pots</span></div>
             <div className="blueprint-sheet">
               <img
                 src={PLAN_DISPLAY_URL}
-                alt="A true-scale plan for a custom S-style guitar body: the body outline and edge inset, a neck pocket, three single-coil pickup routes, front and back cavity routes, a pickguard, the centreline and neck-joint guides, a marked saddle line, and a 100 mm calibration box."
+                alt="A true-scale plan for a custom S-style guitar body: the body outline and edge inset, a neck pocket, three single-coil pickup routes slanted at 20 degrees, a hardtail bridge rout and marked saddle line, two potentiometers and a five-way blade switch drawn at their real footprint, front and back cavity routes, a pickguard, the centreline and neck-joint guides, and a 100 mm calibration box."
                 width={1633}
                 height={2542}
               />
@@ -332,7 +332,7 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
             <figcaption className="sheet-actions">
               <a className="sheet-action" href={PLAN_PRINT_URL} download="axe-shaper-custom-s-style.axe.svg">
                 <Download size={15} /> Download this plan
-                <small>38 KB .axe.svg</small>
+                <small>36 KB .axe.svg</small>
               </a>
               <a className="sheet-action" href={`/app?plan=${encodeURIComponent(PLAN_PRINT_URL)}`}>
                 <PenLine size={15} /> Open it in the editor

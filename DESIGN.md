@@ -386,7 +386,7 @@ color language, independent of the chrome palette above:
 - **Do** prefer a real saved project over a built-in reference blueprint when a
   public surface shows a plan. The hero ships
   `public/marketing/custom-s-style-plan.axe.svg` - a custom S-style body with
-  its schemaVersion 2 payload intact, so the file the page hands out opens back
+  its schemaVersion 4 payload intact (control hardware included), so the file the page hands out opens back
   up as an editable project.
 - **Do** keep the displayed plan and the downloadable one as separate files.
   They want opposite things: the hero renders at roughly `0.8 px/mm`, so a

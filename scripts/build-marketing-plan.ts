@@ -49,6 +49,14 @@ const DISPLAY_STROKE_MM: Record<string, number> = {
   'back-route': 1.2,
   'front-route': 1.3,
   pickguard: 1.4,
+  // Control hardware: the pot and switch outlines are primary structure, the
+  // dashed pot-body ring is a secondary guide. The slot and lever keep the
+  // print file's heavier-than-outline ratio so the blade still reads as a blade.
+  'control-outline': 1.3,
+  'control-body': 0.9,
+  'control-slot': 1.4,
+  'control-lever': 2.2,
+  'control-cap': 1.0,
   'center-axis': 1.2,
   'calibration-box': 1.5,
   'band-rule': 0.9,
@@ -58,6 +66,7 @@ const DISPLAY_STROKE_MM: Record<string, number> = {
 const DISPLAY_DASH_MM: Record<string, string> = {
   'edge-inset': '5.5,2.4',
   'back-route': '2.8,1.8',
+  'control-body': '2.6,2',
   'center-axis': '7,5',
   'calibration-box': '4.5,3.5',
 };
