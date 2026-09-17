@@ -349,13 +349,13 @@ of the name field first - it just silently clips. Adding the "New..." button
 did exactly this and is what the tier system in `src/styles/index.css`
 (search `Header degradation`) now guards against:
 
-- **> 1710px** - secondary actions show icon + text.
-- **<= 1710px** - `.header-action-label` spans hide, actions go icon-only
+- **> 1860px** - secondary actions show icon + text.
+- **<= 1860px** - `.header-action-label` spans hide, actions go icon-only
   (every one has a `title`/`aria-label`, so nothing becomes unreachable). This
   is the tier a 1440/1512 laptop sits in - the full toolbar stays visible
   rather than collapsing to the hamburger.
-- **<= 1400px** - name field down to 180px.
-- **<= 1280px** - secondary actions collapse into `.header-overflow` (the
+- **<= 1440px** - name field down to 180px.
+- **<= 1380px** - secondary actions collapse into `.header-overflow` (the
   hamburger); name field 160px. Deliberately above the 1199px workspace
   breakpoint: the header runs out of room before the three-column layout does.
 

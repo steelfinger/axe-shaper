@@ -1,5 +1,5 @@
 import React from 'react';
-import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, Box, CircleHelp, Info, Menu, Printer, FilePlus2, Copy } from 'lucide-react';
+import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, Box, CircleHelp, Info, Menu, Printer, FilePlus2, Copy, Download } from 'lucide-react';
 import type { PrintPaper } from '../utils/tiledPrint';
 import type { GuitarProject } from '../types/guitar';
 import { snapGridToUnit } from '../utils/units';
@@ -19,6 +19,7 @@ interface HeaderProps {
    *  current blueprint's baseline into the document that is already open. */
   onNewDesign: () => void;
   onSave: () => void;
+  onExportDXF: () => void;
   onShare: () => void;
   onView3D: () => void;
   /**
@@ -50,6 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSwitchBlueprint,
   onNewDesign,
   onSave,
+  onExportDXF,
   onShare,
   onView3D,
   view3DAvailable,
@@ -213,10 +215,12 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         <details className="help-menu header-secondary-action">
-          <summary className="btn btn-sm" aria-label="Print or save a tiled PDF">
-            <Printer size={15} /> <span className="header-action-label">Print</span>
+          <summary className="btn btn-sm" aria-label="Export DXF or print a tiled PDF" title="Export DXF or print a tiled PDF">
+            <Download size={15} /> <span className="header-action-label">Export</span>
           </summary>
           <div className="help-menu-popover">
+            <button onClick={onExportDXF}><Download size={15} /> Export DXF (.dxf)</button>
+            <p className="dxf-export-note">1:1 outlines in mm; visible shapes only. Hardware and edge profiles excluded. Back routes stay in front-view alignment. Define cutting depths and setups in CAD/CAM. Keep .axe.svg for editing.</p>
             <button onClick={() => onPrintTiled('a4')}><Printer size={15} /> Tiled PDF / print (A4)</button>
             <button onClick={() => onPrintTiled('letter')}><Printer size={15} /> Tiled PDF / print (Letter)</button>
           </div>
@@ -321,6 +325,8 @@ export const Header: React.FC<HeaderProps> = ({
             <button onClick={onResetTemplate}><RotateCcw size={15} /> Reset blueprint</button>
             <button onClick={() => fileInputRef.current?.click()}><Upload size={15} /> Open project</button>
             <button onClick={onShare}><Share2 size={15} /> Share project</button>
+            <button onClick={onExportDXF}><Download size={15} /> Export DXF (.dxf)</button>
+            <p className="dxf-export-note">1:1 outlines in mm; visible shapes only. Hardware and edge profiles excluded. Back routes stay in front-view alignment. Define cutting depths and setups in CAD/CAM. Keep .axe.svg for editing.</p>
             <button
               onClick={onView3D}
               disabled={!view3DAvailable}

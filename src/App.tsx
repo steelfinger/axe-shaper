@@ -29,6 +29,7 @@ import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegme
 import { HistoryManager } from './utils/history';
 import { withMirroredInsertion } from './utils/symmetry';
 import { buildProjectFilename, downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
+import { downloadDXFFile, exportProjectToDXF } from './utils/dxfExporter';
 import { getUserTemplate } from './utils/userTemplates';
 import { printTiledProject } from './utils/tiledPrint';
 import { projectNameFromTemplate } from './utils/projectNaming';
@@ -576,6 +577,14 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
     setIsDirty(false);
   };
 
+  const handleExportDXF = () => {
+    try {
+      downloadDXFFile(project.settings.name, exportProjectToDXF(project));
+    } catch (error) {
+      alert(`DXF export failed. ${error instanceof Error ? error.message : 'Check the design and try again.'}`);
+    }
+  };
+
   const handleShareProject = async () => {
     const svgString = exportProjectToSVG(project);
     const filename = buildProjectFilename(project.settings.name);
@@ -719,6 +728,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         onResetTemplate={handleResetTemplate}
         onSwitchBlueprint={() => setIsBlueprintChooserOpen(true)}
         onSave={handleSaveProject}
+        onExportDXF={handleExportDXF}
         onShare={handleShareProject}
         onView3D={handleView3D}
         view3DAvailable

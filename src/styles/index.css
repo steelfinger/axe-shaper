@@ -158,6 +158,16 @@ body, html, #root {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
   z-index: 40;
+  max-height: calc(100dvh - 90px);
+  overflow-y: auto;
+}
+
+.dxf-export-note {
+  margin: 4px 10px 12px;
+  max-width: 32ch;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.5;
 }
 
 .header-overflow-popover button,
@@ -224,20 +234,20 @@ body, html, #root {
    relabelled. A squeezed project-name field is the regression these tiers
    replaced.
 
-   Tier 1 (<= 1710px): drop the text labels on the secondary actions, keep the
+   Tier 1 (<= 1860px): drop the text labels on the secondary actions, keep the
    icons. Every one has a title/aria-label already and Undo/Redo are icon-only
    at every width, so nothing becomes unreachable - the whole toolbar stays
-   visible and clickable on a 1440/1512 laptop. 1710px is where a full-length
+   visible and clickable on a 1440/1512 laptop. 1860px is where a full-length
    name first gets pushed below its 220px with the labels shown.
 
-   Tier 2 (<= 1400px): also narrow the name field to 180px, which is where the
+   Tier 2 (<= 1440px): also narrow the name field to 180px, which is where the
    icon-only row would otherwise start squeezing it.
 
-   Tier 3 (<= 1280px): the icons no longer fit either, so the secondary
+   Tier 3 (<= 1380px): the icons no longer fit either, so the secondary
    actions collapse into the hamburger and the name field drops to 160px. This
    is intentionally above the 1199px workspace breakpoint - the header loses
    room before the three-column layout does. */
-@media (max-width: 1710px) {
+@media (max-width: 1860px) {
   .app-header .header-action-label {
     display: none;
   }
@@ -247,13 +257,13 @@ body, html, #root {
   }
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1440px) {
   .header-project-controls .form-input {
     width: 180px !important;
   }
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1380px) {
   .header-project-controls {
     gap: 8px;
   }

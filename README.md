@@ -22,6 +22,7 @@ Built with **React 18**, **TypeScript**, **Konva.js**, **Lucide Icons**, and a s
   - Supports 25.5" Fender, 24.75" Gibson, and 27" Baritone scale lengths.
 - 🔒 **Neck Pocket Auto-Snapping**: Body shoulder anchors automatically snap when swapping neck joint presets (55.56mm Fender vs 38.1mm Mortise).
 - 🖨️ **1:1 True-Scale Printable SVG Export**: Export SVG files formatted in physical millimeters with an included **100mm x 100mm ruler calibration box** for 100% true-scale paper printing on standard printers or plotters.
+- **DXF export for CAD/CAM**: Download layered 2D outlines in millimetres from the Export menu. Includes the body, neck pocket, pickup cavities, custom routes and pickguards. Cutting depths and machining setup are defined separately in CAM. See [DXF export details](docs/DXF_EXPORT.md).
 - 💾 **Project Persistence & History**: Full Undo/Redo (`Cmd+Z` / `Ctrl+Z`, `Cmd+Y` / `Ctrl+Y`) and `.guitar` JSON file save and load.
 
 ---
