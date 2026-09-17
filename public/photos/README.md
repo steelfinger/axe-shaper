@@ -20,3 +20,13 @@ Visible attribution links are also included beside the photographs on the market
   `object-fit: cover` and no letterboxing; a replacement capture from a
   differently-shaped iPad needs those two rules updated to match, or `cover`
   will silently crop the status bar or the inspector.
+
+- `hero-guitar-nebula-1844.webp` / `hero-guitar-nebula-1000.webp` — our own
+  3D render of the hero's custom S-style (the same project as
+  `public/marketing/custom-s-style-plan.axe.svg`), no attribution needed.
+  Cropped 1844x1314 from a 1844x2238 capture, dropping the watermark at the
+  bottom, and encoded `cwebp -q 80 -sharp_yuv -m 6`. It sits behind a dark
+  scrim and a mask, so q80 costs nothing visible. `.hero-backdrop::before`
+  declares the 1844 / 1314 ratio, and its offsets assume the body is on the
+  left of the frame and the headstock is top right. A differently framed
+  render needs those offsets measured again.
