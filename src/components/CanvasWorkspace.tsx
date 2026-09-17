@@ -464,7 +464,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
    * ties follow the visible paint order, with front routes above pickguards,
    * the body, then back routes.
    */
-  const selectableLayerAt = (pointer: Vector2D): { layer: ActiveLayer; segmentIndex: number } | null => {
+  const selectableLayerAt = (pointer: Vector2D): ActiveLayer | null => {
     const modelPoint = toModel(pointer);
     const currentHit = findClosestSegment(activeContour.anchors, activeContour.closed, modelPoint);
     // When outlines overlap within the normal selection radius, preserve the
@@ -483,17 +483,17 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         : []),
     ];
 
-    let best: { layer: ActiveLayer; segmentIndex: number; distance: number } | null = null;
+    let best: { layer: ActiveLayer; distance: number } | null = null;
     for (const layer of candidates) {
       if (activeLayersEqual(layer, activeLayer)) continue;
       const contour = getActiveContour(project, layer);
       if (!contour) continue;
       const hit = findClosestSegment(contour.anchors, contour.closed, modelPoint);
       if (hit && hit.distance * zoom <= PICK_TOLERANCE_PX && (!best || hit.distance < best.distance)) {
-        best = { layer, segmentIndex: hit.index, distance: hit.distance };
+        best = { layer, distance: hit.distance };
       }
     }
-    return best && { layer: best.layer, segmentIndex: best.segmentIndex };
+    return best?.layer ?? null;
   };
 
   return (
@@ -585,11 +585,10 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           const pointer = e.target.getStage()?.getPointerPosition();
           if (!pointer) return;
           const layerHit = selectableLayerAt(pointer);
+          // Switching layers is its own click: it activates the layer with nothing
+          // selected in it, and a second click picks a segment.
           if (layerHit) {
-            onSelectLayer(layerHit.layer);
-            onSelectSegment(layerHit.segmentIndex);
-            onSelectAnchor(null);
-            onSelectHardware(null);
+            onSelectLayer(layerHit);
             return;
           }
           const index = pickSegment(pointer);
