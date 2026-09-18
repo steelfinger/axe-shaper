@@ -358,6 +358,8 @@ export interface ReferenceTemplate {
   edgeProfile?: EdgeProfile;
   /** Overall body thickness restored with the blueprint; absent resolves to 45mm. */
   bodyThicknessMm?: LengthMm;
+  /** Optional top construction restored with the blueprint. Absent stays flat. */
+  bodyTop?: BodyTop;
   /** Binding restored with the blueprint; absent means no binding. */
   binding?: BindingParams;
   defaultPickups: PickupPlacement[];
@@ -378,6 +380,20 @@ export interface EdgeProfile {
   channelRadiusMm?: LengthMm;
   previewFallback?: string;
   [key: string]: unknown;
+}
+
+/** A closed construction choice, intentionally separate from edge treatment. */
+export type BodyTopConstruction = 'carved_cap' | 'solid_body_carve';
+
+/**
+ * The authored construction family for the body face. Its numerical carve,
+ * cap, neck-landing and hardware-placement values are application-owned
+ * defaults, shared by the preview implementations. Absence means the
+ * established flat-top body and never reinterprets legacy `carved_top` edge
+ * data.
+ */
+export interface BodyTop {
+  construction: BodyTopConstruction;
 }
 
 export interface BindingParams {
@@ -419,6 +435,8 @@ export interface GuitarProject {
   edgeProfile?: EdgeProfile;
   /** Overall body thickness. Optional for older files; absent resolves to 45mm. */
   bodyThicknessMm?: LengthMm;
+  /** Optional body-face construction. Absent means the established flat top. */
+  bodyTop?: BodyTop;
   /** A thin trim strip glued around the body's edge (Les Paul binding).
    *  Absent means no binding - the 3D preview is the only surface that
    *  currently draws it; this app just carries the field through. */

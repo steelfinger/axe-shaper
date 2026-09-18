@@ -35,6 +35,7 @@ project name could contain one.
 | 2 | `neckPreset` / `bridgePreset`: full embedded copies of the hardware. |
 | 3 | `instrumentType`, `stringCount`; reserves `stringSpacingMm`, `heightMm`, `nutStringSpacingMm`. |
 | 4 | `potentiometers`, `switches`: independently placed visible controls. |
+| 5 | Optional `bodyTop.construction`: a named 3D body-face construction. |
 
 ### The embedded copy wins
 
@@ -133,6 +134,30 @@ placed controls.
 - A switch stores its centre position, rotation and visible type. Version 4
   defines `gibson_toggle` and `fender_blade`. Electrical state and special
   mounting cavities are deliberately not modelled.
+
+## Version 5: body-top construction
+
+`bodyTop` is optional. Its absence means the established flat body, so a
+reader must not infer a new top construction from `edgeProfile`, including the
+legacy `edgeProfile.kind = "carved_top"` value.
+
+```json
+{
+  "bodyTop": { "construction": "carved_cap" }
+}
+```
+
+The initial closed choices are `carved_cap` and `solid_body_carve`. They name
+complete preview construction families rather than exposing a collection of
+independent numeric controls. Readers own the current rise, carve width, cap
+thickness, neck landing and hardware-clearance defaults for each family. This
+keeps the document portable while allowing a future schema to add a deliberate
+override only when it has a stable physical meaning.
+
+`bodyThicknessMm` retains its established scalar meaning for flat-top
+documents. For a `carved_cap` preview it is the core below the rim; for a
+`solid_body_carve` preview it is the maximum back-to-crown depth. These are
+preview construction conventions, not machining instructions.
 - Controls are freely placeable on the body. Their mounting surface is not
   inferred from overlap with a pickguard and is not stored in this version.
 - Unknown knob style ids are preserved and may render with the generic knob
@@ -222,23 +247,18 @@ changed while the bass catalogue existed but no bass blueprint did, so no
 stored overhang constant had to be recomputed; after bass bodies ship, changing
 it means recomputing every one of them on both platforms.
 
-## The 3D viewer has no instrument or control awareness yet
+## 3D viewer compatibility
 
 `steelfinger/axe-shape-3D-viewer` (the pinned bundle in `public/viewer3d`)
-tolerates numeric schema versions including version 4 - its `validateProject`
-only checks `typeof schemaVersion === 'number'`, with no upper bound and an
-index-signature project type, so the new fields pass through untouched.
-**Passing through is all it does.** Nothing in the viewer reads
-`instrumentType`, `stringCount`, `potentiometers` or `switches` yet: string
-count, pole spacing and headstock posts are fixed at six, and body controls
-are not drawn.
+accepts numeric schema versions including version 5 and renders the supported
+Guitar/6 and Bass/4 document matrix, placed controls, and the version-5
+`bodyTop.construction` choice. It reads its saved construction choice for the
+normal preview and retains the opt-in `?arch=1` study tools for visual
+inspection. Other unfamiliar fields pass through untouched.
 
-Consequence: opening a Bass/4 project there today would render a six-string
-guitar interpretation of it, silently wrong rather than visibly broken. Web
-gates its own **View in 3D** action off for Bass/4 (`Header`'s
-`view3DAvailable`, checked again independently in `handleView3D`) until the
-viewer's own bass support is verified - see
-`docs/BASS_BODY_DESIGN_MILESTONES.md`, milestone W5.
+Native iOS must not write version-5 documents until it can preserve the named
+construction choice and render it consistently, or opens those documents
+read-only instead.
 
 ## Coordinate system
 

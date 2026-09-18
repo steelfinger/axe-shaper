@@ -337,6 +337,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       // its edge treatment. Missing stays missing so legacy templates keep the
       // viewer's documented 45mm fallback rather than being rewritten.
       bodyThicknessMm: template.bodyThicknessMm,
+      bodyTop: template.bodyTop ? JSON.parse(JSON.stringify(template.bodyTop)) : undefined,
       // Binding belongs to a blueprint's body treatment. An absent binding
       // explicitly clears a choice made on the previously selected body.
       binding: template.binding ? JSON.parse(JSON.stringify(template.binding)) : undefined,

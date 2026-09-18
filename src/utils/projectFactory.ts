@@ -46,6 +46,7 @@ type TemplateSource = Pick<
   | 'defaultAnchors'
   | 'edgeProfile'
   | 'bodyThicknessMm'
+  | 'bodyTop'
   | 'binding'
   | 'defaultPickups'
   | 'defaultPotentiometers'
@@ -119,6 +120,7 @@ export function createProject(options: CreateProjectOptions = {}): GuitarProject
     },
     edgeProfile: template.edgeProfile ? structuredClone(template.edgeProfile) : undefined,
     bodyThicknessMm: template.bodyThicknessMm,
+    bodyTop: template.bodyTop ? structuredClone(template.bodyTop) : undefined,
     binding: template.binding ? structuredClone(template.binding) : undefined,
     ...neckPresetFieldsForNewTemplate(template.neckPresetId, templateId, template.instrumentType),
     neckJointMechanism: defaultNeckJointMechanism(templateId),

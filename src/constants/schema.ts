@@ -39,8 +39,14 @@
  *       Note that the version bump is not a bass-only event: from this build
  *       on, every saved *guitar* project is version 3 too, and reaches iOS
  *       and the 3D viewer as version 3.
+ *   5 - Adds the optional `bodyTop.construction` choice. `carved_cap` and
+ *       `solid_body_carve` select application-owned construction profiles for
+ *       the 3D preview; their numeric carve and neck-placement defaults are
+ *       deliberately not independent document fields. An absent `bodyTop`
+ *       remains the existing flat body, including old `edgeProfile.kind =
+ *       carved_top` payloads.
  */
-export const PROJECT_SCHEMA_VERSION = 4;
+export const PROJECT_SCHEMA_VERSION = 5;
 
 /**
  * The oldest payload this build can read. Nothing has been dropped yet, so
