@@ -11,11 +11,12 @@
  *   - tests/fixtures/ios-written/ — the frozen schema version 2 set, checked
  *     as *legacy* payloads: readable, and migrating to a semantically
  *     identical Guitar/6 version 3 project.
- *   - tests/fixtures/ios-written-v3/ — the schema version 3 set iOS has
- *     written since its milestone M24. Checked as *current* payloads: a
- *     strict no-op load, with the instrument axis present and inside the
- *     supported matrix. See the "iOS-written version 3 fixtures" section at
- *     the end.
+ *   - tests/fixtures/ios-written-v3/ — the historical schema version 3 set,
+ *     retained as a migration fixture.
+ *   - tests/fixtures/ios-written-v5/ — the current set, including the
+ *     optional `bodyTop` choice used by the arched-top viewer. Checked as
+ *     strict no-op payloads with the instrument axis inside the supported
+ *     matrix.
  *
  * Per file this asserts:
  *   - the payload decodes, is at a schemaVersion this build supports, and
@@ -61,6 +62,7 @@ const FIXTURE_DIR = join(ROOT, 'tests', 'fixtures', 'ios-written');
  * become true by omission.
  */
 const V3_FIXTURE_DIR = join(ROOT, 'tests', 'fixtures', 'ios-written-v3');
+const V5_FIXTURE_DIR = join(ROOT, 'tests', 'fixtures', 'ios-written-v5');
 
 /**
  * The synthetic fixtures the blueprints can't be: live symmetry with
@@ -382,10 +384,9 @@ async function main() {
     }
     // --- iOS-written version 3 fixtures (M24) ---------------------------
     //
-    // The web half of the version 3 contract: iOS writes the instrument axis
-    // and its fixtures land here, asserted rather than assumed. A missing
-    // directory is still reported as a gap rather than quietly passing, so
-    // "iOS version 3 decoding is covered" never becomes true by omission.
+    // The historical schema-v3 contract. A missing directory is still
+    // reported as a gap rather than quietly passing, so migration coverage
+    // never becomes true by omission.
     console.log('\ntests/fixtures/ios-written-v3/ (iOS milestone M24)');
     if (!existsSync(V3_FIXTURE_DIR)) {
       console.log(
@@ -411,8 +412,9 @@ async function main() {
           );
         });
         check(`${fileName}: migrating to the current version changes only the version stamp`, () => {
-          // Version 4 adds optional control arrays, so an untouched version 3
-          // payload gains no geometry; only the schema stamp advances.
+          // Versions 4 and 5 add optional control/body-top fields, so an
+          // untouched version-3 payload gains no geometry; only the schema
+          // stamp advances.
           deepStrictEqual(presets.migrateProject(project), {
             ...project,
             pickups: presets.withEmbeddedPickupSpecs(project.pickups ?? []),
@@ -420,6 +422,46 @@ async function main() {
           });
         });
       }
+    }
+
+    // --- iOS-written version 5 fixtures (M29) ---------------------------
+    //
+    // Current iOS output must load without migration and carry the same
+    // optional arched-top choice that the editor and standalone viewer use.
+    // This remains a separate fixture set so schema-v3 migration evidence is
+    // never overwritten by the current writer.
+    console.log('\ntests/fixtures/ios-written-v5/ (iOS milestone M29)');
+    if (!existsSync(V5_FIXTURE_DIR)) {
+      console.log(
+        '  pending  no iOS-written version 5 fixtures yet - ' +
+          `sync them into ${V5_FIXTURE_DIR} when iOS M29 lands`
+      );
+    } else {
+      const v5Files = readdirSync(V5_FIXTURE_DIR).filter((f) => f.endsWith('.axe.svg'));
+      check('the version 5 fixture directory is not empty', () => {
+        invariant(v5Files.length > 0, `${V5_FIXTURE_DIR} exists but holds no .axe.svg files`);
+      });
+
+      let witnessedBodyTop = false;
+      for (const fileName of v5Files.sort()) {
+        const project = scan(readFileSync(join(V5_FIXTURE_DIR, fileName), 'utf8')).project;
+        check(`${fileName}: is a current payload carrying its instrument axis`, () => {
+          deepStrictEqual(project.schemaVersion, schema.PROJECT_SCHEMA_VERSION);
+          invariant(
+            instrument.isInstrumentType(project.instrumentType),
+            `instrumentType is ${String(project.instrumentType)}`
+          );
+          invariant(
+            instrument.isSupportedInstrument(project.instrumentType, project.stringCount),
+            `${project.stringCount}-string ${project.instrumentType} is outside the supported matrix`
+          );
+          deepStrictEqual(presets.migrateProject(project), project);
+        });
+        if (project.bodyTop?.construction === 'carved_cap') witnessedBodyTop = true;
+      }
+      check('the current fixture set includes a carved-cap body top', () => {
+        invariant(witnessedBodyTop, 'no fixture carries bodyTop.construction = carved_cap');
+      });
     }
   } finally {
     await server.close();
