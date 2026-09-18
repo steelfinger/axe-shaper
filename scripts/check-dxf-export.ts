@@ -58,7 +58,7 @@ try {
   // Saved iOS contours also pass through the normal version/migration gate.
   let fixtureCount = 0;
   let rejectedFixtures = 0;
-  for (const folder of ['ios-written', 'ios-written-v3']) {
+  for (const folder of ['ios-written', 'ios-written-v3', 'ios-written-v5']) {
     for (const file of readdirSync(`tests/fixtures/${folder}`).filter(f => f.endsWith('.axe.svg'))) {
       const raw = extractProjectFromSVG(readFileSync(`tests/fixtures/${folder}/${file}`, 'utf8'));
       const loaded = loadProject(raw);
