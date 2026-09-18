@@ -1,5 +1,6 @@
 import type {
   EdgeProfile,
+  BodyTop,
   InstrumentType,
   LengthMm,
   PathAnchor,
@@ -39,6 +40,7 @@ export interface UserTemplate {
   defaultAnchors: PathAnchor[];
   edgeProfile?: EdgeProfile;
   bodyThicknessMm?: LengthMm;
+  bodyTop?: BodyTop;
   defaultPickups: PickupPlacement[];
   defaultPotentiometers?: PotentiometerPlacement[];
   defaultSwitches?: SwitchPlacement[];

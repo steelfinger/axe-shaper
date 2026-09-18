@@ -60,6 +60,9 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
       // 3D viewer already reads this field; omitting it here made every
       // blueprint-created project fall back to 45mm, including the 35mm SG.
       bodyThicknessMm: project.bodyThicknessMm,
+      // A named top construction belongs to the blueprint's body just like
+      // thickness. Absent remains the established flat top.
+      bodyTop: project.bodyTop,
       // Binding is a body-level blueprint choice, just like its edge
       // treatment. Preserve it so new designs and the 3D viewer handoff use
       // the blueprint's intended top-only or two-sided binding.

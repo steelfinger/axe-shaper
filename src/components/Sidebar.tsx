@@ -23,6 +23,7 @@ import type {
   PickupType,
   SelectedHardwarePlacement,
   SwitchType,
+  BodyTopConstruction,
 } from '../types/guitar';
 import {
   bridgePresetFields,
@@ -148,6 +149,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const bodyThicknessMm = resolvedBodyThickness(project);
+  const bodyTopConstruction = project.bodyTop?.construction;
+
+  const handleBodyTopConstructionChange = (construction: '' | BodyTopConstruction) => {
+    onUpdateProject((prev) => {
+      if (!construction) {
+        const { bodyTop: _bodyTop, ...flatTop } = prev;
+        return flatTop;
+      }
+      return { ...prev, bodyTop: { construction } };
+    });
+  };
   // formatLength gives imperial values one extra digit, so this yields one
   // decimal place in millimetres and three in inches.
   const bodyThicknessDigits = project.settings.unitDisplay === 'mm' ? 1 : 2;
@@ -460,6 +472,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </p>
               </div>
 
+              <div className="form-group">
+                <label className="form-label" htmlFor="body-top-construction-select">Body Top</label>
+                <select
+                  id="body-top-construction-select"
+                  value={bodyTopConstruction ?? ''}
+                  onChange={(event) => handleBodyTopConstructionChange(event.target.value as '' | BodyTopConstruction)}
+                  className="form-select"
+                  aria-describedby="body-top-construction-help"
+                >
+                  <option value="">Flat top</option>
+                  <option value="carved_cap">Carved cap</option>
+                  <option value="solid_body_carve">Solid-body carve</option>
+                </select>
+                <p id="body-top-construction-help" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                  {bodyTopConstruction === 'carved_cap'
+                    ? '14 mm crown with a 6 mm visible cap band. The stored thickness is the core below the rim.'
+                    : bodyTopConstruction === 'solid_body_carve'
+                      ? '8 mm crown carved into the stored overall thickness, with no cap band.'
+                      : 'Keeps the established flat body. Edge treatment is controlled separately below.'}
+                </p>
+              </div>
+
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
                 Beveled and German Carve draw the top-face boundary on the plan; per-node edge
                 intensities shape how far the treatment runs at each node.
@@ -573,8 +607,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <Box size={16} /> Arched Top Study
               </div>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-                Open this body in the 3D arched-top experiment. Carve rise, neck angle, and pickguard
-                clearance are prototype controls and are not saved to this plan.
+                Inspect the selected body-top construction in 3D. The preview derives the neck set,
+                string line, and hardware clearance from this saved construction choice.
               </p>
               <button
                 type="button"

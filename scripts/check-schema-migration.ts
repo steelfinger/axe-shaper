@@ -81,8 +81,10 @@ async function main() {
 
     const currentBlueprint = decodePayload(readFileSync(BASE_BLUEPRINT, 'utf8'));
     invariant(
-      currentBlueprint.schemaVersion === schema.PROJECT_SCHEMA_VERSION,
-      `expected the bundled blueprint at schema ${schema.PROJECT_SCHEMA_VERSION}, got ${currentBlueprint.schemaVersion}`
+      Number.isInteger(currentBlueprint.schemaVersion)
+        && currentBlueprint.schemaVersion >= schema.MIN_SUPPORTED_SCHEMA_VERSION
+        && currentBlueprint.schemaVersion <= schema.PROJECT_SCHEMA_VERSION,
+      `expected the bundled blueprint to use a supported schema through ${schema.PROJECT_SCHEMA_VERSION}, got ${currentBlueprint.schemaVersion}`
     );
 
     // Production blueprints now carry schema-v4 controls, so derive the
@@ -124,6 +126,23 @@ async function main() {
         // with its type's real catalogue rout (see resolvePickupSpec).
         pickups: presets.withEmbeddedPickupSpecs(v2.pickups ?? []),
       });
+    });
+
+    console.log('version 5: optional body-top construction');
+
+    check('preserves the flat top when a legacy payload has no bodyTop field', () => {
+      const migrated = presets.migrateProject(v2);
+      invariant(migrated.bodyTop === undefined, 'migration added a body-top construction to a legacy plan');
+    });
+
+    check('round-trips a named body-top construction without adding raw carve controls', () => {
+      const arched = {
+        ...presets.migrateProject(v2),
+        bodyTop: { construction: 'carved_cap' },
+      };
+      const reloaded = presets.migrateProject(decodePayload(exporter.exportProjectToSVG(arched)));
+      deepStrictEqual(reloaded.bodyTop, { construction: 'carved_cap' });
+      invariant(!('riseMm' in reloaded.bodyTop), 'the document stored a renderer-specific rise value');
     });
 
     console.log('version 1 -> current (ids only, no embedded hardware)');
