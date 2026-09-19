@@ -3,6 +3,7 @@ import { defaultStringCount } from '../utils/instrument';
 import { PICKUP_SPECIFICATIONS } from './hardware';
 import { extractProjectFromSVG } from '../utils/svgExporter';
 import { BLUEPRINT_MANIFEST, BLUEPRINT_ORDER } from './blueprintManifest';
+import { defaultBodyTopForTemplate } from '../utils/bodyTop';
 
 // Each built-in blueprint is a real .axe.svg file - the same format Save
 // produces - so it can be authored in the app itself instead of hand-edited
@@ -61,8 +62,9 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
       // blueprint-created project fall back to 45mm, including the 35mm SG.
       bodyThicknessMm: project.bodyThicknessMm,
       // A named top construction belongs to the blueprint's body just like
-      // thickness. Absent remains the established flat top.
-      bodyTop: project.bodyTop,
+      // thickness. Single-Cut is the one default arched blueprint; every
+      // other template stays flat until the user selects Arched Top.
+      bodyTop: defaultBodyTopForTemplate(id, project.bodyTop),
       // Binding is a body-level blueprint choice, just like its edge
       // treatment. Preserve it so new designs and the 3D viewer handoff use
       // the blueprint's intended top-only or two-sided binding.
