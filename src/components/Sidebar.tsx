@@ -23,7 +23,6 @@ import type {
   PickupType,
   SelectedHardwarePlacement,
   SwitchType,
-  BodyTopConstruction,
 } from '../types/guitar';
 import {
   bridgePresetFields,
@@ -46,6 +45,7 @@ import {
 } from '../utils/bodyThickness';
 import { SWITCH_TYPE_LABELS } from '../utils/controlEditing';
 import { CONTROL_DRAWING_GEOMETRY } from '../constants/planDrawingStyle';
+import { archedTopConstructionForTemplate, isArchedTop } from '../utils/bodyTop';
 
 interface SidebarProps {
   project: GuitarProject;
@@ -118,16 +118,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
     ? EDGE_PROFILE_CONTROLS[edgeProfileKind]
     : [];
 
+  const bodyTopConstruction = project.bodyTop?.construction;
+  const archedTop = isArchedTop(bodyTopConstruction);
+  const edgeTreatmentValue = archedTop ? 'arched_top' : edgeProfileKind;
+
   /**
-   * Changing the kind replaces the profile outright rather than merging: the
-   * field sets don't overlap, so spreading would leave a beveled profile
-   * carrying the slab's easeMm. Per-anchor bevelIntensity is untouched either
-   * way - it lives on the contour, and those values are what make a bevel
-   * follow the outline instead of running at a constant width.
+   * Arched Top is a visual edge-treatment choice that resolves to the
+   * renderer's existing construction profiles. Conventional edge choices
+   * return the document to its established flat body.
    */
-  const handleEdgeProfileKindChange = (kind: string) => {
-    if (!isKnownEdgeProfileKind(kind)) return;
-    onUpdateProject((prev) => ({ ...prev, edgeProfile: { ...DEFAULT_EDGE_PROFILES[kind] } }));
+  const handleEdgeTreatmentChange = (kind: string) => {
+    onUpdateProject((prev) => {
+      if (kind === 'arched_top') {
+        return { ...prev, bodyTop: { construction: archedTopConstructionForTemplate(prev.activeTemplateId) } };
+      }
+      if (!isKnownEdgeProfileKind(kind)) return prev;
+      const { bodyTop: _bodyTop, ...flatTop } = prev;
+      return { ...flatTop, edgeProfile: { ...DEFAULT_EDGE_PROFILES[kind] } };
+    });
   };
 
   const bindingKind = bindingKindOf(project.binding);
@@ -149,17 +157,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const bodyThicknessMm = resolvedBodyThickness(project);
-  const bodyTopConstruction = project.bodyTop?.construction;
-
-  const handleBodyTopConstructionChange = (construction: '' | BodyTopConstruction) => {
-    onUpdateProject((prev) => {
-      if (!construction) {
-        const { bodyTop: _bodyTop, ...flatTop } = prev;
-        return flatTop;
-      }
-      return { ...prev, bodyTop: { construction } };
-    });
-  };
   // formatLength gives imperial values one extra digit, so this yields one
   // decimal place in millimetres and three in inches.
   const bodyThicknessDigits = project.settings.unitDisplay === 'mm' ? 1 : 2;
@@ -473,40 +470,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="body-top-construction-select">Body Top</label>
-                <select
-                  id="body-top-construction-select"
-                  value={bodyTopConstruction ?? ''}
-                  onChange={(event) => handleBodyTopConstructionChange(event.target.value as '' | BodyTopConstruction)}
-                  className="form-select"
-                  aria-describedby="body-top-construction-help"
-                >
-                  <option value="">Flat top</option>
-                  <option value="carved_cap">Carved cap</option>
-                  <option value="solid_body_carve">Solid-body carve</option>
-                </select>
-                <p id="body-top-construction-help" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                  {bodyTopConstruction === 'carved_cap'
-                    ? '14 mm crown with a 6 mm visible cap band. The stored thickness is the core below the rim.'
-                    : bodyTopConstruction === 'solid_body_carve'
-                      ? '8 mm crown carved into the stored overall thickness, with no cap band.'
-                      : 'Keeps the established flat body. Edge treatment is controlled separately below.'}
-                </p>
-              </div>
-
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-                Beveled and German Carve draw the top-face boundary on the plan; per-node edge
-                intensities shape how far the treatment runs at each node.
-              </p>
-
-              <div className="form-group">
                 <label className="form-label" htmlFor="edge-treatment-select">Edge Treatment</label>
                 <select
                   id="edge-treatment-select"
-                  value={edgeProfileKind}
-                  onChange={(e) => handleEdgeProfileKindChange(e.target.value)}
+                  value={edgeTreatmentValue}
+                  onChange={(e) => handleEdgeTreatmentChange(e.target.value)}
                   className="form-select"
+                  aria-describedby="edge-treatment-help"
                 >
+                  <option value="arched_top">Arched Top</option>
                   {!isKnownEdgeProfileKind(edgeProfileKind) && (
                     <option value={edgeProfileKind}>{edgeProfileKind} (from file)</option>
                   )}
@@ -516,6 +488,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </option>
                   ))}
                 </select>
+                <p id="edge-treatment-help" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                  {bodyTopConstruction === 'carved_cap'
+                    ? '14 mm bridge-led crown with a visible cap band. The stored thickness is the core below the rim.'
+                    : bodyTopConstruction === 'solid_body_carve'
+                      ? '8 mm bridge-led crown carved into the stored overall thickness, with no cap band.'
+                      : 'Choose Arched Top for the 3D carved-body preview. Beveled and German Carve draw a top-face boundary on the plan.'}
+                </p>
               </div>
 
               <div className="form-group">
@@ -558,7 +537,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 )}
               </div>
 
-              {edgeProfileControls.map((control) => {
+              {!archedTop && edgeProfileControls.map((control) => {
                 const valueMm = edgeProfileValue(project.edgeProfile, control, knownEdgeKind);
                 // A file written by another build can carry a dimension wider than
                 // this slider edits. Show the real number rather than the clamped
