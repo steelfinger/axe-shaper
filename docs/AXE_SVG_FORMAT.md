@@ -252,9 +252,10 @@ it means recomputing every one of them on both platforms.
 `steelfinger/axe-shape-3D-viewer` (the pinned bundle in `public/viewer3d`)
 accepts numeric schema versions including version 5 and renders the supported
 Guitar/6 and Bass/4 document matrix, placed controls, and the version-5
-`bodyTop.construction` choice. It reads its saved construction choice for the
-normal preview and retains the opt-in `?arch=1` study tools for visual
-inspection. Other unfamiliar fields pass through untouched.
+`bodyTop.construction` choice. It reads that saved construction choice for the
+normal preview, which is the only 3D entry point the editor links to. The
+viewer also keeps an opt-in `?arch=1` mode whose prototype controls are local
+to that session and never reach the document. Other unfamiliar fields pass through untouched.
 
 Native iOS must not write version-5 documents until it can preserve the named
 construction choice and render it consistently, or opens those documents

@@ -22,15 +22,14 @@ async function deflate(bytes: Uint8Array): Promise<Uint8Array> {
 }
 
 /**
- * Builds the self-contained 3D viewer path for a project.
+ * Builds the self-contained "/viewer3d/#d=..." path for a project.
  *
- * The arched-top study is an opt-in viewer mode, rather than a document
- * property: its experimental controls must not alter a precision 2D plan.
+ * The viewer renders the body top from the document's own
+ * `bodyTop.construction`, so there is one 3D entry point. Its `?arch=1`
+ * prototype tools are not linked from here: they tune values the viewer keeps
+ * to itself, and nothing they change can reach a precision 2D plan.
  */
-export async function buildViewer3DPath(
-  project: GuitarProject,
-  options: { archStudy?: boolean } = {},
-): Promise<string> {
+export async function buildViewer3DPath(project: GuitarProject): Promise<string> {
   const compressed = await deflate(new TextEncoder().encode(JSON.stringify(project)));
-  return `/viewer3d/${options.archStudy ? '?arch=1' : ''}#d=${toBase64Url(compressed)}`;
+  return `/viewer3d/#d=${toBase64Url(compressed)}`;
 }
