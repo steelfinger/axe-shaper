@@ -68,11 +68,15 @@ async function main() {
       // NECK_PRESETS constants - so the non-P bass bodies re-embed unchanged.
       neck.neckPreset.nutToBodyEdgeMm = Math.round(templateEdge * 1e4) / 1e4;
     }
-    const refreshed = {
+    // Through migrateProject, so a refresh also advances the schema stamp.
+    // The blueprints are what this build writes; check-schema-migration.ts
+    // requires them at PROJECT_SCHEMA_VERSION and names this script as the
+    // way back when they fall behind.
+    const refreshed = presets.migrateProject({
       ...project,
       ...neck,
       ...presets.bridgePresetFields(project.bridgePresetId),
-    };
+    });
     const svg = svgExporter.exportProjectToSVG(refreshed);
     writeFileSync(path, svg);
     console.log(`refreshed ${id} (neck: ${project.neckPresetId}, bridge: ${project.bridgePresetId})`);

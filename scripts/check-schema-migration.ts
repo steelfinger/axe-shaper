@@ -80,11 +80,15 @@ async function main() {
     const controls = await load('/src/utils/controlEditing.ts');
 
     const currentBlueprint = decodePayload(readFileSync(BASE_BLUEPRINT, 'utf8'));
+    // Strict equality, not a range. The bundled blueprints are what this
+    // build writes, so a version bump has to re-export them - accepting any
+    // supported version here is how one quietly stays behind until the
+    // difference shows up as a field the app injects but the file lacks.
+    // Remedy: npx tsx scripts/refresh-blueprint-presets.ts
     invariant(
-      Number.isInteger(currentBlueprint.schemaVersion)
-        && currentBlueprint.schemaVersion >= schema.MIN_SUPPORTED_SCHEMA_VERSION
-        && currentBlueprint.schemaVersion <= schema.PROJECT_SCHEMA_VERSION,
-      `expected the bundled blueprint to use a supported schema through ${schema.PROJECT_SCHEMA_VERSION}, got ${currentBlueprint.schemaVersion}`
+      currentBlueprint.schemaVersion === schema.PROJECT_SCHEMA_VERSION,
+      `expected the bundled blueprint at schema ${schema.PROJECT_SCHEMA_VERSION}, got ${currentBlueprint.schemaVersion}`
+        + ' - re-export the bundled blueprints (npx tsx scripts/refresh-blueprint-presets.ts)'
     );
 
     // Production blueprints now carry schema-v4 controls, so derive the
