@@ -134,6 +134,10 @@ placed controls.
 - A switch stores its centre position, rotation and visible type. Version 4
   defines `gibson_toggle` and `fender_blade`. Electrical state and special
   mounting cavities are deliberately not modelled.
+- Controls are freely placeable on the body. Their mounting surface is not
+  inferred from overlap with a pickguard and is not stored in this version.
+- Unknown knob style ids are preserved and may render with the generic knob
+  fallback. Placement geometry remains authoritative.
 
 ## Version 5: body-top construction
 
@@ -158,10 +162,16 @@ override only when it has a stable physical meaning.
 documents. For a `carved_cap` preview it is the core below the rim; for a
 `solid_body_carve` preview it is the maximum back-to-crown depth. These are
 preview construction conventions, not machining instructions.
-- Controls are freely placeable on the body. Their mounting surface is not
-  inferred from overlap with a pickguard and is not stored in this version.
-- Unknown knob style ids are preserved and may render with the generic knob
-  fallback. Placement geometry remains authoritative.
+
+`edgeProfile` keeps its own meaning, and the construction decides whether the
+side wall is swept with it. A `carved_cap` is drawn on a straight wall: its
+cap seam is a cut at one constant height all the way round, and a contoured
+or bevelled cross-section reaches the top face at a height that varies from
+point to point, so the two cannot both be drawn. A `solid_body_carve` has no
+seam and keeps the document's profile, as a flat body does - the carve is
+then solved from where that profile leaves the top face, not from the
+authored outline. A reader that draws no cap seam at all may still follow
+this split, so that one document has one silhouette everywhere.
 
 `BridgePreset.stringSpacingMm` — total spread at the saddles.
 `NeckPreset.nutStringSpacingMm` — total spread at the nut.
