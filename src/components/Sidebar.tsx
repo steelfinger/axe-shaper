@@ -124,6 +124,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
    * Arched Top is a visual edge-treatment choice that resolves to the
    * renderer's existing construction profiles. Conventional edge choices
    * return the document to its established flat body.
+   *
+   * Changing the kind replaces the profile outright rather than merging: the
+   * field sets don't overlap, so spreading would leave a beveled profile
+   * carrying the slab's easeMm. Re-picking the kind the document already
+   * carries keeps its tuned values instead. That used to be unreachable -
+   * the select's value *was* the kind, so selecting it fired no change - but
+   * it is now the way back from Arched Top, and resetting there would
+   * silently discard widths the user set. An absent profile stays absent for
+   * Slab, which is what it already means. Mirrors axe-shaper-ios's
+   * `ProjectEditing.applyingFlatTop(_:profile:)`.
+   *
+   * Per-anchor bevelIntensity is untouched either way - it lives on the
+   * contour, and those values are what make a bevel follow the outline
+   * instead of running at a constant width.
    */
   const handleEdgeTreatmentChange = (kind: string) => {
     onUpdateProject((prev) => {
@@ -132,6 +146,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       }
       if (!isKnownEdgeProfileKind(kind)) return prev;
       const { bodyTop: _bodyTop, ...flatTop } = prev;
+      if (edgeProfileKindOf(prev.edgeProfile) === kind) return flatTop;
       return { ...flatTop, edgeProfile: { ...DEFAULT_EDGE_PROFILES[kind] } };
     });
   };
