@@ -608,7 +608,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
     alert('This browser cannot share project files directly, so the .axe.svg was downloaded instead.');
   };
 
-  const open3DViewer = async (archStudy = false) => {
+  const handleView3D = async () => {
     // Open the tab synchronously, inside the click's user gesture, so
     // popup blockers don't get involved - the URL isn't ready yet, so it
     // starts blank and gets redirected below. `noopener` isn't used here
@@ -616,7 +616,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
     // is our own first-party viewer, not third-party content.
     const newTab = window.open('', '_blank');
     try {
-      const path = await buildViewer3DPath(withEmbeddedPresets(project), { archStudy });
+      const path = await buildViewer3DPath(withEmbeddedPresets(project));
       if (newTab) {
         newTab.location.href = path;
       } else {
@@ -626,14 +626,6 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       newTab?.close();
       alert('This browser can’t open the 3D view. Try updating it or use a different browser.');
     }
-  };
-
-  const handleView3D = () => {
-    void open3DViewer();
-  };
-
-  const handleViewArchedTop = () => {
-    void open3DViewer(true);
   };
 
   /**
@@ -798,7 +790,6 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         onAddSwitch={handleAddSwitch}
         onDeleteHardware={handleDeleteHardware}
         handleAngleSnap={handleAngleSnap}
-        onViewArchedTop={handleViewArchedTop}
         onHandleAngleSnapChange={(preference) => {
           setHandleAngleSnap(preference);
           saveHandleAngleSnapPreference(preference);

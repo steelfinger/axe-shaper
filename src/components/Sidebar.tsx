@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layers, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, Plus, Zap, Scissors, Info, CircleDot, Box } from 'lucide-react';
+import { Layers, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, Plus, Zap, Scissors, Info, CircleDot } from 'lucide-react';
 import { NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import {
   DEFAULT_EDGE_PROFILES,
@@ -76,7 +76,6 @@ interface SidebarProps {
   onAddSwitch: (type: SwitchType) => void;
   onDeleteHardware: (selection: SelectedHardwarePlacement) => void;
   handleAngleSnap: HandleAngleSnapPreference;
-  onViewArchedTop: () => void;
   onHandleAngleSnapChange: (preference: HandleAngleSnapPreference) => void;
 }
 
@@ -105,7 +104,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onAddSwitch,
   onDeleteHardware,
   handleAngleSnap,
-  onViewArchedTop,
   onHandleAngleSnapChange,
 }) => {
   const [activeTab, setActiveTab] = useState<'body' | 'hardware' | 'layers' | 'guide'>('body');
@@ -579,24 +577,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   A radiused edge has no hard top-face boundary, so nothing extra is drawn on the plan.
                 </p>
               )}
-            </div>
-
-            <div className="panel-section">
-              <div className="section-title">
-                <Box size={16} /> Arched Top Study
-              </div>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-                Inspect the selected body-top construction in 3D. The preview derives the neck set,
-                string line, and hardware clearance from this saved construction choice.
-              </p>
-              <button
-                type="button"
-                className="btn btn-sm"
-                onClick={onViewArchedTop}
-                style={{ width: '100%', justifyContent: 'center' }}
-              >
-                Open 3D study
-              </button>
             </div>
 
             <div className="panel-section">
