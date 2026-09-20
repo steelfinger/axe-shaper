@@ -163,15 +163,18 @@ documents. For a `carved_cap` preview it is the core below the rim; for a
 `solid_body_carve` preview it is the maximum back-to-crown depth. These are
 preview construction conventions, not machining instructions.
 
-`edgeProfile` keeps its own meaning, and the construction decides whether the
-side wall is swept with it. A `carved_cap` is drawn on a straight wall: its
-cap seam is a cut at one constant height all the way round, and a contoured
-or bevelled cross-section reaches the top face at a height that varies from
-point to point, so the two cannot both be drawn. A `solid_body_carve` has no
-seam and keeps the document's profile, as a flat body does - the carve is
-then solved from where that profile leaves the top face, not from the
-authored outline. A reader that draws no cap seam at all may still follow
-this split, so that one document has one silhouette everywhere.
+`bodyTop` and a shaped `edgeProfile` are mutually exclusive: a carved top
+*is* the top-face treatment. A writer that offers both puts `"kind": "slab"`
+in `edgeProfile` when the arched construction is chosen, so the choice is in
+the document rather than implied. That matters because the plan is drawn from
+`edgeProfile` alone - `bodyTop` is a preview construction and never moves the
+manufacturing drawing - so a stored bevel would otherwise keep printing a
+top-face boundary the editor no longer offers to edit.
+
+A document that still carries both, from an older writer or a hand edit, is
+previewed on a straight side wall: the shaped cross-section is not swept, and
+per-node `bevelIntensity` has nothing to act on. Readers agree on that so one
+document has one silhouette everywhere.
 
 `BridgePreset.stringSpacingMm` — total spread at the saddles.
 `NeckPreset.nutStringSpacingMm` — total spread at the nut.

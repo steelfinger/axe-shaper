@@ -121,33 +121,46 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const edgeTreatmentValue = archedTop ? 'arched_top' : edgeProfileKind;
 
   /**
-   * Arched Top is a visual edge-treatment choice that resolves to the
-   * renderer's existing construction profiles. Conventional edge choices
-   * return the document to its established flat body.
+   * The five choices are one list because they are genuinely exclusive: a
+   * carved top *is* the top-face treatment, so Arched Top writes Slab into
+   * `edgeProfile` rather than leaving a bevel behind it.
+   *
+   * Writing it matters. `bevelInsetLoop` draws the top-face boundary on the
+   * canvas and into the exported plan from `edgeProfile` alone, and it is
+   * right to: `bodyTop` is a preview construction and must never move the
+   * drawing (docs/AXE_SVG_FORMAT.md). Leaving a bevel stored and merely
+   * hiding its controls is what printed a boundary the sidebar no longer
+   * admitted to. Changing the document instead keeps the plan honest, makes
+   * per-node edge intensity genuinely inert (only Beveled and German Carve
+   * ever read it), and leaves both 3D previews free to draw the straight
+   * wall they already draw.
    *
    * Changing the kind replaces the profile outright rather than merging: the
    * field sets don't overlap, so spreading would leave a beveled profile
    * carrying the slab's easeMm. Re-picking the kind the document already
-   * carries keeps its tuned values instead. That used to be unreachable -
-   * the select's value *was* the kind, so selecting it fired no change - but
-   * it is now the way back from Arched Top, and resetting there would
-   * silently discard widths the user set. An absent profile stays absent for
-   * Slab, which is what it already means. Mirrors axe-shaper-ios's
-   * `ProjectEditing.applyingFlatTop(_:profile:)`.
+   * carries keeps its tuned values - coming back from Arched Top to Slab
+   * must not stamp a fresh one over the slab already there. An absent
+   * profile stays absent, which is what absence already means.
    *
    * Per-anchor bevelIntensity is untouched either way - it lives on the
    * contour, and those values are what make a bevel follow the outline
-   * instead of running at a constant width.
+   * instead of running at a constant width. Arched Top costs the shape of a
+   * bevel, not the work of aiming one.
    */
   const handleEdgeTreatmentChange = (kind: string) => {
     onUpdateProject((prev) => {
+      const storedKind = edgeProfileKindOf(prev.edgeProfile);
       if (kind === 'arched_top') {
-        return { ...prev, bodyTop: { construction: archedTopConstructionForTemplate(prev.activeTemplateId) } };
+        return {
+          ...prev,
+          bodyTop: { construction: archedTopConstructionForTemplate(prev.activeTemplateId) },
+          // An absent profile already means Slab, so leave it absent.
+          ...(storedKind === 'slab' ? {} : { edgeProfile: { ...DEFAULT_EDGE_PROFILES.slab } }),
+        };
       }
       if (!isKnownEdgeProfileKind(kind)) return prev;
       const { bodyTop: _bodyTop, ...flatTop } = prev;
-      if (edgeProfileKindOf(prev.edgeProfile) === kind) return flatTop;
-      return { ...flatTop, edgeProfile: { ...DEFAULT_EDGE_PROFILES[kind] } };
+      return storedKind === kind ? flatTop : { ...flatTop, edgeProfile: { ...DEFAULT_EDGE_PROFILES[kind] } };
     });
   };
 
@@ -503,10 +516,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </select>
                 <p id="edge-treatment-help" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
                   {bodyTopConstruction === 'carved_cap'
-                    ? '14 mm bridge-led crown with a visible cap band. The stored thickness is the core below the rim.'
+                    ? 'A 14 mm bridge-led crown in the 3D preview, with the stored thickness as the core below the rim. The plan stays the flat outline you print and cut.'
                     : bodyTopConstruction === 'solid_body_carve'
-                      ? '8 mm bridge-led crown carved into the stored overall thickness, with no cap band.'
-                      : 'Choose Arched Top for the 3D carved-body preview. Beveled and German Carve draw a top-face boundary on the plan.'}
+                      ? 'An 8 mm bridge-led crown in the 3D preview, taken out of the stored thickness. The plan stays the flat outline you print and cut.'
+                      : 'Beveled and German Carve draw a top-face boundary on the plan; per-node edge intensities shape how far the treatment runs at each node. Arched Top carves the face in 3D instead, and sets the edge to Slab.'}
                 </p>
               </div>
 
@@ -550,7 +563,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 )}
               </div>
 
-              {!archedTop && edgeProfileControls.map((control) => {
+              {edgeProfileControls.map((control) => {
                 const valueMm = edgeProfileValue(project.edgeProfile, control, knownEdgeKind);
                 // A file written by another build can carry a dimension wider than
                 // this slider edits. Show the real number rather than the clamped
