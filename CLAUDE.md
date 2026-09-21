@@ -19,6 +19,27 @@ npm run bass:check    # bass catalogue: pocket, selectors, pickups, corpus pairs
 npm run fixtures:check # iOS-written payloads decode, load and re-save intact
 ```
 
+```bash
+npm run check:all  # this repo's verify steps + the viewer's and iOS's own gates
+```
+
+`check:all` runs all three repositories' gates in one command and exits
+non-zero if any fails: this repo's `verify` steps, the viewer's `npm run
+check`, and the full XCTest suite on the newest available iPad simulator. It
+finds the sibling checkouts beside this one (or `AXE_IOS_DIR` /
+`AXE_VIEWER_DIR`) and *skips* ones that are absent rather than failing, so a
+web-only checkout still gets a clean run - read the "some repositories were
+skipped" line before treating a pass as cross-platform. `--skip=ios` drops the
+slow one (iOS is about 6 of the 6.5 minutes); `--verbose` streams output
+instead of printing the tail of whatever failed.
+
+It exists because a red check on the two private repos proves nothing. Their
+Actions minutes are billed, and when that lapses the jobs die in seconds with
+"the job was not started", which looks exactly like a real failure - while
+neither repo has branch protection (a paid feature there), so nothing is
+gated on them either. A stale cross-platform mesh corpus once rode that
+ambiguity for two commits. The local run is the evidence.
+
 `corpus:check`, `schema:check`, `bass:check` and `fixtures:check` all run in
 CI now, in the `verify` workflow. Still run them by hand before committing
 anything that touches the file format, the hardware tables or the geometry
