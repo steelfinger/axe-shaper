@@ -1,3 +1,33 @@
+/*
+ * SUPERSEDED, 21 September 2026. Kept as the record of what the 20 September
+ * review measured; do not read a failure here as a regression.
+ *
+ * These are diagnostic reproductions of defects that existed on the reviewed
+ * revisions, so they assert the *broken* behaviour. Three of the four have
+ * since been fixed, and those three now fail by design. Re-run against
+ * axe-shaper-3D-viewer at `8f7eb65` (copy into its `tests/`, then
+ * `npx vitest run tests/arched-review-probes.test.ts`) and you get:
+ *
+ *   PASS  stage mounts and explains the fallback
+ *         - was already fixed when the review ran, and still is.
+ *   FAIL  solves first with incorrect parameters
+ *         - expects two solves (rise 14/core, then 8/overall); there is now
+ *           one (8/overall). Closed by viewer `368e496`.
+ *   FAIL  solid-carve back binding left below the new body back
+ *         - expects the strip below -38mm; it now spans -37.05..-30.65 around
+ *           a body back at -37. Closed by viewer `6386b78` and iOS `d9cbaef`.
+ *   FAIL  cap preview triangle statistics undercount rendered bands
+ *         - expects reported < rendered; both are now 9,702. Closed by viewer
+ *           `6386b78`, which counts capBand + coreBand.
+ *
+ * The status table in `arched-top-review.md` beside this file is a snapshot of
+ * the same date and has drifted the same way. Later findings, and the contract
+ * boundary that settled the arched-parity question, are in the viewer's
+ * `docs/MESH_PARITY.md` and iOS's `docs/m22-cross-platform-3d-mesh-corpus.md`.
+ *
+ * This file is not compiled or linted here: `tsconfig.app.json` includes only
+ * `src`, so it cannot affect this repository's build or CI.
+ */
 import { readFileSync } from 'node:fs';
 import { afterEach, expect, it, vi } from 'vitest';
 import { act, createElement } from 'react';
