@@ -10,6 +10,12 @@ Reviewed 20 September 2026 against the remote `codex/arched-body-top` branches:
 
 The local iOS and viewer checkouts were each three commits behind. Those remote commits were fetched and tested in separate temporary worktrees. The main checkouts were not advanced or edited. Findings reproduced on the older local viewer were rechecked against the latest revision.
 
+> **Superseded, 21 September 2026.** This is the review as it stood against the
+> revisions in the table above. Every finding it raised has since been closed;
+> see the note on [the status table](#status-of-every-supplied-finding) for what
+> closed each one. Read the sections below as the record of what was found, not
+> as open work.
+
 ## Assessment
 
 Several fixes are sound, particularly the viewer fallback and the blueprint payload migration. The feature does not need to be rewritten. The main concern is that the final web fix changes product semantics: choosing a preview construction now overwrites authored edge geometry. That decision is not implemented consistently in iOS and is not necessary merely to draw a straight preview wall.
@@ -74,6 +80,44 @@ The latest iOS and viewer branches still vendor schema-4 blueprints with no `bod
 Sync the authored files through the existing contract process and remove the superseded native injection. Current contract checks validate the pinned copies against their own manifests; they do not establish freshness against the current web branch.
 
 ## Status of every supplied finding
+
+**All thirteen rows below are closed.** The table is a 20 September snapshot;
+verified 21 September against web `2909a5f`, iOS `0053b4f` and viewer
+`8f7eb65`, with both suites run locally (viewer `npm run check`, 280 tests;
+iOS 1,075 tests, 0 failures). What closed each row:
+
+| Row | Closed by |
+|---|---|
+| Blank viewer after a carve failure | Already fixed when the review ran (viewer `1b2a722`); still is. |
+| Resetting tuned edge values when leaving Arched Top | The *inconsistency* is gone: iOS `d9cbaef` adopted the web policy, so Arched Top writes Slab in both editors. The data loss is retained deliberately — that was the product decision the review asked for, not an oversight. |
+| Different arched side walls between viewer and iOS | Walls: viewer `8b9e058`, iOS `1399f51`. Writer policy: iOS `d9cbaef`. Binding: viewer `6386b78`, iOS `d9cbaef`. |
+| Visible cap-band promise / numeric defaults in editor copy | Web `0349a0a`; the 14 mm / 8 mm figures are out of the copy. |
+| Hidden profile while plan and per-node controls still use it | Web `280a1a7` and iOS `d9cbaef` both force Slab, so the plan and the preview agree. The exclusivity rule is in `AXE_SVG_FORMAT.md` (`82c3a02`). |
+| Misplaced schema-v5 heading | Web `82c3a02`. |
+| Stale bundled blueprints / weakened version check | All 16 payloads are byte-identical across the three repos (iOS `d9cbaef`, viewer `6386b78`), and the assertion now covers all 16 with a count guard, not just the S-style base (web `1ab86a3`). |
+| Missing `solid_body_carve` interoperability fixture | Web `0349a0a`, viewer `6386b78`; the checker requires both constructions. |
+| Wrong first-render solid-carve parameters | Viewer `368e496` — one build, correct parameters. |
+| Wrong preview triangle statistics | Viewer `6386b78` — counts `capBand` + `coreBand`, with an assertion tying the reported count to the parts in the assembly. |
+| No shared numeric solver fixture | `archedBodyCases` (iOS `430c7d7`, viewer `368e496`) pins the carve; `archedAssemblyCases` (iOS `aaaca6e`, viewer `5cea8fb`) pins the assembly datums. |
+| Native comment says renderer has not arrived | iOS `430c7d7`. |
+| Stale Bass/4 viewer guidance | Web `0349a0a`. |
+
+Two things the review could not have known, both settled since:
+
+- Matching cap vertex counts did **not** prove tessellation parity. Earcut chose
+  the opposite diagonal even on a square, so equal counts and equal sampled
+  heights concealed a different piecewise-linear surface; viewer `368e496`
+  switched to the repo's own ear clipper.
+- Assembled arched instruments are under contract for their shared *physics*,
+  not their triangle digests. The two renderers legitimately differ — the viewer
+  routs a neck-pocket cavity and splits its wall into a textured cap band, which
+  native does not build. The boundary is stated in the viewer's
+  `docs/MESH_PARITY.md` and iOS's `docs/m22-cross-platform-3d-mesh-corpus.md`.
+
+The companion [`arched-review-probes.test.ts`](arched-review-probes.test.ts)
+carries the same caveat in its own header: three of its four probes now fail by
+design, because they assert the defects that were fixed.
+
 
 | Original finding | Current status |
 |---|---|
