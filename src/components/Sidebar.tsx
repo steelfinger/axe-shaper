@@ -516,9 +516,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </select>
                 <p id="edge-treatment-help" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
                   {bodyTopConstruction === 'carved_cap'
-                    ? 'A 14 mm bridge-led crown in the 3D preview, with the stored thickness as the core below the rim. The plan stays the flat outline you print and cut.'
+                    ? 'A raised crown in the 3D preview, with the stored thickness as the core below the rim. The plan stays the flat outline you print and cut.'
                     : bodyTopConstruction === 'solid_body_carve'
-                      ? 'An 8 mm bridge-led crown in the 3D preview, taken out of the stored thickness. The plan stays the flat outline you print and cut.'
+                      ? 'A crown carved into the stored overall thickness in the 3D preview. The plan stays the flat outline you print and cut.'
                       : 'Beveled and German Carve draw a top-face boundary on the plan; per-node edge intensities shape how far the treatment runs at each node. Arched Top carves the face in 3D instead, and sets the edge to Slab.'}
                 </p>
               </div>

@@ -23,14 +23,8 @@ interface HeaderProps {
   onShare: () => void;
   onView3D: () => void;
   /**
-   * Whether the 3D action can be trusted for this project. False for
-   * Bass/4: the pinned `steelfinger/axe-shape-3D-viewer` bundle draws a
-   * fixed six-string layout (six strings, six headstock posts,
-   * `evenSpread` divided by a literal 5) with no instrument awareness at
-   * all, so opening it on a bass design would render a six-string preview
-   * of it - silently wrong, not merely unfinished. Disabled and explained
-   * rather than hidden, so the option doesn't just disappear without
-   * saying why (docs/BASS_BODY_DESIGN_MILESTONES.md, W5).
+   * Whether this project can be opened in 3D. The viewer supports both
+   * Guitar/6 and Bass/4; the editor currently enables it for every project.
    */
   view3DAvailable: boolean;
   onPrintTiled: (paper: PrintPaper) => void;
@@ -208,7 +202,7 @@ export const Header: React.FC<HeaderProps> = ({
           title={
             view3DAvailable
               ? 'Open this design in the 3D viewer'
-              : "The 3D viewer doesn't render bass bodies accurately yet - a six-string preview would misrepresent this design."
+              : 'The 3D preview is unavailable for this design.'
           }
         >
           <Box size={15} /> <span className="header-action-label">View in 3D</span>
@@ -330,7 +324,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={onView3D}
               disabled={!view3DAvailable}
-              title={view3DAvailable ? undefined : "The 3D viewer doesn't render bass bodies accurately yet"}
+              title={view3DAvailable ? undefined : 'The 3D preview is unavailable for this design.'}
             >
               <Box size={15} /> View in 3D
             </button>

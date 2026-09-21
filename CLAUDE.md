@@ -210,14 +210,14 @@ clearance) or approximated, the comment says that too, and the approximation
 is listed in `docs/BASS_BODY_DESIGN_MILESTONES.md` for the blueprint evidence
 packet to settle.
 
-## The 3D viewer doesn't know about instruments yet
+## The 3D viewer supports both instruments
 
-`steelfinger/axe-shape-3D-viewer` tolerates schema v3 (any `schemaVersion`
-number, no upper bound) but reads neither `instrumentType` nor `stringCount`
-- string count, pole spacing and headstock posts are fixed at six. **View in
-3D** is disabled and explained for Bass/4 (`Header`'s `view3DAvailable`, and
-`handleView3D` itself refuses independently of the button) until the
-viewer's own Bass/4 rendering is verified. See `docs/AXE_SVG_FORMAT.md`.
+`steelfinger/axe-shaper-3D-viewer` reads `instrumentType` and `stringCount`
+and renders both Guitar/6 and Bass/4. **View in 3D** is enabled for every
+supported editor project: `App` passes `view3DAvailable` as true and
+`handleView3D` hands off the project without an instrument-specific gate.
+Keep both project-level fields and the embedded hardware in that handoff.
+See `docs/AXE_SVG_FORMAT.md` and the viewer's `tests/bassRendering.test.ts`.
 
 ## The bass blueprints are first drafts, not final shapes
 

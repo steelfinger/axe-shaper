@@ -442,7 +442,7 @@ async function main() {
         invariant(v5Files.length > 0, `${V5_FIXTURE_DIR} exists but holds no .axe.svg files`);
       });
 
-      let witnessedBodyTop = false;
+      const witnessedBodyTops = new Set<string>();
       for (const fileName of v5Files.sort()) {
         const project = scan(readFileSync(join(V5_FIXTURE_DIR, fileName), 'utf8')).project;
         check(`${fileName}: is a current payload carrying its instrument axis`, () => {
@@ -457,11 +457,22 @@ async function main() {
           );
           deepStrictEqual(presets.migrateProject(project), project);
         });
-        if (project.bodyTop?.construction === 'carved_cap') witnessedBodyTop = true;
+        check(`${fileName}: body-top choice survives web load/save/reload`, () => {
+          const loaded = presets.loadProject(project);
+          invariant(loaded.ok, `${fileName}: web loader rejected the native fixture`);
+          const written = scan(exporter.exportProjectToSVG(loaded.project)).project;
+          const reloaded = presets.loadProject(written);
+          invariant(reloaded.ok, `${fileName}: web loader rejected its own saved fixture`);
+          deepStrictEqual(reloaded.project.bodyTop, project.bodyTop);
+          deepStrictEqual(reloaded.project.bodyThicknessMm, project.bodyThicknessMm);
+        });
+        if (project.bodyTop?.construction) witnessedBodyTops.add(project.bodyTop.construction);
       }
-      check('the current fixture set includes a carved-cap body top', () => {
-        invariant(witnessedBodyTop, 'no fixture carries bodyTop.construction = carved_cap');
-      });
+      for (const construction of ['carved_cap', 'solid_body_carve']) {
+        check(`the current fixture set includes ${construction}`, () => {
+          invariant(witnessedBodyTops.has(construction), `no fixture carries bodyTop.construction = ${construction}`);
+        });
+      }
     }
   } finally {
     await server.close();
