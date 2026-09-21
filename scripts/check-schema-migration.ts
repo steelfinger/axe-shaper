@@ -17,14 +17,15 @@
  * generate-golden-corpus.ts, and payloads are scanned by string match rather
  * than through extractProjectFromSVG, which needs a DOMParser Node lacks.
  */
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { deepStrictEqual } from 'node:assert';
 import { createServer } from 'vite';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const BASE_BLUEPRINT = join(ROOT, 'src', 'constants', 'blueprints', 's_style.axe.svg');
+const BLUEPRINT_DIR = join(ROOT, 'src', 'constants', 'blueprints');
+const BASE_BLUEPRINT = join(BLUEPRINT_DIR, 's_style.axe.svg');
 
 let failures = 0;
 function check(label: string, fn: () => void) {
@@ -85,9 +86,16 @@ async function main() {
     // supported version here is how one quietly stays behind until the
     // difference shows up as a field the app injects but the file lacks.
     // Remedy: npx tsx scripts/refresh-blueprint-presets.ts
+    const bundledBlueprints = readdirSync(BLUEPRINT_DIR)
+      .filter((file) => file.endsWith('.axe.svg'))
+      .sort();
+    invariant(bundledBlueprints.length === 16, `expected 16 bundled blueprints, found ${bundledBlueprints.length}`);
+    const staleBlueprints = bundledBlueprints.filter((file) => (
+      decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8')).schemaVersion !== schema.PROJECT_SCHEMA_VERSION
+    ));
     invariant(
-      currentBlueprint.schemaVersion === schema.PROJECT_SCHEMA_VERSION,
-      `expected the bundled blueprint at schema ${schema.PROJECT_SCHEMA_VERSION}, got ${currentBlueprint.schemaVersion}`
+      staleBlueprints.length === 0,
+      `expected every bundled blueprint at schema ${schema.PROJECT_SCHEMA_VERSION}; stale: ${staleBlueprints.join(', ')}`
         + ' - re-export the bundled blueprints (npx tsx scripts/refresh-blueprint-presets.ts)'
     );
 
