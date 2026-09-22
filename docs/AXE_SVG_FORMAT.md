@@ -37,6 +37,58 @@ project name could contain one.
 | 4 | `potentiometers`, `switches`: independently placed visible controls. |
 | 5 | Optional `bodyTop.construction`: a named 3D body-face construction. |
 
+A version number in a file says what that document needs, not how new the
+writer was — see the next section.
+
+### A save stamps the version it needs, not the newest one
+
+A writer stamps `schemaVersion` with the **lowest version that can represent
+the document in hand**, never the newest version that writer understands.
+
+Version 3 is the floor. Versions 1 and 2 made fields required that every
+writer now fills in — the embedded hardware copies, then `instrumentType` /
+`stringCount` — so a file any current writer produces carries version 3's
+fields whatever it was loaded from, and stamping lower would be a lie a reader
+acts on. Above that floor, each version so far is purely additive:
+
+| If the document has | It is written at |
+| --- | --- |
+| a `bodyTop` | 5 |
+| a `potentiometers` or `switches` entry | 4 |
+| neither | 3 |
+
+This works because the absence of each of those fields *is* the behaviour that
+existed before it — no placed controls, a flat top — so a document that uses
+none of them is exactly a version 3 document. A version that changes what an
+existing field means cannot be handled this way, and would raise the floor
+instead.
+
+The stamp is computed at the **write** boundary, not carried from the read:
+by the time a document is saved the editor may have added an arched top to
+something opened at 3, or deleted the last potentiometer from something opened
+at 4. The version follows the content in both directions — a document that
+loses its version 4 content is written at 3 again, because keeping the higher
+stamp would tie it to a build it no longer needs.
+
+Why it matters: the implementations ship on different clocks. The web app
+deploys in minutes; the iPad app waits on App Store review. Stamping the
+newest version unconditionally means that whichever side ships a new version
+first makes *every* file it saves unusable on the other — read-only on iOS,
+refused outright on web — including a plain six-string that uses none of the
+new fields. On-demand stamping narrows that to the documents that genuinely
+use the new field, and leaves everything else portable across both builds.
+
+A payload from a version a writer does not understand keeps its own claim. Its
+fields may change what existing ones mean, which the writer cannot assess, and
+lowering the stamp while carrying them would misdescribe the file. That is the
+export path's half of "decode tolerantly, refuse to edit" below.
+
+Implementations: `requiredSchemaVersion` in the web app's
+`src/constants/schema.ts`, `Migration.requiredPayloadVersion(for:)` in
+axe-shaper-ios. The two must give the same answer for the same document, and
+the cross-app fixture set is what proves it: `check-ios-fixtures.ts` computes
+the web's answer for every file the iOS writer produced.
+
 ### The embedded copy wins
 
 From version 2 on, a project stores hardware twice: the preset **id** and a

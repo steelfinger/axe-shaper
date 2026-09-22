@@ -81,22 +81,41 @@ async function main() {
     const controls = await load('/src/utils/controlEditing.ts');
 
     const currentBlueprint = decodePayload(readFileSync(BASE_BLUEPRINT, 'utf8'));
-    // Strict equality, not a range. The bundled blueprints are what this
-    // build writes, so a version bump has to re-export them - accepting any
-    // supported version here is how one quietly stays behind until the
-    // difference shows up as a field the app injects but the file lacks.
+    // Strict equality against each blueprint's *own* answer, not a range and
+    // not PROJECT_SCHEMA_VERSION. The bundled blueprints are what this build
+    // writes, so each must carry the lowest version that can represent it
+    // (`requiredSchemaVersion`) - which is 4 for fifteen of them and 5 only
+    // for single_cut, the one with a bodyTop. Accepting any supported version
+    // here is how one quietly stays behind until the difference shows up as a
+    // field the app injects but the file lacks; accepting only the newest is
+    // how the stamping rule silently reverts.
     // Remedy: npx tsx scripts/refresh-blueprint-presets.ts
     const bundledBlueprints = readdirSync(BLUEPRINT_DIR)
       .filter((file) => file.endsWith('.axe.svg'))
       .sort();
     invariant(bundledBlueprints.length === 16, `expected 16 bundled blueprints, found ${bundledBlueprints.length}`);
-    const staleBlueprints = bundledBlueprints.filter((file) => (
-      decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8')).schemaVersion !== schema.PROJECT_SCHEMA_VERSION
-    ));
+    const misstamped = bundledBlueprints
+      .map((file) => ({ file, payload: decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8')) }))
+      .filter(({ payload }) => payload.schemaVersion !== schema.requiredSchemaVersion(payload))
+      .map(({ file, payload }) => (
+        `${file} (says ${payload.schemaVersion}, needs ${schema.requiredSchemaVersion(payload)})`
+      ));
     invariant(
-      staleBlueprints.length === 0,
-      `expected every bundled blueprint at schema ${schema.PROJECT_SCHEMA_VERSION}; stale: ${staleBlueprints.join(', ')}`
+      misstamped.length === 0,
+      `every bundled blueprint must carry the lowest version that can represent it; wrong: ${misstamped.join(', ')}`
         + ' - re-export the bundled blueprints (npx tsx scripts/refresh-blueprint-presets.ts)'
+    );
+
+    // The rule is only worth anything if the set actually spans versions: a
+    // day when every blueprint happens to use a version 5 field would make
+    // the check above pass while proving nothing about stamping down.
+    const bundledVersions = new Set(bundledBlueprints.map((file) => (
+      decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8')).schemaVersion
+    )));
+    invariant(
+      bundledVersions.size > 1,
+      `the bundled blueprints are all at schema ${[...bundledVersions][0]}, so they no longer demonstrate`
+        + ' version-on-demand stamping - add a blueprint that uses no version 5 field, or drop this check'
     );
 
     // Production blueprints now carry schema-v4 controls, so derive the
@@ -122,9 +141,14 @@ async function main() {
 
     console.log('version 2 -> current (the bundled blueprints and every existing save)');
 
-    check('migrates to a Guitar/6 project at the current version', () => {
+    check('migrates to a Guitar/6 project at version 3, not at the newest version', () => {
       const migrated = presets.migrateProject(v2);
-      deepStrictEqual(migrated.schemaVersion, schema.PROJECT_SCHEMA_VERSION);
+      // 3, not PROJECT_SCHEMA_VERSION: the backfill adds version 3's fields
+      // and nothing above them, so 3 is what the result actually is. This
+      // fixture has its potentiometers and switches stripped above and no
+      // bodyTop, which is the whole point - a file that uses none of the
+      // newer fields must stay openable by a build that predates them.
+      deepStrictEqual(migrated.schemaVersion, schema.BASE_SCHEMA_VERSION);
       deepStrictEqual(migrated.instrumentType, 'guitar');
       deepStrictEqual(migrated.stringCount, 6);
     });
@@ -211,7 +235,7 @@ async function main() {
       const written = exporter.exportProjectToSVG(bass);
       deepStrictEqual(metadataElement(written, 'instrumentType'), 'bass');
       deepStrictEqual(metadataElement(written, 'stringCount'), '4');
-      deepStrictEqual(metadataElement(written, 'schemaVersion'), String(schema.PROJECT_SCHEMA_VERSION));
+      deepStrictEqual(metadataElement(written, 'schemaVersion'), String(schema.requiredSchemaVersion(bass)));
     });
 
     check('a version 2 payload saved now is stamped Guitar/6 in both places', () => {
@@ -400,6 +424,75 @@ async function main() {
       invariant(written.includes('r="4.50" class="control-outline"'), 'print SVG omitted the 9mm shaft hole');
       invariant(written.includes('.control-outline { fill: none;'), 'print SVG controls are not outline-only');
       invariant(written.includes('.control-cap { fill: none;'), 'print SVG switch caps are not outline-only');
+    });
+
+    console.log('\nversion-on-demand stamping');
+
+    // The rule: a save carries the lowest version that can represent the
+    // document, never the newest version this build knows. It exists because
+    // the two implementations ship on different clocks - the web deploys in
+    // minutes, the iPad app waits on App Store review - so an unconditional
+    // stamp makes every file saved on the newer side unopenable on the older
+    // one, including files that use none of the new fields.
+    const plain = {
+      ...projectFactory.createProject({ templateId: 's_style' }),
+      potentiometers: [],
+      switches: [],
+      bodyTop: undefined,
+    };
+
+    const savedVersion = (project: any) => decodePayload(exporter.exportProjectToSVG(project)).schemaVersion;
+
+    check('a project using no version 4 or 5 field saves at version 3', () => {
+      deepStrictEqual(savedVersion(plain), 3);
+      deepStrictEqual(metadataElement(exporter.exportProjectToSVG(plain), 'schemaVersion'), '3');
+    });
+
+    check('placing a control lifts the stamp to 4, and removing it drops back to 3', () => {
+      const withPot = controls.addingPotentiometer(plain).project;
+      deepStrictEqual(savedVersion(withPot), 4);
+      deepStrictEqual(savedVersion(controls.addingSwitch(plain, 'gibson_toggle').project), 4);
+      // Dropping back matters as much as climbing: a document that loses its
+      // controls has no version 4 content left, and keeping the stamp would
+      // hold it hostage to a build it no longer needs.
+      deepStrictEqual(savedVersion({ ...withPot, potentiometers: [] }), 3);
+    });
+
+    check('an arched top lifts the stamp to 5 regardless of what it loaded as', () => {
+      deepStrictEqual(savedVersion({ ...plain, bodyTop: { construction: 'carved_cap' } }), 5);
+      deepStrictEqual(savedVersion({ ...plain, bodyTop: { construction: 'solid_body_carve' } }), 5);
+      // The editor's own case: loaded as 3, an arched top chosen, saved. The
+      // in-memory stamp is stale by then, so the version has to be computed
+      // on the way out rather than carried.
+      const loaded = presets.migrateProject(v2);
+      deepStrictEqual(loaded.schemaVersion, 3);
+      deepStrictEqual(savedVersion({ ...loaded, bodyTop: { construction: 'carved_cap' } }), 5);
+    });
+
+    check('the single_cut blueprint is the one bundled file that needs version 5', () => {
+      const singleCut = decodePayload(readFileSync(join(BLUEPRINT_DIR, 'single_cut.axe.svg'), 'utf8'));
+      deepStrictEqual(singleCut.schemaVersion, 5);
+      invariant(singleCut.bodyTop, 'single_cut no longer carries a bodyTop, so it is no longer the version 5 witness');
+      const sStyle = decodePayload(readFileSync(BASE_BLUEPRINT, 'utf8'));
+      deepStrictEqual(sStyle.schemaVersion, 4);
+    });
+
+    check('re-saving an untouched file does not move its version', () => {
+      // The failure this guards against is a save that quietly upgrades a
+      // document nobody edited - the exact way an unconditional stamp spreads
+      // a new version across a library.
+      for (const file of readdirSync(BLUEPRINT_DIR).filter((f) => f.endsWith('.axe.svg')).sort()) {
+        const payload = decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8'));
+        deepStrictEqual(savedVersion(presets.migrateProject(payload)), payload.schemaVersion, file);
+      }
+    });
+
+    check('a payload newer than this build keeps its own version through an export', () => {
+      // migrateProject refuses it, but exportProjectToSVG is reachable
+      // without it. Stamping such a payload down would describe a file as
+      // something this build cannot actually vouch for.
+      const future = { ...v2, schemaVersion: schema.PROJECT_SCHEMA_VERSION + 1 };
+      deepStrictEqual(savedVersion(future), schema.PROJECT_SCHEMA_VERSION + 1);
     });
   } finally {
     await server.close();

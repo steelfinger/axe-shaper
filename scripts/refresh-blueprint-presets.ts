@@ -106,10 +106,13 @@ async function main() {
         neck.neckPreset[key] = pocket[key];
       }
     }
-    // Through migrateProject, so a refresh also advances the schema stamp.
-    // The blueprints are what this build writes; check-schema-migration.ts
-    // requires them at PROJECT_SCHEMA_VERSION and names this script as the
-    // way back when they fall behind.
+    // Through migrateProject - the same door every other read goes through.
+    // The schema stamp no longer depends on it: exportProjectToSVG stamps
+    // requiredSchemaVersion (constants/schema.ts) on the way out, so each
+    // blueprint lands on the lowest version that can represent it, which is 4
+    // for fifteen of them and 5 only for single_cut. Routing through the
+    // version and instrument gates anyway keeps a blueprint this build would
+    // refuse to *open* from being silently rewritten by a refresh.
     const refreshed = presets.migrateProject({
       ...project,
       ...neck,

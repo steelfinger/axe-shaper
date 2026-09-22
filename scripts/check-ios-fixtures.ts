@@ -274,11 +274,15 @@ async function main() {
         //   production helper keeps this a no-op check for every other field.
         // - The version stamp and the instrument axis version 3 introduces.
         //   These fixtures predate it, so they migrate to Guitar/6; that is
-        //   the migration itself, asserted here rather than assumed.
+        //   the migration itself, asserted here rather than assumed. The
+        //   stamp lands on the lowest version that can hold the result
+        //   (`requiredSchemaVersion`), which for a fixture that predates
+        //   placed controls and body tops is 3 - not the newest version this
+        //   build knows.
         const expected = {
           ...project,
           pickups: presets.withEmbeddedPickupSpecs(project.pickups ?? []),
-          schemaVersion: schema.PROJECT_SCHEMA_VERSION,
+          schemaVersion: schema.requiredSchemaVersion(project),
           ...instrument.resolveInstrument(project),
         };
         const migrated = presets.migrateProject(project);
@@ -413,12 +417,13 @@ async function main() {
         });
         check(`${fileName}: migrating to the current version changes only the version stamp`, () => {
           // Versions 4 and 5 add optional control/body-top fields, so an
-          // untouched version-3 payload gains no geometry; only the schema
-          // stamp advances.
+          // untouched version-3 payload gains no geometry - and, since it
+          // uses none of those fields, no version either. Loading one is a
+          // complete no-op.
           deepStrictEqual(presets.migrateProject(project), {
             ...project,
             pickups: presets.withEmbeddedPickupSpecs(project.pickups ?? []),
-            schemaVersion: schema.PROJECT_SCHEMA_VERSION,
+            schemaVersion: schema.requiredSchemaVersion(project),
           });
         });
       }
@@ -446,7 +451,13 @@ async function main() {
       for (const fileName of v5Files.sort()) {
         const project = scan(readFileSync(join(V5_FIXTURE_DIR, fileName), 'utf8')).project;
         check(`${fileName}: is a current payload carrying its instrument axis`, () => {
-          deepStrictEqual(project.schemaVersion, schema.PROJECT_SCHEMA_VERSION);
+          // The version the *fixture* needs, not the newest either side
+          // knows: both writers stamp on demand, so a native file with no
+          // bodyTop is written at 4 and must still read as untouched here.
+          // This is the cross-platform half of that rule - if iOS and the web
+          // disagreed about which version a document needs, the no-op
+          // assertion at the end of this check is what would catch it.
+          deepStrictEqual(project.schemaVersion, schema.requiredSchemaVersion(project));
           invariant(
             instrument.isInstrumentType(project.instrumentType),
             `instrumentType is ${String(project.instrumentType)}`
@@ -473,6 +484,23 @@ async function main() {
           invariant(witnessedBodyTops.has(construction), `no fixture carries bodyTop.construction = ${construction}`);
         });
       }
+
+      check('the native writer stamps on demand rather than stamping everything current', () => {
+        // A fixture set that was uniformly at the newest version would pass
+        // every check above while proving nothing: the point of the rule is
+        // that the flat fixtures come out *below* the arched ones.
+        const versions = new Set(v5Files.map((file) => (
+          scan(readFileSync(join(V5_FIXTURE_DIR, file), 'utf8')).project.schemaVersion
+        )));
+        invariant(
+          versions.has(schema.PROJECT_SCHEMA_VERSION),
+          `no native fixture is at version ${schema.PROJECT_SCHEMA_VERSION}, so the arched cases are missing`
+        );
+        invariant(
+          versions.size > 1,
+          `every native fixture is at version ${[...versions][0]}; the flat ones should be lower`
+        );
+      });
     }
   } finally {
     await server.close();

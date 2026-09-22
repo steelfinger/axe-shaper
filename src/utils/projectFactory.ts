@@ -1,5 +1,5 @@
 import { REFERENCE_TEMPLATES } from '../constants/templates';
-import { PROJECT_SCHEMA_VERSION } from '../constants/schema';
+import { BASE_SCHEMA_VERSION, requiredSchemaVersion } from '../constants/schema';
 import type { GuitarProject, InstrumentType, ReferenceTemplate } from '../types/guitar';
 import { defaultStringCount } from './instrument';
 import { bridgePresetFields, defaultNeckJointMechanism, neckPresetFieldsForNewTemplate } from './presets';
@@ -77,8 +77,13 @@ export function createProject(options: CreateProjectOptions = {}): GuitarProject
   const template = templateSource(templateId);
   const timestamp = (options.now?.() ?? new Date()).toISOString();
 
-  return {
-    schemaVersion: PROJECT_SCHEMA_VERSION,
+  const project: GuitarProject = {
+    // Replaced below once the rest of the project exists: the version a save
+    // stamps depends on which optional fields the blueprint brought with it
+    // (`requiredSchemaVersion`, `constants/schema.ts`), and those are set
+    // further down. The floor stands in until then so the object is never
+    // typed with a version no build writes.
+    schemaVersion: BASE_SCHEMA_VERSION,
     appVersion: DEFAULT_APP_VERSION,
     instrumentType: template.instrumentType,
     stringCount: template.stringCount ?? defaultStringCount(template.instrumentType),
@@ -132,4 +137,6 @@ export function createProject(options: CreateProjectOptions = {}): GuitarProject
     frontRoutes: structuredClone(template.defaultFrontRoutes ?? []),
     backRoutes: structuredClone(template.defaultBackRoutes ?? []),
   };
+
+  return { ...project, schemaVersion: requiredSchemaVersion(project) };
 }

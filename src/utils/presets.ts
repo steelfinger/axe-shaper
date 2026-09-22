@@ -8,7 +8,7 @@ import {
   PICKUP_SPECIFICATIONS,
   TEMPLATE_NECK_POCKET_SPEC,
 } from '../constants/hardware';
-import { PROJECT_SCHEMA_VERSION, isSupportedSchemaVersion } from '../constants/schema';
+import { PROJECT_SCHEMA_VERSION, isSupportedSchemaVersion, requiredSchemaVersion } from '../constants/schema';
 import type {
   BridgePreset,
   GuitarProject,
@@ -394,6 +394,13 @@ export function withEmbeddedPresets(project: StoredProject): GuitarProject {
   const instrumentDefaults = resolveInstrument(project);
   return {
     ...project,
+    // The lowest version that can describe what this payload actually holds,
+    // not the newest this build knows (`requiredSchemaVersion`,
+    // `constants/schema.ts`). Stamped here rather than only in
+    // migrateProject() for the same reason the fields below are: this runs on
+    // the way out too, so the version follows the document even when the
+    // editor added an arched top to something loaded as version 3.
+    schemaVersion: requiredSchemaVersion(project),
     // A version 1 or 2 file has neither field; both are Guitar/6 by
     // construction, since that is all the app could draw. Resolved here
     // rather than only in migrateProject() so that *saving* also stamps them:
@@ -488,10 +495,11 @@ export function migrateProject(project: StoredProject): GuitarProject {
     );
   }
 
-  return {
-    ...withEmbeddedPresets(project),
-    schemaVersion: PROJECT_SCHEMA_VERSION,
-  };
+  // withEmbeddedPresets() stamps the version, because it is also what runs on
+  // the way out. A migrated version 1 or 2 payload therefore lands at 3 - the
+  // fields that function backfills - and climbs only if the document itself
+  // uses a version 4 or 5 field.
+  return withEmbeddedPresets(project);
 }
 
 /** What `loadProject()` returns: a project ready to edit, or why not. */

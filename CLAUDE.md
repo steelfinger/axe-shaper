@@ -221,6 +221,26 @@ things that used to sail straight into the editor:
 v1/v2 files decode as Guitar/6. That is a default-when-absent read, not a
 guess: nothing else was drawable.
 
+**`PROJECT_SCHEMA_VERSION` is not what a save stamps.** It is the newest
+version this build *understands* - the upper bound of the read gate. A save
+carries `requiredSchemaVersion(project)`: the lowest version that can
+represent that document, which is 3 for a plain project, 4 once a
+potentiometer or switch is placed, 5 once a `bodyTop` is chosen, and drops
+back down when those are removed. It is computed in `withEmbeddedPresets`, so
+it happens on the way out as well as on the way in - the editor can add an
+arched top to something opened at 3. `Migration.requiredPayloadVersion(for:)`
+in axe-shaper-ios is the same function and must agree.
+
+The reason is release timing, not tidiness. The web deploys in minutes and the
+iPad app waits on App Store review, so stamping the newest version
+unconditionally means the day either side ships a new version, every file it
+saves stops being editable on the other - including a plain six-string that
+uses none of the new fields. Fifteen of the sixteen bundled blueprints sit at
+4 for exactly this reason; only `single_cut` has a `bodyTop`. Adding an
+optional field to a new version is what keeps this possible; a version that
+changes what an existing field means raises the floor instead. See the format
+doc's "A save stamps the version it needs".
+
 Catalogue compatibility (`NECK_PRESET_INSTRUMENT` and friends in
 `constants/hardware.ts`) is a **side-table keyed by id**, never a field on the
 presets. Presets are embedded verbatim into every save and into the golden
