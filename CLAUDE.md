@@ -25,16 +25,66 @@ anything that touches the file format, the hardware tables or the geometry
 utils - they are seconds locally, and the point of them is to stop a bad
 contract change being written down, not to find out after it is pushed.
 
-## Deploying is a push
+## Deploying is a tag, not a push
 
-`.github/workflows/firebase-hosting-merge.yml` runs on every push to `main`:
-`npm run build:site`, then a Firebase Hosting deploy to the live channel.
-**There is no manual publish step** - `git push` is the deploy, *as long as
-CI is green*. It silently was not for ten days; see the token below.
+Three lanes, and only one of them publishes:
 
-`npm run deploy` does the same thing from a laptop and exists for the case
-where CI is unavailable. Prefer the push; a local deploy ships whatever is in
-the working tree, which is how `main` and the live site drift apart.
+| Lane | Trigger | Target | Workflow |
+|---|---|---|---|
+| Preview | a pull request | ephemeral channel | `firebase-hosting-pull-request.yml` |
+| Staging | push to `main` | persistent `staging` channel | `firebase-hosting-merge.yml` |
+| **Live** | push of a `v*` tag | `live` | `firebase-hosting-release.yml` |
+
+```bash
+git tag v1.3.0 && git push origin v1.3.0   # this is the deploy
+gh run list --limit 1                       # this is the whole test
+```
+
+**Merging no longer publishes.** It used to: a push to `main` went straight to
+the live channel, so an unfinished editor feature could not sit on `main`
+without being on the public site.
+
+The reason to gate it is the `.axe.svg` contract, not release tidiness. If the
+web publishes a schema the shipping iPad build does not speak, a file saved on
+the web stops being editable on the iPad - native's `VersionPolicy.decide`
+opens a payload newer than its own `Migration.currentPayloadVersion` as
+`.readOnly`, and `loadProject()` here refuses one outright. So **the web goes
+live only when an App Store version that reads the same format is live too**,
+and the tag is where that judgement is recorded. Tag the same version number
+as the iPad marketing version, so "what is live where" is one string.
+
+Rollback is `firebase hosting:rollback`, or re-running the release workflow on
+an earlier tag.
+
+The release workflow re-runs the contract checks itself rather than trusting
+the merge that produced the commit. `needs:` cannot reach across workflows, a
+second check named `verify` on a tag would muddy the one the ruleset requires,
+and a tag can be cut on any commit - including one that never saw a PR.
+
+It also curls the live site afterwards and compares `<title>`s, because a
+missing asset comes back as the app shell with status 200 (see below). The
+viewer says "Axe Shaper 3D Viewer"; the shell says "Axe Shaper — True-scale...".
+That is the only cheap way to catch a half-composed `dist/viewer3d` after it is
+already published.
+
+Staging exists so that stopping the live deploys does not cost the only signal
+that `main` still builds: before this split, "does the deploy work" was proven
+by the live site changing, and nothing else. That is exactly how the expired
+token below went unnoticed for ten days. Every push to `main` still deploys
+somewhere, so a broken `build:site` surfaces immediately instead of at release
+time while you are waiting on Apple.
+
+**What this couples:** once an unreleased editor feature is on `main`, a
+marketing-only change cannot be published without it. For now, tag when both
+are ready. If that starts biting, the ways out are a feature flag on the
+schema-visible parts of the editor, or a long-lived `release` branch to deploy
+live from - the branch is the standard answer but cuts against committing
+straight to `main`, so reach for the flag first.
+
+`npm run deploy` still publishes straight from a laptop and exists for the case
+where CI is unavailable. It bypasses every gate above, including the smoke
+check, and ships whatever is in the working tree - which is how `main` and the
+live site drift apart. Prefer the tag.
 
 The `viewer3d:fetch` half matters: it downloads the release tarball pinned in
 `viewer3d.version` into `dist/viewer3d`. A plain `npm run build` does *not*
@@ -46,17 +96,21 @@ necessarily the pinned version. Anything that publishes must go through
 ### The deploy depends on a token that expires
 
 `viewer3d:fetch` runs `gh release download` against
-`steelfinger/axe-shaper-3D-viewer`, which is **private**. The workflow feeds
-it `GH_TOKEN: ${{ secrets.VIEWER3D_RELEASE_TOKEN }}` - a fine-grained PAT
-with **Contents: Read** on that one repo, and nothing else.
+`steelfinger/axe-shaper-3D-viewer`, which is **private**. All three hosting
+workflows feed it `GH_TOKEN: ${{ secrets.VIEWER3D_RELEASE_TOKEN }}` - a
+fine-grained PAT with **Contents: Read** on that one repo, and nothing else.
 
 When that secret is missing or expired, `GH_TOKEN` resolves to empty, the
-download fails, `build:site` exits 1 and the deploy step never runs. The push
-still succeeds, so **nothing about your local experience says anything is
-wrong** - the website just quietly stops changing. That is exactly what
-happened: the secret was never created, every deploy from 2 Sep 2026 failed,
-and it went unnoticed until 12 Sep. Two releases and a full marketing change
-sat unpublished on `main`.
+download fails and `build:site` exits 1, so no deploy step runs. The push
+itself still succeeds, so **nothing about your local experience says anything
+is wrong**. That is exactly what happened: the secret was never created, every
+deploy from 2 Sep 2026 failed, and it went unnoticed until 12 Sep, because the
+only symptom was a website that quietly stopped changing. Two releases and a
+full marketing change sat unpublished on `main`.
+
+The staging lane is what makes that visible now: the same failure takes out
+the staging deploy on the merge, not the live deploy weeks later at release
+time. That is the whole reason `main` still deploys somewhere.
 
 To recreate it: a fine-grained PAT at
 `github.com/settings/personal-access-tokens/new`, resource owner

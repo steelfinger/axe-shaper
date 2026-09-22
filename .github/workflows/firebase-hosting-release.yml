@@ -1,0 +1,99 @@
+# Publishing the web app. A `v*` tag is the deploy; a merge is not.
+#
+# The gate this exists to provide is the `.axe.svg` contract, not release
+# tidiness. If the web app publishes a schema the shipping iPad build does not
+# speak, a file saved on the web stops being editable on the iPad: the native
+# `VersionPolicy.decide` opens a payload newer than its own
+# `Migration.currentPayloadVersion` as `.readOnly`, and `loadProject()` here
+# refuses one outright. So the web goes live only when an App Store version
+# that reads the same format is live too, and a tag is where that judgement is
+# recorded.
+#
+# Tag the same version number as the iPad marketing version, so "what is live
+# where" is one string:
+#
+#   git tag v1.3.0 && git push origin v1.3.0
+#
+# Then check it landed - `gh run list --limit 1`. Rollback is
+# `firebase hosting:rollback`, or re-running this workflow on an earlier tag.
+
+name: Release to Firebase Hosting live
+on:
+  push:
+    tags:
+      - 'v*'
+concurrency:
+  # Never cancel a publish in flight; queue behind it instead.
+  group: hosting-live
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      # The same contract checks the `verify` workflow runs, re-run here
+      # rather than inherited from the merge that produced this commit.
+      #
+      # They are duplicated deliberately. `needs:` cannot reach across
+      # workflows, and emitting a second status check literally named `verify`
+      # on a tag would muddy the one the main-protection ruleset requires -
+      # CLAUDE.md warns that the name is load-bearing. A tag can also be cut on
+      # any commit, including one that never went through a PR, so the gate has
+      # to belong to the publish rather than to something upstream of it.
+      - run: npm run lint
+      - run: npm run dxf:check
+      - run: npm run corpus:check
+      - run: npm run schema:check
+      - run: npm run bass:check
+      - run: npm run fixtures:check
+
+      # Builds this site and composes the pinned viewer3d bundle into
+      # dist/viewer3d. firebase.json has no predeploy hook, so this is the
+      # only build; a bare `firebase deploy` would ship whatever is in dist/.
+      - run: npm run build:site
+        env:
+          GH_TOKEN: ${{ secrets.VIEWER3D_RELEASE_TOKEN }}
+
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_AXE_SHAPER_WEB }}
+          channelId: live
+          projectId: axe-shaper-web
+
+      # firebase.json rewrites `**` to /index.html, so a missing asset is
+      # served as the app shell with status 200 and content-type text/html.
+      # Neither a status code nor a content type can see a half-composed
+      # /viewer3d. The page's own title can: the viewer says "Axe Shaper 3D
+      # Viewer", the shell says "Axe Shaper — True-scale...".
+      - name: The live site serves the viewer, not the app shell
+        run: |
+          set -uo pipefail
+          base=https://axe-shaper-web.web.app
+          title() { curl -fsS --max-time 20 "$1" | tr -d '\n' | grep -o '<title>[^<]*' | head -1; }
+          for attempt in 1 2 3 4 5; do
+            root=$(title "$base/" || true)
+            viewer=$(title "$base/viewer3d/index.html" || true)
+            case "$root$viewer" in
+              *"Axe Shaper"*) break ;;
+            esac
+            echo "Attempt $attempt: the site did not answer yet; waiting for propagation."
+            sleep 10
+          done
+          echo "root:   ${root:-<none>}"
+          echo "viewer: ${viewer:-<none>}"
+          case "$root" in
+            *"Axe Shaper"*) ;;
+            *) echo "::error::The live root did not serve the app." ; exit 1 ;;
+          esac
+          case "$viewer" in
+            *"Axe Shaper 3D Viewer"*) ;;
+            *) echo "::error::/viewer3d/ served the app shell, so dist/viewer3d did not compose. The viewer3d.version release may be missing, or VIEWER3D_RELEASE_TOKEN may have expired." ; exit 1 ;;
+          esac
+          echo "Live: app shell and pinned viewer bundle both served."
