@@ -46,6 +46,7 @@ async function main() {
   // downloadSVGFile need DOMParser/document) - safe to load and call here.
   const svgExporter = await load('/src/utils/svgExporter.ts');
   const manifest = await load('/src/constants/blueprintManifest.ts');
+  const hardware = await load('/src/constants/hardware.ts');
 
   for (const id of manifest.BLUEPRINT_ORDER) {
     const path = join(ROOT, 'src', 'constants', 'blueprints', `${id}.axe.svg`);
@@ -65,8 +66,45 @@ async function main() {
         'bass'
       ).neckPreset.nutToBodyEdgeMm;
       // 4dp, matching generate-bass-blueprint-drafts.ts and the hand-written
-      // NECK_PRESETS constants - so the non-P bass bodies re-embed unchanged.
+      // NECK_PRESETS constants - so the non-P bass bodies re-embed unchanged,
+      // with one known exception: sg_bass_style stores 434.70000000000005 and
+      // rounds to 434.7, so a refresh always emits that one-line diff. It is
+      // float noise, ~5e-14mm, not a geometry change - deliberately left in
+      // the committed file rather than spending a corpus
+      // --allow-scale-math-change on a saddle that has not moved. Expect it;
+      // it does not mean the refresh broke something.
       neck.neckPreset.nutToBodyEdgeMm = Math.round(templateEdge * 1e4) / 1e4;
+    }
+    // `neckPresetFields` reads NECK_PRESETS by id alone, which is body-blind.
+    // That is right for the pocket everywhere except a body with an entry in
+    // TEMPLATE_NECK_POCKET_SPEC, where the catalogue's answer for *this body*
+    // deliberately overrides the generic one while its native mechanism is
+    // selected - r_bass_style's 40mm neck-through centre strip against the
+    // 63.5mm generic bass mortise. Without this, a refresh silently widened
+    // that rout to 63.5mm: 11.75mm proud of the contour on each side, whose
+    // own `s_pocket_left`/`s_pocket_right` anchors sit at X=+/-20 (both facts
+    // asserted by `npm run bass:check`). Taking the pocket from the same
+    // template-aware call the in-app re-pick uses keeps the two in step; it
+    // is a no-op for every body without an entry.
+    const mechanism = project.neckJointMechanism ?? presets.defaultNeckJointMechanism(id);
+    const templatePocket = hardware.TEMPLATE_NECK_POCKET_SPEC[id];
+    if (templatePocket?.mechanism === mechanism) {
+      const pocket = presets.neckPresetFieldsForTemplate(
+        project.neckPresetId,
+        id,
+        mechanism,
+        project.instrumentType ?? 'guitar'
+      ).neckPreset;
+      for (const key of [
+        'jointWidthMm',
+        'jointDepthMm',
+        'jointCornerRadiusMm',
+        'pocketWidthMm',
+        'pocketDepthMm',
+        'pocketCornerRadiusMm',
+      ] as const) {
+        neck.neckPreset[key] = pocket[key];
+      }
     }
     const refreshed = {
       ...project,
