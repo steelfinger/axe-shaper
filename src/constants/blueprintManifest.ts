@@ -75,6 +75,13 @@ export const BLUEPRINT_MANIFEST: Record<
     tier: 'extra',
     instrumentType: 'guitar',
   },
+  semi_hollow_double_cut: {
+    description:
+      'ES-335-style double cutaway with F-holes as 2 cm front cavities, an arched carved-cap top, Tune-O-Matic and stopbar, two humbuckers, and a fret-19 neck joint. Built as a solid carved body, not a hollow one.',
+    category: 'Semi-Hollow',
+    tier: 'extra',
+    instrumentType: 'guitar',
+  },
   jag_style: {
     description: 'Jaguar-style offset body with its pickguard and front control routes, a 610 mm scale neck, and Tune-O-Matic bridge.',
     category: 'Offset',
@@ -153,6 +160,7 @@ export const BLUEPRINT_ORDER = [
   'gibson_flying_v',
   'gibson_explorer',
   'prs_style',
+  'semi_hollow_double_cut',
   'jag_style',
   'p_bass_style',
   'j_bass_style',
