@@ -524,6 +524,10 @@ export const FINGERBOARD_OVERHANG_MM: Record<string, LengthMm> = {
   // nut to the body/fingerboard junction (about fret 20.1; the owner's fret 20
   // would be 434.99). See docs/guitar-blueprint-evidence/prs-custom-24-plan-trace.json.
   prs_style: 17.4244,
+  // ES-335: joint at fret 19 as specified, and the plan agrees to within 1 px.
+  // nutToBodyEdgeMm = fret22Distance(628.65) - 33.3778 = 418.8632, which is the
+  // same overhang gibson_sg_22 derives from its fret-19 joint.
+  semi_hollow_double_cut: 33.3778,
   // Measured off the 1958 Explorer plan, not derived from a native neck: this
   // body has no legacy per-body entry in NECK_PRESETS and uses gibson_scale.
   // nutToBodyEdgeMm = fret22Distance(628.65) - 37.6444 = 414.5967, nut to the
@@ -664,6 +668,7 @@ export const DEFAULT_NECK_JOINT_MECHANISM: Record<string, NeckJointMechanism> = 
   gibson_flying_v: 'glued',
   gibson_explorer: 'glued',
   prs_style: 'glued',
+  semi_hollow_double_cut: 'glued',
   jag_style: 'bolt_on',
 
   // The eight bass blueprints, decided here rather than left to the
