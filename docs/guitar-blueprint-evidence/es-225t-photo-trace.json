@@ -1,0 +1,1644 @@
+{
+ "source": {
+  "photo": "1958-Gibson-ES-225T-1.webp (studio photo, sunburst ES-225T), supplied by the project owner. The ES-225T and ES-295 share this outline.",
+  "listing": "Gibson ES-225/1958 ES-225TD/info.txt: 24.75in scale, neck-body joint at the 14th fret, 20 frets, 16.25in wide, 1-15/16in deep, single-bound top and back, unbound F-holes.",
+  "method": "Pixel trace of a straight-on studio photo (1707 x 2560), not a plan. Scale: the 20 fret lines along the neck were fitted against 24.75in equal-temperament positions (1.847 px/mm at the neck plane, residuals up to +-5 px because of lens and perspective); the body sits nearer the camera, so body-plane features use 1.918 px/mm, which is what makes the body 16.25in wide as the 1958 ES-225TD listing says. The outline is the binding line (bright against the black backdrop), flood-filled from outside, closed with a wall along the bass-side neck junction (display y=925) and down the fingerboard's treble edge (x=727), opened to drop spurs, eroded 2 px to the line centre, the tailpiece bump flattened to a parabola, smoothed and fitted with cubic Beziers (0.45 mm). Treble side is +X, Y=0 is the junction line, X=0 the body's own centreline (display x=662; the neck axis sits at 668.5, a 3 mm parallax between planes). The F-hole is the bass one thresholded out of the photo and mirrored; the pickguard is the black plastic region, dilated to its white binding.",
+  "accuracy": "Outline about +-2 mm; hardware positions about +-3 mm; Y positions carry the photo's perspective. A first draft to refine by hand."
+ },
+ "measured": {
+  "nutToBodyEdgeMm": 348.6183,
+  "nutToBodyEdgeNote": "Fret 14. The owner said fret 15 (364.4), but the photo puts the body/fingerboard junction between frets 14 and 15 (fret 14.3 at the neck-plane scale, 13.6 at the body-plane scale) and the listing says the 14th; with fret 14 the trapeze bridge lands 2 mm from where the photo has it, with fret 15 it would be 18 mm off.",
+  "fingerboardOverhangMm": 103.6228,
+  "bridgePhotoYMm": 282.1,
+  "bodyThicknessMm": 42.0,
+  "bodyThicknessNote": "An assumption. The listing gives 1-15/16in (49.2 mm) depth for the fully hollow original; this is the core below the rim of a carved_cap, in the same proportion as the ES-335 draft.",
+  "fHoleDepthMm": 20
+ },
+ "placements": {
+  "pickup": {
+   "id": "es225_pickup",
+   "type": "p90_soapbar",
+   "offsetXMm": -6.26,
+   "offsetYMm": 180.92,
+   "angleDegrees": 0
+  },
+  "potentiometers": [
+   {
+    "x": 88.63,
+    "y": 311.78
+   },
+   {
+    "x": 122.52,
+    "y": 371.22
+   }
+  ]
+ },
+ "contour": {
+  "closed": true,
+  "anchors": [
+   {
+    "id": "es225_pocket_left",
+    "position": {
+     "x": -19.05,
+     "y": 0.0
+    },
+    "handleMode": "corner",
+    "locked": true,
+    "semanticRole": "neck_pocket_left"
+   },
+   {
+    "id": "es225_top_left",
+    "position": {
+     "x": -69.799,
+     "y": 0.0
+    },
+    "handleMode": "corner",
+    "handleOut": {
+     "x": -0.794,
+     "y": 0.741
+    }
+   },
+   {
+    "id": "es225_body_01",
+    "position": {
+     "x": -69.799,
+     "y": 3.259
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 0.263,
+     "y": -1.054
+    },
+    "handleOut": {
+     "x": -1.095,
+     "y": 0.0
+    }
+   },
+   {
+    "id": "es225_body_02",
+    "position": {
+     "x": -73.058,
+     "y": 3.621
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 0.98,
+     "y": -0.404
+    },
+    "handleOut": {
+     "x": -2.744,
+     "y": 1.13
+    }
+   },
+   {
+    "id": "es225_body_03",
+    "position": {
+     "x": -82.019,
+     "y": 5.793
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 2.869,
+     "y": -0.797
+    },
+    "handleOut": {
+     "x": -5.222,
+     "y": 1.451
+    }
+   },
+   {
+    "id": "es225_body_04",
+    "position": {
+     "x": -97.497,
+     "y": 11.043
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 5.047,
+     "y": -1.963
+    },
+    "handleOut": {
+     "x": -16.432,
+     "y": 6.39
+    }
+   },
+   {
+    "id": "es225_body_05",
+    "position": {
+     "x": -135.605,
+     "y": 45.62
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 7.886,
+     "y": -15.771
+    },
+    "handleOut": {
+     "x": -9.783,
+     "y": 19.566
+    }
+   },
+   {
+    "id": "es225_body_06",
+    "position": {
+     "x": -138.23,
+     "y": 106.719
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -5.678,
+     "y": -20.441
+    },
+    "handleOut": {
+     "x": 1.935,
+     "y": 6.966
+    }
+   },
+   {
+    "id": "es225_body_07",
+    "position": {
+     "x": -130.355,
+     "y": 127.086
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -2.615,
+     "y": -6.725
+    },
+    "handleOut": {
+     "x": 6.904,
+     "y": 17.754
+    }
+   },
+   {
+    "id": "es225_body_08",
+    "position": {
+     "x": -118.407,
+     "y": 184.111
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 7.644,
+     "y": -19.655
+    },
+    "handleOut": {
+     "x": -7.066,
+     "y": 18.169
+    }
+   },
+   {
+    "id": "es225_body_09",
+    "position": {
+     "x": -156.152,
+     "y": 227.288
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 12.974,
+     "y": -13.737
+    },
+    "handleOut": {
+     "x": -7.166,
+     "y": 7.587
+    }
+   },
+   {
+    "id": "es225_body_10",
+    "position": {
+     "x": -175.704,
+     "y": 251.727
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 6.097,
+     "y": -8.443
+    },
+    "handleOut": {
+     "x": -23.892,
+     "y": 33.081
+    }
+   },
+   {
+    "id": "es225_body_11",
+    "position": {
+     "x": -203.13,
+     "y": 368.222
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -6.709,
+     "y": -40.251
+    },
+    "handleOut": {
+     "x": 1.549,
+     "y": 9.293
+    }
+   },
+   {
+    "id": "es225_body_12",
+    "position": {
+     "x": -196.342,
+     "y": 395.92
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -3.431,
+     "y": -8.822
+    },
+    "handleOut": {
+     "x": 7.531,
+     "y": 19.367
+    }
+   },
+   {
+    "id": "es225_body_13",
+    "position": {
+     "x": -165.385,
+     "y": 448.873
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -13.339,
+     "y": -16.007
+    },
+    "handleOut": {
+     "x": 26.312,
+     "y": 31.574
+    }
+   },
+   {
+    "id": "es225_body_14",
+    "position": {
+     "x": -55.95,
+     "y": 511.239
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -40.58,
+     "y": -6.763
+    },
+    "handleOut": {
+     "x": 2.57,
+     "y": 0.428
+    }
+   },
+   {
+    "id": "es225_body_15",
+    "position": {
+     "x": -48.618,
+     "y": 513.773
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -2.622,
+     "y": -0.437
+    },
+    "handleOut": {
+     "x": 1.904,
+     "y": 0.317
+    }
+   },
+   {
+    "id": "es225_body_16",
+    "position": {
+     "x": -42.916,
+     "y": 513.683
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -1.908,
+     "y": -0.106
+    },
+    "handleOut": {
+     "x": 5.71,
+     "y": 0.317
+    }
+   },
+   {
+    "id": "es225_body_17",
+    "position": {
+     "x": -25.808,
+     "y": 515.674
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -5.724,
+     "y": -0.318
+    },
+    "handleOut": {
+     "x": 7.851,
+     "y": 0.436
+    }
+   },
+   {
+    "id": "es225_body_18",
+    "position": {
+     "x": -2.183,
+     "y": 515.674
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -7.851,
+     "y": -0.436
+    },
+    "handleOut": {
+     "x": 2.533,
+     "y": 0.141
+    }
+   },
+   {
+    "id": "es225_body_19",
+    "position": {
+     "x": 5.149,
+     "y": 517.394
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -2.565,
+     "y": -0.143
+    },
+    "handleOut": {
+     "x": 2.205,
+     "y": 0.123
+    }
+   },
+   {
+    "id": "es225_body_20",
+    "position": {
+     "x": 11.666,
+     "y": 516.398
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -2.197,
+     "y": 0.122
+    },
+    "handleOut": {
+     "x": 3.255,
+     "y": -0.181
+    }
+   },
+   {
+    "id": "es225_body_21",
+    "position": {
+     "x": 21.442,
+     "y": 516.489
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -3.245,
+     "y": 0.18
+    },
+    "handleOut": {
+     "x": 7.589,
+     "y": -0.422
+    }
+   },
+   {
+    "id": "es225_body_22",
+    "position": {
+     "x": 44.252,
+     "y": 513.773
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -7.484,
+     "y": 1.247
+    },
+    "handleOut": {
+     "x": 16.104,
+     "y": -2.684
+    }
+   },
+   {
+    "id": "es225_body_23",
+    "position": {
+     "x": 91.502,
+     "y": 502.006
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -15.305,
+     "y": 5.952
+    },
+    "handleOut": {
+     "x": 40.863,
+     "y": -15.891
+    }
+   },
+   {
+    "id": "es225_body_24",
+    "position": {
+     "x": 181.656,
+     "y": 425.248
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -22.743,
+     "y": 37.217
+    },
+    "handleOut": {
+     "x": 7.06,
+     "y": -11.553
+    }
+   },
+   {
+    "id": "es225_body_25",
+    "position": {
+     "x": 198.221,
+     "y": 387.774
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -3.631,
+     "y": 13.072
+    },
+    "handleOut": {
+     "x": 2.236,
+     "y": -8.049
+    }
+   },
+   {
+    "id": "es225_body_26",
+    "position": {
+     "x": 203.29,
+     "y": 363.334
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -1.371,
+     "y": 8.223
+    },
+    "handleOut": {
+     "x": 0.59,
+     "y": -3.543
+    }
+   },
+   {
+    "id": "es225_body_27",
+    "position": {
+     "x": 203.923,
+     "y": 352.744
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -0.198,
+     "y": 3.556
+    },
+    "handleOut": {
+     "x": 0.197,
+     "y": -3.549
+    }
+   },
+   {
+    "id": "es225_body_28",
+    "position": {
+     "x": 204.738,
+     "y": 342.153
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 0.199,
+     "y": 3.575
+    },
+    "handleOut": {
+     "x": -2.116,
+     "y": -38.088
+    }
+   },
+   {
+    "id": "es225_body_29",
+    "position": {
+     "x": 166.087,
+     "y": 239.507
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 24.719,
+     "y": 29.663
+    },
+    "handleOut": {
+     "x": -5.603,
+     "y": -6.724
+    }
+   },
+   {
+    "id": "es225_body_30",
+    "position": {
+     "x": 148.527,
+     "y": 219.956
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 6.192,
+     "y": 6.192
+    },
+    "handleOut": {
+     "x": -2.815,
+     "y": -2.815
+    }
+   },
+   {
+    "id": "es225_body_31",
+    "position": {
+     "x": 139.656,
+     "y": 211.809
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 2.629,
+     "y": 2.979
+    },
+    "handleOut": {
+     "x": -2.893,
+     "y": -3.279
+    }
+   },
+   {
+    "id": "es225_body_32",
+    "position": {
+     "x": 136.488,
+     "y": 201.852
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 1.94,
+     "y": 1.763
+    },
+    "handleOut": {
+     "x": -1.817,
+     "y": -1.652
+    }
+   },
+   {
+    "id": "es225_body_33",
+    "position": {
+     "x": 129.79,
+     "y": 200.042
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 2.076,
+     "y": 0.977
+    },
+    "handleOut": {
+     "x": -5.357,
+     "y": -2.521
+    }
+   },
+   {
+    "id": "es225_body_34",
+    "position": {
+     "x": 118.747,
+     "y": 180.852
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 0.936,
+     "y": 5.618
+    },
+    "handleOut": {
+     "x": -3.244,
+     "y": -19.461
+    }
+   },
+   {
+    "id": "es225_body_35",
+    "position": {
+     "x": 133.139,
+     "y": 124.642
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -6.868,
+     "y": 17.66
+    },
+    "handleOut": {
+     "x": 11.671,
+     "y": -30.012
+    }
+   },
+   {
+    "id": "es225_body_36",
+    "position": {
+     "x": 124.088,
+     "y": 31.771
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 23.776,
+     "y": 25.175
+    },
+    "handleOut": {
+     "x": -2.325,
+     "y": -2.462
+    }
+   },
+   {
+    "id": "es225_body_37",
+    "position": {
+     "x": 109.967,
+     "y": 24.168
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 3.748,
+     "y": -3.748
+    },
+    "handleOut": {
+     "x": -2.648,
+     "y": 2.648
+    }
+   },
+   {
+    "id": "es225_body_38",
+    "position": {
+     "x": 111.596,
+     "y": 33.401
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -0.769,
+     "y": -2.768
+    },
+    "handleOut": {
+     "x": 0.506,
+     "y": 1.822
+    }
+   },
+   {
+    "id": "es225_body_39",
+    "position": {
+     "x": 111.506,
+     "y": 39.103
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 0.307,
+     "y": -1.839
+    },
+    "handleOut": {
+     "x": -2.047,
+     "y": 12.284
+    }
+   },
+   {
+    "id": "es225_body_40",
+    "position": {
+     "x": 89.058,
+     "y": 67.707
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 10.984,
+     "y": -5.492
+    },
+    "handleOut": {
+     "x": -4.424,
+     "y": 2.212
+    }
+   },
+   {
+    "id": "es225_body_41",
+    "position": {
+     "x": 72.765,
+     "y": 72.413
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 5.089,
+     "y": 0.565
+    },
+    "handleOut": {
+     "x": -4.077,
+     "y": -0.453
+    }
+   },
+   {
+    "id": "es225_body_42",
+    "position": {
+     "x": 61.359,
+     "y": 67.163
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 3.759,
+     "y": 1.462
+    },
+    "handleOut": {
+     "x": -10.009,
+     "y": -3.893
+    }
+   },
+   {
+    "id": "es225_body_43",
+    "position": {
+     "x": 34.657,
+     "y": 52.952
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 6.511,
+     "y": 9.766
+    },
+    "handleOut": {
+     "x": -1.127,
+     "y": -1.691
+    }
+   },
+   {
+    "id": "es225_body_44",
+    "position": {
+     "x": 31.579,
+     "y": 47.25
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 0.449,
+     "y": 2.019
+    },
+    "handleOut": {
+     "x": -0.749,
+     "y": -3.371
+    }
+   },
+   {
+    "id": "es225_body_45",
+    "position": {
+     "x": 33.661,
+     "y": 37.474
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 0.0,
+     "y": 3.354
+    },
+    "handleOut": {
+     "x": 0.0,
+     "y": -12.49
+    }
+   },
+   {
+    "id": "es225_top_right",
+    "position": {
+     "x": 33.889,
+     "y": 0.0
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": -0.388,
+     "y": 12.476
+    }
+   },
+   {
+    "id": "es225_pocket_right",
+    "position": {
+     "x": 19.05,
+     "y": 0.0
+    },
+    "handleMode": "corner",
+    "locked": true,
+    "semanticRole": "neck_pocket_right"
+   }
+  ]
+ },
+ "pickguard": {
+  "closed": true,
+  "anchors": [
+   {
+    "id": "es225_pg_00",
+    "handleMode": "smooth",
+    "position": {
+     "x": 106.98,
+     "y": 271.279
+    },
+    "handleIn": {
+     "x": 24.856,
+     "y": -7.365
+    },
+    "handleOut": {
+     "x": -11.521,
+     "y": -1.494
+    }
+   },
+   {
+    "id": "es225_pg_01",
+    "handleMode": "smooth",
+    "position": {
+     "x": 76.838,
+     "y": 260.326
+    },
+    "handleIn": {
+     "x": 10.66,
+     "y": 4.146
+    },
+    "handleOut": {
+     "x": -7.421,
+     "y": -2.886
+    }
+   },
+   {
+    "id": "es225_pg_02",
+    "handleMode": "smooth",
+    "position": {
+     "x": 54.028,
+     "y": 255.076
+    },
+    "handleIn": {
+     "x": 7.897,
+     "y": 0.877
+    },
+    "handleOut": {
+     "x": -4.402,
+     "y": -0.489
+    }
+   },
+   {
+    "id": "es225_pg_03",
+    "handleMode": "smooth",
+    "position": {
+     "x": 33.842,
+     "y": 252.994
+    },
+    "handleIn": {
+     "x": 2.521,
+     "y": 3.641
+    },
+    "handleOut": {
+     "x": -2.153,
+     "y": -3.11
+    }
+   },
+   {
+    "id": "es225_pg_04",
+    "handleMode": "smooth",
+    "position": {
+     "x": 32.847,
+     "y": 224.029
+    },
+    "handleIn": {
+     "x": 0.0,
+     "y": 5.013
+    },
+    "handleOut": {
+     "x": 0.0,
+     "y": -5.132
+    }
+   },
+   {
+    "id": "es225_pg_05",
+    "handleMode": "smooth",
+    "position": {
+     "x": 32.847,
+     "y": 208.551
+    },
+    "handleIn": {
+     "x": 0.285,
+     "y": 5.123
+    },
+    "handleOut": {
+     "x": -0.2,
+     "y": -3.604
+    }
+   },
+   {
+    "id": "es225_pg_06",
+    "handleMode": "smooth",
+    "position": {
+     "x": 31.217,
+     "y": 197.96
+    },
+    "handleIn": {
+     "x": 0.0,
+     "y": 3.647
+    },
+    "handleOut": {
+     "x": 0.0,
+     "y": -11.089
+    }
+   },
+   {
+    "id": "es225_pg_07",
+    "handleMode": "smooth",
+    "position": {
+     "x": 31.308,
+     "y": 164.559
+    },
+    "handleIn": {
+     "x": -0.615,
+     "y": 11.067
+    },
+    "handleOut": {
+     "x": 0.276,
+     "y": -4.971
+    }
+   },
+   {
+    "id": "es225_pg_08",
+    "handleMode": "smooth",
+    "position": {
+     "x": 32.847,
+     "y": 149.896
+    },
+    "handleIn": {
+     "x": 0.0,
+     "y": 5.066
+    },
+    "handleOut": {
+     "x": 0.0,
+     "y": -14.712
+    }
+   },
+   {
+    "id": "es225_pg_09",
+    "handleMode": "smooth",
+    "position": {
+     "x": 33.661,
+     "y": 105.905
+    },
+    "handleIn": {
+     "x": -0.814,
+     "y": 14.659
+    },
+    "handleOut": {
+     "x": 0.456,
+     "y": -8.207
+    }
+   },
+   {
+    "id": "es225_pg_10",
+    "handleMode": "smooth",
+    "position": {
+     "x": 32.847,
+     "y": 81.465
+    },
+    "handleIn": {
+     "x": 0.0,
+     "y": 8.142
+    },
+    "handleOut": {
+     "x": 0.0,
+     "y": -2.988
+    }
+   },
+   {
+    "id": "es225_pg_11",
+    "handleMode": "smooth",
+    "position": {
+     "x": 34.295,
+     "y": 62.909
+    },
+    "handleIn": {
+     "x": -1.011,
+     "y": 2.022
+    },
+    "handleOut": {
+     "x": 0.543,
+     "y": -1.085
+    }
+   },
+   {
+    "id": "es225_pg_12",
+    "handleMode": "smooth",
+    "position": {
+     "x": 37.01,
+     "y": 61.28
+    },
+    "handleIn": {
+     "x": -1.161,
+     "y": 0.073
+    },
+    "handleOut": {
+     "x": 2.677,
+     "y": -0.167
+    }
+   },
+   {
+    "id": "es225_pg_13",
+    "handleMode": "smooth",
+    "position": {
+     "x": 45.066,
+     "y": 63.543
+    },
+    "handleIn": {
+     "x": -2.532,
+     "y": -0.703
+    },
+    "handleOut": {
+     "x": 9.849,
+     "y": 2.736
+    }
+   },
+   {
+    "id": "es225_pg_14",
+    "handleMode": "smooth",
+    "position": {
+     "x": 71.316,
+     "y": 78.206
+    },
+    "handleIn": {
+     "x": -5.072,
+     "y": -10.144
+    },
+    "handleOut": {
+     "x": 4.252,
+     "y": 8.504
+    }
+   },
+   {
+    "id": "es225_pg_15",
+    "handleMode": "smooth",
+    "position": {
+     "x": 75.842,
+     "y": 106.719
+    },
+    "handleIn": {
+     "x": -1.53,
+     "y": -9.179
+    },
+    "handleOut": {
+     "x": 1.431,
+     "y": 8.586
+    }
+   },
+   {
+    "id": "es225_pg_16",
+    "handleMode": "smooth",
+    "position": {
+     "x": 82.269,
+     "y": 131.973
+    },
+    "handleIn": {
+     "x": -3.171,
+     "y": -8.153
+    },
+    "handleOut": {
+     "x": 4.824,
+     "y": 12.404
+    }
+   },
+   {
+    "id": "es225_pg_17",
+    "handleMode": "smooth",
+    "position": {
+     "x": 100.825,
+     "y": 167.003
+    },
+    "handleIn": {
+     "x": -6.917,
+     "y": -11.319
+    },
+    "handleOut": {
+     "x": 10.785,
+     "y": 17.649
+    }
+   },
+   {
+    "id": "es225_pg_18",
+    "handleMode": "smooth",
+    "position": {
+     "x": 127.437,
+     "y": 224.029
+    },
+    "handleIn": {
+     "x": -5.554,
+     "y": -19.996
+    },
+    "handleOut": {
+     "x": 6.268,
+     "y": 22.563
+    }
+   }
+  ]
+ },
+ "holes": [
+  {
+   "id": "es225_f_hole_bass",
+   "contour": {
+    "closed": true,
+    "anchors": [
+     {
+      "id": "es225_fb_00",
+      "handleMode": "smooth",
+      "position": {
+       "x": -148.82,
+       "y": 353.558
+      },
+      "handleIn": {
+       "x": 19.267,
+       "y": -9.633
+      },
+      "handleOut": {
+       "x": -5.932,
+       "y": -0.989
+      }
+     },
+     {
+      "id": "es225_fb_01",
+      "handleMode": "smooth",
+      "position": {
+       "x": -161.738,
+       "y": 343.783
+      },
+      "handleIn": {
+       "x": 0.997,
+       "y": 6.982
+      },
+      "handleOut": {
+       "x": -0.232,
+       "y": -1.622
+      }
+     },
+     {
+      "id": "es225_fb_02",
+      "handleMode": "smooth",
+      "position": {
+       "x": -160.691,
+       "y": 339.127
+      },
+      "handleIn": {
+       "x": -1.15,
+       "y": 1.277
+      },
+      "handleOut": {
+       "x": 8.269,
+       "y": -9.188
+      }
+     },
+     {
+      "id": "es225_fb_03",
+      "handleMode": "smooth",
+      "position": {
+       "x": -145.096,
+       "y": 337.615
+      },
+      "handleIn": {
+       "x": -3.648,
+       "y": 1.99
+      },
+      "handleOut": {
+       "x": 3.436,
+       "y": -1.874
+      }
+     },
+     {
+      "id": "es225_fb_04",
+      "handleMode": "smooth",
+      "position": {
+       "x": -132.295,
+       "y": 311.197
+      },
+      "handleIn": {
+       "x": -1.278,
+       "y": 4.473
+      },
+      "handleOut": {
+       "x": 2.327,
+       "y": -8.145
+      }
+     },
+     {
+      "id": "es225_fb_05",
+      "handleMode": "smooth",
+      "position": {
+       "x": -126.592,
+       "y": 286.757
+      },
+      "handleIn": {
+       "x": -1.766,
+       "y": 8.241
+      },
+      "handleOut": {
+       "x": 0.917,
+       "y": -4.279
+      }
+     },
+     {
+      "id": "es225_fb_06",
+      "handleMode": "smooth",
+      "position": {
+       "x": -124.846,
+       "y": 271.279
+      },
+      "handleIn": {
+       "x": -1.26,
+       "y": 3.527
+      },
+      "handleOut": {
+       "x": 1.273,
+       "y": -3.564
+      }
+     },
+     {
+      "id": "es225_fb_07",
+      "handleMode": "smooth",
+      "position": {
+       "x": -117.864,
+       "y": 261.503
+      },
+      "handleIn": {
+       "x": -2.056,
+       "y": 3.198
+      },
+      "handleOut": {
+       "x": 4.401,
+       "y": -6.847
+      }
+     },
+     {
+      "id": "es225_fb_08",
+      "handleMode": "smooth",
+      "position": {
+       "x": -107.39,
+       "y": 238.693
+      },
+      "handleIn": {
+       "x": -2.733,
+       "y": 7.653
+      },
+      "handleOut": {
+       "x": 3.399,
+       "y": -9.516
+      }
+     },
+     {
+      "id": "es225_fb_09",
+      "handleMode": "smooth",
+      "position": {
+       "x": -84.463,
+       "y": 209.714
+      },
+      "handleIn": {
+       "x": -10.848,
+       "y": 2.325
+      },
+      "handleOut": {
+       "x": 5.646,
+       "y": -1.21
+      }
+     },
+     {
+      "id": "es225_fb_10",
+      "handleMode": "smooth",
+      "position": {
+       "x": -74.338,
+       "y": 220.77
+      },
+      "handleIn": {
+       "x": 4.217,
+       "y": -6.091
+      },
+      "handleOut": {
+       "x": -4.383,
+       "y": 6.331
+      }
+     },
+     {
+      "id": "es225_fb_11",
+      "handleMode": "smooth",
+      "position": {
+       "x": -86.674,
+       "y": 222.632
+      },
+      "handleIn": {
+       "x": 3.856,
+       "y": -2.571
+      },
+      "handleOut": {
+       "x": -5.253,
+       "y": 3.502
+      }
+     },
+     {
+      "id": "es225_fb_12",
+      "handleMode": "smooth",
+      "position": {
+       "x": -100.989,
+       "y": 251.727
+      },
+      "handleIn": {
+       "x": 1.839,
+       "y": -6.436
+      },
+      "handleOut": {
+       "x": -1.723,
+       "y": 6.031
+      }
+     },
+     {
+      "id": "es225_fb_13",
+      "handleMode": "smooth",
+      "position": {
+       "x": -104.829,
+       "y": 270.464
+      },
+      "handleIn": {
+       "x": 0.449,
+       "y": -6.285
+      },
+      "handleOut": {
+       "x": -0.329,
+       "y": 4.607
+      }
+     },
+     {
+      "id": "es225_fb_14",
+      "handleMode": "smooth",
+      "position": {
+       "x": -106.226,
+       "y": 287.572
+      },
+      "handleIn": {
+       "x": 1.459,
+       "y": -4.085
+      },
+      "handleOut": {
+       "x": -1.367,
+       "y": 3.827
+      }
+     },
+     {
+      "id": "es225_fb_15",
+      "handleMode": "smooth",
+      "position": {
+       "x": -117.282,
+       "y": 304.679
+      },
+      "handleIn": {
+       "x": 2.506,
+       "y": -5.012
+      },
+      "handleOut": {
+       "x": -8.949,
+       "y": 17.899
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "es225_f_hole_treble",
+   "contour": {
+    "closed": true,
+    "anchors": [
+     {
+      "id": "es225_ft_00",
+      "handleMode": "smooth",
+      "position": {
+       "x": 117.282,
+       "y": 304.679
+      },
+      "handleIn": {
+       "x": 8.949,
+       "y": 17.899
+      },
+      "handleOut": {
+       "x": -2.506,
+       "y": -5.012
+      }
+     },
+     {
+      "id": "es225_ft_01",
+      "handleMode": "smooth",
+      "position": {
+       "x": 106.226,
+       "y": 287.572
+      },
+      "handleIn": {
+       "x": 1.367,
+       "y": 3.827
+      },
+      "handleOut": {
+       "x": -1.459,
+       "y": -4.085
+      }
+     },
+     {
+      "id": "es225_ft_02",
+      "handleMode": "smooth",
+      "position": {
+       "x": 104.829,
+       "y": 270.464
+      },
+      "handleIn": {
+       "x": 0.329,
+       "y": 4.607
+      },
+      "handleOut": {
+       "x": -0.449,
+       "y": -6.285
+      }
+     },
+     {
+      "id": "es225_ft_03",
+      "handleMode": "smooth",
+      "position": {
+       "x": 100.989,
+       "y": 251.727
+      },
+      "handleIn": {
+       "x": 1.723,
+       "y": 6.031
+      },
+      "handleOut": {
+       "x": -1.839,
+       "y": -6.436
+      }
+     },
+     {
+      "id": "es225_ft_04",
+      "handleMode": "smooth",
+      "position": {
+       "x": 86.674,
+       "y": 222.632
+      },
+      "handleIn": {
+       "x": 5.253,
+       "y": 3.502
+      },
+      "handleOut": {
+       "x": -3.856,
+       "y": -2.571
+      }
+     },
+     {
+      "id": "es225_ft_05",
+      "handleMode": "smooth",
+      "position": {
+       "x": 74.338,
+       "y": 220.77
+      },
+      "handleIn": {
+       "x": 4.383,
+       "y": 6.331
+      },
+      "handleOut": {
+       "x": -4.217,
+       "y": -6.091
+      }
+     },
+     {
+      "id": "es225_ft_06",
+      "handleMode": "smooth",
+      "position": {
+       "x": 84.463,
+       "y": 209.714
+      },
+      "handleIn": {
+       "x": -5.646,
+       "y": -1.21
+      },
+      "handleOut": {
+       "x": 10.848,
+       "y": 2.325
+      }
+     },
+     {
+      "id": "es225_ft_07",
+      "handleMode": "smooth",
+      "position": {
+       "x": 107.39,
+       "y": 238.693
+      },
+      "handleIn": {
+       "x": -3.399,
+       "y": -9.516
+      },
+      "handleOut": {
+       "x": 2.733,
+       "y": 7.653
+      }
+     },
+     {
+      "id": "es225_ft_08",
+      "handleMode": "smooth",
+      "position": {
+       "x": 117.864,
+       "y": 261.503
+      },
+      "handleIn": {
+       "x": -4.401,
+       "y": -6.847
+      },
+      "handleOut": {
+       "x": 2.056,
+       "y": 3.198
+      }
+     },
+     {
+      "id": "es225_ft_09",
+      "handleMode": "smooth",
+      "position": {
+       "x": 124.846,
+       "y": 271.279
+      },
+      "handleIn": {
+       "x": -1.273,
+       "y": -3.564
+      },
+      "handleOut": {
+       "x": 1.26,
+       "y": 3.527
+      }
+     },
+     {
+      "id": "es225_ft_10",
+      "handleMode": "smooth",
+      "position": {
+       "x": 126.592,
+       "y": 286.757
+      },
+      "handleIn": {
+       "x": -0.917,
+       "y": -4.279
+      },
+      "handleOut": {
+       "x": 1.766,
+       "y": 8.241
+      }
+     },
+     {
+      "id": "es225_ft_11",
+      "handleMode": "smooth",
+      "position": {
+       "x": 132.295,
+       "y": 311.197
+      },
+      "handleIn": {
+       "x": -2.327,
+       "y": -8.145
+      },
+      "handleOut": {
+       "x": 1.278,
+       "y": 4.473
+      }
+     },
+     {
+      "id": "es225_ft_12",
+      "handleMode": "smooth",
+      "position": {
+       "x": 145.096,
+       "y": 337.615
+      },
+      "handleIn": {
+       "x": -3.436,
+       "y": -1.874
+      },
+      "handleOut": {
+       "x": 3.648,
+       "y": 1.99
+      }
+     },
+     {
+      "id": "es225_ft_13",
+      "handleMode": "smooth",
+      "position": {
+       "x": 160.691,
+       "y": 339.127
+      },
+      "handleIn": {
+       "x": -8.269,
+       "y": -9.188
+      },
+      "handleOut": {
+       "x": 1.15,
+       "y": 1.277
+      }
+     },
+     {
+      "id": "es225_ft_14",
+      "handleMode": "smooth",
+      "position": {
+       "x": 161.738,
+       "y": 343.783
+      },
+      "handleIn": {
+       "x": 0.232,
+       "y": -1.622
+      },
+      "handleOut": {
+       "x": -0.997,
+       "y": 6.982
+      }
+     },
+     {
+      "id": "es225_ft_15",
+      "handleMode": "smooth",
+      "position": {
+       "x": 148.82,
+       "y": 353.558
+      },
+      "handleIn": {
+       "x": 5.932,
+       "y": -0.989
+      },
+      "handleOut": {
+       "x": -19.267,
+       "y": -9.633
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

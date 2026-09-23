@@ -456,7 +456,7 @@ async function main() {
       deepStrictEqual(instrument.neckPresetInstrument('some_future_bass_neck'), undefined);
     });
 
-    check('every blueprint is offered to its own instrument only (11 guitar, 8 bass)', () => {
+    check('every blueprint is offered to its own instrument only (12 guitar, 8 bass)', () => {
       // W4's version of this check asserted no bass blueprint was offered to
       // a bass project, because none existed. W6 bundles eight; this is the
       // same cross-instrument guard, both directions, now that there is
@@ -481,7 +481,7 @@ async function main() {
         invariant(!presets.isTemplateCompatible(template, otherDoc), `blueprint ${id} is offered to the other instrument`);
         byInstrument[entry.instrumentType as 'guitar' | 'bass']++;
       }
-      deepStrictEqual(byInstrument, { guitar: 11, bass: 8 });
+      deepStrictEqual(byInstrument, { guitar: 12, bass: 8 });
     });
 
     console.log('no clipping in the printable export, at bass scale lengths');
