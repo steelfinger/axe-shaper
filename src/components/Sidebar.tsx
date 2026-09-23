@@ -37,6 +37,7 @@ import {
 import { type ActiveLayer, activeLayersEqual } from '../utils/layerShapes';
 import { getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 import { GRID_PRESETS, formatLength, gridMinorDivisor, toDisplayUnits, toMm, unitLabel } from '../utils/units';
+import { DecimalInput } from './DecimalInput';
 import type { HandleAngleSnapPreference } from '../utils/handleAngleSnap';
 import {
   MAX_BODY_THICKNESS_MM,
@@ -791,22 +792,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         <label className="form-label" style={{ fontSize: '0.75rem' }}>
                           Image width ({unitLabel(settings.unitDisplay)})
                         </label>
-                        <input
-                          type="number"
+                        <DecimalInput
                           className="form-input"
-                          min="0.1"
-                          step={settings.unitDisplay === 'mm' ? '0.5' : '0.05'}
+                          min={0.1}
+                          step={settings.unitDisplay === 'mm' ? 0.5 : 0.05}
                           value={
                             guideImage.element
-                              ? formatLength(
-                                  guideImage.element.width * guideImage.scale,
-                                  settings.unitDisplay,
-                                  1
-                                )
-                              : ''
+                              ? toDisplayUnits(guideImage.element.width * guideImage.scale, settings.unitDisplay)
+                              : null
                           }
-                          onChange={(e) => {
-                            const widthMm = toMm(parseFloat(e.target.value), settings.unitDisplay);
+                          digits={1}
+                          onValueChange={(v) => {
+                            const widthMm = toMm(v, settings.unitDisplay);
                             const natural = guideImage.element?.width;
                             if (!natural || !(widthMm > 0)) return;
                             onUpdateGuideImage((prev) => ({ ...prev, scale: widthMm / natural }), 'guide:scale');
@@ -818,14 +815,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         <label className="form-label" style={{ fontSize: '0.75rem' }}>
                           Scale factor
                         </label>
-                        <input
-                          type="number"
+                        <DecimalInput
                           className="form-input"
-                          min="0.001"
-                          step="0.005"
-                          value={guideImage.scale.toFixed(4)}
-                          onChange={(e) => {
-                            const v = parseFloat(e.target.value);
+                          min={0.001}
+                          step={0.005}
+                          value={guideImage.scale}
+                          digits={4}
+                          onValueChange={(v) => {
                             if (!(v > 0)) return;
                             onUpdateGuideImage((prev) => ({ ...prev, scale: v }), 'guide:scale');
                           }}

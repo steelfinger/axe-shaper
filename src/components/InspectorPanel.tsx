@@ -22,6 +22,7 @@ import {
 import { offeredPickupTypes } from '../utils/presets';
 import { withMirroredBevelIntensity } from '../utils/symmetry';
 import { formatLength } from '../utils/units';
+import { DecimalInput } from './DecimalInput';
 import { EdgeProfilePreview } from './EdgeProfilePreview';
 import { resolvedBodyThickness } from '../utils/bodyThickness';
 import {
@@ -100,10 +101,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
     ? (project.switches ?? []).find((item) => item.id === selectedHardware.id) ?? null
     : null;
 
-  const mmFromInput = (raw: string) => {
-    const val = parseFloat(raw) || 0;
-    return isMm ? val : val * 25.4;
-  };
+  const mmFromInput = (val: number) => (isMm ? val : val * 25.4);
 
   // Compute live body measurements
   const xPositions = contour.anchors.map((a) => Math.abs(a.position.x));
@@ -268,12 +266,12 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
               <div className="form-group">
                 <label className="form-label">Position X ({unitLabel})</label>
-                <input
-                  type="number"
-                  step={isMm ? '0.5' : '0.05'}
+                <DecimalInput
+                  step={isMm ? 0.5 : 0.05}
                   disabled={selectedAnchor.locked}
-                  value={(selectedAnchor.position.x * factor).toFixed(2)}
-                  onChange={(e) => handlePositionChange('x', parseFloat(e.target.value) || 0)}
+                  value={selectedAnchor.position.x * factor}
+                  digits={2}
+                  onValueChange={(v) => handlePositionChange('x', v)}
                   onBlur={onEndEdit}
                   className="form-input"
                 />
@@ -281,12 +279,12 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
 
               <div className="form-group">
                 <label className="form-label">Position Y ({unitLabel})</label>
-                <input
-                  type="number"
-                  step={isMm ? '0.5' : '0.05'}
+                <DecimalInput
+                  step={isMm ? 0.5 : 0.05}
                   disabled={selectedAnchor.locked}
-                  value={(selectedAnchor.position.y * factor).toFixed(2)}
-                  onChange={(e) => handlePositionChange('y', parseFloat(e.target.value) || 0)}
+                  value={selectedAnchor.position.y * factor}
+                  digits={2}
+                  onValueChange={(v) => handlePositionChange('y', v)}
                   onBlur={onEndEdit}
                   className="form-input"
                 />
@@ -497,14 +495,14 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               </div>
               <div className="form-group">
                 <label className="form-label">Y ({unitLabel})</label>
-                <input
-                  type="number"
-                  step={isMm ? '0.5' : '0.05'}
+                <DecimalInput
+                  step={isMm ? 0.5 : 0.05}
                   className="form-input"
-                  value={(selectedPickup.offsetYMm * factor).toFixed(2)}
-                  onChange={(e) =>
+                  value={selectedPickup.offsetYMm * factor}
+                  digits={2}
+                  onValueChange={(v) =>
                     onUpdateProject(
-                      (prev) => movingPickup(prev, selectedPickup.id, mmFromInput(e.target.value)),
+                      (prev) => movingPickup(prev, selectedPickup.id, mmFromInput(v)),
                       `pickup.y:${selectedPickup.id}`
                     )
                   }
@@ -520,14 +518,14 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '4px' }}>
               <div className="form-group">
                 <label className="form-label">Cavity Width ({unitLabel})</label>
-                <input
-                  type="number"
-                  step={isMm ? '0.5' : '0.05'}
+                <DecimalInput
+                  step={isMm ? 0.5 : 0.05}
                   className="form-input"
-                  value={(selectedPickup.widthMm * factor).toFixed(2)}
-                  onChange={(e) =>
+                  value={selectedPickup.widthMm * factor}
+                  digits={2}
+                  onValueChange={(v) =>
                     onUpdateProject(
-                      (prev) => settingPickupWidth(prev, selectedPickup.id, mmFromInput(e.target.value)),
+                      (prev) => settingPickupWidth(prev, selectedPickup.id, mmFromInput(v)),
                       `pickup.width:${selectedPickup.id}`
                     )
                   }
@@ -536,14 +534,14 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               </div>
               <div className="form-group">
                 <label className="form-label">Cavity Height ({unitLabel})</label>
-                <input
-                  type="number"
-                  step={isMm ? '0.5' : '0.05'}
+                <DecimalInput
+                  step={isMm ? 0.5 : 0.05}
                   className="form-input"
-                  value={(selectedPickup.heightMm * factor).toFixed(2)}
-                  onChange={(e) =>
+                  value={selectedPickup.heightMm * factor}
+                  digits={2}
+                  onValueChange={(v) =>
                     onUpdateProject(
-                      (prev) => settingPickupHeight(prev, selectedPickup.id, mmFromInput(e.target.value)),
+                      (prev) => settingPickupHeight(prev, selectedPickup.id, mmFromInput(v)),
                       `pickup.height:${selectedPickup.id}`
                     )
                   }
@@ -558,14 +556,14 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', marginBottom: '12px' }}>
               <div className="form-group">
                 <label className="form-label">Angle (deg)</label>
-                <input
-                  type="number"
-                  step="0.5"
+                <DecimalInput
+                  step={0.5}
                   className="form-input"
-                  value={selectedPickup.angleDegrees.toFixed(1)}
-                  onChange={(e) =>
+                  value={selectedPickup.angleDegrees}
+                  digits={1}
+                  onValueChange={(v) =>
                     onUpdateProject(
-                      (prev) => settingPickupAngle(prev, selectedPickup.id, parseFloat(e.target.value) || 0),
+                      (prev) => settingPickupAngle(prev, selectedPickup.id, v),
                       `pickup.angle:${selectedPickup.id}`
                     )
                   }
@@ -591,16 +589,16 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
             <div className="coordinate-input-grid">
               <div className="form-group">
                 <label className="form-label">X ({unitLabel})</label>
-                <input
-                  type="number"
-                  step={isMm ? '0.5' : '0.05'}
+                <DecimalInput
+                  step={isMm ? 0.5 : 0.05}
                   className="form-input"
-                  value={(selectedPotentiometer.position.x * factor).toFixed(2)}
-                  onChange={(event) =>
+                  value={selectedPotentiometer.position.x * factor}
+                  digits={2}
+                  onValueChange={(v) =>
                     onUpdateProject(
                       (prev) => movingPotentiometer(prev, selectedPotentiometer.id, {
                         ...selectedPotentiometer.position,
-                        x: mmFromInput(event.target.value),
+                        x: mmFromInput(v),
                       }),
                       `potentiometer.x:${selectedPotentiometer.id}`
                     )
@@ -610,16 +608,16 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               </div>
               <div className="form-group">
                 <label className="form-label">Y ({unitLabel})</label>
-                <input
-                  type="number"
-                  step={isMm ? '0.5' : '0.05'}
+                <DecimalInput
+                  step={isMm ? 0.5 : 0.05}
                   className="form-input"
-                  value={(selectedPotentiometer.position.y * factor).toFixed(2)}
-                  onChange={(event) =>
+                  value={selectedPotentiometer.position.y * factor}
+                  digits={2}
+                  onValueChange={(v) =>
                     onUpdateProject(
                       (prev) => movingPotentiometer(prev, selectedPotentiometer.id, {
                         ...selectedPotentiometer.position,
-                        y: mmFromInput(event.target.value),
+                        y: mmFromInput(v),
                       }),
                       `potentiometer.y:${selectedPotentiometer.id}`
                     )
@@ -631,18 +629,18 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
 
             <div className="form-group">
               <label className="form-label">Pot Body Diameter ({unitLabel})</label>
-              <input
-                type="number"
+              <DecimalInput
                 min={isMm ? 1 : 0.04}
-                step={isMm ? '0.5' : '0.05'}
+                step={isMm ? 0.5 : 0.05}
                 className="form-input"
-                value={(selectedPotentiometer.bodyDiameterMm * factor).toFixed(2)}
-                onChange={(event) =>
+                value={selectedPotentiometer.bodyDiameterMm * factor}
+                digits={2}
+                onValueChange={(v) =>
                   onUpdateProject(
                     (prev) => settingPotentiometerBodyDiameter(
                       prev,
                       selectedPotentiometer.id,
-                      Math.max(1, mmFromInput(event.target.value))
+                      Math.max(1, mmFromInput(v))
                     ),
                     `potentiometer.body:${selectedPotentiometer.id}`
                   )
@@ -693,16 +691,16 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
             <div className="coordinate-input-grid">
               <div className="form-group">
                 <label className="form-label">X ({unitLabel})</label>
-                <input
-                  type="number"
-                  step={isMm ? '0.5' : '0.05'}
+                <DecimalInput
+                  step={isMm ? 0.5 : 0.05}
                   className="form-input"
-                  value={(selectedSwitch.position.x * factor).toFixed(2)}
-                  onChange={(event) =>
+                  value={selectedSwitch.position.x * factor}
+                  digits={2}
+                  onValueChange={(v) =>
                     onUpdateProject(
                       (prev) => movingSwitch(prev, selectedSwitch.id, {
                         ...selectedSwitch.position,
-                        x: mmFromInput(event.target.value),
+                        x: mmFromInput(v),
                       }),
                       `switch.x:${selectedSwitch.id}`
                     )
@@ -712,16 +710,16 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               </div>
               <div className="form-group">
                 <label className="form-label">Y ({unitLabel})</label>
-                <input
-                  type="number"
-                  step={isMm ? '0.5' : '0.05'}
+                <DecimalInput
+                  step={isMm ? 0.5 : 0.05}
                   className="form-input"
-                  value={(selectedSwitch.position.y * factor).toFixed(2)}
-                  onChange={(event) =>
+                  value={selectedSwitch.position.y * factor}
+                  digits={2}
+                  onValueChange={(v) =>
                     onUpdateProject(
                       (prev) => movingSwitch(prev, selectedSwitch.id, {
                         ...selectedSwitch.position,
-                        y: mmFromInput(event.target.value),
+                        y: mmFromInput(v),
                       }),
                       `switch.y:${selectedSwitch.id}`
                     )
@@ -733,17 +731,17 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
 
             <div className="form-group">
               <label className="form-label">Angle (deg)</label>
-              <input
-                type="number"
-                step="0.5"
+              <DecimalInput
+                step={0.5}
                 className="form-input"
-                value={selectedSwitch.angleDegrees.toFixed(1)}
-                onChange={(event) =>
+                value={selectedSwitch.angleDegrees}
+                digits={1}
+                onValueChange={(v) =>
                   onUpdateProject(
                     (prev) => settingSwitchAngle(
                       prev,
                       selectedSwitch.id,
-                      Number.parseFloat(event.target.value) || 0
+                      v
                     ),
                     `switch.angle:${selectedSwitch.id}`
                   )
