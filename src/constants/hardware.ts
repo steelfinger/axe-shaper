@@ -450,6 +450,26 @@ export const CURATED_NECK_PRESETS: Record<string, NeckPreset> = {
     pocketCornerRadiusMm: 6.35,
     style: 'fender_style',
   },
+  // PRS scale is 25 inches, a length none of the other four covers. The
+  // nutToBodyEdgeMm/nutToJointMm/pocket fields only matter for a custom body:
+  // for prs_style, `neckPresetFieldsForTemplate` recomputes the joint from
+  // FINGERBOARD_OVERHANG_MM and TEMPLATE_NECK_POCKET_SPEC. 24 frets because
+  // that is the Custom 24; the overhang's reference fret stays 22 regardless.
+  prs_scale: {
+    id: 'prs_scale',
+    name: 'PRS Scale (25" Scale, 24 Frets)',
+    scaleLengthMm: 635,
+    nutToBodyEdgeMm: 434.9875,
+    nutToJointMm: 486.25,
+    frets: 24,
+    jointWidthMm: 54.3,
+    jointDepthMm: 68.0,
+    jointCornerRadiusMm: 6.35,
+    pocketWidthMm: 54.3,
+    pocketDepthMm: 68.0,
+    pocketCornerRadiusMm: 6.35,
+    style: 'gibson_style',
+  },
 };
 
 /**
@@ -499,6 +519,11 @@ export const FINGERBOARD_OVERHANG_MM: Record<string, LengthMm> = {
   gibson_firebird: 68.3811, // gibson_firebird_19
   gretsch_thunderbird: 73.0011, // gretsch_thunderbird_22
   gibson_flying_v: 74.0011, // gibson_flying_v_22
+  // Measured off the PRS Custom 22 plan, not derived from a native neck: prs_style
+  // uses prs_scale. nutToBodyEdgeMm = fret22Distance(635) - 17.4244 = 439.3847,
+  // nut to the body/fingerboard junction (about fret 20.1; the owner's fret 20
+  // would be 434.99). See docs/guitar-blueprint-evidence/prs-custom-24-plan-trace.json.
+  prs_style: 17.4244,
   // Measured off the 1958 Explorer plan, not derived from a native neck: this
   // body has no legacy per-body entry in NECK_PRESETS and uses gibson_scale.
   // nutToBodyEdgeMm = fret22Distance(628.65) - 37.6444 = 414.5967, nut to the
@@ -595,6 +620,12 @@ export const TEMPLATE_NECK_POCKET_SPEC: Record<
 > = {
   // The 1958 Explorer plan's pocket: 38.0 x 122.06 with an 8.0mm corner. Far
   // deeper than the 101.6mm generic Gibson mortise.
+  prs_style: {
+    mechanism: 'glued',
+    jointWidthMm: 54.3,
+    jointDepthMm: 68.0,
+    jointCornerRadiusMm: 6.35,
+  },
   gibson_explorer: {
     mechanism: 'glued',
     jointWidthMm: 38.1,
@@ -632,6 +663,7 @@ export const DEFAULT_NECK_JOINT_MECHANISM: Record<string, NeckJointMechanism> = 
   gretsch_thunderbird: 'glued',
   gibson_flying_v: 'glued',
   gibson_explorer: 'glued',
+  prs_style: 'glued',
   jag_style: 'bolt_on',
 
   // The eight bass blueprints, decided here rather than left to the
@@ -693,11 +725,12 @@ export const NECK_PRESET_INSTRUMENT: Record<string, InstrumentType> = {
   gibson_flying_v_22: 'guitar',
   jaguar_22: 'guitar',
   baritone_27: 'guitar',
-  // CURATED_NECK_PRESETS - the 4 scale-length-only entries the picker offers
+  // CURATED_NECK_PRESETS - the 5 scale-length-only entries the picker offers
   baritone_scale: 'guitar',
   fender_scale: 'guitar',
   gibson_scale: 'guitar',
   jaguar_scale: 'guitar',
+  prs_scale: 'guitar',
   // The 4 bass necks. Unlike the guitar side there is no legacy/curated
   // split: these were authored as scale-length-only necks from the start, so
   // the same four entries are both what the picker offers and what the
@@ -713,6 +746,7 @@ export const BRIDGE_PRESET_INSTRUMENT: Record<string, InstrumentType> = {
   tremolo_strat: 'guitar',
   tune_o_matic: 'guitar',
   tele_bridge_plate: 'guitar',
+  prs_stoptail: 'guitar',
   bass_vintage_plate: 'bass',
   bass_precision_plate: 'bass',
   bass_r_style_plate: 'bass',
@@ -863,6 +897,32 @@ export const BRIDGE_PRESETS: Record<string, BridgePreset> = {
     // drawn outside the corrected plate. Omitted rather than guessed.
     widthMm: 79.90847906788953,
     lengthMm: 92.0,
+  },
+  // A PRS stoptail: one piece, wraparound, intonated at the saddles. Measured
+  // off the PRS Custom 22 plan (docs/guitar-blueprint-evidence/
+  // prs-custom-24-plan-trace.json), at that plan's own joint (nutToBodyEdgeMm
+  // 439.3847, theoretical saddle line 195.6). The plan draws the strings ending
+  // at 193.4 (treble) and 199.6 (bass), hence -2.2 / +4.0. The studs are the
+  // plan's, slanted like the bar (bass 13.96 back of the treble saddle, treble
+  // 8.31), measured from the compensated treble saddle line because the
+  // reference is `saddle_line`. widthMm is the bar including its end caps.
+  prs_stoptail: {
+    id: 'prs_stoptail',
+    name: 'PRS-style Stoptail (Wraparound)',
+    scaleReference: 'saddle_line',
+    compensationMm: {
+      treble: -2.2,
+      bass: 4.0,
+    },
+    saddleOffsetYMm: 5.1,
+    singlePlate: true,
+    mountingPoints: [
+      { x: -39.88, y: 13.96 },
+      { x: 40.92, y: 8.31 },
+    ],
+    widthMm: 99.3,
+    lengthMm: 24.0,
+    stringSpacingMm: 52.6,
   },
 
   // --- Four-string bass ------------------------------------------------------

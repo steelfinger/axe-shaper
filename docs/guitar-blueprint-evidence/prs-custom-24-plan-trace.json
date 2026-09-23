@@ -1,0 +1,624 @@
+{
+ "source": {
+  "plan": "11952-PRS-DC-Custom-22.pdf (GuitARTS.de, Illustrator/CGM vector, A0, plan is 1:1); supplied by the project owner. Photo PRS-CE-24 used for reference only.",
+  "method": "Polylines read straight out of the PDF content stream (1 pt = 25.4/72 mm). The plan's outline is drawn as separate pieces plus a family of carve/binding lines, so the body silhouette is the outer boundary of all body lines rasterised at 1.5 px/pt, closed across the neck gap, opened morphologically to drop spurs, traced, smoothed and fitted with cubic Beziers (max 0.4 mm). Plan x/y rotated into app coordinates: X = (1842.75pt - planY) * k with treble +, Y = (1369.5pt - planX) * k. Origin: centreline, and the neck-pocket mouth which sits at the body/fingerboard junction.",
+  "body_note": "The plan is a Custom 22; the Custom 24 has the same body. The plan draws the body thin edge and arched cap in the section view."
+ },
+ "measured": {
+  "nutToBodyEdgeMm": 439.3847,
+  "nutToBodyEdgeNote": "nut at plan x=2615.0pt (string ends), pocket mouth at 1369.5pt. About fret 20.1; the owner's fret 20 is 434.98, 4.4mm nearer the nut.",
+  "saddleContactsYMm": {
+   "string1_treble": 193.4,
+   "string6_bass": 199.6
+  },
+  "saddleContactsNote": "Where the plan draws each string ending, relative to the same Y=0. Treble 193.4 and bass 199.6 against a theoretical 25in line at 195.6.",
+  "studsMm": [
+   {
+    "x": -39.88,
+    "y": 207.37
+   },
+   {
+    "x": 40.92,
+    "y": 201.72
+   }
+  ],
+  "pocket": {
+   "widthMm": 54.3,
+   "depthMmEstimate": 68.0,
+   "depthNote": "Width is the plan's pocket mouth; depth is estimated from the rout view rectangle, not measured."
+  },
+  "bodyThicknessMm": 28.2,
+  "bodyThicknessNote": "Mahogany core in section A-A (two parallel edges 80pt apart); the carved maple cap sits on top. Overall about 36mm at the tail rim and 47mm at the crown. For carved_cap the field means the core below the rim."
+ },
+ "placements": {
+  "pickups": [
+   {
+    "id": "prs_pickup_neck",
+    "type": "humbucker",
+    "offsetXMm": 0,
+    "offsetYMm": 45.98
+   },
+   {
+    "id": "prs_pickup_bridge",
+    "type": "humbucker",
+    "offsetXMm": 0,
+    "offsetYMm": 151.45
+   }
+  ],
+  "potentiometers": [
+   {
+    "x": 79.94,
+    "y": 167.03
+   },
+   {
+    "x": 112.18,
+    "y": 255.25
+   }
+  ],
+  "toggle": {
+   "x": 50.49,
+   "y": 284.07
+  }
+ },
+ "contour": {
+  "closed": true,
+  "anchors": [
+   {
+    "id": "prs_pocket_left",
+    "position": {
+     "x": -27.15,
+     "y": 0.0
+    },
+    "handleMode": "corner",
+    "locked": true,
+    "semanticRole": "neck_pocket_left"
+   },
+   {
+    "id": "prs_top_left",
+    "position": {
+     "x": -29.0,
+     "y": 0.0
+    },
+    "handleMode": "corner",
+    "handleOut": {
+     "x": -2.122,
+     "y": -2.822
+    }
+   },
+   {
+    "id": "prs_body_01",
+    "position": {
+     "x": -34.778,
+     "y": -8.878
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 1.98,
+     "y": 2.924
+    },
+    "handleOut": {
+     "x": -2.844,
+     "y": -1.203
+    }
+   },
+   {
+    "id": "prs_body_02",
+    "position": {
+     "x": -45.361,
+     "y": -13.546
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 2.764,
+     "y": 1.382
+    },
+    "handleOut": {
+     "x": -7.634,
+     "y": -3.817
+    }
+   },
+   {
+    "id": "prs_body_03",
+    "position": {
+     "x": -66.456,
+     "y": -28.471
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 6.041,
+     "y": 6.041
+    },
+    "handleOut": {
+     "x": -9.381,
+     "y": -9.381
+    }
+   },
+   {
+    "id": "prs_body_04",
+    "position": {
+     "x": -85.09,
+     "y": -62.265
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 2.523,
+     "y": 13.118
+    },
+    "handleOut": {
+     "x": -1.688,
+     "y": -8.776
+    }
+   },
+   {
+    "id": "prs_body_05",
+    "position": {
+     "x": -91.367,
+     "y": -87.756
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 7.486,
+     "y": 6.654
+    },
+    "handleOut": {
+     "x": -2.596,
+     "y": -2.308
+    }
+   },
+   {
+    "id": "prs_body_06",
+    "position": {
+     "x": -100.395,
+     "y": -89.637
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 3.071,
+     "y": -0.236
+    },
+    "handleOut": {
+     "x": -16.719,
+     "y": 1.286
+    }
+   },
+   {
+    "id": "prs_body_07",
+    "position": {
+     "x": -126.627,
+     "y": -55.21
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 1.681,
+     "y": -14.571
+    },
+    "handleOut": {
+     "x": -0.928,
+     "y": 8.046
+    }
+   },
+   {
+    "id": "prs_body_08",
+    "position": {
+     "x": -126.446,
+     "y": -30.75
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -1.54,
+     "y": -8.009
+    },
+    "handleOut": {
+     "x": 2.005,
+     "y": 10.424
+    }
+   },
+   {
+    "id": "prs_body_09",
+    "position": {
+     "x": -116.496,
+     "y": -0.412
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -4.129,
+     "y": -9.759
+    },
+    "handleOut": {
+     "x": 10.054,
+     "y": 23.765
+    }
+   },
+   {
+    "id": "prs_body_10",
+    "position": {
+     "x": -101.245,
+     "y": 72.731
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 3.016,
+     "y": -26.137
+    },
+    "handleOut": {
+     "x": -3.158,
+     "y": 27.369
+    }
+   },
+   {
+    "id": "prs_body_11",
+    "position": {
+     "x": -135.926,
+     "y": 146.344
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 14.647,
+     "y": -22.401
+    },
+    "handleOut": {
+     "x": -4.334,
+     "y": 6.628
+    }
+   },
+   {
+    "id": "prs_body_12",
+    "position": {
+     "x": -148.318,
+     "y": 166.805
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 3.546,
+     "y": -7.093
+    },
+    "handleOut": {
+     "x": -3.969,
+     "y": 7.939
+    }
+   },
+   {
+    "id": "prs_body_13",
+    "position": {
+     "x": -158.883,
+     "y": 191.029
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 2.908,
+     "y": -8.4
+    },
+    "handleOut": {
+     "x": -4.401,
+     "y": 12.715
+    }
+   },
+   {
+    "id": "prs_body_14",
+    "position": {
+     "x": -165.306,
+     "y": 230.775
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 0.514,
+     "y": -13.365
+    },
+    "handleOut": {
+     "x": -1.256,
+     "y": 32.669
+    }
+   },
+   {
+    "id": "prs_body_15",
+    "position": {
+     "x": -135.112,
+     "y": 316.148
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -23.031,
+     "y": -23.991
+    },
+    "handleOut": {
+     "x": 10.973,
+     "y": 11.43
+    }
+   },
+   {
+    "id": "prs_body_16",
+    "position": {
+     "x": -95.691,
+     "y": 342.85
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -14.575,
+     "y": -6.167
+    },
+    "handleOut": {
+     "x": 19.555,
+     "y": 8.273
+    }
+   },
+   {
+    "id": "prs_body_17",
+    "position": {
+     "x": -34.778,
+     "y": 357.848
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -21.019,
+     "y": -2.425
+    },
+    "handleOut": {
+     "x": 15.431,
+     "y": 1.78
+    }
+   },
+   {
+    "id": "prs_body_18",
+    "position": {
+     "x": 11.789,
+     "y": 359.187
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -15.482,
+     "y": 0.595
+    },
+    "handleOut": {
+     "x": 44.882,
+     "y": -1.726
+    }
+   },
+   {
+    "id": "prs_body_19",
+    "position": {
+     "x": 137.106,
+     "y": 313.796
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -31.856,
+     "y": 34.626
+    },
+    "handleOut": {
+     "x": 1.071,
+     "y": -1.165
+    }
+   },
+   {
+    "id": "prs_body_20",
+    "position": {
+     "x": 140.761,
+     "y": 310.811
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -1.09,
+     "y": 1.139
+    },
+    "handleOut": {
+     "x": 6.133,
+     "y": -6.411
+    }
+   },
+   {
+    "id": "prs_body_21",
+    "position": {
+     "x": 155.939,
+     "y": 288.866
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -3.955,
+     "y": 7.91
+    },
+    "handleOut": {
+     "x": 0.682,
+     "y": -1.364
+    }
+   },
+   {
+    "id": "prs_body_22",
+    "position": {
+     "x": 157.205,
+     "y": 284.633
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -0.491,
+     "y": 1.42
+    },
+    "handleOut": {
+     "x": 1.281,
+     "y": -3.7
+    }
+   },
+   {
+    "id": "prs_body_23",
+    "position": {
+     "x": 161.222,
+     "y": 273.579
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -0.889,
+     "y": 3.851
+    },
+    "handleOut": {
+     "x": 0.286,
+     "y": -1.241
+    }
+   },
+   {
+    "id": "prs_body_24",
+    "position": {
+     "x": 161.366,
+     "y": 269.816
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -0.239,
+     "y": 1.244
+    },
+    "handleOut": {
+     "x": 1.106,
+     "y": -5.751
+    }
+   },
+   {
+    "id": "prs_body_25",
+    "position": {
+     "x": 164.496,
+     "y": 252.648
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -0.674,
+     "y": 5.839
+    },
+    "handleOut": {
+     "x": 1.77,
+     "y": -15.34
+    }
+   },
+   {
+    "id": "prs_body_26",
+    "position": {
+     "x": 162.271,
+     "y": 206.081
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 2.908,
+     "y": 15.124
+    },
+    "handleOut": {
+     "x": -5.357,
+     "y": -27.855
+    }
+   },
+   {
+    "id": "prs_body_27",
+    "position": {
+     "x": 124.171,
+     "y": 130.822
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 15.196,
+     "y": 23.241
+    },
+    "handleOut": {
+     "x": -8.87,
+     "y": -13.566
+    }
+   },
+   {
+    "id": "prs_body_28",
+    "position": {
+     "x": 102.009,
+     "y": 87.312
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 4.256,
+     "y": 15.808
+    },
+    "handleOut": {
+     "x": -7.43,
+     "y": -27.597
+    }
+   },
+   {
+    "id": "prs_body_29",
+    "position": {
+     "x": 121.204,
+     "y": 9.231
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": -7.783,
+     "y": 25.296
+    },
+    "handleOut": {
+     "x": 4.173,
+     "y": -13.563
+    }
+   },
+   {
+    "id": "prs_body_30",
+    "position": {
+     "x": 113.153,
+     "y": -30.696
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 12.813,
+     "y": 9.364
+    },
+    "handleOut": {
+     "x": -14.733,
+     "y": -10.766
+    }
+   },
+   {
+    "id": "prs_body_31",
+    "position": {
+     "x": 82.453,
+     "y": -16.404
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 8.472,
+     "y": -9.577
+    },
+    "handleOut": {
+     "x": -3.282,
+     "y": 3.71
+    }
+   },
+   {
+    "id": "prs_body_32",
+    "position": {
+     "x": 71.055,
+     "y": -7.16
+    },
+    "handleMode": "smooth",
+    "handleIn": {
+     "x": 4.284,
+     "y": -2.472
+    },
+    "handleOut": {
+     "x": -12.261,
+     "y": 7.074
+    }
+   },
+   {
+    "id": "prs_top_right",
+    "position": {
+     "x": 29.0,
+     "y": 0.0
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": 12.758,
+     "y": -1.355
+    }
+   },
+   {
+    "id": "prs_pocket_right",
+    "position": {
+     "x": 27.15,
+     "y": 0.0
+    },
+    "handleMode": "corner",
+    "locked": true,
+    "semanticRole": "neck_pocket_right"
+   }
+  ]
+ }
+}

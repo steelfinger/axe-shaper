@@ -202,16 +202,17 @@ async function main() {
       invariant(bassNecks.length > 0 && bassBridges.length > 0 && bassPickups.length > 0, 'the bass catalogue is empty');
     });
 
-    check('the guitar catalogue is unchanged by the split', () => {
+    check('the guitar catalogue is unchanged by the split (plus the PRS neck and stoptail)', () => {
       deepStrictEqual(
         presets.offeredNeckPresets('guitar').map((n: any) => n.id),
-        ['baritone_scale', 'fender_scale', 'gibson_scale', 'jaguar_scale']
+        ['baritone_scale', 'fender_scale', 'gibson_scale', 'jaguar_scale', 'prs_scale']
       );
       deepStrictEqual(presets.offeredBridgePresets('guitar').map((b: any) => b.id), [
         'hardtail_6',
         'tremolo_strat',
         'tune_o_matic',
         'tele_bridge_plate',
+        'prs_stoptail',
       ]);
     });
 
@@ -455,7 +456,7 @@ async function main() {
       deepStrictEqual(instrument.neckPresetInstrument('some_future_bass_neck'), undefined);
     });
 
-    check('every blueprint is offered to its own instrument only (9 guitar, 8 bass)', () => {
+    check('every blueprint is offered to its own instrument only (10 guitar, 8 bass)', () => {
       // W4's version of this check asserted no bass blueprint was offered to
       // a bass project, because none existed. W6 bundles eight; this is the
       // same cross-instrument guard, both directions, now that there is
@@ -480,7 +481,7 @@ async function main() {
         invariant(!presets.isTemplateCompatible(template, otherDoc), `blueprint ${id} is offered to the other instrument`);
         byInstrument[entry.instrumentType as 'guitar' | 'bass']++;
       }
-      deepStrictEqual(byInstrument, { guitar: 9, bass: 8 });
+      deepStrictEqual(byInstrument, { guitar: 10, bass: 8 });
     });
 
     console.log('no clipping in the printable export, at bass scale lengths');
