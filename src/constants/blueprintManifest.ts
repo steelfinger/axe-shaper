@@ -68,6 +68,13 @@ export const BLUEPRINT_MANIFEST: Record<
     tier: 'extra',
     instrumentType: 'guitar',
   },
+  prs_style: {
+    description:
+      'Double-cutaway body traced from a PRS plan, with an arched carved-cap top, a thin mahogany core, a wraparound stoptail, two humbuckers, and a deep-set neck.',
+    category: 'PRS',
+    tier: 'extra',
+    instrumentType: 'guitar',
+  },
   jag_style: {
     description: 'Jaguar-style offset body with its pickguard and front control routes, a 610 mm scale neck, and Tune-O-Matic bridge.',
     category: 'Offset',
@@ -145,6 +152,7 @@ export const BLUEPRINT_ORDER = [
   'gretsch_thunderbird',
   'gibson_flying_v',
   'gibson_explorer',
+  'prs_style',
   'jag_style',
   'p_bass_style',
   'j_bass_style',
