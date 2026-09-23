@@ -84,7 +84,7 @@ async function main() {
     // Strict equality against each blueprint's *own* answer, not a range and
     // not PROJECT_SCHEMA_VERSION. The bundled blueprints are what this build
     // writes, so each must carry the lowest version that can represent it
-    // (`requiredSchemaVersion`) - which is 4 for fifteen of them and 5 only
+    // (`requiredSchemaVersion`) - which is 4 for sixteen of them and 5 only
     // for single_cut, the one with a bodyTop. Accepting any supported version
     // here is how one quietly stays behind until the difference shows up as a
     // field the app injects but the file lacks; accepting only the newest is
@@ -93,7 +93,7 @@ async function main() {
     const bundledBlueprints = readdirSync(BLUEPRINT_DIR)
       .filter((file) => file.endsWith('.axe.svg'))
       .sort();
-    invariant(bundledBlueprints.length === 16, `expected 16 bundled blueprints, found ${bundledBlueprints.length}`);
+    invariant(bundledBlueprints.length === 17, `expected 17 bundled blueprints, found ${bundledBlueprints.length}`);
     const misstamped = bundledBlueprints
       .map((file) => ({ file, payload: decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8')) }))
       .filter(({ payload }) => payload.schemaVersion !== schema.requiredSchemaVersion(payload))

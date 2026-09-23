@@ -1,0 +1,445 @@
+{
+ "source": {
+  "plan": "Gibson-Explorer-00-1958.pdf, \"1958 Gibson Explorer Revision 1\", 22/5/2012, drawn by Lee Younger; supplied by the project owner. The plan says all measurements are approximate.",
+  "reference_photo": "Gibson-Explorer-58-front (owner supplied), used only to confirm handedness and shape.",
+  "method": "Vector paths read straight out of the PDF (1 pt = 25.4/72 mm, plan is 1:1: body 434.6 mm wide against a published ~438 mm, fingerboard 42.9 mm at the nut against 1.695 in). Plan x/y rotated into app coordinates: X = (planY - 803.55pt) * k, Y = (1553.7pt - planX) * k. The origin is the centre of the neck-pocket mouth. Treble side is +X."
+ },
+ "measured": {
+  "nutToBodyEdgeMm": 414.5967,
+  "nutToBodyEdgeNote": "nut at plan x=2729.0pt, pocket mouth at 1553.7pt. Owner says fret 19; fret 19 is 418.86, so the plan is 4.3 mm short of that (about fret 18.85).",
+  "tomPostLineYMm": 213.85,
+  "tomPostLineNote": "Bass post 215.8, treble post 211.9. From the nut that is 628.45 mm: the plan puts the posts at the scale length.",
+  "stopbarStudsYMm": 252.8,
+  "pocket": {
+   "widthMm": 38.0,
+   "depthMm": 122.06,
+   "cornerRadiusMm": 8.0
+  },
+  "bodyThicknessMm": 38.1,
+  "bodyThicknessNote": "\"Body Depth 1.5 in\" on the plan."
+ },
+ "placements": {
+  "pickups": [
+   {
+    "id": "explorer_pickup_neck",
+    "type": "humbucker",
+    "offsetXMm": 0,
+    "offsetYMm": 67.6
+   },
+   {
+    "id": "explorer_pickup_bridge",
+    "type": "humbucker",
+    "offsetXMm": 0,
+    "offsetYMm": 171.0
+   }
+  ],
+  "potentiometers": [
+   {
+    "x": 58.7,
+    "y": 354.7
+   },
+   {
+    "x": 75.9,
+    "y": 305.9
+   },
+   {
+    "x": 93.2,
+    "y": 257.1
+   }
+  ],
+  "toggle": {
+   "x": 138.5,
+   "y": 3.6
+  }
+ },
+ "contour": {
+  "closed": true,
+  "anchors": [
+   {
+    "id": "explorer_pocket_left",
+    "position": {
+     "x": -19.05,
+     "y": 0
+    },
+    "handleMode": "corner",
+    "locked": true,
+    "semanticRole": "neck_pocket_left"
+   },
+   {
+    "id": "explorer_top_left",
+    "position": {
+     "x": -28.276,
+     "y": 0.0
+    },
+    "handleMode": "corner"
+   },
+   {
+    "id": "explorer_body_01",
+    "position": {
+     "x": -28.348,
+     "y": 4.744
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": 0.018,
+     "y": -0.199
+    },
+    "handleOut": {
+     "x": -1.127,
+     "y": 12.287
+    }
+   },
+   {
+    "id": "explorer_body_02",
+    "position": {
+     "x": -48.497,
+     "y": 29.706
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": 8.452,
+     "y": -3.136
+    }
+   },
+   {
+    "id": "explorer_body_03",
+    "position": {
+     "x": -77.009,
+     "y": 40.11
+    },
+    "handleMode": "corner",
+    "handleOut": {
+     "x": -10.596,
+     "y": 3.36
+    }
+   },
+   {
+    "id": "explorer_body_04",
+    "position": {
+     "x": -93.793,
+     "y": 69.024
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": -3.373,
+     "y": -19.318
+    }
+   },
+   {
+    "id": "explorer_body_05",
+    "position": {
+     "x": -80.422,
+     "y": 154.693
+    },
+    "handleMode": "corner",
+    "handleOut": {
+     "x": 2.991,
+     "y": 18.157
+    }
+   },
+   {
+    "id": "explorer_body_06",
+    "position": {
+     "x": -86.818,
+     "y": 195.877
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": 7.727,
+     "y": -12.278
+    }
+   },
+   {
+    "id": "explorer_body_07",
+    "position": {
+     "x": -249.933,
+     "y": 468.808
+    },
+    "handleMode": "corner",
+    "handleOut": {
+     "x": -4.181,
+     "y": 7.051
+    }
+   },
+   {
+    "id": "explorer_body_08",
+    "position": {
+     "x": -251.716,
+     "y": 487.796
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": -3.101,
+     "y": -4.934
+    },
+    "handleOut": {
+     "x": 2.534,
+     "y": 4.032
+    }
+   },
+   {
+    "id": "explorer_body_09",
+    "position": {
+     "x": -235.148,
+     "y": 493.211
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": -8.996,
+     "y": 1.587
+    }
+   },
+   {
+    "id": "explorer_body_10",
+    "position": {
+     "x": -29.187,
+     "y": 444.899
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": -115.352,
+     "y": 38.098
+    },
+    "handleOut": {
+     "x": 111.9,
+     "y": -36.958
+    }
+   },
+   {
+    "id": "explorer_body_11",
+    "position": {
+     "x": 157.309,
+     "y": 363.715
+    },
+    "handleMode": "corner",
+    "handleOut": {
+     "x": 9.522,
+     "y": -6.563
+    }
+   },
+   {
+    "id": "explorer_body_12",
+    "position": {
+     "x": 163.743,
+     "y": 340.424
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": 2.976,
+     "y": 10.286
+    }
+   },
+   {
+    "id": "explorer_body_13",
+    "position": {
+     "x": 117.461,
+     "y": 205.643
+    },
+    "handleMode": "corner",
+    "handleOut": {
+     "x": -6.216,
+     "y": -16.025
+    }
+   },
+   {
+    "id": "explorer_body_14",
+    "position": {
+     "x": 116.494,
+     "y": 159.916
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": -5.627,
+     "y": 16.582
+    }
+   },
+   {
+    "id": "explorer_body_15",
+    "position": {
+     "x": 182.944,
+     "y": -33.216
+    },
+    "handleMode": "corner",
+    "handleOut": {
+     "x": 7.254,
+     "y": -19.395
+    }
+   },
+   {
+    "id": "explorer_body_16",
+    "position": {
+     "x": 179.49,
+     "y": -63.333
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": 5.828,
+     "y": 3.95
+    },
+    "handleOut": {
+     "x": -5.977,
+     "y": -4.051
+    }
+   },
+   {
+    "id": "explorer_body_17",
+    "position": {
+     "x": 155.59,
+     "y": -57.945
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": 7.601,
+     "y": -8.829
+    }
+   },
+   {
+    "id": "explorer_body_18",
+    "position": {
+     "x": 85.17,
+     "y": 12.508
+    },
+    "handleMode": "corner",
+    "handleOut": {
+     "x": -9.299,
+     "y": 9.991
+    }
+   },
+   {
+    "id": "explorer_body_19",
+    "position": {
+     "x": 46.743,
+     "y": 25.598
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": 13.33,
+     "y": 3.851
+    },
+    "handleOut": {
+     "x": -15.833,
+     "y": -4.574
+    }
+   },
+   {
+    "id": "explorer_top_right",
+    "position": {
+     "x": 28.294,
+     "y": 0.0
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": 0.081,
+     "y": 7.223
+    }
+   },
+   {
+    "id": "explorer_pocket_right",
+    "position": {
+     "x": 19.05,
+     "y": 0
+    },
+    "handleMode": "corner",
+    "locked": true,
+    "semanticRole": "neck_pocket_right"
+   }
+  ]
+ },
+ "pickguard": {
+  "closed": true,
+  "anchors": [
+   {
+    "id": "explorer_pg_00",
+    "position": {
+     "x": 45.051,
+     "y": 234.417
+    },
+    "handleMode": "corner"
+   },
+   {
+    "id": "explorer_pg_01",
+    "position": {
+     "x": 45.101,
+     "y": 148.291
+    },
+    "handleMode": "corner"
+   },
+   {
+    "id": "explorer_pg_02",
+    "position": {
+     "x": -25.979,
+     "y": 148.216
+    },
+    "handleMode": "corner"
+   },
+   {
+    "id": "explorer_pg_03",
+    "position": {
+     "x": -26.06,
+     "y": 90.57
+    },
+    "handleMode": "corner"
+   },
+   {
+    "id": "explorer_pg_04",
+    "position": {
+     "x": 45.066,
+     "y": 90.512
+    },
+    "handleMode": "corner"
+   },
+   {
+    "id": "explorer_pg_05",
+    "position": {
+     "x": 45.051,
+     "y": 46.281
+    },
+    "handleMode": "corner"
+   },
+   {
+    "id": "explorer_pg_06",
+    "position": {
+     "x": 73.416,
+     "y": 33.341
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": -10.283,
+     "y": 11.457
+    }
+   },
+   {
+    "id": "explorer_pg_07",
+    "position": {
+     "x": 158.59,
+     "y": -53.942
+    },
+    "handleMode": "corner",
+    "handleOut": {
+     "x": 10.738,
+     "y": -12.543
+    }
+   },
+   {
+    "id": "explorer_pg_08",
+    "position": {
+     "x": 179.856,
+     "y": -40.463
+    },
+    "handleMode": "corner",
+    "handleIn": {
+     "x": 6.757,
+     "y": -19.096
+    }
+   },
+   {
+    "id": "explorer_pg_09",
+    "position": {
+     "x": 83.61,
+     "y": 234.38
+    },
+    "handleMode": "corner"
+   }
+  ]
+ }
+}

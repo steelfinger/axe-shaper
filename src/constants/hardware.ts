@@ -499,6 +499,13 @@ export const FINGERBOARD_OVERHANG_MM: Record<string, LengthMm> = {
   gibson_firebird: 68.3811, // gibson_firebird_19
   gretsch_thunderbird: 73.0011, // gretsch_thunderbird_22
   gibson_flying_v: 74.0011, // gibson_flying_v_22
+  // Measured off the 1958 Explorer plan, not derived from a native neck: this
+  // body has no legacy per-body entry in NECK_PRESETS and uses gibson_scale.
+  // nutToBodyEdgeMm = fret22Distance(628.65) - 37.6444 = 414.5967, nut to the
+  // plan's neck-pocket mouth (about fret 18.85; the owner said fret 19, which
+  // would be 418.86). The plan's TOM posts land 628.45mm from the nut, at the
+  // scale length. See docs/guitar-blueprint-evidence/explorer-58-plan-trace.json.
+  gibson_explorer: 37.6444,
   jag_style: 70.9045, // jaguar_22
 
   // Bass masters: authoritative theoretical scale lines, measured from each
@@ -586,6 +593,14 @@ export const TEMPLATE_NECK_POCKET_SPEC: Record<
   string,
   { mechanism: NeckJointMechanism } & Pick<NeckPreset, 'jointWidthMm' | 'jointDepthMm' | 'jointCornerRadiusMm'>
 > = {
+  // The 1958 Explorer plan's pocket: 38.0 x 122.06 with an 8.0mm corner. Far
+  // deeper than the 101.6mm generic Gibson mortise.
+  gibson_explorer: {
+    mechanism: 'glued',
+    jointWidthMm: 38.1,
+    jointDepthMm: 122.06,
+    jointCornerRadiusMm: 8.0,
+  },
   r_bass_style: {
     mechanism: 'glued',
     jointWidthMm: 40,
@@ -616,6 +631,7 @@ export const DEFAULT_NECK_JOINT_MECHANISM: Record<string, NeckJointMechanism> = 
   gibson_firebird: 'glued',
   gretsch_thunderbird: 'glued',
   gibson_flying_v: 'glued',
+  gibson_explorer: 'glued',
   jag_style: 'bolt_on',
 
   // The eight bass blueprints, decided here rather than left to the

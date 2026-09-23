@@ -61,6 +61,13 @@ export const BLUEPRINT_MANIFEST: Record<
     tier: 'extra',
     instrumentType: 'guitar',
   },
+  gibson_explorer: {
+    description:
+      'Explorer-style body traced from a 1958 plan, with a Tune-O-Matic bridge, standard humbuckers, a treble-wing pickguard and toggle, and a deep neck pocket.',
+    category: 'Explorer',
+    tier: 'extra',
+    instrumentType: 'guitar',
+  },
   jag_style: {
     description: 'Jaguar-style offset body with its pickguard and front control routes, a 610 mm scale neck, and Tune-O-Matic bridge.',
     category: 'Offset',
@@ -137,6 +144,7 @@ export const BLUEPRINT_ORDER = [
   'gibson_firebird',
   'gretsch_thunderbird',
   'gibson_flying_v',
+  'gibson_explorer',
   'jag_style',
   'p_bass_style',
   'j_bass_style',
