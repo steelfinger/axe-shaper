@@ -528,6 +528,11 @@ export const FINGERBOARD_OVERHANG_MM: Record<string, LengthMm> = {
   // nutToBodyEdgeMm = fret22Distance(628.65) - 33.3778 = 418.8632, which is the
   // same overhang gibson_sg_22 derives from its fret-19 joint.
   semi_hollow_double_cut: 33.3778,
+  // ES-225T: measured off a straight-on photo, not a plan, and at the 14th fret
+  // rather than the 15th the owner named: the photo puts the body/fingerboard
+  // junction at about fret 14.3 and the 1958 ES-225TD listing says the 14th.
+  // nutToBodyEdgeMm = fret22Distance(628.65) - 103.6228 = 348.6183 (fret 14).
+  semi_hollow_single_cut: 103.6228,
   // Measured off the 1958 Explorer plan, not derived from a native neck: this
   // body has no legacy per-body entry in NECK_PRESETS and uses gibson_scale.
   // nutToBodyEdgeMm = fret22Distance(628.65) - 37.6444 = 414.5967, nut to the
@@ -669,6 +674,7 @@ export const DEFAULT_NECK_JOINT_MECHANISM: Record<string, NeckJointMechanism> = 
   gibson_explorer: 'glued',
   prs_style: 'glued',
   semi_hollow_double_cut: 'glued',
+  semi_hollow_single_cut: 'glued',
   jag_style: 'bolt_on',
 
   // The eight bass blueprints, decided here rather than left to the

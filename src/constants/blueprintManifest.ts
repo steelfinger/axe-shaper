@@ -82,6 +82,13 @@ export const BLUEPRINT_MANIFEST: Record<
     tier: 'extra',
     instrumentType: 'guitar',
   },
+  semi_hollow_single_cut: {
+    description:
+      'ES-225T / ES-295-style single cutaway with F-holes as 2 cm front cavities, an arched carved-cap top, a P-90, a black pickguard, and a fret-14 neck joint. Built as a solid carved body, not a hollow one.',
+    category: 'Semi-Hollow',
+    tier: 'extra',
+    instrumentType: 'guitar',
+  },
   jag_style: {
     description: 'Jaguar-style offset body with its pickguard and front control routes, a 610 mm scale neck, and Tune-O-Matic bridge.',
     category: 'Offset',
@@ -161,6 +168,7 @@ export const BLUEPRINT_ORDER = [
   'gibson_explorer',
   'prs_style',
   'semi_hollow_double_cut',
+  'semi_hollow_single_cut',
   'jag_style',
   'p_bass_style',
   'j_bass_style',
