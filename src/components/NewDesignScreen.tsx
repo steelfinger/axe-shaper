@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, FileUp, MousePointer2, Printer, Ruler } from 'lucide-react';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import { BLUEPRINT_ORDER } from '../constants/blueprintManifest';
-import { DEFAULT_NECK_JOINT_MECHANISM, NECK_PRESETS } from '../constants/hardware';
+import { CURATED_NECK_PRESETS, DEFAULT_NECK_JOINT_MECHANISM, NECK_PRESETS } from '../constants/hardware';
 import type { GuitarProject, InstrumentType, ReferenceTemplate } from '../types/guitar';
 import { INSTRUMENT_TYPES, instrumentLabel } from '../utils/instrument';
 import { createProject } from '../utils/projectFactory';
@@ -65,7 +65,7 @@ interface NewDesignScreenProps {
 
 /** A blueprint's headline facts, for the card and the detail line. */
 function templateFacts(template: ReferenceTemplate): { scaleLengthMm: number | null; construction: string } {
-  const neck = NECK_PRESETS[template.neckPresetId];
+  const neck = NECK_PRESETS[template.neckPresetId] ?? CURATED_NECK_PRESETS[template.neckPresetId];
   const mechanism = DEFAULT_NECK_JOINT_MECHANISM[template.id] ?? 'bolt_on';
   return {
     scaleLengthMm: neck?.scaleLengthMm ?? null,

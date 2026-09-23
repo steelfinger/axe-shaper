@@ -346,7 +346,7 @@ export interface ReferenceTemplate {
    */
   instrumentType: InstrumentType;
   stringCount: number;
-  category: 'S-Style' | 'T-Style' | 'Single-Cut' | 'Double-Cut' | 'Offset' | 'Firebird' | 'Thunderbird' | 'V-Style';
+  category: 'S-Style' | 'T-Style' | 'Single-Cut' | 'Double-Cut' | 'Offset' | 'Firebird' | 'Thunderbird' | 'V-Style' | 'Explorer';
   /** 'reference' = the core curated set, always visible. 'extra' = the
    *  long tail of additional blueprints, tucked into a closed-by-default,
    *  scrollable panel so the reference list doesn't get buried. */
