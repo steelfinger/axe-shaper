@@ -40,6 +40,39 @@ project name could contain one.
 A version number in a file says what that document needs, not how new the
 writer was — see the next section.
 
+### Three fields arrived without a version of their own
+
+`edgeProfile`, `binding` and `bodyThicknessMm` are optional project fields
+that no row above declares. They were added under the version that happened to
+be current at the time, without a bump:
+
+| Field | Added | Current version then |
+| --- | --- | --- |
+| `edgeProfile` | 2026-08-18 | 2 |
+| `binding` | 2026-08-23 | 2 |
+| `bodyThicknessMm` | 2026-09-03 | 3 |
+
+This is recorded rather than corrected. Retroactively moving them into a row
+would misdescribe every file already written: a version 3 payload from 27
+August genuinely predates `bodyThicknessMm`, and one from 10 September
+genuinely carries it. The version numbers are what they are.
+
+What makes it survivable, and why `requiredSchemaVersion` does not gate on
+them: all three are optional, each one's absence is the behaviour that existed
+before it (slab, no binding, 45 mm), and both implementations preserve fields
+they do not recognise — the web spreads the decoded payload, iOS merges typed
+fields over a retained raw tree. A reader that predates one of these round-trips
+it rather than dropping it. Two of them do change what is *drawn*, though:
+`edgeProfile` moves the plan's top-face boundary, and a reader without it
+prints a different edge.
+
+**The rule going forward.** A new optional field either comes with a version
+bump, or is recorded here with the reason it does not need one. The second
+option is only available while the field is genuinely additive — absence
+meaning the established behaviour — and while every writer preserves what it
+does not understand. A field that changes what an existing one means has
+neither property, and raises the floor instead.
+
 ### A save stamps the version it needs, not the newest one
 
 A writer stamps `schemaVersion` with the **lowest version that can represent

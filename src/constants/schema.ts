@@ -121,6 +121,16 @@ export const BASE_SCHEMA_VERSION = 3;
  * the file. `migrateProject` refuses such a payload from the editable path;
  * this is the export path's half of the same rule, for the callers that only
  * round-trip a payload without editing it.
+ *
+ * Three optional fields are deliberately *not* gated here, because no version
+ * declares them: `edgeProfile` and `binding` were added while the current
+ * version was 2, and `bodyThicknessMm` while it was 3 (docs/AXE_SVG_FORMAT.md,
+ * "Three fields arrived without a version of their own"). Gating them now
+ * would invent a version they never had. The floor already covers the first
+ * two; `bodyThicknessMm` is covered for any build after 3 Sep 2026, which is
+ * every build either implementation has shipped. They stay safe for the same
+ * reason versions 4 and 5 can be optional at all - absence is the established
+ * behaviour, and both writers preserve fields they do not recognise.
  */
 export function requiredSchemaVersion(
   project: Pick<StoredProject, 'schemaVersion' | 'bodyTop' | 'potentiometers' | 'switches'>

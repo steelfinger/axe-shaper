@@ -438,8 +438,11 @@ export interface GuitarProject {
   /** Optional body-face construction. Absent means the established flat top. */
   bodyTop?: BodyTop;
   /** A thin trim strip glued around the body's edge (Les Paul binding).
-   *  Absent means no binding - the 3D preview is the only surface that
-   *  currently draws it; this app just carries the field through. */
+   *  Absent means no binding. Edited here (the Binding picker in `Sidebar`,
+   *  via `constants/binding.ts`) and drawn by the 3D preview; the 2D plan
+   *  does not show it. No schema version declares this field - it was added
+   *  while the current version was 2 - see docs/AXE_SVG_FORMAT.md, "Three
+   *  fields arrived without a version of their own". */
   binding?: BindingParams;
   neckPresetId: string;
   bridgePresetId: string;
