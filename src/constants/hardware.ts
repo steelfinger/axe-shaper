@@ -627,14 +627,18 @@ export const TEMPLATE_NECK_POCKET_SPEC: Record<
   string,
   { mechanism: NeckJointMechanism } & Pick<NeckPreset, 'jointWidthMm' | 'jointDepthMm' | 'jointCornerRadiusMm'>
 > = {
-  // The 1958 Explorer plan's pocket: 38.0 x 122.06 with an 8.0mm corner. Far
-  // deeper than the 101.6mm generic Gibson mortise.
+  // The PRS Custom 22 plan's neck-pocket mouth is 54.3mm wide. The 68.0mm depth
+  // is an ESTIMATE read off the rout-view rectangle, not a measurement, and the
+  // corner radius is the generic one (docs/guitar-blueprint-evidence/
+  // prs-custom-24-plan-trace.json).
   prs_style: {
     mechanism: 'glued',
     jointWidthMm: 54.3,
     jointDepthMm: 68.0,
     jointCornerRadiusMm: 6.35,
   },
+  // The 1958 Explorer plan's pocket: 38.0 x 122.06 with an 8.0mm corner. Far
+  // deeper than the 101.6mm generic Gibson mortise.
   gibson_explorer: {
     mechanism: 'glued',
     jointWidthMm: 38.1,
