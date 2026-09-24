@@ -20,7 +20,7 @@ import {
   movingPickup,
 } from '../utils/pickupEditing';
 import { offeredPickupTypes } from '../utils/presets';
-import { withMirroredBevelIntensity } from '../utils/symmetry';
+import { applyLiveSymmetry, withMirroredBevelIntensity } from '../utils/symmetry';
 import { formatLength } from '../utils/units';
 import { DecimalInput } from './DecimalInput';
 import { EdgeProfilePreview } from './EdgeProfilePreview';
@@ -196,17 +196,27 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
     onUpdateProject((prev) => {
       const prevContour = getActiveContour(prev, activeLayer);
       if (!prevContour) return prev;
-      return withActiveContour(prev, activeLayer, {
-        ...prevContour,
-        anchors: prevContour.anchors.map((a) => {
-          if (a.id !== selectedAnchorId) return a;
-          const updated = { ...a, handleMode: mode };
-          if (mode !== 'corner' && a.handleOut) {
-            return updateAnchorHandle(updated, 'out', a.handleOut);
-          }
-          return updated;
-        }),
+      const anchors = prevContour.anchors.map((a) => {
+        if (a.id !== selectedAnchorId) return a;
+        const updated = { ...a, handleMode: mode };
+        if (mode !== 'corner' && a.handleOut) {
+          return updateAnchorHandle(updated, 'out', a.handleOut);
+        }
+        return updated;
       });
+      // Body only: the partner takes the same mode and the mirrored handles the
+      // mode change just produced. Handles are treated as driven by 'out',
+      // which is the one the mode change keeps and rebuilds 'in' from. Positions
+      // are put back afterwards - a mode change must not nudge a partner that
+      // was never exactly symmetric.
+      const mirrored =
+        activeLayer.kind === 'body'
+          ? applyLiveSymmetry(anchors, selectedAnchorId, prev.settings.symmetry, 'out').map((a, i) => ({
+              ...a,
+              position: anchors[i].position,
+            }))
+          : anchors;
+      return withActiveContour(prev, activeLayer, { ...prevContour, anchors: mirrored });
     });
   };
 
