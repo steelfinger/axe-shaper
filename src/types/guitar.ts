@@ -13,6 +13,29 @@ export type LengthMm = number;
  */
 export type InstrumentType = 'guitar' | 'bass';
 
+/** Preview-only headstock families; never part of the printable body plan. */
+export type HeadstockShapeId =
+  | 'strat_style'
+  | 't_style'
+  | 'gibson'
+  | 'explorer'
+  | 'firebird'
+  | 'thunderbird'
+  | 'flying_v'
+  | 'bass_f'
+  | 'bass_mm'
+  | 'bass_r'
+  | 'bass_sg';
+
+/** Schema v6's persisted, cross-platform 3D instrument appearance. */
+export interface InstrumentAppearance {
+  neckFinish: 'natural_maple' | 'body_matched';
+  fingerboard: 'maple' | 'rosewood';
+  fretboardBinding: 'none' | 'cream' | 'white' | 'black';
+  fretboardInlay: 'dots' | 'trapezoids';
+  headstockShape: HeadstockShapeId;
+}
+
 export interface Vector2D {
   x: LengthMm;
   y: LengthMm;
@@ -356,6 +379,8 @@ export interface ReferenceTemplate {
     ProjectSettings,
     'finishStyle' | 'bodyColor'
   >;
+  /** Appearance authored by the blueprint's embedded project payload. */
+  defaultInstrumentAppearance?: InstrumentAppearance;
   neckPresetId: string;
   bridgePresetId: string;
   defaultAnchors: PathAnchor[];
@@ -434,6 +459,8 @@ export interface GuitarProject {
     author: string;
   };
   settings: ProjectSettings;
+  /** Schema v6; absent only on legacy documents. */
+  instrumentAppearance?: InstrumentAppearance;
   activeTemplateId: string;
   contour: BodyContour;
   /** Optional for pre-edge-profile files; absent resolves to Slab. */

@@ -47,13 +47,16 @@ import type { StoredProject } from '../types/guitar';
  *       deliberately not independent document fields. An absent `bodyTop`
  *       remains the existing flat body, including old `edgeProfile.kind =
  *       carved_top` payloads.
+ *   6 - Adds `instrumentAppearance`: saved 3D neck, fingerboard, fretboard
+ *       trim/inlay and headstock-family choices. It does not change printable
+ *       body geometry, but a reader must understand it before editing.
  *
  * This constant is the newest version this build *understands*, and it is the
  * upper bound of the read gate. It is deliberately not what a save stamps -
  * see `requiredSchemaVersion` below, which writes the lowest version that can
  * represent the document in hand.
  */
-export const PROJECT_SCHEMA_VERSION = 5;
+export const PROJECT_SCHEMA_VERSION = 6;
 
 /**
  * The oldest payload this build can read. Nothing has been dropped yet, so
@@ -133,7 +136,7 @@ export const BASE_SCHEMA_VERSION = 3;
  * behaviour, and both writers preserve fields they do not recognise.
  */
 export function requiredSchemaVersion(
-  project: Pick<StoredProject, 'schemaVersion' | 'bodyTop' | 'potentiometers' | 'switches'>
+  project: Pick<StoredProject, 'schemaVersion' | 'bodyTop' | 'potentiometers' | 'switches' | 'instrumentAppearance'>
 ): number {
   // Only a version *above* this build's - a claim it cannot assess. A
   // nonsense stamp (0, a fraction) is not a claim worth preserving and falls
@@ -141,6 +144,7 @@ export function requiredSchemaVersion(
   if (typeof project.schemaVersion === 'number' && project.schemaVersion > PROJECT_SCHEMA_VERSION) {
     return project.schemaVersion;
   }
+  if (project.instrumentAppearance) return 6;
   if (project.bodyTop) return 5;
   if (project.potentiometers?.length || project.switches?.length) return 4;
   return BASE_SCHEMA_VERSION;

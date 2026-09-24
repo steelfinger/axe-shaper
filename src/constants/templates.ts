@@ -70,6 +70,7 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
       // treatment. Preserve it so new designs and the 3D viewer handoff use
       // the blueprint's intended top-only or two-sided binding.
       binding: project.binding,
+      defaultInstrumentAppearance: project.instrumentAppearance,
       // Position and orientation are authored by the blueprint; the rout
       // geometry comes from the live catalogue. Blueprint SVGs are durable
       // documents and may contain an older embedded anchor set, whereas a

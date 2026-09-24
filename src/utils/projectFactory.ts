@@ -5,6 +5,7 @@ import { defaultStringCount } from './instrument';
 import { bridgePresetFields, defaultNeckJointMechanism, neckPresetFieldsForNewTemplate } from './presets';
 import { projectNameFromTemplate } from './projectNaming';
 import { getUserTemplate, userTemplateInstrument } from './userTemplates';
+import { legacyInstrumentAppearance } from './instrumentAppearance';
 
 /**
  * The one place a new project is constructed.
@@ -59,9 +60,11 @@ type TemplateSource = Pick<
   | 'defaultPickguards'
   | 'defaultFrontRoutes'
   | 'defaultBackRoutes'
+  | 'defaultInstrumentAppearance'
 > & {
   /** User templates predate curated blueprint appearance defaults. */
   defaultAppearance?: ReferenceTemplate['defaultAppearance'];
+  defaultInstrumentAppearance?: ReferenceTemplate['defaultInstrumentAppearance'];
   instrumentType: InstrumentType;
   stringCount: number;
 };
@@ -136,6 +139,9 @@ export function createProject(options: CreateProjectOptions = {}): GuitarProject
     bodyThicknessMm: template.bodyThicknessMm,
     bodyTop: template.bodyTop ? structuredClone(template.bodyTop) : undefined,
     binding: template.binding ? structuredClone(template.binding) : undefined,
+    instrumentAppearance: structuredClone(
+      template.defaultInstrumentAppearance ?? legacyInstrumentAppearance(templateId, template.instrumentType)
+    ),
     ...neckPresetFieldsForNewTemplate(template.neckPresetId, templateId, template.instrumentType),
     neckJointMechanism: defaultNeckJointMechanism(templateId),
     ...bridgePresetFields(template.bridgePresetId),
