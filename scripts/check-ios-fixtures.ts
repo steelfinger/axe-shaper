@@ -70,6 +70,9 @@ const V5_FIXTURE_DIR = join(ROOT, 'tests', 'fixtures', 'ios-written-v5');
  * all (its own guide image is session-only and never saved) — and
  * `canvasOrientation: horizontal`, which no bundled blueprint sets.
  */
+// Blueprints added after the schema version 2 set was frozen. That directory
+// cannot grow, so these are expected in ios-written-v5/ instead.
+const POST_V2_BLUEPRINTS = ['gibson_explorer', 'prs_style', 'semi_hollow_double_cut', 'semi_hollow_single_cut'];
 const SYNTHETIC_FIXTURES = ['live_symmetry.axe.svg', 'guide_image.axe.svg', 'horizontal_orientation.axe.svg'];
 
 let failures = 0;
@@ -166,7 +169,7 @@ async function main() {
         .map(([id]) => id)
     );
     const expected = new Set([
-      ...manifest.BLUEPRINT_ORDER.filter((id: string) => !bassBlueprintIds.has(id)).map((id: string) => `${id}.axe.svg`),
+      ...manifest.BLUEPRINT_ORDER.filter((id: string) => !bassBlueprintIds.has(id) && !POST_V2_BLUEPRINTS.includes(id)).map((id: string) => `${id}.axe.svg`),
       ...SYNTHETIC_FIXTURES,
     ]);
     const present = new Set(
@@ -445,6 +448,11 @@ async function main() {
       const v5Files = readdirSync(V5_FIXTURE_DIR).filter((f) => f.endsWith('.axe.svg'));
       check('the version 5 fixture directory is not empty', () => {
         invariant(v5Files.length > 0, `${V5_FIXTURE_DIR} exists but holds no .axe.svg files`);
+      });
+
+      check('the version 5 set holds the blueprints added after version 2', () => {
+        const missing = POST_V2_BLUEPRINTS.map((id) => `${id}.axe.svg`).filter((f) => !v5Files.includes(f));
+        invariant(missing.length === 0, `missing: ${missing.join(', ')}`);
       });
 
       const witnessedBodyTops = new Set<string>();
