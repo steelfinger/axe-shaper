@@ -469,7 +469,7 @@ async function main() {
       deepStrictEqual(savedVersion({ ...loaded, bodyTop: { construction: 'carved_cap' } }), 5);
     });
 
-    check('the single_cut blueprint is the one bundled file that needs version 5', () => {
+    check('single_cut is a version 5 witness and s_style is version 4', () => {
       const singleCut = decodePayload(readFileSync(join(BLUEPRINT_DIR, 'single_cut.axe.svg'), 'utf8'));
       deepStrictEqual(singleCut.schemaVersion, 5);
       invariant(singleCut.bodyTop, 'single_cut no longer carries a bodyTop, so it is no longer the version 5 witness');
