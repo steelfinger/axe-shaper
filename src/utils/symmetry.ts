@@ -26,11 +26,17 @@ const MIRROR_MATCH_TOLERANCE_MM = 5;
  * predate this field) gets bootstrapped once, here, by role or by proximity
  * to its mirrored position - and if nothing matches closely enough, it's
  * left unpaired rather than guessed at.
+ *
+ * `draggedHandle` names the handle the gesture moved, when it was a handle
+ * rather than the node. It only matters for an anchor on the centerline, which
+ * has no partner: its own two handles are each other's mirror image, so the
+ * one that was not touched is rewritten from the one that was.
  */
 export function applyLiveSymmetry(
   anchors: PathAnchor[],
   movedAnchorId: string,
-  symmetry: SymmetryConfig
+  symmetry: SymmetryConfig,
+  draggedHandle?: 'in' | 'out'
 ): PathAnchor[] {
   if (symmetry.mode !== 'live_centerline') return anchors;
 
@@ -41,16 +47,21 @@ export function applyLiveSymmetry(
 
   // An anchor on the centerline has no partner - it mirrors itself, so just
   // constrain it there instead of looking for one.
-  if (source.semanticRole === 'tail_center' && Math.abs(source.position.x) < CENTERLINE_EPSILON_MM) {
+  if (Math.abs(source.position.x) < CENTERLINE_EPSILON_MM) {
+    let self = source;
+    if (source.semanticRole === 'tail_center') {
+      self = { ...self, position: { ...self.position, x: 0 } };
+    }
+    if (draggedHandle === 'out' && self.handleOut) {
+      self = { ...self, handleIn: { x: -self.handleOut.x, y: self.handleOut.y } };
+    } else if (draggedHandle === 'in' && self.handleIn) {
+      self = { ...self, handleOut: { x: -self.handleIn.x, y: self.handleIn.y } };
+    }
+    if (self === source) return anchors;
     const updated = [...anchors];
-    updated[movedIndex] = {
-      ...source,
-      position: { ...source.position, x: 0 },
-    };
+    updated[movedIndex] = self;
     return updated;
   }
-
-  if (Math.abs(source.position.x) < CENTERLINE_EPSILON_MM) return anchors;
 
   const resolved = resolveMirrorPair(anchors, source);
   if (!resolved) return anchors; // unpaired, or a dangling link - move only this side
@@ -73,8 +84,50 @@ export function applyLiveSymmetry(
     position: mirroredPosition,
     handleIn: mirroredHandleIn,
     handleOut: mirroredHandleOut,
+    handleMode: source.handleMode,
   };
   return result;
+}
+
+/**
+ * The segment that mirrors `segmentIndex` across the centerline, or null when
+ * there is none to act on: an end without a partner, a locked partner, or a
+ * segment that is its own mirror (it spans the centerline). Used to make a
+ * segment edit - straighten / curve - land on both halves of the body.
+ *
+ * A centerline node is its own partner, so a segment running out of one
+ * mirrors to the segment running out of it on the other side.
+ */
+export function mirroredSegmentIndex(
+  anchors: PathAnchor[],
+  segmentIndex: number,
+  closed: boolean,
+  symmetry: SymmetryConfig
+): number | null {
+  if (symmetry.mode !== 'live_centerline') return null;
+  const count = anchors.length;
+  if (segmentIndex < 0 || segmentIndex >= (closed ? count : count - 1)) return null;
+
+  const partnerOf = (index: number): number | null => {
+    const anchor = anchors[index];
+    if (Math.abs(anchor.position.x) < CENTERLINE_EPSILON_MM) return index;
+    const partnerId = anchor.mirrorId ?? findMirrorPartner(anchors, anchor)?.id;
+    const partnerIndex = anchors.findIndex((a) => a.id === partnerId);
+    if (partnerIndex === -1 || anchors[partnerIndex].locked) return null;
+    return partnerIndex;
+  };
+
+  const startIndex = segmentIndex;
+  const endIndex = (segmentIndex + 1) % count;
+  const p = partnerOf(startIndex);
+  const q = partnerOf(endIndex);
+  if (p === null || q === null) return null;
+
+  // The mirror runs the other way round the contour: it is the segment whose
+  // ends are {p, q}, in either order.
+  const mirrored = (from: number, to: number) => (closed || from + 1 < count) && (from + 1) % count === to ? from : null;
+  const candidate = mirrored(q, p) ?? mirrored(p, q);
+  return candidate === null || candidate === segmentIndex ? null : candidate;
 }
 
 /**

@@ -27,7 +27,7 @@ import type {
 } from './types/guitar';
 import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
-import { withMirroredInsertion } from './utils/symmetry';
+import { mirroredSegmentIndex, withMirroredInsertion } from './utils/symmetry';
 import { buildProjectFilename, downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
 import { downloadDXFFile, exportProjectToDXF } from './utils/dxfExporter';
 import { getUserTemplate } from './utils/userTemplates';
@@ -405,12 +405,17 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       if (!active) return prev;
       const { anchors, closed } = active;
       const straight = isSegmentStraight(anchors, selectedSegmentIndex, closed);
-      return withActiveContour(prev, activeLayer, {
-        ...active,
-        anchors: straight
-          ? curveSegment(anchors, selectedSegmentIndex, closed)
-          : straightenSegment(anchors, selectedSegmentIndex, closed),
-      });
+      const toggle = (list: typeof anchors, index: number) =>
+        straight ? curveSegment(list, index, closed) : straightenSegment(list, index, closed);
+      let updated = toggle(anchors, selectedSegmentIndex);
+      // The mirror segment gets the same treatment, so the two sides stay alike.
+      // Body only - other contours have no symmetry concept.
+      const twin =
+        activeLayer.kind === 'body'
+          ? mirroredSegmentIndex(anchors, selectedSegmentIndex, closed, prev.settings.symmetry)
+          : null;
+      if (twin !== null) updated = toggle(updated, twin);
+      return withActiveContour(prev, activeLayer, { ...active, anchors: updated });
     });
   };
 
