@@ -15,31 +15,35 @@ import type { ReferenceTemplate } from '../types/guitar';
  */
 export const BLUEPRINT_MANIFEST: Record<
   string,
-  Pick<ReferenceTemplate, 'description' | 'category' | 'tier' | 'instrumentType'>
+  Pick<ReferenceTemplate, 'description' | 'category' | 'tier' | 'instrumentType' | 'defaultAppearance'>
 > = {
   single_cut: {
     description: 'Classic single-cut Mahogany body with dual humbuckers and Tune-O-Matic bridge.',
     category: 'Single-Cut',
     tier: 'reference',
     instrumentType: 'guitar',
+    defaultAppearance: { finishStyle: 'sunburst', bodyColor: '#3b82f6' },
   },
   sg_style: {
     description: 'Symmetric double-cutaway Vintage SG body (Gibson/Yamaha style) with bevel contours.',
     category: 'Double-Cut',
     tier: 'reference',
     instrumentType: 'guitar',
+    defaultAppearance: { finishStyle: 'solid', bodyColor: '#722f37' },
   },
   s_style: {
     description: 'Double cutaway body with contoured waist and upper horns.',
     category: 'S-Style',
     tier: 'reference',
     instrumentType: 'guitar',
+    defaultAppearance: { finishStyle: 'sunburst', bodyColor: '#3b82f6' },
   },
   t_style: {
     description: 'Single cutaway solid body with flat edge profile and classic bridge plate.',
     category: 'T-Style',
     tier: 'reference',
     instrumentType: 'guitar',
+    defaultAppearance: { finishStyle: 'solid', bodyColor: '#f6e3a1' },
   },
   gibson_firebird: {
     description:
@@ -47,6 +51,7 @@ export const BLUEPRINT_MANIFEST: Record<
     category: 'Firebird',
     tier: 'extra',
     instrumentType: 'guitar',
+    defaultAppearance: { finishStyle: 'solid', bodyColor: '#722f37' },
   },
   gretsch_thunderbird: {
     description:
@@ -54,12 +59,14 @@ export const BLUEPRINT_MANIFEST: Record<
     category: 'Thunderbird',
     tier: 'extra',
     instrumentType: 'guitar',
+    defaultAppearance: { finishStyle: 'solid', bodyColor: '#722f37' },
   },
   gibson_flying_v: {
     description: 'Body inspired by the Gibson Flying V, with a deep-set neck joint, Tune-O-Matic bridge, and standard humbuckers.',
     category: 'V-Style',
     tier: 'extra',
     instrumentType: 'guitar',
+    defaultAppearance: { finishStyle: 'natural_wood', bodyColor: '#3b82f6' },
   },
   gibson_explorer: {
     description:
@@ -67,6 +74,7 @@ export const BLUEPRINT_MANIFEST: Record<
     category: 'Explorer',
     tier: 'extra',
     instrumentType: 'guitar',
+    defaultAppearance: { finishStyle: 'natural_wood', bodyColor: '#3b82f6' },
   },
   prs_style: {
     description:
@@ -74,6 +82,7 @@ export const BLUEPRINT_MANIFEST: Record<
     category: 'PRS',
     tier: 'extra',
     instrumentType: 'guitar',
+    defaultAppearance: { finishStyle: 'flame_maple', bodyColor: '#3b82f6' },
   },
   semi_hollow_double_cut: {
     description:
@@ -81,6 +90,7 @@ export const BLUEPRINT_MANIFEST: Record<
     category: 'Semi-Hollow',
     tier: 'extra',
     instrumentType: 'guitar',
+    defaultAppearance: { finishStyle: 'sunburst', bodyColor: '#3b82f6' },
   },
   semi_hollow_single_cut: {
     description:
@@ -88,12 +98,14 @@ export const BLUEPRINT_MANIFEST: Record<
     category: 'Semi-Hollow',
     tier: 'extra',
     instrumentType: 'guitar',
+    defaultAppearance: { finishStyle: 'sunburst', bodyColor: '#3b82f6' },
   },
   jag_style: {
     description: 'Jaguar-style offset body with its pickguard and front control routes, a 610 mm scale neck, and Tune-O-Matic bridge.',
     category: 'Offset',
     tier: 'extra',
     instrumentType: 'guitar',
+    defaultAppearance: { finishStyle: 'solid', bodyColor: '#2f6fa5' },
   },
 
   // --- Bass (milestone W6) --------------------------------------------------
@@ -109,24 +121,28 @@ export const BLUEPRINT_MANIFEST: Record<
     category: 'S-Style',
     tier: 'reference',
     instrumentType: 'bass',
+    defaultAppearance: { finishStyle: 'solid', bodyColor: '#f6e3a1' },
   },
   j_bass_style: {
     description: 'Jazz-style offset bolt-on bass with dual single-coil J pickups, 34" scale. First-draft body - see the evidence packet.',
     category: 'S-Style',
     tier: 'reference',
     instrumentType: 'bass',
+    defaultAppearance: { finishStyle: 'solid', bodyColor: '#b22234' },
   },
   mm_bass_style: {
     description: 'Music Man-style bolt-on bass with a single bridge humbucker, 34" scale. First-draft body - see the evidence packet.',
     category: 'S-Style',
     tier: 'reference',
     instrumentType: 'bass',
+    defaultAppearance: { finishStyle: 'natural_wood', bodyColor: '#3b82f6' },
   },
   r_bass_style: {
     description: 'Rickenbacker-style neck-through bass, 33.25" scale. First-draft body only loosely approximates the real cresting-wave silhouette - see the evidence packet before relying on this contour.',
     category: 'Offset',
     tier: 'reference',
     instrumentType: 'bass',
+    defaultAppearance: { finishStyle: 'sunburst', bodyColor: '#3b82f6' },
   },
 
   // --- Extra ------------------------------------------------------------
@@ -135,24 +151,28 @@ export const BLUEPRINT_MANIFEST: Record<
     category: 'Thunderbird',
     tier: 'extra',
     instrumentType: 'bass',
+    defaultAppearance: { finishStyle: 'solid', bodyColor: '#722f37' },
   },
   mustang_bass_style: {
     description: 'Mustang-style short-scale bolt-on bass with a single split-coil pickup, 30" scale, 19 frets. First-draft body - see the evidence packet.',
     category: 'Offset',
     tier: 'extra',
     instrumentType: 'bass',
+    defaultAppearance: { finishStyle: 'solid', bodyColor: '#2f6fa5' },
   },
   sg_bass_style: {
     description: 'SG-style short-scale glued-neck bass with dual humbuckers, 30.5" scale - body shares the existing sg_style guitar\'s own outline family. First-draft body - see the evidence packet.',
     category: 'Double-Cut',
     tier: 'extra',
     instrumentType: 'bass',
+    defaultAppearance: { finishStyle: 'solid', bodyColor: '#722f37' },
   },
   streamer_bass_style: {
     description: 'Streamer-style sculpted bolt-on bass with dual soapbar pickups, 34" scale. First-draft body, least-sourced of the eight - see the evidence packet.',
     category: 'S-Style',
     tier: 'extra',
     instrumentType: 'bass',
+    defaultAppearance: { finishStyle: 'flame_maple', bodyColor: '#3b82f6' },
   },
 };
 

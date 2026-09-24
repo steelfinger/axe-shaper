@@ -75,6 +75,7 @@ async function main() {
     const exporter = await load('/src/utils/svgExporter.ts');
     const userTemplates = await load('/src/utils/userTemplates.ts');
     const hardware = await load('/src/constants/hardware.ts');
+    const manifest = await load('/src/constants/blueprintManifest.ts');
     const templates = await load('/src/constants/templates.ts');
     const projectFactory = await load('/src/utils/projectFactory.ts');
     const bodyThickness = await load('/src/utils/bodyThickness.ts');
@@ -117,6 +118,30 @@ async function main() {
       `the bundled blueprints are all at schema ${[...bundledVersions][0]}, so they no longer demonstrate`
         + ' version-on-demand stamping - add a blueprint that uses no version 5 field, or drop this check'
     );
+
+    check('blueprint appearance metadata matches the encoded blueprint settings and new projects inherit it', () => {
+      for (const id of manifest.BLUEPRINT_ORDER) {
+        const payload = decodePayload(readFileSync(join(BLUEPRINT_DIR, `${id}.axe.svg`), 'utf8'));
+        const expectedAppearance = manifest.BLUEPRINT_MANIFEST[id].defaultAppearance;
+        deepStrictEqual(
+          {
+            finishStyle: payload.settings.finishStyle,
+            bodyColor: payload.settings.bodyColor,
+          },
+          expectedAppearance,
+          `${id}: embedded appearance differs from manifest`
+        );
+        const created = projectFactory.createProject({ templateId: id });
+        deepStrictEqual(
+          {
+            finishStyle: created.settings.finishStyle,
+            bodyColor: created.settings.bodyColor,
+          },
+          expectedAppearance,
+          `${id}: new project did not inherit the blueprint appearance`
+        );
+      }
+    });
 
     // Production blueprints now carry schema-v4 controls, so derive the
     // historical v2 shape explicitly instead of requiring the shipped assets

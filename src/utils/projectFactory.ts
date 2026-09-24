@@ -28,6 +28,11 @@ export const DEFAULT_TEMPLATE_ID = 's_style';
 export const DEFAULT_APP_VERSION = '1.0.0';
 export const DEFAULT_AUTHOR = 'Axe Shaper Luthier';
 
+const FALLBACK_APPEARANCE = {
+  finishStyle: 'sunburst' as const,
+  bodyColor: '#3b82f6',
+};
+
 interface CreateProjectOptions {
   /** A built-in blueprint id or a user template id. Defaults to `DEFAULT_TEMPLATE_ID`. */
   templateId?: string;
@@ -54,7 +59,12 @@ type TemplateSource = Pick<
   | 'defaultPickguards'
   | 'defaultFrontRoutes'
   | 'defaultBackRoutes'
-> & { instrumentType: InstrumentType; stringCount: number };
+> & {
+  /** User templates predate curated blueprint appearance defaults. */
+  defaultAppearance?: ReferenceTemplate['defaultAppearance'];
+  instrumentType: InstrumentType;
+  stringCount: number;
+};
 
 /**
  * The template a new project starts from, as a built-in blueprint or a
@@ -108,8 +118,7 @@ export function createProject(options: CreateProjectOptions = {}): GuitarProject
       showGrid: true,
       gridSizeMm: 50,
       snapToGridEnabled: false,
-      finishStyle: 'sunburst',
-      bodyColor: '#3b82f6',
+      ...structuredClone(template.defaultAppearance ?? FALLBACK_APPEARANCE),
       secondaryColor: '#f59e0b',
       bodyFillOpacity: 0.35,
       pickguardEnabled: true,

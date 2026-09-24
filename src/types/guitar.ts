@@ -351,6 +351,11 @@ export interface ReferenceTemplate {
    *  long tail of additional blueprints, tucked into a closed-by-default,
    *  scrollable panel so the reference list doesn't get buried. */
   tier: 'reference' | 'extra';
+  /** Appearance copied into a new project created from this blueprint. */
+  defaultAppearance: Pick<
+    ProjectSettings,
+    'finishStyle' | 'bodyColor'
+  >;
   neckPresetId: string;
   bridgePresetId: string;
   defaultAnchors: PathAnchor[];

@@ -115,6 +115,10 @@ async function main() {
     // refuse to *open* from being silently rewritten by a refresh.
     const refreshed = presets.migrateProject({
       ...project,
+      settings: {
+        ...project.settings,
+        ...manifest.BLUEPRINT_MANIFEST[id].defaultAppearance,
+      },
       ...neck,
       ...presets.bridgePresetFields(project.bridgePresetId),
     });
