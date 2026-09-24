@@ -11,6 +11,12 @@
  * rerunning it after a hardware.ts change is safe and rerunning it after a
  * hand edit of the blueprint is not.
  *
+ * SUPERSEDED (Sep 2026): the blueprint was hand-refined in the editor after
+ * this script produced it - new contour, hand-drawn routes and hardware
+ * positions - and the committed file is now the source of truth. Rerunning
+ * this rebuilds the raw trace and discards all of that. Kept as the record
+ * of how the first draft was made.
+ *
  * Usage: npx tsx scripts/build-prs-blueprint.ts
  */
 import { readFileSync, writeFileSync } from 'node:fs';
