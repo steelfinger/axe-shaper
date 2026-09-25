@@ -103,12 +103,12 @@ export const BASE_SCHEMA_VERSION = 3;
  * The lowest version that can represent this document. This - not
  * `PROJECT_SCHEMA_VERSION` - is what a save stamps.
  *
- * Versions 4 and 5 are purely additive: each adds optional fields whose
- * absence is the behaviour that already existed (no placed controls, a flat
- * top). A document that uses neither is therefore *exactly* a version 3
- * document, and saying so is what lets a build that only reads version 3
- * still open it. Version 3 is the floor because it made fields required
- * rather than optional - see `BASE_SCHEMA_VERSION`.
+ * Versions 4 through 6 are purely additive: each adds an optional field
+ * whose absence is the behaviour that already existed (no placed controls,
+ * a flat top, or legacy 3D defaults). A document that uses none is therefore
+ * exactly a version 3 document, and saying so is what lets a build that only
+ * reads version 3 still open it. Version 3 is the floor because it made
+ * fields required rather than optional - see `BASE_SCHEMA_VERSION`.
  *
  * The alternative, stamping the newest version the writer knows, couples
  * every document to the newest build. The web deploys in minutes and the iPad

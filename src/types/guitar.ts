@@ -362,10 +362,8 @@ export interface ReferenceTemplate {
   name: string;
   description: string;
   /**
-   * Which instrument this blueprint is a body for. Comes from the manifest
-   * (`constants/blueprintManifest.ts`), not from the blueprint's own
-   * .axe.svg payload: the bundled files are schema version 2 and predate the
-   * field, and curation metadata is exactly what the manifest is for.
+   * Which instrument this blueprint is a body for. It is authored in the
+   * blueprint payload and repeated in the manifest only for curation.
    */
   instrumentType: InstrumentType;
   stringCount: number;
@@ -374,8 +372,8 @@ export interface ReferenceTemplate {
    *  long tail of additional blueprints, tucked into a closed-by-default,
    *  scrollable panel so the reference list doesn't get buried. */
   tier: 'reference' | 'extra';
-  /** Appearance copied into a new project created from this blueprint. */
-  defaultAppearance: Pick<
+  /** Settings defaults read from this blueprint's embedded project payload. */
+  defaultSettings: Pick<
     ProjectSettings,
     'finishStyle' | 'bodyColor'
   >;

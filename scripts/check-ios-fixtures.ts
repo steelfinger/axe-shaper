@@ -419,10 +419,9 @@ async function main() {
           );
         });
         check(`${fileName}: migrating to the current version changes only the version stamp`, () => {
-          // Versions 4 and 5 add optional control/body-top fields, so an
-          // untouched version-3 payload gains no geometry - and, since it
-          // uses none of those fields, no version either. Loading one is a
-          // complete no-op.
+          // Versions 4 through 6 add optional controls, body-top and
+          // appearance fields. An untouched version-3 payload gains neither
+          // geometry nor a version bump when it is merely loaded.
           deepStrictEqual(presets.migrateProject(project), {
             ...project,
             pickups: presets.withEmbeddedPickupSpecs(project.pickups ?? []),
@@ -493,22 +492,33 @@ async function main() {
         });
       }
 
-      check('the native writer stamps on demand rather than stamping everything current', () => {
+      check('the native writer stamps controls and body-top on demand', () => {
         // A fixture set that was uniformly at the newest version would pass
         // every check above while proving nothing: the point of the rule is
         // that the flat fixtures come out *below* the arched ones.
         const versions = new Set(v5Files.map((file) => (
           scan(readFileSync(join(V5_FIXTURE_DIR, file), 'utf8')).project.schemaVersion
         )));
-        invariant(
-          versions.has(schema.PROJECT_SCHEMA_VERSION),
-          `no native fixture is at version ${schema.PROJECT_SCHEMA_VERSION}, so the arched cases are missing`
-        );
+        invariant(versions.has(5), 'no native fixture is at version 5, so the arched cases are missing');
         invariant(
           versions.size > 1,
           `every native fixture is at version ${[...versions][0]}; the flat ones should be lower`
         );
       });
+
+      const appearanceFixtures = v5Files.filter((file) => (
+        scan(readFileSync(join(V5_FIXTURE_DIR, file), 'utf8')).project.instrumentAppearance
+      ));
+      if (appearanceFixtures.length === 0) {
+        console.log('  pending  no iOS-written schema-v6 appearance fixture yet - sync one after the persisted appearance editor lands');
+      } else {
+        check('the native writer stamps persisted appearance at version 6', () => {
+          for (const file of appearanceFixtures) {
+            const project = scan(readFileSync(join(V5_FIXTURE_DIR, file), 'utf8')).project;
+            deepStrictEqual(project.schemaVersion, 6, file);
+          }
+        });
+      }
     }
   } finally {
     await server.close();

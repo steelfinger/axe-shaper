@@ -107,38 +107,36 @@ async function main() {
         + ' - re-export the bundled blueprints (npx tsx scripts/refresh-blueprint-presets.ts)'
     );
 
-    // The rule is only worth anything if the set actually spans versions: a
-    // day when every blueprint happens to use a version 5 field would make
-    // the check above pass while proving nothing about stamping down.
+    // Every bundled blueprint now owns persisted appearance, so all of them
+    // must use schema v6. The synthetic cases below keep the lower version
+    // on-demand rules covered.
     const bundledVersions = new Set(bundledBlueprints.map((file) => (
       decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8')).schemaVersion
     )));
     invariant(
-      bundledVersions.size > 1,
-      `the bundled blueprints are all at schema ${[...bundledVersions][0]}, so they no longer demonstrate`
-        + ' version-on-demand stamping - add a blueprint that uses no version 5 field, or drop this check'
+      bundledVersions.size === 1 && bundledVersions.has(6),
+      `every bundled blueprint must be schema 6 once it owns instrumentAppearance; found ${[...bundledVersions].join(', ')}`
     );
 
-    check('blueprint appearance metadata matches the encoded blueprint settings and new projects inherit it', () => {
+    check('blueprint appearance is encoded and new projects inherit it', () => {
       for (const id of manifest.BLUEPRINT_ORDER) {
         const payload = decodePayload(readFileSync(join(BLUEPRINT_DIR, `${id}.axe.svg`), 'utf8'));
-        const expectedAppearance = manifest.BLUEPRINT_MANIFEST[id].defaultAppearance;
-        deepStrictEqual(
-          {
-            finishStyle: payload.settings.finishStyle,
-            bodyColor: payload.settings.bodyColor,
-          },
-          expectedAppearance,
-          `${id}: embedded appearance differs from manifest`
-        );
         const created = projectFactory.createProject({ templateId: id });
         deepStrictEqual(
           {
             finishStyle: created.settings.finishStyle,
             bodyColor: created.settings.bodyColor,
           },
-          expectedAppearance,
+          {
+            finishStyle: payload.settings.finishStyle,
+            bodyColor: payload.settings.bodyColor,
+          },
           `${id}: new project did not inherit the blueprint appearance`
+        );
+        deepStrictEqual(
+          created.instrumentAppearance,
+          payload.instrumentAppearance,
+          `${id}: new project did not inherit the blueprint instrument appearance`
         );
       }
     });
@@ -149,6 +147,7 @@ async function main() {
     const {
       instrumentType: _instrumentType,
       stringCount: _stringCount,
+      instrumentAppearance: _instrumentAppearance,
       potentiometers: _potentiometers,
       switches: _switches,
       ...withoutV3AndV4Fields
@@ -464,11 +463,12 @@ async function main() {
       potentiometers: [],
       switches: [],
       bodyTop: undefined,
+      instrumentAppearance: undefined,
     };
 
     const savedVersion = (project: any) => decodePayload(exporter.exportProjectToSVG(project)).schemaVersion;
 
-    check('a project using no version 4 or 5 field saves at version 3', () => {
+    check('a project using no version 4, 5 or 6 field saves at version 3', () => {
       deepStrictEqual(savedVersion(plain), 3);
       deepStrictEqual(metadataElement(exporter.exportProjectToSVG(plain), 'schemaVersion'), '3');
     });
@@ -494,12 +494,18 @@ async function main() {
       deepStrictEqual(savedVersion({ ...loaded, bodyTop: { construction: 'carved_cap' } }), 5);
     });
 
-    check('single_cut is a version 5 witness and s_style is version 4', () => {
+    check('persisted instrument appearance lifts the stamp to 6', () => {
+      deepStrictEqual(savedVersion({ ...plain, instrumentAppearance: {
+        neckFinish: 'natural_maple', fingerboard: 'maple', fretboardBinding: false, fretboardInlay: 'dots', headstockShape: 'strat_style',
+      } }), 6);
+    });
+
+    check('bundled blueprints are version 6 witnesses', () => {
       const singleCut = decodePayload(readFileSync(join(BLUEPRINT_DIR, 'single_cut.axe.svg'), 'utf8'));
-      deepStrictEqual(singleCut.schemaVersion, 5);
-      invariant(singleCut.bodyTop, 'single_cut no longer carries a bodyTop, so it is no longer the version 5 witness');
+      deepStrictEqual(singleCut.schemaVersion, 6);
+      invariant(singleCut.instrumentAppearance, 'single_cut no longer carries persisted instrument appearance');
       const sStyle = decodePayload(readFileSync(BASE_BLUEPRINT, 'utf8'));
-      deepStrictEqual(sStyle.schemaVersion, 4);
+      deepStrictEqual(sStyle.schemaVersion, 6);
     });
 
     check('re-saving an untouched file does not move its version', () => {

@@ -62,8 +62,8 @@ type TemplateSource = Pick<
   | 'defaultBackRoutes'
   | 'defaultInstrumentAppearance'
 > & {
-  /** User templates predate curated blueprint appearance defaults. */
-  defaultAppearance?: ReferenceTemplate['defaultAppearance'];
+  /** User templates predate blueprint-authored settings defaults. */
+  defaultSettings?: ReferenceTemplate['defaultSettings'];
   defaultInstrumentAppearance?: ReferenceTemplate['defaultInstrumentAppearance'];
   instrumentType: InstrumentType;
   stringCount: number;
@@ -121,7 +121,7 @@ export function createProject(options: CreateProjectOptions = {}): GuitarProject
       showGrid: true,
       gridSizeMm: 50,
       snapToGridEnabled: false,
-      ...structuredClone(template.defaultAppearance ?? FALLBACK_APPEARANCE),
+      ...structuredClone(template.defaultSettings ?? FALLBACK_APPEARANCE),
       secondaryColor: '#f59e0b',
       bodyFillOpacity: 0.35,
       pickguardEnabled: true,
