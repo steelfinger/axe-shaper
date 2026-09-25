@@ -1393,6 +1393,73 @@ summary:focus-visible {
   letter-spacing: -0.035em;
 }
 
+.instrument-appearance-modal {
+  width: min(660px, 100%);
+}
+
+.instrument-appearance-heading {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  color: var(--accent-gold);
+}
+
+.instrument-appearance-heading h2 {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.instrument-appearance-heading p {
+  margin: 7px 36px 0 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.instrument-appearance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.instrument-appearance-grid .form-group {
+  margin: 0;
+}
+
+.instrument-appearance-toggle {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  margin-top: 18px;
+  padding: 13px;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  cursor: pointer;
+}
+
+.instrument-appearance-toggle input {
+  margin-top: 3px;
+  accent-color: var(--accent-gold);
+}
+
+.instrument-appearance-toggle span {
+  display: grid;
+  gap: 3px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.instrument-appearance-toggle strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.instrument-appearance-toggle small {
+  color: var(--text-muted);
+}
+
 .welcome-intro,
 .about-modal > p {
   max-width: 65ch;

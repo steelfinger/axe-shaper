@@ -28,7 +28,7 @@ Persist one project-root object, deliberately separate from `settings`:
 interface InstrumentAppearance {
   neckFinish: 'natural_maple' | 'body_matched';
   fingerboard: 'maple' | 'rosewood';
-  fretboardBinding: 'none' | 'cream' | 'white' | 'black';
+  fretboardBinding: boolean; // cream when enabled
   fretboardInlay: 'dots' | 'trapezoids';
   headstockShape: HeadstockShapeId;
 }

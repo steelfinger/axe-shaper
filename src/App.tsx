@@ -59,6 +59,7 @@ import { AboutModal } from './components/AboutModal';
 import { MarketingSite } from './components/MarketingSite';
 import { NewDesignScreen } from './components/NewDesignScreen';
 import { BlueprintChooserModal } from './components/BlueprintChooserModal';
+import { InstrumentAppearanceModal } from './components/InstrumentAppearanceModal';
 
 /** Matches the floor InspectorPanel's delete button enforces - a contour needs at least this many nodes to stay a sane shape. */
 export const MIN_ANCHOR_COUNT = 4;
@@ -165,6 +166,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [isBlueprintChooserOpen, setIsBlueprintChooserOpen] = useState(false);
+  const [isInstrumentAppearanceOpen, setIsInstrumentAppearanceOpen] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<'tools' | 'inspector' | null>(null);
   // In-memory only - reappears on reload, deliberately not persisted to localStorage.
   const hasSeenSaveInfoRef = useRef(false);
@@ -737,6 +739,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         onExportDXF={handleExportDXF}
         onShare={handleShareProject}
         onView3D={handleView3D}
+        onShowInstrumentAppearance={() => setIsInstrumentAppearanceOpen(true)}
         view3DAvailable
         onPrintTiled={(paper) => printTiledProject(project, paper)}
         onNewDesign={handleNewDesign}
@@ -847,6 +850,12 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
 
       <WelcomeModal isOpen={isWelcomeModalOpen} onClose={() => setIsWelcomeModalOpen(false)} />
       <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} />
+      <InstrumentAppearanceModal
+        isOpen={isInstrumentAppearanceOpen}
+        project={project}
+        onClose={() => setIsInstrumentAppearanceOpen(false)}
+        onUpdateProject={handleUpdateProject}
+      />
       <BlueprintChooserModal
         isOpen={isBlueprintChooserOpen}
         project={project}

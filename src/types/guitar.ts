@@ -31,7 +31,7 @@ export type HeadstockShapeId =
 export interface InstrumentAppearance {
   neckFinish: 'natural_maple' | 'body_matched';
   fingerboard: 'maple' | 'rosewood';
-  fretboardBinding: 'none' | 'cream' | 'white' | 'black';
+  fretboardBinding: boolean;
   fretboardInlay: 'dots' | 'trapezoids';
   headstockShape: HeadstockShapeId;
 }

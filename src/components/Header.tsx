@@ -1,5 +1,5 @@
 import React from 'react';
-import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, Box, CircleHelp, Info, Menu, Printer, FilePlus2, Copy, Download } from 'lucide-react';
+import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, Box, CircleHelp, Info, Menu, Printer, FilePlus2, Copy, Download, Palette } from 'lucide-react';
 import type { PrintPaper } from '../utils/tiledPrint';
 import type { GuitarProject } from '../types/guitar';
 import { snapGridToUnit } from '../utils/units';
@@ -22,6 +22,7 @@ interface HeaderProps {
   onExportDXF: () => void;
   onShare: () => void;
   onView3D: () => void;
+  onShowInstrumentAppearance: () => void;
   /**
    * Whether this project can be opened in 3D. The viewer supports both
    * Guitar/6 and Bass/4; the editor currently enables it for every project.
@@ -48,6 +49,7 @@ export const Header: React.FC<HeaderProps> = ({
   onExportDXF,
   onShare,
   onView3D,
+  onShowInstrumentAppearance,
   view3DAvailable,
   onPrintTiled,
   onShowWelcome,
@@ -197,6 +199,14 @@ export const Header: React.FC<HeaderProps> = ({
 
         <button
           className="btn btn-sm header-secondary-action"
+          onClick={onShowInstrumentAppearance}
+          title="Set the saved 3D appearance for this instrument"
+        >
+          <Palette size={15} /> <span className="header-action-label">Appearance</span>
+        </button>
+
+        <button
+          className="btn btn-sm header-secondary-action"
           onClick={onView3D}
           disabled={!view3DAvailable}
           title={
@@ -319,6 +329,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button onClick={onResetTemplate}><RotateCcw size={15} /> Reset blueprint</button>
             <button onClick={() => fileInputRef.current?.click()}><Upload size={15} /> Open project</button>
             <button onClick={onShare}><Share2 size={15} /> Share project</button>
+            <button onClick={onShowInstrumentAppearance}><Palette size={15} /> Instrument appearance</button>
             <button onClick={onExportDXF}><Download size={15} /> Export DXF (.dxf)</button>
             <p className="dxf-export-note">1:1 outlines in mm; visible shapes only. Hardware and edge profiles excluded. Back routes stay in front-view alignment. Define cutting depths and setups in CAD/CAM. Keep .axe.svg for editing.</p>
             <button

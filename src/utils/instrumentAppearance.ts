@@ -30,7 +30,7 @@ export function legacyInstrumentAppearance(
   return {
     neckFinish: gibson ? 'body_matched' : 'natural_maple',
     fingerboard: gibson ? 'rosewood' : 'maple',
-    fretboardBinding: 'none',
+    fretboardBinding: false,
     fretboardInlay: 'dots',
     headstockShape: defaultHeadstockShape(templateId, instrumentType),
   };
