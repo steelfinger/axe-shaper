@@ -7,6 +7,18 @@ standalone 3D viewer and into the saved Axe Shaper project. Prepared
 Updated 2026-09-25: defaults are authored in each blueprint `.axe.svg`, and
 the headstock catalogue must distinguish Strat-style and T-style shapes.
 
+## Implementation status — 2026-09-25
+
+Completed: schema v6 persistence, blueprint-owned defaults, web and native
+editor sheets, and saved rendering for neck finish, fingerboard, cream
+fretboard binding, dot/trapezoid inlays, and routed saved headstock choices.
+The viewer no longer owns transient neck/fingerboard selections.
+
+Still pending: source traces for distinct Strat-style, T-style, Explorer, and
+Thunderbird headstocks. Their identifiers are safely stored today, but the 3D
+renderer deliberately falls back to an established template silhouette until
+the real source art is available rather than inventing approximate shapes.
+
 ## Decision
 
 Add a project-owned **Instrument Appearance** panel, opened from the editor
