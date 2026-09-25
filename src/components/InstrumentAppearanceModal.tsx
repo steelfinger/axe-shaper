@@ -11,7 +11,7 @@ interface InstrumentAppearanceModalProps {
 
 const guitarHeadstocks: Array<[HeadstockShapeId, string]> = [
   ['strat_style', 'Strat-style'], ['t_style', 'T-style'], ['gibson', 'Gibson-style'],
-  ['explorer', 'Explorer-style'], ['firebird', 'Firebird-style'], ['thunderbird', 'Thunderbird-style'], ['flying_v', 'Flying V-style'],
+  ['explorer', 'Explorer-style'], ['firebird', 'Firebird-style'], ['flying_v', 'Flying V-style'],
 ];
 
 const bassHeadstocks: Array<[HeadstockShapeId, string]> = [

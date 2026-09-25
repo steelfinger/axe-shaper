@@ -15,7 +15,7 @@ export function defaultHeadstockShape(templateId: string | undefined, instrument
   const selected = templateId ? HEADSTOCK_BY_TEMPLATE[templateId] : undefined;
   if (selected) return selected;
   if (templateId === 'gibson_explorer') return 'explorer';
-  if (templateId === 'gretsch_thunderbird') return 'thunderbird';
+  if (templateId === 'gretsch_thunderbird') return 'gibson';
   if (instrumentType === 'bass') return 'bass_f';
   return GIBSON_DEFAULT_TEMPLATES.has(templateId ?? '') ? 'gibson' : 'strat_style';
 }

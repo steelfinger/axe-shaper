@@ -14,10 +14,10 @@ editor sheets, and saved rendering for neck finish, fingerboard, cream
 fretboard binding, dot/trapezoid inlays, and routed saved headstock choices.
 The viewer no longer owns transient neck/fingerboard selections.
 
-Still pending: source traces for distinct Strat-style, T-style, Explorer, and
-Thunderbird headstocks. Their identifiers are safely stored today, but the 3D
-renderer deliberately falls back to an established template silhouette until
-the real source art is available rather than inventing approximate shapes.
+The supplied source sheet now provides distinct Strat-style, T-style, and
+Explorer traces. Guitar Thunderbird deliberately reuses the Gibson-style
+trace; it is no longer offered as a duplicate picker choice, but older saved
+`thunderbird` selections remain compatible and resolve to Gibson-style.
 
 ## Decision
 
