@@ -702,11 +702,10 @@ async function main() {
     });
 
     check('instrumentType and stringCount reach the 3D viewer link unchanged', () => {
-      // buildViewer3DPath just deflates the whole serialized project
-      // (viewer3dLink.ts), so this is close to free - verified rather than
-      // assumed, since "nearly free" is exactly the kind of claim worth a
-      // test. withEmbeddedPresets is what App.tsx's handleView3D actually
-      // calls before building the link.
+      // buildViewer3DPath compacts an explicitly selected renderer projection
+      // (viewer3dLink.ts). App.tsx still calls withEmbeddedPresets first, so
+      // the instrument axis must reach that boundary unchanged rather than
+      // being inferred from the template.
       const embedded = presets.withEmbeddedPresets(bassProject);
       deepStrictEqual(embedded.instrumentType, 'bass');
       deepStrictEqual(embedded.stringCount, 4);
