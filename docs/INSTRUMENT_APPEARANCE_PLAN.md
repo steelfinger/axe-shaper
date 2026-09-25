@@ -47,6 +47,11 @@ interface InstrumentAppearance {
 - Body-edge `binding` stays untouched. `fretboardBinding` is a different
   visual feature and must never be folded into the existing body-routing/
   binding object.
+- Pickup presentation is not user-configurable. Humbuckers always render with
+  metal covers; P-90s and single-coils always render with plastic covers.
+  Metal covers inherit the global metal finish once that feature ships;
+  plastic covers, humbucker rings, and switch tips inherit the global plastic
+  colour. There are no per-pickup colour, material, or override fields.
 - Headstock, inlays, and fretboard binding are explicitly labelled **3D
   preview appearance — not included in the 2D SVG/DXF cut plan**. The setting
   nevertheless survives Save, Open, Share, and reopening 3D.
