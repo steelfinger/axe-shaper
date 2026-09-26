@@ -8,8 +8,9 @@ change runtime behavior.
 
 Treat a neck pocket as a first-class **interface profile**, separate from both
 the body style and the selected neck's scale/fret data. A profile owns the
-two-dimensional pocket outline and its evidence; the neck preset continues to
-own scale length and the bridge/intonation relationship.
+two-dimensional pocket outline and its evidence. A parallel `neckPlacement`
+datum owns where the body joint line meets the scale; the neck preset continues
+to own scale length and fret data.
 
 The first release supports only symmetric pockets. A custom pocket is
 possible, but only after a deliberate conversion from a locked profile. This
@@ -61,9 +62,11 @@ also remain legacy; a later Custom Pocket flow may seed from the existing
 
 ## v7 document contract
 
-Add an optional project-root `neckPocket` object. A document requires schema
-version 7 only when this object is present. Existing v1-v6 files retain their
-stored version and legacy output when untouched.
+Add paired project-root `neckPocket` and `neckPlacement` objects. A document
+requires schema version 7 when these v7 interface objects are present, and a
+valid v7 document carries both; neither object is a valid stand-alone partial
+upgrade. Existing v1-v6 files retain their stored version and legacy output
+when untouched.
 
 The final field names are to be written in `docs/AXE_SVG_FORMAT.md` after the
 web reference implementation proves them. The object must nevertheless cover:
@@ -79,6 +82,20 @@ web reference implementation proves them. The object must nevertheless cover:
 - optional target heel width, requested fitting clearance, and cutter diameter
   for custom pockets.
 
+`neckPlacement` is deliberately not part of `neckPocket`. It records the
+scale-critical position independently of heel outline and has:
+
+- mode: `profile` or `custom`;
+- the fixed cross-platform reference fret: 22 for guitar and 20 for bass;
+- `jointToReferenceFretMm`, the signed centreline distance from the body joint
+  line (`Y = 0`) to that reference fret;
+- source/provenance for its profile value.
+
+For a known scale, this datum is the authoritative way to derive
+`nutToBodyEdgeMm`. It replaces neither the scale length nor the physical pocket
+path. The reference-fret number is stored for auditability but is not a casual
+user preference: it must match the instrument-type contract.
+
 The stored geometry must be an explicit path rather than a radius shortcut.
 The decoder generates the complete closed outline deterministically from its
 canonical symmetric representation. This makes mirror topology inspectable,
@@ -91,19 +108,22 @@ rounded-rectangle approximations.
   adapter**. That adapter covers both generic and per-template pocket specs.
 - The legacy adapter's generated outline is pinned in the golden corpus and
   must never change an untouched legacy export.
-- A v7 project without a valid `neckPocket` is malformed and rejected.
+- A v7 project without valid `neckPocket` and `neckPlacement` objects is
+  malformed and rejected.
 - Continue the existing policy for future schemas: reject them at the editable
   project gate. Do not introduce a partial read-only future-profile mode.
 - An older client cannot safely edit a v7 file. Tests must cover a v7 payload
-  whose `neckPocket` was stripped or corrupted and demonstrate a loud,
-  deterministic rejection rather than a silent legacy fallback.
+  whose `neckPocket` or `neckPlacement` was stripped or corrupted and
+  demonstrate a loud, deterministic rejection rather than a silent legacy
+  fallback.
 
-For v7, `neckPocket` is authoritative for rendering, validation and every
-exporter. The `joint*` and `pocket*` fields embedded in `neckPreset` remain
-legacy-compatible mirrors only: writers derive their bounding dimensions from
-the resolved path, and v7 readers do not use them to resolve the pocket. The
-3D viewer must read the v7 path too; it cannot continue treating those mirrors
-as its joint geometry.
+For v7, `neckPocket` is authoritative for pocket rendering, validation and
+export. `neckPlacement` is authoritative for the body-to-scale datum. The
+`joint*` and `pocket*` fields embedded in `neckPreset` remain legacy-compatible
+mirrors only: writers derive their bounding dimensions from the resolved path,
+derive `nutToBodyEdgeMm` from the resolved placement, and v7 readers do not use
+these fields to resolve either answer. The 3D viewer must read both v7 objects;
+it cannot continue treating those mirrors as its joint geometry.
 
 Validation is deliberately not persisted as truth. Every current client
 recomputes it on load, edit, preview and export; provenance is stored, but a
@@ -153,10 +173,32 @@ impossible inside corner is routable.
 Asymmetric pockets, free movement of the two mouth nodes in Y, and a body
 without mapped attachment anchors are explicit non-goals for this release.
 
+## Neck placement and scale
+
+`jointToReferenceFretMm` is not a cosmetic pocket dimension. Changing it moves
+the body along the neck's scale relationship and can relocate scale-linked
+bridge/reference geometry relative to the body. It must therefore never be a
+free canvas drag.
+
+Release A resolves this datum from the profile/blueprint and keeps it locked.
+Release B may offer **Custom Neck Placement** as a numeric, measurement-led
+override. Its primary builder-facing input may be either "Joint line to
+reference fret" or "Nut to body joint line"; the other value is derived from
+the chosen scale and displayed for cross-checking.
+
+Before accepting a custom placement change, both clients show the signed shift
+in scale-linked hardware and validate bridge/body bounds, pickup and
+fingerboard-overhang clearance, and any other affected physical constraints.
+Changing a pocket outline alone preserves `neckPlacement`; changing neck
+placement alone preserves the pocket outline. Both operations are separately
+undoable.
+
 ## Neck and joint selection
 
 Picking another neck preset must never overwrite a v7 `neckPocket`: it changes
-only scale/fret data and other neck-owned information. The old
+only scale/fret data and other neck-owned information. It preserves the
+resolved `neckPlacement` unless the user explicitly enters Custom Neck
+Placement. The old
 `neckPresetFieldsForTemplate` generic/template resolver is a legacy-v1-v6
 path, not a v7 override.
 
@@ -185,6 +227,11 @@ On the canvas, locked pockets retain the existing gold/locked visual language.
 Custom pockets expose constrained dimensional handles only while the user is
 in their dedicated edit mode. The UI makes it clear that body live symmetry
 does not control this pocket symmetry.
+
+Release A shows the resolved neck-placement datum as read-only context. Release
+B adds **Custom Neck Placement** as a separate advanced flow; it is numeric,
+shows the predicted scale-linked shift before confirmation, and has no direct
+canvas-drag affordance.
 
 Custom is not an error. It receives a quiet "Verify against the physical neck"
 state. Invalid geometry, on the other hand, blocks export.
@@ -235,16 +282,17 @@ discovery.
 ### Phase 1 — web reference contract
 
 - Draft the v7 section of `docs/AXE_SVG_FORMAT.md`.
-- Implement the model, migration, frozen legacy adapter, path generator,
-  validation and SVG/DXF export in the web repository.
+- Implement the model, migration, frozen legacy adapter, pocket-path generator,
+  neck-placement resolver, validation and SVG/DXF export in the web repository.
 - Add fixtures and run `corpus:check`, `schema:check`, DXF checks and the full
   web gate.
 - Finalize the written contract from this executable reference behavior.
 
 ### Phase 2 — iOS parity
 
-- Port the finalized decoder, legacy resolver, path generation, validation,
-  SVG/PDF/DXF output as applicable, and profile rendering to `axe-shaper-ios`.
+- Port the finalized decoder, legacy resolver, path generation, placement
+  resolution, validation, SVG/PDF/DXF output as applicable, and profile
+  rendering to `axe-shaper-ios`.
 - Add equivalent Swift tests and cross-written fixtures.
 - Confirm web-written v7 projects re-export byte-consistently in iOS and
   iOS-written projects do the same in web, allowing only established writer
@@ -253,7 +301,8 @@ discovery.
 ### Phase 2b — 3D viewer parity
 
 - Update the pinned `axe-shape-3D-viewer` consumer to decode and render the
-  v7 pocket path rather than the legacy `neckPreset` joint fields.
+  v7 pocket path and neck-placement datum rather than legacy `neckPreset`
+  joint/placement fields.
 - Add viewer fixtures for v7, legacy and malformed v7 projects.
 - Keep the viewer in the same release gate: `check:all` must pass across web,
   iOS and viewer before any v7 blueprint is published.
@@ -264,6 +313,7 @@ discovery.
 - Convert only the researched S- and T-style bundled blueprints to documented
   profiles with distinct outlines.
 - Ship provenance and unverified-export disclosure.
+- Resolve and display `neckPlacement`, but keep it locked.
 - Keep custom editing unavailable while the contract receives real use.
 - Accept the version-floor consequence explicitly: new projects created from
   those updated S/T blueprints require v7. Their release therefore waits for a
@@ -275,6 +325,8 @@ discovery.
 
 - Add Convert to Custom Pocket, constrained width/depth editing and mirrored
   outline editing in both clients.
+- Add the separately confirmed Custom Neck Placement numeric override and its
+  shift preview/physical validation.
 - Preserve attachment, validation, undo/redo and cross-platform parity.
 - Consider asymmetric expert editing only as a separately researched feature.
 
@@ -288,7 +340,8 @@ Add the following to the web schema/corpus/DXF gates and their iOS equivalents:
 - v7 viewer decoding/rendering and a `check:all` gate that includes all three
   consumers;
 - v7 authority when embedded legacy `neckPreset` pocket dimensions disagree
-  with the explicit path;
+  with the explicit path or its `nutToBodyEdgeMm` disagrees with resolved
+  `neckPlacement`;
 - fixed mouth `Y = 0`, symmetric X drag and translated paired handles;
 - locked mouth anchors resisting ordinary body edits while a locked profile is
   active;
@@ -300,8 +353,12 @@ Add the following to the web schema/corpus/DXF gates and their iOS equivalents:
 - a pocket that leaves the body or contacts its perimeter away from the mouth;
 - mismatched mirror pairs or non-mirrored handles;
 - concave corners smaller than the supplied cutter diameter;
+- fixed reference fret by instrument type, placement-to-nut derivation, and a
+  custom placement shift moving all scale-linked geometry by the same amount;
+- a pocket edit preserving placement and a placement edit preserving the
+  pocket path;
 - a current v7 reader receiving a v7-stamped payload with a missing or corrupt
-  `neckPocket` object;
+  `neckPocket` or `neckPlacement` object;
 - legacy v1-v6 import/re-export stability;
 - export warning behavior in SVG, printable SVG, DXF comment/filename and the
   acknowledgement flow.
