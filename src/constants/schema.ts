@@ -47,13 +47,16 @@ import type { StoredProject } from '../types/guitar';
  *       deliberately not independent document fields. An absent `bodyTop`
  *       remains the existing flat body, including old `edgeProfile.kind =
  *       carved_top` payloads.
+ *   6 - Adds `instrumentAppearance`: saved 3D neck, fingerboard, fretboard
+ *       trim/inlay and headstock-family choices. It does not change printable
+ *       body geometry, but a reader must understand it before editing.
  *
  * This constant is the newest version this build *understands*, and it is the
  * upper bound of the read gate. It is deliberately not what a save stamps -
  * see `requiredSchemaVersion` below, which writes the lowest version that can
  * represent the document in hand.
  */
-export const PROJECT_SCHEMA_VERSION = 5;
+export const PROJECT_SCHEMA_VERSION = 6;
 
 /**
  * The oldest payload this build can read. Nothing has been dropped yet, so
@@ -100,12 +103,12 @@ export const BASE_SCHEMA_VERSION = 3;
  * The lowest version that can represent this document. This - not
  * `PROJECT_SCHEMA_VERSION` - is what a save stamps.
  *
- * Versions 4 and 5 are purely additive: each adds optional fields whose
- * absence is the behaviour that already existed (no placed controls, a flat
- * top). A document that uses neither is therefore *exactly* a version 3
- * document, and saying so is what lets a build that only reads version 3
- * still open it. Version 3 is the floor because it made fields required
- * rather than optional - see `BASE_SCHEMA_VERSION`.
+ * Versions 4 through 6 are purely additive: each adds an optional field
+ * whose absence is the behaviour that already existed (no placed controls,
+ * a flat top, or legacy 3D defaults). A document that uses none is therefore
+ * exactly a version 3 document, and saying so is what lets a build that only
+ * reads version 3 still open it. Version 3 is the floor because it made
+ * fields required rather than optional - see `BASE_SCHEMA_VERSION`.
  *
  * The alternative, stamping the newest version the writer knows, couples
  * every document to the newest build. The web deploys in minutes and the iPad
@@ -133,7 +136,7 @@ export const BASE_SCHEMA_VERSION = 3;
  * behaviour, and both writers preserve fields they do not recognise.
  */
 export function requiredSchemaVersion(
-  project: Pick<StoredProject, 'schemaVersion' | 'bodyTop' | 'potentiometers' | 'switches'>
+  project: Pick<StoredProject, 'schemaVersion' | 'bodyTop' | 'potentiometers' | 'switches' | 'instrumentAppearance'>
 ): number {
   // Only a version *above* this build's - a claim it cannot assess. A
   // nonsense stamp (0, a fraction) is not a claim worth preserving and falls
@@ -141,6 +144,7 @@ export function requiredSchemaVersion(
   if (typeof project.schemaVersion === 'number' && project.schemaVersion > PROJECT_SCHEMA_VERSION) {
     return project.schemaVersion;
   }
+  if (project.instrumentAppearance) return 6;
   if (project.bodyTop) return 5;
   if (project.potentiometers?.length || project.switches?.length) return 4;
   return BASE_SCHEMA_VERSION;

@@ -5,6 +5,7 @@ import { defaultStringCount } from './instrument';
 import { bridgePresetFields, defaultNeckJointMechanism, neckPresetFieldsForNewTemplate } from './presets';
 import { projectNameFromTemplate } from './projectNaming';
 import { getUserTemplate, userTemplateInstrument } from './userTemplates';
+import { legacyInstrumentAppearance } from './instrumentAppearance';
 
 /**
  * The one place a new project is constructed.
@@ -27,6 +28,11 @@ export const DEFAULT_TEMPLATE_ID = 's_style';
 
 export const DEFAULT_APP_VERSION = '1.0.0';
 export const DEFAULT_AUTHOR = 'Axe Shaper Luthier';
+
+const FALLBACK_APPEARANCE = {
+  finishStyle: 'sunburst' as const,
+  bodyColor: '#3b82f6',
+};
 
 interface CreateProjectOptions {
   /** A built-in blueprint id or a user template id. Defaults to `DEFAULT_TEMPLATE_ID`. */
@@ -54,7 +60,14 @@ type TemplateSource = Pick<
   | 'defaultPickguards'
   | 'defaultFrontRoutes'
   | 'defaultBackRoutes'
-> & { instrumentType: InstrumentType; stringCount: number };
+  | 'defaultInstrumentAppearance'
+> & {
+  /** User templates predate blueprint-authored settings defaults. */
+  defaultSettings?: ReferenceTemplate['defaultSettings'];
+  defaultInstrumentAppearance?: ReferenceTemplate['defaultInstrumentAppearance'];
+  instrumentType: InstrumentType;
+  stringCount: number;
+};
 
 /**
  * The template a new project starts from, as a built-in blueprint or a
@@ -108,8 +121,7 @@ export function createProject(options: CreateProjectOptions = {}): GuitarProject
       showGrid: true,
       gridSizeMm: 50,
       snapToGridEnabled: false,
-      finishStyle: 'sunburst',
-      bodyColor: '#3b82f6',
+      ...structuredClone(template.defaultSettings ?? FALLBACK_APPEARANCE),
       secondaryColor: '#f59e0b',
       bodyFillOpacity: 0.35,
       pickguardEnabled: true,
@@ -127,6 +139,9 @@ export function createProject(options: CreateProjectOptions = {}): GuitarProject
     bodyThicknessMm: template.bodyThicknessMm,
     bodyTop: template.bodyTop ? structuredClone(template.bodyTop) : undefined,
     binding: template.binding ? structuredClone(template.binding) : undefined,
+    instrumentAppearance: structuredClone(
+      template.defaultInstrumentAppearance ?? legacyInstrumentAppearance(templateId, template.instrumentType)
+    ),
     ...neckPresetFieldsForNewTemplate(template.neckPresetId, templateId, template.instrumentType),
     neckJointMechanism: defaultNeckJointMechanism(templateId),
     ...bridgePresetFields(template.bridgePresetId),

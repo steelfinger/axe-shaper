@@ -36,6 +36,27 @@ project name could contain one.
 | 3 | `instrumentType`, `stringCount`; reserves `stringSpacingMm`, `heightMm`, `nutStringSpacingMm`. |
 | 4 | `potentiometers`, `switches`: independently placed visible controls. |
 | 5 | Optional `bodyTop.construction`: a named 3D body-face construction. |
+| 6 | `instrumentAppearance`: persisted 3D neck, fingerboard, inlay, binding and headstock choices. |
+
+## Instrument appearance (version 6)
+
+`instrumentAppearance` is an optional project-root object. Its absence means
+the reader resolves the historical default for that template; loading an older
+file must not add it. New blueprints and newly created projects write all of
+these keys:
+
+| Key | Values |
+| --- | --- |
+| `neckFinish` | `natural_maple`, `body_matched` |
+| `fingerboard` | `maple`, `rosewood` |
+| `fretboardBinding` | boolean; `true` is cream binding |
+| `fretboardInlay` | `dots`, `trapezoids` |
+| `headstockShape` | `strat_style`, `t_style`, `gibson`, `explorer`, `firebird`, `thunderbird`, `flying_v`, `bass_f`, `bass_mm`, `bass_r`, `bass_sg` |
+
+This is deliberately separate from `binding`, which is body-edge binding.
+It contains no custom neck colour: a neck is either natural maple or uses the
+body finish. Pickup covers also have no document override: humbuckers render
+as metal, while P-90 and single-coil covers render as plastic.
 
 A version number in a file says what that document needs, not how new the
 writer was — see the next section.
@@ -86,6 +107,7 @@ acts on. Above that floor, each version so far is purely additive:
 
 | If the document has | It is written at |
 | --- | --- |
+| an `instrumentAppearance` | 6 |
 | a `bodyTop` | 5 |
 | a `potentiometers` or `switches` entry | 4 |
 | neither | 3 |
@@ -348,15 +370,16 @@ it means recomputing every one of them on both platforms.
 ## 3D viewer compatibility
 
 `steelfinger/axe-shape-3D-viewer` (the pinned bundle in `public/viewer3d`)
-accepts numeric schema versions including version 5 and renders the supported
-Guitar/6 and Bass/4 document matrix, placed controls, and the version-5
-`bodyTop.construction` choice. It reads that saved construction choice for the
-normal preview, which is the only 3D entry point the editor links to. The
-viewer also keeps an opt-in `?arch=1` mode whose prototype controls are local
-to that session and never reach the document. Other unfamiliar fields pass through untouched.
+accepts numeric schema versions including version 6 and renders the supported
+Guitar/6 and Bass/4 document matrix, placed controls, the version-5
+`bodyTop.construction` choice, and persisted version-6 neck and fingerboard
+appearance. It reads those saved choices for the normal preview, which is the
+only 3D entry point the editor links to. The viewer also keeps an opt-in
+`?arch=1` mode whose prototype controls are local to that session and never
+reach the document. Other unfamiliar fields pass through untouched.
 
-Native iOS must not write version-5 documents until it can preserve the named
-construction choice and render it consistently, or opens those documents
+Native iOS must not write version-6 documents until it can preserve the full
+appearance object and render it consistently, or opens those documents
 read-only instead.
 
 ## Coordinate system
@@ -384,7 +407,7 @@ it. `scripts/check-ios-fixtures.ts` turns that habit into a checked fact.
 ## Local checks
 
 ```bash
-npm run schema:check     # version 3 contract: migration, round-trip, rejections
+npm run schema:check     # schema migration, round-trip, rejections
 npm run fixtures:check   # iOS-written payloads decode, load and re-save intact
 npm run corpus:check     # geometry output still matches the golden corpus
 ```

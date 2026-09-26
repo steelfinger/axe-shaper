@@ -13,6 +13,29 @@ export type LengthMm = number;
  */
 export type InstrumentType = 'guitar' | 'bass';
 
+/** Preview-only headstock families; never part of the printable body plan. */
+export type HeadstockShapeId =
+  | 'strat_style'
+  | 't_style'
+  | 'gibson'
+  | 'explorer'
+  | 'firebird'
+  | 'thunderbird'
+  | 'flying_v'
+  | 'bass_f'
+  | 'bass_mm'
+  | 'bass_r'
+  | 'bass_sg';
+
+/** Schema v6's persisted, cross-platform 3D instrument appearance. */
+export interface InstrumentAppearance {
+  neckFinish: 'natural_maple' | 'body_matched';
+  fingerboard: 'maple' | 'rosewood';
+  fretboardBinding: boolean;
+  fretboardInlay: 'dots' | 'trapezoids';
+  headstockShape: HeadstockShapeId;
+}
+
 export interface Vector2D {
   x: LengthMm;
   y: LengthMm;
@@ -339,18 +362,23 @@ export interface ReferenceTemplate {
   name: string;
   description: string;
   /**
-   * Which instrument this blueprint is a body for. Comes from the manifest
-   * (`constants/blueprintManifest.ts`), not from the blueprint's own
-   * .axe.svg payload: the bundled files are schema version 2 and predate the
-   * field, and curation metadata is exactly what the manifest is for.
+   * Which instrument this blueprint is a body for. It is authored in the
+   * blueprint payload and repeated in the manifest only for curation.
    */
   instrumentType: InstrumentType;
   stringCount: number;
-  category: 'S-Style' | 'T-Style' | 'Single-Cut' | 'Double-Cut' | 'Offset' | 'Firebird' | 'Thunderbird' | 'V-Style';
+  category: 'S-Style' | 'T-Style' | 'Single-Cut' | 'Double-Cut' | 'Offset' | 'Firebird' | 'Thunderbird' | 'V-Style' | 'Explorer' | 'PRS' | 'Semi-Hollow';
   /** 'reference' = the core curated set, always visible. 'extra' = the
    *  long tail of additional blueprints, tucked into a closed-by-default,
    *  scrollable panel so the reference list doesn't get buried. */
   tier: 'reference' | 'extra';
+  /** Settings defaults read from this blueprint's embedded project payload. */
+  defaultSettings: Pick<
+    ProjectSettings,
+    'finishStyle' | 'bodyColor'
+  >;
+  /** Appearance authored by the blueprint's embedded project payload. */
+  defaultInstrumentAppearance?: InstrumentAppearance;
   neckPresetId: string;
   bridgePresetId: string;
   defaultAnchors: PathAnchor[];
@@ -429,6 +457,8 @@ export interface GuitarProject {
     author: string;
   };
   settings: ProjectSettings;
+  /** Schema v6; absent only on legacy documents. */
+  instrumentAppearance?: InstrumentAppearance;
   activeTemplateId: string;
   contour: BodyContour;
   /** Optional for pre-edge-profile files; absent resolves to Slab. */

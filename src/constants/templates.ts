@@ -45,6 +45,12 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
       id,
       name: project.settings.name,
       ...manifestEntry,
+      // These visible defaults are part of the Axe SVG payload, so a
+      // blueprint is complete outside this web bundle too.
+      defaultSettings: {
+        finishStyle: project.settings.finishStyle,
+        bodyColor: project.settings.bodyColor,
+      },
       // Derived, not stored per entry: the supported string counts per
       // instrument are one table (`utils/instrument.ts`), and a manifest that
       // could disagree with it would be a second answer to the same question.
@@ -70,6 +76,7 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
       // treatment. Preserve it so new designs and the 3D viewer handoff use
       // the blueprint's intended top-only or two-sided binding.
       binding: project.binding,
+      defaultInstrumentAppearance: project.instrumentAppearance,
       // Position and orientation are authored by the blueprint; the rout
       // geometry comes from the live catalogue. Blueprint SVGs are durable
       // documents and may contain an older embedded anchor set, whereas a

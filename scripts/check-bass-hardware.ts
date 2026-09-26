@@ -202,16 +202,17 @@ async function main() {
       invariant(bassNecks.length > 0 && bassBridges.length > 0 && bassPickups.length > 0, 'the bass catalogue is empty');
     });
 
-    check('the guitar catalogue is unchanged by the split', () => {
+    check('the guitar catalogue is unchanged by the split (plus the PRS neck and stoptail)', () => {
       deepStrictEqual(
         presets.offeredNeckPresets('guitar').map((n: any) => n.id),
-        ['baritone_scale', 'fender_scale', 'gibson_scale', 'jaguar_scale']
+        ['baritone_scale', 'fender_scale', 'gibson_scale', 'jaguar_scale', 'prs_scale']
       );
       deepStrictEqual(presets.offeredBridgePresets('guitar').map((b: any) => b.id), [
         'hardtail_6',
         'tremolo_strat',
         'tune_o_matic',
         'tele_bridge_plate',
+        'prs_stoptail',
       ]);
     });
 
@@ -455,7 +456,7 @@ async function main() {
       deepStrictEqual(instrument.neckPresetInstrument('some_future_bass_neck'), undefined);
     });
 
-    check('every blueprint is offered to its own instrument only (W6: 8 guitar, 8 bass)', () => {
+    check('every blueprint is offered to its own instrument only (12 guitar, 8 bass)', () => {
       // W4's version of this check asserted no bass blueprint was offered to
       // a bass project, because none existed. W6 bundles eight; this is the
       // same cross-instrument guard, both directions, now that there is
@@ -480,7 +481,7 @@ async function main() {
         invariant(!presets.isTemplateCompatible(template, otherDoc), `blueprint ${id} is offered to the other instrument`);
         byInstrument[entry.instrumentType as 'guitar' | 'bass']++;
       }
-      deepStrictEqual(byInstrument, { guitar: 8, bass: 8 });
+      deepStrictEqual(byInstrument, { guitar: 12, bass: 8 });
     });
 
     console.log('no clipping in the printable export, at bass scale lengths');
@@ -701,11 +702,10 @@ async function main() {
     });
 
     check('instrumentType and stringCount reach the 3D viewer link unchanged', () => {
-      // buildViewer3DPath just deflates the whole serialized project
-      // (viewer3dLink.ts), so this is close to free - verified rather than
-      // assumed, since "nearly free" is exactly the kind of claim worth a
-      // test. withEmbeddedPresets is what App.tsx's handleView3D actually
-      // calls before building the link.
+      // buildViewer3DPath compacts an explicitly selected renderer projection
+      // (viewer3dLink.ts). App.tsx still calls withEmbeddedPresets first, so
+      // the instrument axis must reach that boundary unchanged rather than
+      // being inferred from the template.
       const embedded = presets.withEmbeddedPresets(bassProject);
       deepStrictEqual(embedded.instrumentType, 'bass');
       deepStrictEqual(embedded.stringCount, 4);

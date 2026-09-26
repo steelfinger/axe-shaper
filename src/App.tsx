@@ -27,10 +27,11 @@ import type {
 } from './types/guitar';
 import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
-import { withMirroredInsertion } from './utils/symmetry';
+import { mirroredSegmentIndex, withMirroredInsertion } from './utils/symmetry';
 import { buildProjectFilename, downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
 import { downloadDXFFile, exportProjectToDXF } from './utils/dxfExporter';
 import { getUserTemplate } from './utils/userTemplates';
+import { legacyInstrumentAppearance } from './utils/instrumentAppearance';
 import { printTiledProject } from './utils/tiledPrint';
 import { projectNameFromTemplate } from './utils/projectNaming';
 import {
@@ -59,6 +60,7 @@ import { AboutModal } from './components/AboutModal';
 import { MarketingSite } from './components/MarketingSite';
 import { NewDesignScreen } from './components/NewDesignScreen';
 import { BlueprintChooserModal } from './components/BlueprintChooserModal';
+import { InstrumentAppearanceModal } from './components/InstrumentAppearanceModal';
 
 /** Matches the floor InspectorPanel's delete button enforces - a contour needs at least this many nodes to stay a sane shape. */
 export const MIN_ANCHOR_COUNT = 4;
@@ -165,6 +167,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [isBlueprintChooserOpen, setIsBlueprintChooserOpen] = useState(false);
+  const [isInstrumentAppearanceOpen, setIsInstrumentAppearanceOpen] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<'tools' | 'inspector' | null>(null);
   // In-memory only - reappears on reload, deliberately not persisted to localStorage.
   const hasSeenSaveInfoRef = useRef(false);
@@ -311,9 +314,19 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
     // catalogue, with nothing to fall back on.
     if (!isTemplateCompatible(template, project)) return;
 
+    const neckJointMechanism = defaultNeckJointMechanism(templateId);
+
     handleUpdateProject((prev) => ({
       ...prev,
       activeTemplateId: templateId,
+      // Appearance is an authored part of a blueprint too. Keeping the old
+      // value here made a Strat-to-SG switch retain its maple neck and Strat
+      // headstock in 3D. Older user templates have no authored appearance,
+      // so resolve their established fallback from the template they name.
+      instrumentAppearance: structuredClone(
+        template.defaultInstrumentAppearance
+          ?? legacyInstrumentAppearance(templateId, prev.instrumentType, neckJointMechanism)
+      ),
       // Built-in blueprints and user templates both reference hardware by id,
       // and for those this build's table is the authority - so resolve fresh
       // rather than carrying over whatever the previous project had embedded.
@@ -321,7 +334,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       // equivalent (see neckPresetFieldsForNewTemplate) so the Neck picker
       // lands on one of the 4 offered choices, not a foreign 5th row.
       ...neckPresetFieldsForNewTemplate(template.neckPresetId, templateId, prev.instrumentType),
-      neckJointMechanism: defaultNeckJointMechanism(templateId),
+      neckJointMechanism,
       ...bridgePresetFields(template.bridgePresetId),
       contour: {
         anchors: JSON.parse(JSON.stringify(template.defaultAnchors)),
@@ -405,12 +418,17 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       if (!active) return prev;
       const { anchors, closed } = active;
       const straight = isSegmentStraight(anchors, selectedSegmentIndex, closed);
-      return withActiveContour(prev, activeLayer, {
-        ...active,
-        anchors: straight
-          ? curveSegment(anchors, selectedSegmentIndex, closed)
-          : straightenSegment(anchors, selectedSegmentIndex, closed),
-      });
+      const toggle = (list: typeof anchors, index: number) =>
+        straight ? curveSegment(list, index, closed) : straightenSegment(list, index, closed);
+      let updated = toggle(anchors, selectedSegmentIndex);
+      // The mirror segment gets the same treatment, so the two sides stay alike.
+      // Body only - other contours have no symmetry concept.
+      const twin =
+        activeLayer.kind === 'body'
+          ? mirroredSegmentIndex(anchors, selectedSegmentIndex, closed, prev.settings.symmetry)
+          : null;
+      if (twin !== null) updated = toggle(updated, twin);
+      return withActiveContour(prev, activeLayer, { ...active, anchors: updated });
     });
   };
 
@@ -732,6 +750,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         onExportDXF={handleExportDXF}
         onShare={handleShareProject}
         onView3D={handleView3D}
+        onShowInstrumentAppearance={() => setIsInstrumentAppearanceOpen(true)}
         view3DAvailable
         onPrintTiled={(paper) => printTiledProject(project, paper)}
         onNewDesign={handleNewDesign}
@@ -842,6 +861,12 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
 
       <WelcomeModal isOpen={isWelcomeModalOpen} onClose={() => setIsWelcomeModalOpen(false)} />
       <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} />
+      <InstrumentAppearanceModal
+        isOpen={isInstrumentAppearanceOpen}
+        project={project}
+        onClose={() => setIsInstrumentAppearanceOpen(false)}
+        onUpdateProject={handleUpdateProject}
+      />
       <BlueprintChooserModal
         isOpen={isBlueprintChooserOpen}
         project={project}

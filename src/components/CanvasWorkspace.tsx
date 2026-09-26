@@ -402,7 +402,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
       updatedAnchors[index] = target;
       const finalAnchors = isBodyActive
-        ? applyLiveSymmetry(updatedAnchors, anchor.id, prev.settings.symmetry)
+        ? applyLiveSymmetry(updatedAnchors, anchor.id, prev.settings.symmetry, handleType)
         : updatedAnchors;
 
       return withActiveContour(prev, activeLayer, { ...prevContour, anchors: finalAnchors });
@@ -418,7 +418,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
       if (!prevContour) return prev;
       const updatedAnchors = resetAnchorHandle(prevContour.anchors, index, handleType, prevContour.closed);
       const finalAnchors = isBodyActive
-        ? applyLiveSymmetry(updatedAnchors, anchor.id, prev.settings.symmetry)
+        ? applyLiveSymmetry(updatedAnchors, anchor.id, prev.settings.symmetry, handleType)
         : updatedAnchors;
 
       return withActiveContour(prev, activeLayer, { ...prevContour, anchors: finalAnchors });
