@@ -68,14 +68,16 @@ stored version and legacy output when untouched.
 The final field names are to be written in `docs/AXE_SVG_FORMAT.md` after the
 web reference implementation proves them. The object must nevertheless cover:
 
-- `profileId` and an immutable embedded profile snapshot for repeatable saves;
+- a `profileId`; locked pockets carry an immutable embedded profile snapshot
+  for repeatable saves, while custom pockets carry `derivedFromProfileId` and
+  their own mutable path;
 - mode: `locked` or `custom`;
 - construction/mechanism and evidence/provenance metadata;
 - a canonical symmetric pocket path, including the mouth points, paired
   outline nodes and mirrored Bézier handles;
 - IDs of the two body-contour anchors forming the mouth;
-- optional target heel width and requested fitting clearance;
-- validation status and warnings.
+- optional target heel width, requested fitting clearance, and cutter diameter
+  for custom pockets.
 
 The stored geometry must be an explicit path rather than a radius shortcut.
 The decoder generates the complete closed outline deterministically from its
@@ -96,6 +98,17 @@ rounded-rectangle approximations.
   whose `neckPocket` was stripped or corrupted and demonstrate a loud,
   deterministic rejection rather than a silent legacy fallback.
 
+For v7, `neckPocket` is authoritative for rendering, validation and every
+exporter. The `joint*` and `pocket*` fields embedded in `neckPreset` remain
+legacy-compatible mirrors only: writers derive their bounding dimensions from
+the resolved path, and v7 readers do not use them to resolve the pocket. The
+3D viewer must read the v7 path too; it cannot continue treating those mirrors
+as its joint geometry.
+
+Validation is deliberately not persisted as truth. Every current client
+recomputes it on load, edit, preview and export; provenance is stored, but a
+saved `valid` flag could become stale after an external edit.
+
 ## Pocket attachment and constraints
 
 The pocket has its own symmetry contract. It is independent of the body's
@@ -114,6 +127,9 @@ For a valid symmetric pocket:
   creates or updates its partner.
 - The pocket must be closed, finite, non-self-intersecting, and remain inside
   the body except for the two mouth points on the perimeter.
+- When the pocket mode is `locked`, the two mouth anchors are locked against
+  independent body editing. This keeps a freely editable body from drifting
+  away from an immutable profile.
 
 If a template does not have a valid, unambiguous pair of mouth anchors,
 pocket-width editing is unavailable. The app must never infer shoulder anchors
@@ -128,8 +144,27 @@ explicit authored bounds; if the profile supplies no bounds, width editing is
 disabled until the user enters a target heel width. This avoids silently
 falling back to an arbitrary global range.
 
+For a custom pocket with a supplied cutter diameter, each concave internal
+corner must have a radius at least as large as that cutter diameter. The app
+may report this as a fabrication warning or an export-blocking validation
+failure according to the chosen cutter strategy; it must never claim that an
+impossible inside corner is routable.
+
 Asymmetric pockets, free movement of the two mouth nodes in Y, and a body
 without mapped attachment anchors are explicit non-goals for this release.
+
+## Neck and joint selection
+
+Picking another neck preset must never overwrite a v7 `neckPocket`: it changes
+only scale/fret data and other neck-owned information. The old
+`neckPresetFieldsForTemplate` generic/template resolver is a legacy-v1-v6
+path, not a v7 override.
+
+Changing between bolt-on and glued construction is a material interface
+change. It requires an explicit choice to replace the pocket with a compatible
+locked profile or create a compatible custom pocket; the app must not silently
+carry an incompatible profile across, discard a custom path, or overwrite it
+with generic geometry. The prior state remains recoverable through undo.
 
 ## Product flow
 
@@ -137,8 +172,8 @@ The Hardware panel receives a Neck Pocket card.
 
 1. It presents the chosen locked profile, outline/end treatment, dimensions,
    evidence level, provenance and compatibility scope.
-2. The default profile is locked. Its pocket is visible but has no ordinary
-   node editing affordances.
+2. The default profile and its two body-mouth anchors are locked. Its pocket is
+   visible but has no ordinary node editing affordances.
 3. **Convert to Custom Pocket** makes one explicit undoable copy and asks for
    target heel width, desired fitting clearance and cutter/tool diameter where
    known.
@@ -159,8 +194,8 @@ state. Invalid geometry, on the other hand, blocks export.
 Every exporter reads the resolved explicit outline for v7 and the frozen
 legacy adapter for older documents.
 
-- **SVG payload:** stores validation state, evidence/provenance and the
-  authoritative `neckPocket` object.
+- **SVG payload:** stores evidence/provenance and the authoritative
+  `neckPocket` object. Validation is recomputed by the reader.
 - **Printable SVG:** puts an unverified-pocket note outside cut geometry and
   retains the metadata.
 - **DXF:** uses the explicit outline on `NECK_POCKET`; custom/unverified
@@ -169,6 +204,11 @@ legacy adapter for older documents.
   treat as a toolpath.
 - **Export UI:** requires acknowledgement before a custom/unverified pocket is
   exported.
+
+Legacy output remains byte-stable: do not add print or DXF warnings to legacy
+files. Instead, the editor and export UI show a low-key "Legacy generic pocket
+— compatibility unverified" notice before export. New v7 output carries the
+more specific disclosure above.
 
 Pocket outline is 2D data. Finished clearance, paint allowance, cutter
 strategy, neck angle, heel thickness and the full 3D stack must not be inferred
@@ -186,6 +226,11 @@ discovery.
 - Prototype width edits against every relevant body class, especially
   anchor/handle movement at the mouth.
 - Decide the canonical symmetric path representation from observed behavior.
+- Hold a go/no-go review. If neither S nor T has citable or measurable outline
+  evidence, do not convert the bundled blueprints or label a profile
+  documented. Retain legacy geometry and its editor/export disclosure while
+  evidence work continues. Fender pocket drawings are not broadly published,
+  so this is a real release risk rather than a formality.
 
 ### Phase 1 — web reference contract
 
@@ -205,6 +250,14 @@ discovery.
   iOS-written projects do the same in web, allowing only established writer
   normalization.
 
+### Phase 2b — 3D viewer parity
+
+- Update the pinned `axe-shape-3D-viewer` consumer to decode and render the
+  v7 pocket path rather than the legacy `neckPreset` joint fields.
+- Add viewer fixtures for v7, legacy and malformed v7 projects.
+- Keep the viewer in the same release gate: `check:all` must pass across web,
+  iOS and viewer before any v7 blueprint is published.
+
 ### Release A — profiles and exports, no custom editing
 
 - Ship the v7 model in both clients.
@@ -212,6 +265,11 @@ discovery.
   profiles with distinct outlines.
 - Ship provenance and unverified-export disclosure.
 - Keep custom editing unavailable while the contract receives real use.
+- Accept the version-floor consequence explicitly: new projects created from
+  those updated S/T blueprints require v7. Their release therefore waits for a
+  tagged web build, an App Store iOS build and a viewer release that all support
+  v7, even though untouched legacy documents still stamp their lowest required
+  version.
 
 ### Release B — constrained custom editing
 
@@ -227,21 +285,31 @@ Add the following to the web schema/corpus/DXF gates and their iOS equivalents:
 - deterministic legacy output for generic and template-specific adapters;
 - distinct, source-backed S- and T-style v7 pocket outlines;
 - web-to-iOS and iOS-to-web v7 round trips;
+- v7 viewer decoding/rendering and a `check:all` gate that includes all three
+  consumers;
+- v7 authority when embedded legacy `neckPreset` pocket dimensions disagree
+  with the explicit path;
 - fixed mouth `Y = 0`, symmetric X drag and translated paired handles;
+- locked mouth anchors resisting ordinary body edits while a locked profile is
+  active;
 - mirrored node insertion, drag and handle edits;
+- neck-preset changes retaining the active v7 pocket, and explicit construction
+  changes preserving the old state through undo rather than overwriting it;
 - missing/invalid attachment-anchor IDs;
 - a malformed or self-intersecting outline;
 - a pocket that leaves the body or contacts its perimeter away from the mouth;
 - mismatched mirror pairs or non-mirrored handles;
-- v7 payloads with a stripped/corrupt `neckPocket` object;
+- concave corners smaller than the supplied cutter diameter;
+- a current v7 reader receiving a v7-stamped payload with a missing or corrupt
+  `neckPocket` object;
 - legacy v1-v6 import/re-export stability;
 - export warning behavior in SVG, printable SVG, DXF comment/filename and the
   acknowledgement flow.
 
 ## Acceptance criteria
 
-The feature is ready only when both apps resolve the same v7 pocket path,
-render it identically, export it in the correct physical position, and retain
-legacy exports unchanged. A user can distinguish documented S and T profiles,
-but cannot mistake either for a universal fit guarantee. Custom pocket editing
+The feature is ready only when web, iOS and the 3D viewer resolve the same v7
+pocket path, render it in the correct physical position, and retain legacy
+exports unchanged. A user can distinguish documented S and T profiles, but
+cannot mistake either for a universal fit guarantee. Custom pocket editing
 remains symmetric, anchored, validated and explicitly user-owned.
