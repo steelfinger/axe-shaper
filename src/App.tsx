@@ -31,6 +31,7 @@ import { mirroredSegmentIndex, withMirroredInsertion } from './utils/symmetry';
 import { buildProjectFilename, downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
 import { downloadDXFFile, exportProjectToDXF } from './utils/dxfExporter';
 import { getUserTemplate } from './utils/userTemplates';
+import { legacyInstrumentAppearance } from './utils/instrumentAppearance';
 import { printTiledProject } from './utils/tiledPrint';
 import { projectNameFromTemplate } from './utils/projectNaming';
 import {
@@ -313,9 +314,19 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
     // catalogue, with nothing to fall back on.
     if (!isTemplateCompatible(template, project)) return;
 
+    const neckJointMechanism = defaultNeckJointMechanism(templateId);
+
     handleUpdateProject((prev) => ({
       ...prev,
       activeTemplateId: templateId,
+      // Appearance is an authored part of a blueprint too. Keeping the old
+      // value here made a Strat-to-SG switch retain its maple neck and Strat
+      // headstock in 3D. Older user templates have no authored appearance,
+      // so resolve their established fallback from the template they name.
+      instrumentAppearance: structuredClone(
+        template.defaultInstrumentAppearance
+          ?? legacyInstrumentAppearance(templateId, prev.instrumentType, neckJointMechanism)
+      ),
       // Built-in blueprints and user templates both reference hardware by id,
       // and for those this build's table is the authority - so resolve fresh
       // rather than carrying over whatever the previous project had embedded.
@@ -323,7 +334,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       // equivalent (see neckPresetFieldsForNewTemplate) so the Neck picker
       // lands on one of the 4 offered choices, not a foreign 5th row.
       ...neckPresetFieldsForNewTemplate(template.neckPresetId, templateId, prev.instrumentType),
-      neckJointMechanism: defaultNeckJointMechanism(templateId),
+      neckJointMechanism,
       ...bridgePresetFields(template.bridgePresetId),
       contour: {
         anchors: JSON.parse(JSON.stringify(template.defaultAnchors)),

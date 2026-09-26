@@ -1,7 +1,8 @@
 import type { GuitarProject, HeadstockShapeId, InstrumentAppearance, InstrumentType } from '../types/guitar';
 
 const GIBSON_DEFAULT_TEMPLATES = new Set([
-  'single_cut', 'sg_style', 'gretsch_thunderbird', 'gibson_explorer', 'prs_style',
+  'single_cut', 'sg_style', 'gibson_firebird', 'gretsch_thunderbird', 'gibson_flying_v',
+  'gibson_explorer', 'prs_style',
   'semi_hollow_double_cut', 'semi_hollow_single_cut',
 ]);
 

@@ -2,6 +2,7 @@ import type {
   EdgeProfile,
   BodyTop,
   InstrumentType,
+  InstrumentAppearance,
   LengthMm,
   PathAnchor,
   PickupPlacement,
@@ -41,6 +42,8 @@ export interface UserTemplate {
   edgeProfile?: EdgeProfile;
   bodyThicknessMm?: LengthMm;
   bodyTop?: BodyTop;
+  /** Saved preview settings travel with a user blueprint just like its body. */
+  defaultInstrumentAppearance?: InstrumentAppearance;
   defaultPickups: PickupPlacement[];
   defaultPotentiometers?: PotentiometerPlacement[];
   defaultSwitches?: SwitchPlacement[];

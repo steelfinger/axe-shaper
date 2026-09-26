@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "generator": "scripts/generate-golden-corpus.ts",
-  "projectSchemaVersion": 5,
+  "projectSchemaVersion": 6,
   "conventions": {
     "units": "millimetres",
     "xZero": "body centreline",

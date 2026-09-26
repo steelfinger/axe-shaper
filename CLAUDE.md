@@ -225,10 +225,11 @@ guess: nothing else was drawable.
 version this build *understands* - the upper bound of the read gate. A save
 carries `requiredSchemaVersion(project)`: the lowest version that can
 represent that document, which is 3 for a plain project, 4 once a
-potentiometer or switch is placed, 5 once a `bodyTop` is chosen, and drops
-back down when those are removed. It is computed in `withEmbeddedPresets`, so
-it happens on the way out as well as on the way in - the editor can add an
-arched top to something opened at 3. `Migration.requiredPayloadVersion(for:)`
+potentiometer or switch is placed, 5 once a `bodyTop` is chosen, and 6 once a
+persisted `instrumentAppearance` is present. New designs and bundled
+blueprints author that appearance and therefore write 6; legacy documents
+without it retain their lower stamp. It is computed in `withEmbeddedPresets`,
+so it happens on the way out as well as on the way in. `Migration.requiredPayloadVersion(for:)`
 in axe-shaper-ios is the same function and must agree.
 
 The reason is release timing, not tidiness. The web deploys in minutes and the

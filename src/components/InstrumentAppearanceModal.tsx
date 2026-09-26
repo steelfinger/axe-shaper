@@ -18,6 +18,13 @@ const bassHeadstocks: Array<[HeadstockShapeId, string]> = [
   ['bass_f', 'F-style'], ['bass_mm', 'MM-style'], ['bass_r', 'R-style'], ['bass_sg', 'SG-style'],
 ];
 
+const legacyHeadstockLabels: Partial<Record<HeadstockShapeId, string>> = {
+  // Thunderbird was stored by early v6 builds. It now renders as Gibson-style
+  // for new projects, but an existing saved choice must remain visible rather
+  // than leaving the select blank.
+  thunderbird: 'Thunderbird-style (Gibson-style)',
+};
+
 export function InstrumentAppearanceModal({
   isOpen,
   project,
@@ -34,7 +41,13 @@ export function InstrumentAppearanceModal({
     }),
     'instrumentAppearance'
   );
-  const headstocks = project.instrumentType === 'bass' ? bassHeadstocks : guitarHeadstocks;
+  const compatibleHeadstocks = project.instrumentType === 'bass' ? bassHeadstocks : guitarHeadstocks;
+  const headstocks = compatibleHeadstocks.some(([value]) => value === appearance.headstockShape)
+    ? compatibleHeadstocks
+    : [...compatibleHeadstocks, [
+      appearance.headstockShape,
+      legacyHeadstockLabels[appearance.headstockShape] ?? `Saved choice: ${appearance.headstockShape}`,
+    ]];
 
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={(event) => {
