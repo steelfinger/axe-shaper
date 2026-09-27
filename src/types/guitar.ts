@@ -130,6 +130,81 @@ export interface NeckPreset {
  */
 export type NeckJointMechanism = 'bolt_on' | 'glued';
 
+/**
+ * The intentionally small family of plan-view joint shapes supported by the
+ * v7 format. These are manufacturing features, not arbitrary editable paths:
+ * both clients generate a closed outline from the same numbers.
+ */
+export type NeckJointPlanShape = 'bolt_on_pocket' | 'straight_mortise' | 'tapered_mortise';
+
+export type NeckJointGeometryMode = 'locked' | 'custom';
+
+export type NeckJointEndTreatment = 'square' | 'rounded';
+
+/** Evidence is a scoped statement about an authored interface, never a fit guarantee. */
+export type NeckJointEvidenceLevel = 'documented' | 'measured' | 'verified' | 'unverified';
+
+/**
+ * Numeric parameters shared by the initial symmetric plan-view shape family.
+ * `deepEndWidthMm` is meaningful only for a tapered mortise. The end treatment
+ * describes the closing end opposite the Y = 0 mouth; the two end-corner
+ * radii are intentionally equal, so only one value is stored.
+ */
+export interface NeckJointPlanParameters {
+  mouthWidthMm: LengthMm;
+  planLengthMm: LengthMm;
+  endCornerRadiusMm: LengthMm;
+  endTreatment: NeckJointEndTreatment;
+  endRoundnessMm: LengthMm;
+  deepEndWidthMm?: LengthMm;
+}
+
+/** Immutable evidence snapshot embedded by a locked joint profile. */
+export interface NeckJointProfileSnapshot {
+  id: string;
+  name: string;
+  mechanism: NeckJointMechanism;
+  planShape: NeckJointPlanShape;
+  parameters: NeckJointPlanParameters;
+  evidenceLevel: NeckJointEvidenceLevel;
+  provenance: string;
+}
+
+/**
+ * Schema v7's authoritative top-view joint contract. `mouthAnchorIds` ties
+ * the generated outline to the two semantic body-contour anchors; no joint
+ * nodes or Bézier handles are stored or edited.
+ */
+export interface NeckJointGeometry {
+  mode: NeckJointGeometryMode;
+  profileId?: string;
+  derivedFromProfileId?: string;
+  mechanism: NeckJointMechanism;
+  planShape: NeckJointPlanShape;
+  parameters: NeckJointPlanParameters;
+  mouthAnchorIds: [string, string];
+  profileSnapshot?: NeckJointProfileSnapshot;
+  targetHeelWidthMm?: LengthMm;
+  fittingClearanceMm?: LengthMm;
+  cutterDiameterMm?: LengthMm;
+  /** Glued joints only; 0° is parallel to the body construction plane. */
+  neckAngleDegrees?: number;
+}
+
+export type NeckPlacementMode = 'blueprint' | 'custom';
+
+/**
+ * Schema v7's body-owned scale datum. Positive `jointToReferenceFretMm`
+ * points from Y = 0 into the body/toward the tail. The reference fret is a
+ * fixed instrument contract (22 guitar / 20 bass), not an editor preference.
+ */
+export interface NeckPlacement {
+  mode: NeckPlacementMode;
+  referenceFret: number;
+  jointToReferenceFretMm: LengthMm;
+  provenance: string;
+}
+
 export interface BridgePreset {
   id: string;
   name: string;
@@ -500,6 +575,13 @@ export interface GuitarProject {
    * writing anything back.
    */
   neckJointMechanism?: NeckJointMechanism;
+  /**
+   * Schema v7's authoritative joint geometry. Absent means this document
+   * stays on the frozen v1-v6 legacy adapter.
+   */
+  neckJointGeometry?: NeckJointGeometry;
+  /** Schema v7's body-owned scale datum; paired with `neckJointGeometry`. */
+  neckPlacement?: NeckPlacement;
   pickups: PickupPlacement[];
   /** Optional for schema 1-3 files. New projects write an empty collection. */
   potentiometers?: PotentiometerPlacement[];

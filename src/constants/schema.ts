@@ -50,13 +50,18 @@ import type { StoredProject } from '../types/guitar';
  *   6 - Adds `instrumentAppearance`: saved 3D neck, fingerboard, fretboard
  *       trim/inlay and headstock-family choices. It does not change printable
  *       body geometry, but a reader must understand it before editing.
+ *   7 - Adds the paired `neckJointGeometry` and `neckPlacement` objects.
+ *       Together they supersede the legacy joint and placement mirrors in
+ *       `neckPreset`: geometry is an authored numeric plan shape and
+ *       placement is the body-owned reference-fret datum. A version 7 file
+ *       without either half is malformed and refused at the editable gate.
  *
  * This constant is the newest version this build *understands*, and it is the
  * upper bound of the read gate. It is deliberately not what a save stamps -
  * see `requiredSchemaVersion` below, which writes the lowest version that can
  * represent the document in hand.
  */
-export const PROJECT_SCHEMA_VERSION = 6;
+export const PROJECT_SCHEMA_VERSION = 7;
 
 /**
  * The oldest payload this build can read. Nothing has been dropped yet, so
@@ -136,7 +141,10 @@ export const BASE_SCHEMA_VERSION = 3;
  * behaviour, and both writers preserve fields they do not recognise.
  */
 export function requiredSchemaVersion(
-  project: Pick<StoredProject, 'schemaVersion' | 'bodyTop' | 'potentiometers' | 'switches' | 'instrumentAppearance'>
+  project: Pick<
+    StoredProject,
+    'schemaVersion' | 'bodyTop' | 'potentiometers' | 'switches' | 'instrumentAppearance' | 'neckJointGeometry' | 'neckPlacement'
+  >
 ): number {
   // Only a version *above* this build's - a claim it cannot assess. A
   // nonsense stamp (0, a fraction) is not a claim worth preserving and falls
@@ -144,6 +152,10 @@ export function requiredSchemaVersion(
   if (typeof project.schemaVersion === 'number' && project.schemaVersion > PROJECT_SCHEMA_VERSION) {
     return project.schemaVersion;
   }
+  // The v7 objects are an atomic contract. `migrateProject()` rejects a
+  // partial pair; this conditional simply ensures a fully represented v7
+  // document is never stamped as an older format on save.
+  if (project.neckJointGeometry || project.neckPlacement) return 7;
   if (project.instrumentAppearance) return 6;
   if (project.bodyTop) return 5;
   if (project.potentiometers?.length || project.switches?.length) return 4;

@@ -26,6 +26,7 @@ import type {
 } from '../types/guitar';
 import {
   bridgePresetFields,
+  neckPresetFields,
   neckPresetFieldsForTemplate,
   offeredBridgePresets,
   offeredNeckPresets,
@@ -33,6 +34,7 @@ import {
   resolveBridgePreset,
   resolveNeckPreset,
   resolvedNeckJointMechanism,
+  withEmbeddedPresets,
 } from '../utils/presets';
 import { type ActiveLayer, activeLayersEqual } from '../utils/layerShapes';
 import { getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
@@ -333,6 +335,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
     neckId: string,
     mechanism: NeckJointMechanism
   ): GuitarProject => {
+    // A v7 joint is its own authoritative contract. Changing scale/fret data
+    // may update the compatibility mirrors, but must never replace the
+    // profile, move its mouth anchors, or alter body-owned placement. A
+    // construction change needs the explicit replacement flow (Release B),
+    // not the legacy generic resolver below.
+    if (prev.neckJointGeometry) {
+      if (mechanism !== prev.neckJointGeometry.mechanism) return prev;
+      return withEmbeddedPresets({ ...prev, ...neckPresetFields(neckId) });
+    }
     const neckFields = neckPresetFieldsForTemplate(
       neckId,
       prev.activeTemplateId,
@@ -991,10 +1002,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     )
                   }
                   className="form-select"
+                  disabled={Boolean(project.neckJointGeometry)}
+                  title={project.neckJointGeometry ? 'This neck joint is locked to its selected profile.' : undefined}
                 >
                   <option value="bolt_on">Bolt-On</option>
                   <option value="glued">Glued</option>
                 </select>
+                {project.neckJointGeometry && (
+                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                    Joint construction is locked to the selected profile.
+                  </div>
+                )}
               </div>
 
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '8px' }}>

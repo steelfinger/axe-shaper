@@ -32,6 +32,12 @@ import {
   resolveInstrument,
 } from './instrument';
 import { getFretDistanceFromNutMm } from './scaleMath';
+import {
+  NeckJointContractError,
+  nutToBodyEdgeFromPlacement,
+  validateNeckJointAttachment,
+  validateNeckJointContract,
+} from './neckJointGeometry';
 
 /**
  * Hardware resolution for a project.
@@ -70,9 +76,10 @@ type BridgeRef = Pick<GuitarProject, 'bridgePresetId' | 'bridgePreset'>;
  * type's own "loading is a no-op" comment.
  */
 export function resolvedNeckJointMechanism(
-  project: Pick<GuitarProject, 'neckJointMechanism' | 'activeTemplateId'>
+  project: Pick<GuitarProject, 'neckJointMechanism' | 'neckJointGeometry' | 'activeTemplateId'>
 ): NeckJointMechanism {
   return (
+    project.neckJointGeometry?.mechanism ??
     project.neckJointMechanism ??
     DEFAULT_NECK_JOINT_MECHANISM[project.activeTemplateId] ??
     FALLBACK_NECK_JOINT_MECHANISM
@@ -392,6 +399,35 @@ export function withEmbeddedPickupSpecs(pickups: PickupPlacement[]): PickupPlace
  */
 export function withEmbeddedPresets(project: StoredProject): GuitarProject {
   const instrumentDefaults = resolveInstrument(project);
+  const instrumentType = project.instrumentType ?? instrumentDefaults.instrumentType;
+  // A v7 joint is atomic. Validate it before resolving the output mirrors so
+  // a malformed modern payload never silently falls back to legacy geometry.
+  if (project.neckJointGeometry || project.neckPlacement || project.schemaVersion === 7) {
+    validateNeckJointContract(project.neckJointGeometry, project.neckPlacement, instrumentType);
+    validateNeckJointAttachment(project.neckJointGeometry!, project.contour);
+  }
+  const resolvedNeck = resolveNeckPreset(project);
+  const v7Joint = project.neckJointGeometry;
+  const v7Placement = project.neckPlacement;
+  const mirroredNeck = v7Joint && v7Placement
+    ? {
+        ...resolvedNeck,
+        // Compatibility only: v7 readers never use these to resolve the
+        // joint or placement. Older consumers retain a conservative bounding
+        // rectangle rather than receiving stale, contradictory values.
+        jointWidthMm: Math.max(v7Joint.parameters.mouthWidthMm, v7Joint.parameters.deepEndWidthMm ?? 0),
+        jointDepthMm: v7Joint.parameters.planLengthMm,
+        jointCornerRadiusMm: v7Joint.parameters.endTreatment === 'rounded'
+          ? v7Joint.parameters.endRoundnessMm
+          : v7Joint.parameters.endCornerRadiusMm,
+        pocketWidthMm: Math.max(v7Joint.parameters.mouthWidthMm, v7Joint.parameters.deepEndWidthMm ?? 0),
+        pocketDepthMm: v7Joint.parameters.planLengthMm,
+        pocketCornerRadiusMm: v7Joint.parameters.endTreatment === 'rounded'
+          ? v7Joint.parameters.endRoundnessMm
+          : v7Joint.parameters.endCornerRadiusMm,
+        nutToBodyEdgeMm: nutToBodyEdgeFromPlacement(v7Placement, resolvedNeck.scaleLengthMm),
+      }
+    : resolvedNeck;
   return {
     ...project,
     // The lowest version that can describe what this payload actually holds,
@@ -412,9 +448,9 @@ export function withEmbeddedPresets(project: StoredProject): GuitarProject {
     // quietly relabel an unknown instrument as a guitar - and it is why this
     // does not simply spread resolveInstrument(), which coerces.
     // migrateProject() is what stops such a payload reaching the editor.
-    instrumentType: project.instrumentType ?? instrumentDefaults.instrumentType,
+    instrumentType,
     stringCount: project.stringCount ?? instrumentDefaults.stringCount,
-    neckPreset: resolveNeckPreset(project),
+    neckPreset: mirroredNeck,
     bridgePreset: resolveBridgePreset(project),
     // ?? [] rather than trusting the type: a hand-edited or foreign file can
     // omit this, and every consumer maps over it.
@@ -435,7 +471,7 @@ export function withEmbeddedPresets(project: StoredProject): GuitarProject {
  * is written to be shown to a person as-is.
  */
 export class UnsupportedProjectError extends Error {
-  readonly reason: 'unsupported-version' | 'unsupported-instrument';
+  readonly reason: 'unsupported-version' | 'unsupported-instrument' | 'malformed-neck-joint';
 
   constructor(reason: UnsupportedProjectError['reason'], message: string) {
     super(message);
@@ -493,6 +529,18 @@ export function migrateProject(project: StoredProject): GuitarProject {
       'unsupported-instrument',
       `This design is a ${instrument.stringCount}-string ${instrument.instrumentType}, which this build doesn't support yet.`
     );
+  }
+
+  try {
+    if (project.neckJointGeometry || project.neckPlacement || project.schemaVersion === 7) {
+      validateNeckJointContract(project.neckJointGeometry, project.neckPlacement, instrument.instrumentType);
+      validateNeckJointAttachment(project.neckJointGeometry!, project.contour);
+    }
+  } catch (error) {
+    if (error instanceof NeckJointContractError) {
+      throw new UnsupportedProjectError('malformed-neck-joint', `This version 7 neck-joint data is invalid: ${error.message}`);
+    }
+    throw error;
   }
 
   // withEmbeddedPresets() stamps the version, because it is also what runs on

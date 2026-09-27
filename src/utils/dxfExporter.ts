@@ -1,6 +1,7 @@
 import type { BodyContour, GuitarProject, Vector2D } from '../types/guitar';
 import { splitCubicBezier } from './bezier';
 import { resolveNeckPreset, resolvePickupSpec } from './presets';
+import { generateNeckJointOutline } from './neckJointGeometry';
 
 /** Maximum curve-to-chord deviation; serialization adds at most 0.000001 mm. */
 export const DXF_CURVE_TOLERANCE_MM = 0.01;
@@ -58,6 +59,11 @@ function flatten(contour: BodyContour, label: string): Vector2D[] {
 }
 
 function neckPocket(project: GuitarProject): Vector2D[] {
+  // v7 owns an authored numeric shape. Keep the complete legacy branch below
+  // untouched: its exact vertex order is part of the old DXF contract.
+  if (project.neckJointGeometry) {
+    return generateNeckJointOutline(project.neckJointGeometry, DXF_CURVE_TOLERANCE_MM).points;
+  }
   const { jointWidthMm: width, jointDepthMm: height, jointCornerRadiusMm: radius } = resolveNeckPreset(project);
   if (![width, height, radius].every(Number.isFinite) || width <= 0 || height <= 0 || radius < 0) {
     throw new Error('The neck pocket dimensions are invalid. Choose a valid neck preset before exporting.');

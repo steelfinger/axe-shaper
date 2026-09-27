@@ -20,6 +20,7 @@ import {
   rotatingPickupToward,
 } from '../utils/pickupEditing';
 import { resolveBridgePreset, resolveNeckPreset, resolvePickupSpec } from '../utils/presets';
+import { generateNeckJointOutline, neckJointOutlineToSVGPath } from '../utils/neckJointGeometry';
 import {
   getMountingPointOriginYMm,
   getTheoreticalSaddleYMm,
@@ -172,6 +173,9 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   const selectedPickupId = selectedHardware?.kind === 'pickup' ? selectedHardware.id : null;
   const neck = resolveNeckPreset(project);
   const bridge = resolveBridgePreset(project);
+  const neckPocketPath = project.neckJointGeometry
+    ? neckJointOutlineToSVGPath(generateNeckJointOutline(project.neckJointGeometry))
+    : null;
   const activeTemplate = REFERENCE_TEMPLATES[activeTemplateId] || REFERENCE_TEMPLATES.s_style;
 
   const isBodyActive = activeLayer.kind === 'body';
@@ -379,6 +383,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
     const newScreenY = e.target.y();
 
     const anchor = activeContour.anchors[index];
+    if (isBodyActive && anchor.locked) return;
     const anchorScreen = toScreen(anchor.position);
 
     // Delta in screen pixels
@@ -413,6 +418,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   // top of its own anchor) - double-click snaps it back out to a grabbable length.
   const handleHandleReset = (index: number, handleType: 'in' | 'out') => {
     const anchor = activeContour.anchors[index];
+    if (isBodyActive && anchor.locked) return;
     onUpdateProject((prev) => {
       const prevContour = getActiveContour(prev, activeLayer);
       if (!prevContour) return prev;
@@ -899,16 +905,25 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           {settings.showHardwareCavities && (
             <Group listening={false} x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               {/* Neck Pocket Cavity */}
-              <Rect
-                x={-neck.jointWidthMm / 2}
-                y={0}
-                width={neck.jointWidthMm}
-                height={neck.jointDepthMm}
-                fill={PLAN_DRAWING_STYLE.screen.neckPocketFill}
-                stroke={PLAN_DRAWING_STYLE.screen.neckPocketStroke}
-                strokeWidth={PLAN_DRAWING_STYLE.screen.neckPocketStrokePx / zoom}
-                cornerRadius={neck.jointCornerRadiusMm}
-              />
+              {neckPocketPath ? (
+                <Path
+                  data={neckPocketPath}
+                  fill={PLAN_DRAWING_STYLE.screen.neckPocketFill}
+                  stroke={PLAN_DRAWING_STYLE.screen.neckPocketStroke}
+                  strokeWidth={PLAN_DRAWING_STYLE.screen.neckPocketStrokePx / zoom}
+                />
+              ) : (
+                <Rect
+                  x={-neck.jointWidthMm / 2}
+                  y={0}
+                  width={neck.jointWidthMm}
+                  height={neck.jointDepthMm}
+                  fill={PLAN_DRAWING_STYLE.screen.neckPocketFill}
+                  stroke={PLAN_DRAWING_STYLE.screen.neckPocketStroke}
+                  strokeWidth={PLAN_DRAWING_STYLE.screen.neckPocketStrokePx / zoom}
+                  cornerRadius={neck.jointCornerRadiusMm}
+                />
+              )}
 
               {/* Recognisable bridge hardware at the scale-math-resolved
                   position: the supplied F-style plate/housing/socket, a
@@ -1500,14 +1515,14 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                     stroke="#fff"
                     strokeWidth={1.5}
                     opacity={handleOpacity}
-                    draggable
+                    draggable={!isPanMode && !anchor.locked}
                     onDragStart={() => {
                       onSelectAnchor(anchor.id);
                       onBeginEdit(handleDragKey(anchor.id, 'in'));
                     }}
                     onDragMove={(e) => handleHandleDragMove(index, 'in', e)}
                     onDragEnd={onEndEdit}
-                    onDblClick={() => handleHandleReset(index, 'in')}
+                    onDblClick={anchor.locked ? undefined : () => handleHandleReset(index, 'in')}
                   />
                 )}
 
@@ -1521,14 +1536,14 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                     stroke="#fff"
                     strokeWidth={1.5}
                     opacity={handleOpacity}
-                    draggable
+                    draggable={!isPanMode && !anchor.locked}
                     onDragStart={() => {
                       onSelectAnchor(anchor.id);
                       onBeginEdit(handleDragKey(anchor.id, 'out'));
                     }}
                     onDragMove={(e) => handleHandleDragMove(index, 'out', e)}
                     onDragEnd={onEndEdit}
-                    onDblClick={() => handleHandleReset(index, 'out')}
+                    onDblClick={anchor.locked ? undefined : () => handleHandleReset(index, 'out')}
                   />
                 )}
               </Group>
