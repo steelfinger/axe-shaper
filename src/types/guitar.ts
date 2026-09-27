@@ -86,6 +86,18 @@ export interface SymmetryConfig {
   sourceSide: 'left' | 'right';
 }
 
+/**
+ * The physical, straight-sided neck taper used to derive a bolt-on pocket's
+ * two widths. `nutToHeelMm` is measured on the centreline from the nut to the
+ * station at which `heelWidthMm` is measured; it is deliberately not the
+ * legacy `nutToJointMm` fingerboard-overhang datum.
+ */
+export interface NeckTaper {
+  nutWidthMm: LengthMm;
+  heelWidthMm: LengthMm;
+  nutToHeelMm: LengthMm;
+}
+
 export interface NeckPreset {
   id: string;
   name: string;
@@ -117,6 +129,8 @@ export interface NeckPreset {
    * eyeballed. See `docs/AXE_SVG_FORMAT.md`.
    */
   nutStringSpacingMm?: LengthMm;
+  /** Optional because legacy presets did not publish enough data to derive it. */
+  neckTaper?: NeckTaper;
 }
 
 /**
@@ -146,9 +160,10 @@ export type NeckJointEvidenceLevel = 'documented' | 'measured' | 'verified' | 'u
 
 /**
  * Numeric parameters shared by the initial symmetric plan-view shape family.
- * `deepEndWidthMm` is meaningful only for a tapered mortise. The end treatment
- * describes the closing end opposite the Y = 0 mouth; the two end-corner
- * radii are intentionally equal, so only one value is stored.
+ * A tapered mortise owns `deepEndWidthMm`; a bolt-on pocket may carry it as
+ * the immutable result of its selected neck's `neckTaper` calculation. The
+ * end treatment describes the closing end opposite the Y = 0 mouth; the two
+ * end-corner radii are intentionally equal, so only one value is stored.
  */
 export interface NeckJointPlanParameters {
   mouthWidthMm: LengthMm;

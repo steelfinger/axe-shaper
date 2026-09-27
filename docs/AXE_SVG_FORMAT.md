@@ -166,7 +166,20 @@ must not persist or expose editable joint nodes or Bézier handles.
 | `endCornerRadiusMm` | Equal closing-end corner radii for a square treatment. |
 | `endTreatment` | `square` or `rounded`. |
 | `endRoundnessMm` | Closing-end radius for a rounded treatment. |
-| `deepEndWidthMm` | Required only for `tapered_mortise`. |
+| `deepEndWidthMm` | Required for `tapered_mortise`; optional for `bolt_on_pocket`, where it is the persisted result of the selected neck's linear taper calculation. |
+
+An embedded `neckPreset` may carry an optional `neckTaper` object with
+`nutWidthMm`, `heelWidthMm`, and `nutToHeelMm`. It describes straight neck
+sides once, independently of a body. When a bolt-on profile is seeded, the
+writer derives its snapshot widths at the two pocket stations:
+
+`width(station) = nutWidthMm + (heelWidthMm - nutWidthMm) × station / nutToHeelMm`
+
+The mouth station is the resolved nut-to-body-edge distance; the deep station
+is that distance plus `planLengthMm`. The generated joint still uses two
+straight sides; `deepEndWidthMm` merely allows them to be non-parallel.
+`nutToJointMm` is not an input because it is the legacy fingerboard-overhang
+datum, not a physical heel-length measurement.
 
 `mouthAnchorIds` is the ordered pair `[left, right]` of body-contour anchors.
 They must respectively have the `neck_pocket_left` and `neck_pocket_right`

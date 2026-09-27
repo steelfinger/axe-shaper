@@ -177,9 +177,15 @@ For every supported joint shape:
   remain inside the body except for its two mouth points.
 
 Bolt-on pockets expose only the meaningful plan-view values: width, plan
-length, matching end-corner radii, and heel-end treatment/roundness. A
-T-style starting profile uses a square end treatment; an S-style profile uses
-a rounded treatment. Custom editing changes these numeric values only.
+length, matching end-corner radii, and heel-end treatment/roundness. Their
+sides are mathematically straight but need not be parallel: when the selected
+neck records `neckTaper` (`nutWidthMm`, `heelWidthMm`, `nutToHeelMm`), derive
+the mouth/deep widths at the two pocket stations and persist those results in
+the profile snapshot. For a 76.2mm pocket, a 41.275mm-to-55.5625mm taper over
+468.3125mm changes total width by 2.323mm (1.161mm per side). Never derive it
+from `nutToJointMm`, which describes fingerboard overhang rather than the heel
+run. A T-style starting profile uses a square end treatment; an S-style profile
+uses a rounded treatment. Custom editing changes numeric values only.
 
 Glued joints expose a distinct, construction-appropriate set: mortise width,
 plan length, optional deep-end width for a taper, tenon/end treatment and
