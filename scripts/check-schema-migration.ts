@@ -558,6 +558,40 @@ async function main() {
       invariant(exporter.exportProjectToSVG(v7).includes('<path d="M -27.780000 0.000000'), 'v7 SVG did not render generated joint geometry');
     });
 
+    check('derives a bolt-on pocket taper from neck geometry', () => {
+      const neckWithTaper = {
+        scaleLengthMm: 647.7,
+        neckTaper: {
+          nutWidthMm: 41.275,
+          heelWidthMm: 55.5625,
+          nutToHeelMm: 468.3125,
+        },
+      };
+      const widths = neckJoint.deriveBoltOnPocketWidthsFromNeckTaper(
+        neckWithTaper,
+        v7.neckPlacement,
+        76.2,
+      );
+      const expectedWidening = 76.2 * (55.5625 - 41.275) / 468.3125;
+      invariant(Math.abs((widths.deepEndWidthMm - widths.mouthWidthMm) - expectedWidening) < 0.000000001,
+        'bolt-on taper did not widen by the linear neck-taper amount');
+      const taperedBoltOn = {
+        ...documentedSStyleJoint,
+        // The published S-style source does not establish its exact end
+        // radius. Keep this taper fixture independent of that provisional
+        // full-radius value.
+        parameters: { ...documentedSStyleJoint.parameters, ...widths, endRoundnessMm: 20 },
+        profileSnapshot: {
+          ...documentedSStyleJoint.profileSnapshot,
+          parameters: { ...documentedSStyleJoint.profileSnapshot.parameters, ...widths, endRoundnessMm: 20 },
+        },
+      };
+      neckJoint.validateNeckJointGeometry(taperedBoltOn);
+      const outline = neckJoint.generateNeckJointOutline(taperedBoltOn).points;
+      invariant(outline[2].x > outline[1].x, 'bolt-on deep end did not widen relative to its mouth');
+      invariant(outline[outline.length - 1].x < outline[0].x, 'bolt-on taper was not symmetric about the centreline');
+    });
+
     check('rejects a v7 payload whose paired joint contract is stripped or corrupt', () => {
       const missingPlacement = presets.loadProject({ ...v7, neckPlacement: undefined });
       invariant(!missingPlacement.ok && missingPlacement.reason === 'malformed-neck-joint', 'missing v7 placement was accepted');

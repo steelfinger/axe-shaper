@@ -4,6 +4,7 @@ import type {
   NeckJointGeometry,
   NeckJointPlanParameters,
   NeckPlacement,
+  NeckPreset,
   Vector2D,
 } from '../types/guitar';
 import { fingerboardReferenceFret } from './instrument';
@@ -39,8 +40,8 @@ function validateParameters(parameters: NeckJointPlanParameters, tapered: boolea
   if (tapered && !finitePositive(parameters.deepEndWidthMm)) {
     throw new NeckJointContractError('A tapered mortise needs a positive deep-end width.');
   }
-  if (!tapered && parameters.deepEndWidthMm !== undefined) {
-    throw new NeckJointContractError('Only a tapered mortise may carry a deep-end width.');
+  if (!tapered && parameters.deepEndWidthMm !== undefined && !finitePositive(parameters.deepEndWidthMm)) {
+    throw new NeckJointContractError('A supplied deep-end width must be positive.');
   }
   const deepWidth = parameters.deepEndWidthMm ?? parameters.mouthWidthMm;
   const activeRadius = parameters.endTreatment === 'rounded'
@@ -94,6 +95,15 @@ export function validateNeckJointGeometry(geometry: NeckJointGeometry): void {
     throw new NeckJointContractError('Neck joint plan shape is not supported by this version.');
   }
   validateParameters(geometry.parameters, tapered);
+  if (!tapered && geometry.planShape !== 'bolt_on_pocket'
+    && geometry.parameters.deepEndWidthMm !== undefined) {
+    throw new NeckJointContractError('Only tapered mortises and bolt-on pockets may specify a deep-end width.');
+  }
+  if (geometry.planShape === 'bolt_on_pocket'
+    && geometry.parameters.deepEndWidthMm !== undefined
+    && geometry.parameters.deepEndWidthMm < geometry.parameters.mouthWidthMm) {
+    throw new NeckJointContractError('A bolt-on deep-end width must not be narrower than its mouth.');
+  }
   for (const [label, value] of [
     ['target heel width', geometry.targetHeelWidthMm],
     ['fitting clearance', geometry.fittingClearanceMm],
@@ -216,4 +226,36 @@ export function nutToBodyEdgeFromPlacement(placement: NeckPlacement, scaleLength
     throw new NeckJointContractError('Scale length must be a positive finite number.');
   }
   return scaleLengthMm * (1 - Math.pow(2, -placement.referenceFret / 12)) - placement.jointToReferenceFretMm;
+}
+
+/**
+ * Derive the two bolt-on width stations from a neck with straight, linearly
+ * tapered sides. The result is snapshot-ready v7 geometry: callers persist
+ * the two widths in `parameters`, so a later catalogue correction cannot
+ * silently change an existing design.
+ */
+export function deriveBoltOnPocketWidthsFromNeckTaper(
+  neck: Pick<NeckPreset, 'scaleLengthMm' | 'neckTaper'>,
+  placement: NeckPlacement,
+  planLengthMm: number,
+): Pick<NeckJointPlanParameters, 'mouthWidthMm' | 'deepEndWidthMm'> {
+  const taper = neck.neckTaper;
+  if (!taper
+    || !finitePositive(taper.nutWidthMm)
+    || !finitePositive(taper.heelWidthMm)
+    || !finitePositive(taper.nutToHeelMm)
+    || taper.heelWidthMm < taper.nutWidthMm) {
+    throw new NeckJointContractError('A linear bolt-on taper needs finite nut width, heel width, and nut-to-heel run.');
+  }
+  if (!finitePositive(planLengthMm)) {
+    throw new NeckJointContractError('Bolt-on plan length must be positive and finite.');
+  }
+  const mouthStationMm = nutToBodyEdgeFromPlacement(placement, neck.scaleLengthMm);
+  const deepStationMm = mouthStationMm + planLengthMm;
+  if (mouthStationMm < 0 || deepStationMm > taper.nutToHeelMm) {
+    throw new NeckJointContractError('The bolt-on pocket lies outside the selected neck taper run.');
+  }
+  const widthAt = (stationMm: number) => taper.nutWidthMm
+    + ((taper.heelWidthMm - taper.nutWidthMm) * stationMm / taper.nutToHeelMm);
+  return { mouthWidthMm: widthAt(mouthStationMm), deepEndWidthMm: widthAt(deepStationMm) };
 }
