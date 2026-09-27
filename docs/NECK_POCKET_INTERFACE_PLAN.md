@@ -80,17 +80,19 @@ web reference implementation proves them. The object must nevertheless cover:
   their own mutable numeric parameters;
 - mode: `locked` or `custom`;
 - construction/mechanism and evidence/provenance metadata;
-- `planShape`: `bolt_on_pocket`, `straight_mortise`, `tapered_mortise`, or
-  `long_tenon`;
+- `planShape`: initially `bolt_on_pocket`, `straight_mortise`, or
+  `tapered_mortise`. `long_tenon` is deliberately deferred until its distinct
+  reduced-width tongue and extension parameters are independently specified;
 - symmetric plan-view parameters: mouth width, plan length from `Y = 0`,
   optional deep-end width for a taper, two equal end-corner radii, and an
   end-treatment/radius for the centre of the heel or tenon end;
 - IDs of the two body-contour anchors forming the mouth;
 - optional target heel width, requested fitting clearance, and cutter diameter
   for custom joints;
-- optional `neckAngleDegrees` for glued joints only. It is meaningful
-  manufacturing data but does not make a top-view SVG/DXF a complete angled
-  mortise template.
+- optional `neckAngleDegrees` for glued joints only. `0°` means the fretboard
+  plane is parallel to the body-top reference plane; positive values raise the
+  nut/headstock end relative to the body. It is meaningful manufacturing data
+  but does not make a top-view SVG/DXF a complete angled mortise template.
 
 `neckPlacement` is deliberately not part of `neckJointGeometry`. It is
 blueprint/body-owned: bodies can share a joint profile while placing that joint
@@ -114,6 +116,11 @@ The decoder generates the complete closed plan outline deterministically from
 the named shape and numeric parameters. It never stores editable nodes or
 handles. This keeps the centreline and straight sides exact, avoids web/iOS
 drift, and gives DXF/CNC users a geometry they can inspect by dimensions.
+
+All placement-entry paths use the same full-precision canonical calculation
+for `jointToReferenceFretMm`; display/input rounding never becomes an
+independent saved value. Web, iOS and viewer use the existing corpus epsilon
+when comparing derived values.
 
 ### Schema compatibility rules
 
@@ -174,10 +181,11 @@ a rounded treatment. Custom editing changes these numeric values only.
 
 Glued joints expose a distinct, construction-appropriate set: mortise width,
 plan length, optional deep-end width for a taper, tenon/end treatment and
-end-corner radii. `straight_mortise`, `tapered_mortise`, and `long_tenon` are
-named shapes rather than arbitrary paths. Glued joints may also record a neck
-angle, but a top-view export must state that it is not a complete angled
-mortise template.
+end-corner radii. `straight_mortise` and `tapered_mortise` are named shapes
+rather than arbitrary paths. `long_tenon` is deferred: it needs a reduced-width
+tongue and extension-length schema rather than a misleading reuse of mortise
+parameters. Glued joints may also record a neck angle, but a top-view export
+must state that it is not a complete angled mortise template.
 
 If a template does not have a valid, unambiguous pair of mouth anchors,
 width editing is unavailable. The app must never infer shoulder anchors from
@@ -285,7 +293,8 @@ legacy adapter for older documents.
   `neckJointGeometry` object. Validation is recomputed by the reader.
 - **Printable SVG:** puts an unverified-joint note outside cut geometry and
   retains the metadata.
-- **DXF:** uses the generated outline on `NECK_JOINT`; custom/unverified
+- **DXF:** keeps the existing `NECK_POCKET` layer name for compatibility while
+  using the generated joint outline; custom/unverified
   output carries an `unverified` filename suffix and DXF group-code-999
   non-geometric comment. It must not add note text that CAM software might
   treat as a toolpath.
@@ -393,8 +402,10 @@ Add the following to the web schema/corpus/DXF gates and their iOS equivalents:
   active;
 - numeric width edits moving mouth anchors symmetrically while their handles
   remain non-editable; generated straight side walls and named end treatments;
-- straight, tapered and long-tenon mortise generation, including the fact that
-  a stored neck angle does not alter the 2D plan shape;
+- straight and tapered mortise generation, including the fact that a stored
+  neck angle does not alter the 2D plan shape;
+- the neck-angle unit/sign convention and full-precision placement derivation
+  across every supported measurement entry path;
 - neck-preset changes retaining active v7 joint geometry, and explicit
   construction changes preserving the old state through undo rather than
   overwriting it;
