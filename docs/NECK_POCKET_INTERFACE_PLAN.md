@@ -219,11 +219,11 @@ fret N, derive the canonical reference-fret value, and never persist the
 alternate input.
 
 Before accepting a custom placement change, both clients show the signed shift
-in scale-linked hardware and validate bridge/body bounds, pickup and
-fingerboard-overhang clearance, and any other affected physical constraints.
-Phase 0 must explicitly settle whether existing pickups are body-relative or
-scale-relative when this datum moves; that policy drives the shift preview and
-must be shared by web, iOS and viewer. Changing joint geometry alone preserves
+of the neck and scale-derived bridge/saddle reference, then validate
+bridge/body bounds plus pickup and fingerboard-overhang clearance. Pickups are
+always body-relative: neck placement never moves them automatically, even if a
+resulting overlap requires the builder to move a pickup manually. This policy
+is shared by web, iOS and viewer. Changing joint geometry alone preserves
 `neckPlacement`; changing neck placement alone preserves joint geometry. Both
 operations are separately undoable.
 
@@ -314,8 +314,6 @@ discovery.
 - Prototype width edits against every relevant body class, especially
   anchor/handle movement at the mouth.
 - Validate the numeric shape generator for square and rounded bolt-on ends.
-- Decide and document the pickup anchoring policy for a Custom Neck Placement
-  shift: body-relative, scale-relative, or an explicit per-item choice.
 - Hold a go/no-go review. If neither S nor T has citable or measurable geometry
   evidence, do not convert the bundled blueprints or label a profile
   documented. Retain legacy geometry and its editor/export disclosure while
@@ -405,7 +403,8 @@ Add the following to the web schema/corpus/DXF gates and their iOS equivalents:
 - a joint that leaves the body or contacts its perimeter away from the mouth;
 - concave corners smaller than the supplied cutter diameter;
 - fixed reference fret by instrument type, placement-to-nut derivation, and a
-  custom placement shift moving all scale-linked geometry by the same amount;
+  custom placement shift moving only neck and scale-derived bridge/saddle
+  geometry while pickups remain body-relative;
 - a joint-geometry edit preserving placement and a placement edit preserving
   numeric joint geometry;
 - a current v7 reader receiving a v7-stamped payload with a missing or corrupt
