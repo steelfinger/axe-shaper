@@ -38,3 +38,14 @@ The next acceptable evidence is one of:
    Guitars heel, including instrument, revision/SKU, datum, tool/method and
    repeat measurements; or
 3. an actual neck-to-pocket fit record for promotion from measured to verified.
+
+### Open modelling question: straight versus tapered bolt-on sides
+
+An [unofficial Warmoth-forum measurement](https://unofficialwarmoth.com/threads/neck-pocket-dimension-question.2680/)
+reports approximately 0.0456 in (about 1.16mm) width change over a 3 in
+Fender-family pocket. It is not a manufacturer-controlled source and is not
+used as profile data. It is nevertheless a reason to measure both mouth and
+deep-end widths in the next evidence pass: the current v7 `bolt_on_pocket`
+shape assumes parallel straight sides, while the existing `tapered_mortise`
+shape is glued-only. Do not quietly flatten a measured bolt-on taper into a
+parallel-sided profile.

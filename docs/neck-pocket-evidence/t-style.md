@@ -32,6 +32,7 @@ specification and must not be promoted to one.
 
 Measure a named, unmodified square-heel replacement neck or its matching
 manufacturer pocket template. Record SKU/revision, mouth width, plan length,
-each deep-end inside-corner radius, any side taper, measurement uncertainty,
-and the measurement datum. A fitted body alone is not sufficient unless the
-neck identity and resulting clearance are recorded too.
+deep-end width, each deep-end inside-corner radius, any side taper,
+measurement uncertainty, and the measurement datum. A fitted body alone is
+not sufficient unless the neck identity and resulting clearance are recorded
+too.

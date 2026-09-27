@@ -32,6 +32,8 @@ is **not** evidence for an S-style profile and must not be copied into one.
 
 Measure a named, unmodified rounded replacement neck heel on a flatbed scan,
 CMM, or calibrated top-down photo. Record SKU/revision, width at the mouth,
-joint-line-to-deep-end length, actual end geometry/radius, measurement
-uncertainty, and whether the measured neck has ever been fitted or sanded.
+width at the deep end, joint-line-to-deep-end length, actual end
+geometry/radius, measurement uncertainty, and whether the measured neck has
+ever been fitted or sanded. Both widths matter: a preliminary, non-authoritative
+Warmoth-community measurement suggests a Fender-family pocket may taper.
 Only then can this packet nominate a numeric profile snapshot.
