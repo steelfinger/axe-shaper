@@ -80,6 +80,7 @@ async function main() {
     const projectFactory = await load('/src/utils/projectFactory.ts');
     const bodyThickness = await load('/src/utils/bodyThickness.ts');
     const controls = await load('/src/utils/controlEditing.ts');
+    const neckJoint = await load('/src/utils/neckJointGeometry.ts');
 
     const currentBlueprint = decodePayload(readFileSync(BASE_BLUEPRINT, 'utf8'));
     // Strict equality against each blueprint's *own* answer, not a range and
@@ -498,6 +499,99 @@ async function main() {
       deepStrictEqual(savedVersion({ ...plain, instrumentAppearance: {
         neckFinish: 'natural_maple', fingerboard: 'maple', fretboardBinding: false, fretboardInlay: 'dots', headstockShape: 'strat_style',
       } }), 6);
+    });
+
+    console.log('version 7: paired neck-joint geometry and placement');
+
+    const documentedSStyleJoint = {
+      mode: 'locked' as const,
+      profileId: 's-style-rounded-v1',
+      mechanism: 'bolt_on' as const,
+      planShape: 'bolt_on_pocket' as const,
+      parameters: {
+        mouthWidthMm: 55.56,
+        planLengthMm: 76.2,
+        endCornerRadiusMm: 0,
+        endTreatment: 'rounded' as const,
+        endRoundnessMm: 27.78,
+      },
+      mouthAnchorIds: ['s_pocket_left', 's_pocket_right'] as [string, string],
+      profileSnapshot: {
+        id: 's-style-rounded-v1',
+        name: 'S-style rounded',
+        mechanism: 'bolt_on' as const,
+        planShape: 'bolt_on_pocket' as const,
+        parameters: {
+          mouthWidthMm: 55.56,
+          planLengthMm: 76.2,
+          endCornerRadiusMm: 0,
+          endTreatment: 'rounded' as const,
+          endRoundnessMm: 27.78,
+        },
+        evidenceLevel: 'documented' as const,
+        provenance: 'schema test fixture',
+      },
+    };
+    const v7 = {
+      ...plain,
+      schemaVersion: 7,
+      neckJointGeometry: documentedSStyleJoint,
+      neckPlacement: {
+        mode: 'blueprint' as const,
+        referenceFret: 22,
+        jointToReferenceFretMm: 75.2453,
+        provenance: 'FINGERBOARD_OVERHANG_MM:s_style',
+      },
+    };
+
+    check('requires and round-trips the paired v7 joint contract', () => {
+      const migrated = presets.migrateProject(v7);
+      deepStrictEqual(migrated.schemaVersion, 7);
+      deepStrictEqual(migrated.neckJointGeometry, documentedSStyleJoint);
+      deepStrictEqual(migrated.neckPlacement, v7.neckPlacement);
+      deepStrictEqual(savedVersion(v7), 7);
+      // The legacy fields survive only as output mirrors; v7 resolution uses
+      // the paired fields even when a stale embedded preset disagrees.
+      deepStrictEqual(migrated.neckPreset.jointWidthMm, 55.56);
+      deepStrictEqual(migrated.neckPreset.nutToBodyEdgeMm,
+        neckJoint.nutToBodyEdgeFromPlacement(v7.neckPlacement, migrated.neckPreset.scaleLengthMm));
+      invariant(exporter.exportProjectToSVG(v7).includes('<path d="M -27.780000 0.000000'), 'v7 SVG did not render generated joint geometry');
+    });
+
+    check('rejects a v7 payload whose paired joint contract is stripped or corrupt', () => {
+      const missingPlacement = presets.loadProject({ ...v7, neckPlacement: undefined });
+      invariant(!missingPlacement.ok && missingPlacement.reason === 'malformed-neck-joint', 'missing v7 placement was accepted');
+      const wrongReferenceFret = presets.loadProject({ ...v7, neckPlacement: { ...v7.neckPlacement, referenceFret: 21 } });
+      invariant(!wrongReferenceFret.ok && wrongReferenceFret.reason === 'malformed-neck-joint', 'wrong v7 reference fret was accepted');
+      const looseMouth = presets.loadProject({
+        ...v7,
+        contour: { ...v7.contour, anchors: v7.contour.anchors.map((anchor: any) => (
+          anchor.id === 's_pocket_left' ? { ...anchor, locked: false } : anchor
+        )) },
+      });
+      invariant(!looseMouth.ok && looseMouth.reason === 'malformed-neck-joint', 'unlocked v7 mouth anchor was accepted');
+    });
+
+    check('stores a glued neck angle without treating an arched top as geometry', () => {
+      const glued = {
+        ...v7,
+        neckJointGeometry: {
+          ...documentedSStyleJoint,
+          profileId: 'straight-mortise-v1',
+          mechanism: 'glued' as const,
+          planShape: 'straight_mortise' as const,
+          profileSnapshot: {
+            ...documentedSStyleJoint.profileSnapshot,
+            id: 'straight-mortise-v1', mechanism: 'glued' as const, planShape: 'straight_mortise' as const,
+          },
+          neckAngleDegrees: 4,
+        },
+        bodyTop: { construction: 'carved_cap' as const },
+      };
+      const flatOutline = neckJoint.generateNeckJointOutline(glued.neckJointGeometry).points;
+      const archedOutline = neckJoint.generateNeckJointOutline({ ...glued.neckJointGeometry, neckAngleDegrees: 4 }).points;
+      deepStrictEqual(archedOutline, flatOutline);
+      deepStrictEqual(presets.migrateProject(glued).neckJointGeometry.neckAngleDegrees, 4);
     });
 
     check('bundled blueprints are version 6 witnesses', () => {

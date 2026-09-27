@@ -91,6 +91,37 @@ try {
   assert(!entities.some(e => e.layer === 'PICKGUARDS'));
   assert.equal(entities.length, 5, 'no hardware illustrations or guessed drill holes');
 
+  // v7 is intentionally a generated named shape rather than the legacy
+  // rounded rectangle. Keep the established NECK_POCKET layer name so CAM
+  // workflows do not need a layer migration merely because the data model
+  // became construction-aware.
+  project.neckJointGeometry = {
+    mode: 'locked',
+    profileId: 'dxf-s-style',
+    mechanism: 'bolt_on',
+    planShape: 'bolt_on_pocket',
+    parameters: {
+      mouthWidthMm: 60,
+      planLengthMm: 80,
+      endCornerRadiusMm: 0,
+      endTreatment: 'rounded',
+      endRoundnessMm: 30,
+    },
+    mouthAnchorIds: ['left', 'right'],
+    profileSnapshot: {
+      id: 'dxf-s-style', name: 'DXF S-style', mechanism: 'bolt_on', planShape: 'bolt_on_pocket',
+      parameters: { mouthWidthMm: 60, planLengthMm: 80, endCornerRadiusMm: 0, endTreatment: 'rounded', endRoundnessMm: 30 },
+      evidenceLevel: 'unverified', provenance: 'test',
+    },
+  };
+  entities = read(exportProjectToDXF(project));
+  const generatedPocket = entities.find(e => e.layer === 'NECK_POCKET')!.vertices;
+  assert.equal(generatedPocket[0].x, -30);
+  assert.equal(generatedPocket[0].y, 0);
+  assert(generatedPocket.length > 4, 'v7 rounded joint was exported as a legacy rectangle');
+  assert(Math.min(...generatedPocket.map(p => p.y)) === -80, 'v7 joint did not retain its authored plan length');
+  delete project.neckJointGeometry;
+
   // Dense independent sampling bounds deviation of a strongly curved edge.
   const a = { x: 0, y: 0 }, b = { x: -40, y: -90 }, c = { x: 140, y: -90 }, d = { x: 100, y: 0 };
   project.contour.anchors[0].handleOut = b;

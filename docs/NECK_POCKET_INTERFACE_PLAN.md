@@ -90,9 +90,11 @@ web reference implementation proves them. The object must nevertheless cover:
 - optional target heel width, requested fitting clearance, and cutter diameter
   for custom joints;
 - optional `neckAngleDegrees` for glued joints only. `0°` means the fretboard
-  plane is parallel to the body-top reference plane; positive values raise the
-  nut/headstock end relative to the body. It is meaningful manufacturing data
-  but does not make a top-view SVG/DXF a complete angled mortise template.
+  plane is parallel to the body **construction plane**; positive values raise
+  the nut/headstock end relative to the body. It is never inferred from a
+  selected arched or carved top: a curved top has no single plane. It is
+  meaningful manufacturing data but does not make a top-view SVG/DXF a
+  complete angled mortise template.
 
 `neckPlacement` is deliberately not part of `neckJointGeometry`. It is
 blueprint/body-owned: bodies can share a joint profile while placing that joint

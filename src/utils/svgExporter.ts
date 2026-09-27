@@ -23,6 +23,7 @@ import {
   type BridgeDrawingRect,
 } from './bridgeDrawing';
 import { CONTROL_DRAWING_GEOMETRY, PLAN_DRAWING_STYLE } from '../constants/planDrawingStyle';
+import { generateNeckJointOutline, neckJointOutlineToSVGPath } from './neckJointGeometry';
 
 /** Namespace for the <project:*> metadata elements. Must be declared or the file is not well-formed XML. */
 const PROJECT_NS = 'https://axe-shaper.app/ns/project/1';
@@ -310,6 +311,17 @@ export function exportProjectToSVG(rawProject: StoredProject): string {
   const bridgeDrawing = getBridgeDrawingGeometry(neck, bridge);
   const mountingOriginY = getMountingPointOriginYMm(neck, bridge);
   const bridgeHardware = bridgeHardwareSVG(bridgeDrawing, bridge, theoreticalSaddleY, mountingOriginY);
+  const neckPocketSVG = project.neckJointGeometry
+    ? `<path d="${neckJointOutlineToSVGPath(generateNeckJointOutline(project.neckJointGeometry))}" class="neck-pocket" />`
+    : `<rect
+      x="${(-neck.jointWidthMm / 2).toFixed(2)}"
+      y="0"
+      width="${neck.jointWidthMm}"
+      height="${neck.jointDepthMm}"
+      rx="${neck.jointCornerRadiusMm}"
+      ry="${neck.jointCornerRadiusMm}"
+      class="neck-pocket"
+    />`;
 
   const isHorizontal = settings.canvasOrientation === 'horizontal';
 
@@ -423,15 +435,7 @@ export function exportProjectToSVG(rawProject: StoredProject): string {
       .join('')}
 
     <!-- Immutable Neck Pocket Cavity -->
-    <rect
-      x="${(-neck.jointWidthMm / 2).toFixed(2)}"
-      y="0"
-      width="${neck.jointWidthMm}"
-      height="${neck.jointDepthMm}"
-      rx="${neck.jointCornerRadiusMm}"
-      ry="${neck.jointCornerRadiusMm}"
-      class="neck-pocket"
-    />
+    ${neckPocketSVG}
 
     <!-- Front Routed Cavities (control cavities, etc. - under pickup hardware) -->
     ${(frontRoutes ?? [])

@@ -37,6 +37,7 @@ project name could contain one.
 | 4 | `potentiometers`, `switches`: independently placed visible controls. |
 | 5 | Optional `bodyTop.construction`: a named 3D body-face construction. |
 | 6 | `instrumentAppearance`: persisted 3D neck, fingerboard, inlay, binding and headstock choices. |
+| 7 | Paired `neckJointGeometry` and `neckPlacement`: authored joint-plan parameters and the body-owned scale datum. |
 
 ## Instrument appearance (version 6)
 
@@ -107,6 +108,7 @@ acts on. Above that floor, each version so far is purely additive:
 
 | If the document has | It is written at |
 | --- | --- |
+| a `neckJointGeometry` / `neckPlacement` pair | 7 |
 | an `instrumentAppearance` | 6 |
 | a `bodyTop` | 5 |
 | a `potentiometers` or `switches` entry | 4 |
@@ -143,6 +145,69 @@ Implementations: `requiredSchemaVersion` in the web app's
 axe-shaper-ios. The two must give the same answer for the same document, and
 the cross-app fixture set is what proves it: `check-ios-fixtures.ts` computes
 the web's answer for every file the iOS writer produced.
+
+## Version 7: neck joint geometry and placement
+
+Version 7 is an atomic pair of root objects. A file at version 7 must carry
+both objects; a file carrying either object requires version 7. A current
+reader rejects a partial, corrupt, or attachment-mismatched pair rather than
+falling back to a generic pocket.
+
+`neckJointGeometry` is the authoritative **top-view** shape. It stores a
+`mode` (`locked` or `custom`), `mechanism` (`bolt_on` or `glued`), a named
+`planShape` (`bolt_on_pocket`, `straight_mortise`, or `tapered_mortise`), and
+the symmetric numeric parameters below. Consumers generate the outline; they
+must not persist or expose editable joint nodes or Bézier handles.
+
+| Parameter | Meaning |
+| --- | --- |
+| `mouthWidthMm` | Width at the `Y = 0` body-joint mouth. |
+| `planLengthMm` | Positive-Y depth into the body. |
+| `endCornerRadiusMm` | Equal closing-end corner radii for a square treatment. |
+| `endTreatment` | `square` or `rounded`. |
+| `endRoundnessMm` | Closing-end radius for a rounded treatment. |
+| `deepEndWidthMm` | Required only for `tapered_mortise`. |
+
+`mouthAnchorIds` is the ordered pair `[left, right]` of body-contour anchors.
+They must respectively have the `neck_pocket_left` and `neck_pocket_right`
+roles, be locked at `(-mouthWidthMm / 2, 0)` and
+`(+mouthWidthMm / 2, 0)`, and include their handles in that lock. A reader
+must never infer equivalent anchors from visual proximity.
+
+A locked geometry carries `profileId` and a matching immutable
+`profileSnapshot`; a custom geometry carries `derivedFromProfileId` and its
+own numeric parameters, without a locked snapshot. Optional custom fitting
+data is `targetHeelWidthMm`, `fittingClearanceMm`, and `cutterDiameterMm`.
+`neckAngleDegrees` is permitted only for glued joints. It is measured against
+the body **construction plane**: `0` is parallel, positive raises the
+nut/headstock end. It is not inferred from an arched/carved top, and a
+top-view SVG/DXF is never a complete angled-mortise template.
+
+`neckPlacement` is deliberately separate and body-owned:
+
+```json
+{
+  "mode": "blueprint",
+  "referenceFret": 22,
+  "jointToReferenceFretMm": 75.2453,
+  "provenance": "FINGERBOARD_OVERHANG_MM:s_style"
+}
+```
+
+Positive `jointToReferenceFretMm` runs from `Y = 0` into the body/toward the
+tail. `referenceFret` is fixed to 22 for Guitar/6 and 20 for Bass/4. The sole
+stored datum derives the compatibility mirror:
+
+```
+nutToBodyEdgeMm = fretDistanceFromNut(referenceFret, scaleLengthMm)
+                  - jointToReferenceFretMm
+```
+
+For version 7, `neckJointGeometry` and `neckPlacement` win. The old
+`joint*`, `pocket*`, and `nutToBodyEdgeMm` fields in `neckPreset` are output
+compatibility mirrors only and must not resolve the joint or scale datum.
+Changing placement moves the neck and scale-derived bridge/saddle reference;
+pickups remain body-relative and are never moved automatically.
 
 ### The embedded copy wins
 
@@ -377,6 +442,10 @@ appearance. It reads those saved choices for the normal preview, which is the
 only 3D entry point the editor links to. The viewer also keeps an opt-in
 `?arch=1` mode whose prototype controls are local to that session and never
 reach the document. Other unfamiliar fields pass through untouched.
+
+Version 7 joint geometry and placement are not published until the viewer and
+iOS both decode and render the paired contract; a viewer that only understands
+version 6 must reject a version 7 project at its editable/view gate.
 
 Native iOS must not write version-6 documents until it can preserve the full
 appearance object and render it consistently, or opens those documents
