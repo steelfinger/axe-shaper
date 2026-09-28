@@ -30,6 +30,7 @@ import { HistoryManager } from './utils/history';
 import { mirroredSegmentIndex, withMirroredInsertion } from './utils/symmetry';
 import { buildProjectFilename, downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
 import { downloadDXFFile, exportProjectToDXF } from './utils/dxfExporter';
+import { neckJointFabricationDisclosure } from './utils/neckJointDisclosure';
 import { getUserTemplate } from './utils/userTemplates';
 import { legacyInstrumentAppearance } from './utils/instrumentAppearance';
 import { printTiledProject } from './utils/tiledPrint';
@@ -61,6 +62,8 @@ import { MarketingSite } from './components/MarketingSite';
 import { NewDesignScreen } from './components/NewDesignScreen';
 import { BlueprintChooserModal } from './components/BlueprintChooserModal';
 import { InstrumentAppearanceModal } from './components/InstrumentAppearanceModal';
+import { NeckJointExportModal } from './components/NeckJointExportModal';
+import type { PrintPaper } from './utils/tiledPrint';
 
 /** Matches the floor InspectorPanel's delete button enforces - a contour needs at least this many nodes to stay a sane shape. */
 export const MIN_ANCHOR_COUNT = 4;
@@ -86,6 +89,10 @@ interface EditorDoc {
   project: GuitarProject;
   guideImage: GuideImageState;
 }
+
+type PendingFabricationExport =
+  | { kind: 'dxf' }
+  | { kind: 'print'; paper: PrintPaper };
 
 const cloneDoc = (doc: EditorDoc): EditorDoc => ({
   project: JSON.parse(JSON.stringify(doc.project)) as GuitarProject,
@@ -168,6 +175,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [isBlueprintChooserOpen, setIsBlueprintChooserOpen] = useState(false);
   const [isInstrumentAppearanceOpen, setIsInstrumentAppearanceOpen] = useState(false);
+  const [pendingFabricationExport, setPendingFabricationExport] = useState<PendingFabricationExport | null>(null);
   const [mobilePanel, setMobilePanel] = useState<'tools' | 'inspector' | null>(null);
   // In-memory only - reappears on reload, deliberately not persisted to localStorage.
   const hasSeenSaveInfoRef = useRef(false);
@@ -613,10 +621,39 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
 
   const handleExportDXF = () => {
     try {
-      downloadDXFFile(project.settings.name, exportProjectToDXF(project));
+      downloadDXFFile(
+        project.settings.name,
+        exportProjectToDXF(project),
+        neckJointFabricationDisclosure(project) !== null,
+      );
     } catch (error) {
       alert(`DXF export failed. ${error instanceof Error ? error.message : 'Check the design and try again.'}`);
     }
+  };
+
+  const handlePrintTiled = (paper: PrintPaper) => {
+    try {
+      printTiledProject(project, paper);
+    } catch (error) {
+      alert(`Print export failed. ${error instanceof Error ? error.message : 'Check the design and try again.'}`);
+    }
+  };
+
+  const requestFabricationExport = (pending: PendingFabricationExport) => {
+    if (neckJointFabricationDisclosure(project)) {
+      setPendingFabricationExport(pending);
+      return;
+    }
+    if (pending.kind === 'dxf') handleExportDXF();
+    else handlePrintTiled(pending.paper);
+  };
+
+  const handleProceedFabricationExport = () => {
+    const pending = pendingFabricationExport;
+    setPendingFabricationExport(null);
+    if (!pending) return;
+    if (pending.kind === 'dxf') handleExportDXF();
+    else handlePrintTiled(pending.paper);
   };
 
   const handleShareProject = async () => {
@@ -768,12 +805,12 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         onResetTemplate={handleResetTemplate}
         onSwitchBlueprint={() => setIsBlueprintChooserOpen(true)}
         onSave={handleSaveProject}
-        onExportDXF={handleExportDXF}
+        onExportDXF={() => requestFabricationExport({ kind: 'dxf' })}
         onShare={handleShareProject}
         onView3D={handleView3D}
         onShowInstrumentAppearance={() => setIsInstrumentAppearanceOpen(true)}
         view3DAvailable
-        onPrintTiled={(paper) => printTiledProject(project, paper)}
+        onPrintTiled={(paper) => requestFabricationExport({ kind: 'print', paper })}
         onNewDesign={handleNewDesign}
         onShowWelcome={() => setIsWelcomeModalOpen(true)}
         onShowAbout={() => setIsAboutModalOpen(true)}
@@ -908,6 +945,12 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
           setIsSaveInfoModalOpen(false);
         }}
         onContinue={handleContinueFromSaveInfo}
+      />
+      <NeckJointExportModal
+        disclosure={pendingFabricationExport ? neckJointFabricationDisclosure(project) : null}
+        destination={pendingFabricationExport?.kind === 'dxf' ? 'DXF' : 'tiled print'}
+        onCancel={() => setPendingFabricationExport(null)}
+        onProceed={handleProceedFabricationExport}
       />
     </div>
   );

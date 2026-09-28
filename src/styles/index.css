@@ -1144,6 +1144,74 @@ summary:focus-visible {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
 }
 
+.neck-joint-export-backdrop {
+  z-index: 9999;
+  padding: 20px;
+}
+
+.neck-joint-export-modal {
+  width: min(100%, 520px);
+  overflow: hidden;
+  background: var(--bg-secondary);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.neck-joint-export-header,
+.neck-joint-export-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+}
+
+.neck-joint-export-header {
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.neck-joint-export-header h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.neck-joint-export-warning-icon {
+  flex: none;
+  color: var(--accent-gold);
+}
+
+.neck-joint-export-close {
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+}
+
+.neck-joint-export-body {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.neck-joint-export-body p {
+  margin: 0;
+}
+
+.neck-joint-export-help {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.neck-joint-export-footer {
+  justify-content: flex-end;
+  padding: 14px 20px;
+  border-top: 1px solid var(--panel-border);
+  background: var(--bg-tertiary);
+}
+
 .blueprint-chooser-modal {
   display: flex;
   flex-direction: column;

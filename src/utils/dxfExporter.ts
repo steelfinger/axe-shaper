@@ -2,6 +2,7 @@ import type { BodyContour, GuitarProject, Vector2D } from '../types/guitar';
 import { splitCubicBezier } from './bezier';
 import { resolveNeckPreset, resolvePickupSpec } from './presets';
 import { generateNeckJointOutline } from './neckJointGeometry';
+import { neckJointFabricationDisclosure } from './neckJointDisclosure';
 
 /** Maximum curve-to-chord deviation; serialization adds at most 0.000001 mm. */
 export const DXF_CURVE_TOLERANCE_MM = 0.01;
@@ -112,6 +113,8 @@ export function exportProjectToDXF(project: GuitarProject): string {
   const nextHandle = () => (handle++).toString(16).toUpperCase();
   pair(999, 'Axe Shaper 2D outlines; millimeters; no cutting depths or toolpaths.');
   pair(999, 'Origin: neck joint center. +X right, +Y toward neck. Back routes are NOT mirrored.');
+  const fabricationDisclosure = neckJointFabricationDisclosure(project);
+  if (fabricationDisclosure) pair(999, fabricationDisclosure);
   section('HEADER');
   pair(9, '$ACADVER'); pair(1, 'AC1015');
   pair(9, '$INSUNITS'); pair(70, 4);
@@ -168,12 +171,12 @@ export function exportProjectToDXF(project: GuitarProject): string {
   return `${lines.join('\r\n')}\r\n`;
 }
 
-export function downloadDXFFile(projectName: string, content: string): void {
+export function downloadDXFFile(projectName: string, content: string, hasFabricationDisclosure = false): void {
   const slug = projectName.trim().replace(/[^\p{L}\p{N}_-]+/gu, '-').replace(/^-+|-+$/g, '') || 'axe-shaper';
   const url = URL.createObjectURL(new Blob([content], { type: 'application/dxf' }));
   const link = document.createElement('a');
   link.href = url;
-  link.download = `${slug}.dxf`;
+  link.download = `${slug}${hasFabricationDisclosure ? '-unverified' : ''}.dxf`;
   document.body.appendChild(link);
   link.click();
   link.remove();
