@@ -209,10 +209,12 @@ disabled until the user enters a target heel width. This avoids silently
 falling back to an arbitrary global range.
 
 For a custom joint with a supplied cutter diameter, each concave internal
-corner must have a radius at least as large as that cutter diameter. The app
-reports this as fabrication guidance by default; it must never claim that an
-impossible inside corner is routable. A later CAM-specific workflow may choose
-to make the warning blocking.
+corner must have a radius at least as large as the cutter's **radius** (half
+its diameter). A cutter imposes that minimum; it does not dictate larger
+intentional fitting radii such as a rounded heel end. The app reports this as
+fabrication guidance by default; it must never claim that an impossible inside
+corner is routable. A later CAM-specific workflow may choose to make the
+warning blocking.
 
 Asymmetric joints, curved/tapered bolt-on sides beyond the named parameters,
 free movement of mouth nodes in Y, and a body without mapped attachment anchors
@@ -335,10 +337,11 @@ discovery.
   55.8800 mm deep target resolves to a 53.6456 mm mouth; these target values
   are a clearance choice, not a newly asserted factory nominal.
 - Spike a **named compound bolt-on end** before publishing that candidate:
-  prove a tangent-continuous generator with independent mouth-corner,
-  deep-corner and closing-arc radii, and decide whether mouth fillets are part
-  of the joint outline or the locked attached body contour. Do not replace it
-  with the generic rounded-end shape or change the current default model by
+  prove a tangent-continuous generator with independent deep-corner and
+  closing-arc radii. The pocket is open at the mouth: its 3/16 in fillets
+  remain locked `s_style` body-template geometry, while the joint outline
+  begins at the locked mouth anchors. Do not replace the compound end with the
+  generic rounded-end shape or change the current default model by
   implication.
 - Prototype width edits against every relevant body class, especially
   anchor/handle movement at the mouth.
@@ -434,7 +437,7 @@ Add the following to the web schema/corpus/DXF gates and their iOS equivalents:
 - missing/invalid attachment-anchor IDs;
 - malformed numeric values or an impossible generated outline;
 - a joint that leaves the body or contacts its perimeter away from the mouth;
-- concave corners smaller than the supplied cutter diameter;
+- concave corners smaller than half the supplied cutter diameter;
 - fixed reference fret by instrument type, placement-to-nut derivation, and a
   custom placement shift moving only neck and scale-derived bridge/saddle
   geometry while pickups remain body-relative;

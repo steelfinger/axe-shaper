@@ -34,12 +34,13 @@ proposed fitting target.
 
 This changes the **S-style evidence decision** to *conditional go*: the
 drawing supplies enough plan-view information for a documented candidate, but
-the current `bolt_on_pocket` contract cannot encode its different mouth/deep
-corner radii and 5 in closing arc. It would be dishonest to squeeze those
-numbers into `endRoundnessMm`. The next contract spike must prove a named
-compound-end generator and explicitly decide whether the two mouth radii live
-in the generated joint outline or in the attached body contour. Until that
-spike is complete in web, iOS and viewer, no bundled blueprint is converted.
+the current `bolt_on_pocket` contract cannot encode its deep-end corner radii
+and 5 in closing arc. It would be dishonest to squeeze those numbers into
+`endRoundnessMm`. The next contract spike must prove a named compound-end
+generator. The 3/16 in mouth fillets stay a locked body-template feature: the
+pocket is open there, so they are not a portable neck-interface parameter.
+Until that spike is complete in web, iOS and viewer, no bundled blueprint is
+converted.
 
 **The T-style decision remains no-go.** No source in this packet supplies its
 inside-corner radius, taper and fitting limits. The v1-v6 legacy adapter
