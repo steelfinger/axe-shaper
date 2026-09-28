@@ -528,6 +528,35 @@ export function nutToBodyEdgeFromPlacement(placement: NeckPlacement, scaleLength
 }
 
 /**
+ * Make the body-owned scale datum an explicit local choice. The generated
+ * neck-joint outline is deliberately not involved: changing registration
+ * moves the neck and scale-linked bridge, never the pocket or pickups.
+ */
+export function updateCustomNeckPlacement(
+  placement: NeckPlacement,
+  instrumentType: InstrumentType,
+  scaleLengthMm: number,
+  jointToReferenceFretMm: number,
+): NeckPlacement {
+  if (!finiteNonNegative(jointToReferenceFretMm)) {
+    throw new NeckJointContractError('Joint-to-reference-fret distance must be a finite non-negative number.');
+  }
+  if (placement.referenceFret !== fingerboardReferenceFret(instrumentType)) {
+    throw new NeckJointContractError(`Neck placement reference fret must be ${fingerboardReferenceFret(instrumentType)} for this instrument.`);
+  }
+  const candidate: NeckPlacement = {
+    ...placement,
+    mode: 'custom',
+    jointToReferenceFretMm,
+    provenance: 'user:joint-to-reference-fret',
+  };
+  if (!(nutToBodyEdgeFromPlacement(candidate, scaleLengthMm) > 0)) {
+    throw new NeckJointContractError('Neck placement must keep the nut before the body joint line.');
+  }
+  return candidate;
+}
+
+/**
  * Derive the two bolt-on width stations from a neck with straight, linearly
  * tapered sides. The result is snapshot-ready v7 geometry: callers persist
  * the two widths in `parameters`, so a later catalogue correction cannot
