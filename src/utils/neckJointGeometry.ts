@@ -19,6 +19,21 @@ export interface NeckJointOutline {
   closed: true;
 }
 
+/**
+ * Phase-0 geometry spike for the documented 1962 S-style pocket. It is
+ * intentionally not a v7 `planShape` yet: the persisted contract must wait
+ * for iOS and viewer parity. The pocket mouth is open/body-owned; this shape
+ * starts at its two locked mouth anchors and models only the fitting walls and
+ * compound deep end.
+ */
+export interface CompoundBoltOnPocketPrototypeParameters {
+  mouthWidthMm: number;
+  deepEndWidthMm: number;
+  planLengthMm: number;
+  deepEndCornerRadiusMm: number;
+  deepEndArcRadiusMm: number;
+}
+
 export class NeckJointContractError extends Error {
   constructor(message: string) {
     super(message);
@@ -179,6 +194,127 @@ function appendArc(points: Vector2D[], center: Vector2D, radius: number, from: n
     const angle = from + ((to - from) * step) / steps;
     points.push({ x: center.x + Math.cos(angle) * radius, y: center.y + Math.sin(angle) * radius });
   }
+}
+
+/**
+ * Produce the tangent-continuous compound deep end used by the documented
+ * vintage S-style drawing. The nominal deep width is the intersection of the
+ * straight side-wall extensions at `planLengthMm`; the actual walls terminate
+ * earlier in two equal fillets that join the large closing arc. That lets the
+ * source retain its measured taper, 1/4 in deep corners, and 5 in heel arc
+ * without treating the open mouth's body-template fillets as joint data.
+ */
+export function generateCompoundBoltOnPocketPrototypeOutline(
+  parameters: CompoundBoltOnPocketPrototypeParameters,
+  toleranceMm = 0.01,
+): NeckJointOutline {
+  const {
+    mouthWidthMm,
+    deepEndWidthMm,
+    planLengthMm,
+    deepEndCornerRadiusMm,
+    deepEndArcRadiusMm,
+  } = parameters;
+  for (const [label, value] of [
+    ['mouth width', mouthWidthMm],
+    ['deep-end width', deepEndWidthMm],
+    ['plan length', planLengthMm],
+    ['deep-end corner radius', deepEndCornerRadiusMm],
+    ['deep-end arc radius', deepEndArcRadiusMm],
+  ] as const) {
+    if (!finitePositive(value)) throw new NeckJointContractError(`Compound bolt-on ${label} must be a positive finite number.`);
+  }
+  if (deepEndWidthMm < mouthWidthMm) {
+    throw new NeckJointContractError('A compound bolt-on pocket must not narrow toward its deep end.');
+  }
+  if (deepEndArcRadiusMm <= deepEndCornerRadiusMm) {
+    throw new NeckJointContractError('A compound bolt-on closing arc must be larger than its deep-end corner radius.');
+  }
+
+  // A side is defined by the two nominal width stations. `inwardNormal`
+  // points from the right wall into the pocket and offsets the small corner
+  // fillet centre from that wall.
+  const sideAngle = Math.atan2((deepEndWidthMm - mouthWidthMm) / 2, planLengthMm);
+  const sideDirection = { x: Math.sin(sideAngle), y: Math.cos(sideAngle) };
+  const inwardNormal = { x: -sideDirection.y, y: sideDirection.x };
+  const rightMouth = { x: mouthWidthMm / 2, y: 0 };
+  const closingCenter = { x: 0, y: planLengthMm - deepEndArcRadiusMm };
+  const offsetLineStart = {
+    x: rightMouth.x + deepEndCornerRadiusMm * inwardNormal.x,
+    y: rightMouth.y + deepEndCornerRadiusMm * inwardNormal.y,
+  };
+  const toClosingCenter = {
+    x: offsetLineStart.x - closingCenter.x,
+    y: offsetLineStart.y - closingCenter.y,
+  };
+  const tangentCentreDistance = deepEndArcRadiusMm - deepEndCornerRadiusMm;
+  const b = 2 * (toClosingCenter.x * sideDirection.x + toClosingCenter.y * sideDirection.y);
+  const c = toClosingCenter.x ** 2 + toClosingCenter.y ** 2 - tangentCentreDistance ** 2;
+  const discriminant = b ** 2 - 4 * c;
+  if (discriminant < 0) {
+    throw new NeckJointContractError('Compound bolt-on radii cannot form tangent deep-end geometry.');
+  }
+  const roots = [(-b - Math.sqrt(discriminant)) / 2, (-b + Math.sqrt(discriminant)) / 2]
+    .filter((distance) => distance > 0);
+  const sideDistance = Math.min(...roots);
+  if (!Number.isFinite(sideDistance)) {
+    throw new NeckJointContractError('Compound bolt-on geometry has no forward tangent point.');
+  }
+  const rightFilletCenter = {
+    x: offsetLineStart.x + sideDistance * sideDirection.x,
+    y: offsetLineStart.y + sideDistance * sideDirection.y,
+  };
+  const rightSideEnd = {
+    x: rightFilletCenter.x - deepEndCornerRadiusMm * inwardNormal.x,
+    y: rightFilletCenter.y - deepEndCornerRadiusMm * inwardNormal.y,
+  };
+  if (rightSideEnd.y > planLengthMm + 0.000001) {
+    throw new NeckJointContractError('Compound bolt-on fillet begins beyond its plan length.');
+  }
+  const vectorToFillet = {
+    x: rightFilletCenter.x - closingCenter.x,
+    y: rightFilletCenter.y - closingCenter.y,
+  };
+  const distanceToFillet = Math.hypot(vectorToFillet.x, vectorToFillet.y);
+  const rightArcStart = {
+    x: closingCenter.x + deepEndArcRadiusMm * vectorToFillet.x / distanceToFillet,
+    y: closingCenter.y + deepEndArcRadiusMm * vectorToFillet.y / distanceToFillet,
+  };
+  const rightFilletStartAngle = Math.atan2(
+    rightSideEnd.y - rightFilletCenter.y,
+    rightSideEnd.x - rightFilletCenter.x,
+  );
+  const rightFilletEndAngle = Math.atan2(
+    rightArcStart.y - rightFilletCenter.y,
+    rightArcStart.x - rightFilletCenter.x,
+  );
+  const rightClosingAngle = Math.atan2(
+    rightArcStart.y - closingCenter.y,
+    rightArcStart.x - closingCenter.x,
+  );
+  if (rightFilletEndAngle <= rightFilletStartAngle || rightClosingAngle >= Math.PI / 2) {
+    throw new NeckJointContractError('Compound bolt-on tangent order is invalid.');
+  }
+
+  const leftMouth = { x: -rightMouth.x, y: 0 };
+  const leftArcStart = { x: -rightArcStart.x, y: rightArcStart.y };
+  const leftFilletCenter = { x: -rightFilletCenter.x, y: rightFilletCenter.y };
+  const leftSideEnd = { x: -rightSideEnd.x, y: rightSideEnd.y };
+  const leftFilletStartAngle = Math.atan2(
+    leftArcStart.y - leftFilletCenter.y,
+    leftArcStart.x - leftFilletCenter.x,
+  );
+  const leftFilletEndAngle = Math.atan2(
+    leftSideEnd.y - leftFilletCenter.y,
+    leftSideEnd.x - leftFilletCenter.x,
+  );
+  const points: Vector2D[] = [leftMouth, rightMouth, rightSideEnd];
+  appendArc(points, rightFilletCenter, deepEndCornerRadiusMm, rightFilletStartAngle, rightFilletEndAngle, toleranceMm);
+  appendArc(points, closingCenter, deepEndArcRadiusMm, rightClosingAngle, Math.PI / 2, toleranceMm);
+  appendArc(points, closingCenter, deepEndArcRadiusMm, Math.PI / 2, Math.PI - rightClosingAngle, toleranceMm);
+  appendArc(points, leftFilletCenter, deepEndCornerRadiusMm, leftFilletStartAngle, leftFilletEndAngle, toleranceMm);
+
+  return { points, closed: true };
 }
 
 /**
