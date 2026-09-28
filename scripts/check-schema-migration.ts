@@ -558,6 +558,35 @@ async function main() {
       invariant(exporter.exportProjectToSVG(v7).includes('<path d="M -27.780000 0.000000'), 'v7 SVG did not render generated joint geometry');
     });
 
+    check('custom neck placement moves only the scale-linked neck and bridge datum', () => {
+      const customPlacement = neckJoint.updateCustomNeckPlacement(
+        v7.neckPlacement,
+        'guitar',
+        v7.neckPreset.scaleLengthMm,
+        v7.neckPlacement.jointToReferenceFretMm + 4,
+      );
+      deepStrictEqual(customPlacement.mode, 'custom');
+      deepStrictEqual(customPlacement.provenance, 'user:joint-to-reference-fret');
+      deepStrictEqual(customPlacement.jointToReferenceFretMm, v7.neckPlacement.jointToReferenceFretMm + 4);
+      deepStrictEqual(
+        neckJoint.nutToBodyEdgeFromPlacement(customPlacement, v7.neckPreset.scaleLengthMm),
+        neckJoint.nutToBodyEdgeFromPlacement(v7.neckPlacement, v7.neckPreset.scaleLengthMm) - 4,
+      );
+      throws(
+        () => neckJoint.updateCustomNeckPlacement(v7.neckPlacement, 'guitar', v7.neckPreset.scaleLengthMm, -0.1),
+        /non-negative/,
+      );
+      throws(
+        () => neckJoint.updateCustomNeckPlacement(
+          v7.neckPlacement,
+          'guitar',
+          v7.neckPreset.scaleLengthMm,
+          v7.neckPreset.scaleLengthMm * (1 - Math.pow(2, -22 / 12)),
+        ),
+        /nut before the body joint line/,
+      );
+    });
+
     check('discloses only non-verified v7 neck joints in printable SVG', () => {
       const legacySvg = exporter.exportProjectToSVG(plain);
       const documentedSvg = exporter.exportProjectToSVG(v7);

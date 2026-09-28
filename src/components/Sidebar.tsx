@@ -41,6 +41,7 @@ import {
 import {
   NeckJointContractError,
   neckJointCutterWarnings,
+  updateCustomNeckPlacement,
   updateCustomNeckJoint,
   type CustomNeckJointUpdate,
 } from '../utils/neckJointGeometry';
@@ -122,6 +123,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [bodyThicknessError, setBodyThicknessError] = useState<string | null>(null);
   const [jointGeometryError, setJointGeometryError] = useState<string | null>(null);
+  const [neckPlacementError, setNeckPlacementError] = useState<string | null>(null);
+  const [neckPlacementDraftMm, setNeckPlacementDraftMm] = useState<number | null>(null);
 
   const edgeProfileKind = edgeProfileKindOf(project.edgeProfile);
   const knownEdgeKind: EdgeProfileKind = isKnownEdgeProfileKind(edgeProfileKind) ? edgeProfileKind : 'slab';
@@ -417,6 +420,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { parameters: { [parameter]: toMm(displayValue, settings.unitDisplay) } },
     `neck-joint-${parameter}`,
   );
+
+  const applyCustomNeckPlacement = () => {
+    if (!project.neckPlacement) return;
+    const nextValue = neckPlacementDraftMm ?? project.neckPlacement.jointToReferenceFretMm;
+    try {
+      const placement = updateCustomNeckPlacement(
+        project.neckPlacement,
+        project.instrumentType,
+        currentNeck.scaleLengthMm,
+        nextValue,
+      );
+      onUpdateProject(
+        (prev) => withEmbeddedPresets({ ...prev, neckPlacement: placement }),
+        'neck-placement',
+      );
+      setNeckPlacementDraftMm(null);
+      setNeckPlacementError(null);
+      onEndEdit();
+    } catch (error) {
+      setNeckPlacementError(error instanceof NeckJointContractError ? error.message : 'Could not change neck placement.');
+    }
+  };
 
   const bodyLayersPanel = (
     <div className="panel-section">
@@ -1310,6 +1335,56 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </p>
               )}
             </div>
+
+            {project.neckPlacement && (() => {
+              const currentPlacementMm = project.neckPlacement.jointToReferenceFretMm;
+              const draftedPlacementMm = neckPlacementDraftMm ?? currentPlacementMm;
+              const bridgeShiftMm = draftedPlacementMm - currentPlacementMm;
+              const direction = bridgeShiftMm > 0 ? 'toward the tail' : 'toward the neck';
+              return (
+                <div className="panel-section">
+                  <div className="section-title">Neck Placement</div>
+                  <p className="panel-help">
+                    This body-owned datum moves the neck and scale-linked bridge. The pocket and pickups stay where they are.
+                  </p>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="neck-placement-reference-fret">
+                      Joint to Fret {project.neckPlacement.referenceFret}
+                    </label>
+                    <div className="measured-input-row">
+                      <DecimalInput
+                        id="neck-placement-reference-fret"
+                        className="form-input measured-input"
+                        value={toDisplayUnits(draftedPlacementMm, settings.unitDisplay)}
+                        digits={settings.unitDisplay === 'mm' ? 3 : 4}
+                        min={0}
+                        step={settings.unitDisplay === 'mm' ? 0.1 : 0.005}
+                        onValueChange={(value) => setNeckPlacementDraftMm(toMm(value, settings.unitDisplay))}
+                      />
+                      <span>{unitLabel(settings.unitDisplay)}</span>
+                    </div>
+                  </div>
+                  <p className="panel-help" role="status">
+                    {Math.abs(bridgeShiftMm) < 0.000001
+                      ? 'Preview: bridge position is unchanged. Pickups remain body-relative.'
+                      : `Preview: bridge moves ${formatLength(Math.abs(bridgeShiftMm), settings.unitDisplay, 3)} ${unitLabel(settings.unitDisplay)} ${direction}. Pickups remain body-relative.`}
+                  </p>
+                  <button
+                    type="button"
+                    className="btn btn-sm"
+                    onClick={applyCustomNeckPlacement}
+                    disabled={Math.abs(bridgeShiftMm) < 0.000001}
+                  >
+                    Apply Placement
+                  </button>
+                  {neckPlacementError && (
+                    <p className="panel-help" style={{ color: 'var(--accent-red)' }} role="alert">
+                      {neckPlacementError}
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
 
             <div className="panel-section">
               <div className="section-title">Bridge & Intonation Math</div>
