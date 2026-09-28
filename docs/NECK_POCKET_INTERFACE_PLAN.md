@@ -169,7 +169,9 @@ For every supported joint shape:
   Bézier handles** are locked against ordinary body editing in locked and
   custom modes.
 - A numeric width edit moves them to `-width / 2` and `+width / 2` in one undo
-  transaction and translates their handles by the same X delta.
+  transaction. Their Bézier handles are stored as offsets, so those offset
+  values remain unchanged and their absolute control points translate with the
+  anchors by the same X delta.
 - The mouth is an attachment boundary, not an editable curve; the two side
   walls are always generated as straight lines. No joint nodes or handles are
   exposed on canvas.
