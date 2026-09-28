@@ -20,7 +20,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { deepStrictEqual } from 'node:assert';
+import { deepStrictEqual, throws } from 'node:assert';
 import { createServer } from 'vite';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -590,6 +590,41 @@ async function main() {
       const outline = neckJoint.generateNeckJointOutline(taperedBoltOn).points;
       invariant(outline[2].x > outline[1].x, 'bolt-on deep end did not widen relative to its mouth');
       invariant(outline[outline.length - 1].x < outline[0].x, 'bolt-on taper was not symmetric about the centreline');
+    });
+
+    check('prototypes the documented compound S-style pocket end without changing v7', () => {
+      // Fender Body, Vintage Stratocaster 1962, part 019574: use the selected
+      // maximum deep-end target and nominal 0.84° side angle. The open-mouth
+      // 3/16 in fillets are locked body-template geometry, not this profile.
+      const planLengthMm = 76.2;
+      const deepEndWidthMm = 55.88;
+      const mouthWidthMm = deepEndWidthMm - 2 * planLengthMm * Math.tan(0.84 * Math.PI / 180);
+      const outline = neckJoint.generateCompoundBoltOnPocketPrototypeOutline({
+        mouthWidthMm,
+        deepEndWidthMm,
+        planLengthMm,
+        deepEndCornerRadiusMm: 6.35,
+        deepEndArcRadiusMm: 127,
+      }).points;
+      invariant(Math.abs(mouthWidthMm - 53.64553921225705) < 0.000000001,
+        'documented S-style mouth width was not derived from its taper');
+      invariant(Math.abs(outline[0].x + mouthWidthMm / 2) < 0.000000001 && outline[0].y === 0,
+        'compound pocket did not begin at the left mouth anchor');
+      invariant(Math.abs(outline[1].x - mouthWidthMm / 2) < 0.000000001 && outline[1].y === 0,
+        'compound pocket did not begin at the right mouth anchor');
+      invariant(Math.abs(Math.max(...outline.map((point: any) => point.y)) - planLengthMm) < 0.000000001,
+        'compound pocket did not retain the source plan length at its closing-arc apex');
+      invariant(outline[2].x > outline[1].x && outline[2].y > 0,
+        'compound pocket did not retain its straight tapered right wall');
+      const leftSideEnd = outline[outline.length - 1];
+      invariant(Math.abs(leftSideEnd.x + outline[2].x) < 0.000000001
+        && Math.abs(leftSideEnd.y - outline[2].y) < 0.000000001,
+      'compound pocket lost its mirrored straight-side construction');
+      throws(() => neckJoint.validateNeckJointGeometry({
+        ...documentedSStyleJoint,
+        planShape: 'bolt_on_compound_end' as any,
+        profileSnapshot: { ...documentedSStyleJoint.profileSnapshot, planShape: 'bolt_on_compound_end' as any },
+      }), /not supported/, 'phase-0 prototype must not silently expand the persisted v7 contract');
     });
 
     check('rejects a v7 payload whose paired joint contract is stripped or corrupt', () => {

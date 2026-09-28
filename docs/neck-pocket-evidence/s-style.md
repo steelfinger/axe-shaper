@@ -56,12 +56,14 @@ deep-end corners plus its 5 in closing arc. The 4.7625 mm mouth corners are
 not part of this blocker: the pocket is open at the mouth, and those fillets
 remain locked body-template geometry adjacent to the attachment anchors.
 
-Before this candidate can be shipped, add and test a named compound bolt-on
-shape with explicit `deepCornerRadiusMm` and `deepEndArcRadiusMm`, alongside
-the two width stations and plan length. The web, iOS and viewer must generate
-the same tangent-continuous outline, beginning exactly at the locked body
-mouth anchors. Do not quietly substitute the legacy 6.35 mm
-rounded-rectangle value or approximate the 127 mm arc with a semicircle.
+The web Phase 0 spike now generates the source values as tangent-continuous
+geometry, beginning exactly at the locked body mouth anchors, while asserting
+that it has **not** silently become a persisted v7 shape. Before this candidate
+can ship, promote it to a named shape with explicit `deepCornerRadiusMm` and
+`deepEndArcRadiusMm`, alongside the two width stations and plan length, then
+port the exact decoder and fixtures to iOS and viewer. Do not quietly
+substitute the legacy 6.35 mm rounded-rectangle value or approximate the
+127 mm arc with a semicircle.
 
 ## Limits and next evidence
 

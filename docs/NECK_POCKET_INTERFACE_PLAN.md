@@ -336,13 +336,14 @@ discovery.
   mouth corners, 6.35 mm deep corners and a 127 mm closing arc. Its proposed
   55.8800 mm deep target resolves to a 53.6456 mm mouth; these target values
   are a clearance choice, not a newly asserted factory nominal.
-- Spike a **named compound bolt-on end** before publishing that candidate:
-  prove a tangent-continuous generator with independent deep-corner and
-  closing-arc radii. The pocket is open at the mouth: its 3/16 in fillets
-  remain locked `s_style` body-template geometry, while the joint outline
-  begins at the locked mouth anchors. Do not replace the compound end with the
-  generic rounded-end shape or change the current default model by
-  implication.
+- The web Phase 0 spike now proves a tangent-continuous compound bolt-on end
+  with independent deep-corner and closing-arc radii, using the documented
+  S-style values. It is deliberately non-persisted: promote it to a named
+  contract shape only once iOS and viewer can decode the same fixtures. The
+  pocket is open at the mouth, so its 3/16 in fillets remain locked `s_style`
+  body-template geometry while the joint outline begins at the locked mouth
+  anchors. Do not replace the compound end with the generic rounded-end shape
+  or change the current default model by implication.
 - Prototype width edits against every relevant body class, especially
   anchor/handle movement at the mouth.
 - Validate the numeric shape generator for square and rounded bolt-on ends.
