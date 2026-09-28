@@ -627,8 +627,10 @@ async function main() {
       }), /not supported/, 'phase-0 prototype must not silently expand the persisted v7 contract');
     });
 
-    check('moves custom joint mouths symmetrically across every bundled body without changing handle offsets', () => {
-      const blueprints = readdirSync(BLUEPRINT_DIR).filter((file) => file.endsWith('.axe.svg'));
+    check('validates custom joint mouth attachments across every convertible guitar body without changing handle offsets', () => {
+      const blueprints = readdirSync(BLUEPRINT_DIR)
+        .filter((file) => file.endsWith('.axe.svg'))
+        .filter((file) => decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8')).instrumentType === 'guitar');
       invariant(blueprints.length > 0, 'no bundled blueprints available for the mouth-width spike');
       for (const file of blueprints) {
         const project = decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8'));
@@ -652,8 +654,16 @@ async function main() {
           },
           mouthAnchorIds: [left.id, right.id] as [string, string],
         };
-        const targetWidth = currentWidth + 1;
-        const resized = neckJoint.setCustomNeckJointMouthWidth(custom, project.contour, targetWidth);
+        // An unchanged width still passes through the one authoritative
+        // operation. The bodies do not all have room for an arbitrary +1mm
+        // widening, which is precisely what clearance validation must catch.
+        const targetWidth = currentWidth;
+        let resized: any;
+        try {
+          resized = neckJoint.setCustomNeckJointMouthWidth(custom, project.contour, targetWidth);
+        } catch (error) {
+          throw new Error(`${file}: ${(error as Error).message}`);
+        }
         const resizedLeft = resized.contour.anchors.find((anchor: any) => anchor.id === left.id)!;
         const resizedRight = resized.contour.anchors.find((anchor: any) => anchor.id === right.id)!;
         invariant(resizedLeft.position.x === -targetWidth / 2 && resizedLeft.position.y === 0
@@ -693,12 +703,43 @@ async function main() {
         'numeric mouth width did not survive the v7 compatibility write');
       invariant(saved.neckPreset.jointWidthMm === initialWidth + 0.5,
         'legacy width mirror was not derived from the custom v7 joint');
-      for (const file of readdirSync(BLUEPRINT_DIR).filter((name) => name.endsWith('.axe.svg')).sort()) {
+      const savedLeft = saved.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_left')!;
+      const savedRight = saved.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_right')!;
+      invariant(savedLeft.position.x === -(initialWidth + 0.5) / 2 && savedRight.position.x === (initialWidth + 0.5) / 2,
+        'numeric mouth width did not move the paired mouth anchors symmetrically');
+      for (const file of readdirSync(BLUEPRINT_DIR)
+        .filter((name) => name.endsWith('.axe.svg'))
+        .filter((name) => decodePayload(readFileSync(join(BLUEPRINT_DIR, name), 'utf8')).instrumentType === 'guitar')
+        .sort()) {
         const source = presets.migrateProject(decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8')));
         const convertedBody = presets.convertLegacyNeckJointToCustom(source);
         invariant(convertedBody.schemaVersion === 7 && convertedBody.neckJointGeometry?.mode === 'custom',
           `${file}: conversion did not produce an editable custom v7 joint`);
+        try {
+          neckJoint.validateNeckJointWithinBody(convertedBody.neckJointGeometry, convertedBody.contour);
+        } catch (error) {
+          throw new Error(`${file}: ${(error as Error).message}`);
+        }
       }
+      const bass = presets.migrateProject({ ...currentBlueprint, instrumentType: 'bass', stringCount: 4 });
+      throws(() => presets.convertLegacyNeckJointToCustom(bass), /bass neck pockets remain legacy-only/,
+        'bass must not silently enter the generic custom-joint editor');
+    });
+
+    check('keeps numeric custom-joint edits inside the body and warns about an incompatible cutter', () => {
+      const converted = presets.convertLegacyNeckJointToCustom(presets.migrateProject(currentBlueprint));
+      const current = converted.neckJointGeometry!;
+      const tapered = neckJoint.updateCustomNeckJoint(current, converted.contour, {
+        parameters: { deepEndWidthMm: current.parameters.mouthWidthMm + 0.1 },
+      });
+      invariant(tapered.geometry.parameters.deepEndWidthMm === current.parameters.mouthWidthMm + 0.1,
+        'deep-end width did not persist through the custom joint operation');
+      const cutterChecked = neckJoint.updateCustomNeckJoint(tapered.geometry, tapered.contour, { cutterDiameterMm: 20 });
+      invariant(neckJoint.neckJointCutterWarnings(cutterChecked.geometry).length === 1,
+        'an oversized cutter did not produce an advisory warning');
+      throws(() => neckJoint.updateCustomNeckJoint(current, converted.contour, {
+        parameters: { planLengthMm: current.parameters.planLengthMm + 1000 },
+      }), /leaves the body/, 'a joint that leaves the body was accepted');
     });
 
     check('rejects a v7 payload whose paired joint contract is stripped or corrupt', () => {

@@ -18,6 +18,7 @@ import type {
   SymmetryMode,
   CalibrationState,
   NeckJointMechanism,
+  NeckJointPlanParameters,
   PickguardPlacement,
   RoutedCavity,
   PickupType,
@@ -37,7 +38,12 @@ import {
   resolvedNeckJointMechanism,
   withEmbeddedPresets,
 } from '../utils/presets';
-import { NeckJointContractError, setCustomNeckJointMouthWidth } from '../utils/neckJointGeometry';
+import {
+  NeckJointContractError,
+  neckJointCutterWarnings,
+  updateCustomNeckJoint,
+  type CustomNeckJointUpdate,
+} from '../utils/neckJointGeometry';
 import { type ActiveLayer, activeLayersEqual } from '../utils/layerShapes';
 import { getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 import { GRID_PRESETS, formatLength, gridMinorDivisor, toDisplayUnits, toMm, unitLabel } from '../utils/units';
@@ -325,6 +331,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const currentNeck = resolveNeckPreset(project);
   const currentBridge = resolveBridgePreset(project);
   const currentMechanism = resolvedNeckJointMechanism(project);
+  const jointCutterWarnings = project.neckJointGeometry
+    ? neckJointCutterWarnings(project.neckJointGeometry)
+    : [];
 
   /**
    * Re-resolve the neck for `neckId`/`mechanism` against the active body and
@@ -384,21 +393,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
-  const changeCustomJointMouthWidth = (displayWidth: number) => {
-    const mouthWidthMm = toMm(displayWidth, settings.unitDisplay);
+  const updateCustomJoint = (update: CustomNeckJointUpdate, coalesceKey: string) => {
     try {
       if (!project.neckJointGeometry || project.neckJointGeometry.mode !== 'custom') return;
-      const resized = setCustomNeckJointMouthWidth(project.neckJointGeometry, project.contour, mouthWidthMm);
+      const resized = updateCustomNeckJoint(project.neckJointGeometry, project.contour, update);
       const updated = withEmbeddedPresets({ ...project, contour: resized.contour, neckJointGeometry: resized.geometry });
       // As above, validate the complete candidate before handing it to React.
       // This keeps failed numeric input local to the form instead of making
       // the application's update callback throw after the event handler ends.
-      onUpdateProject(() => updated, 'neck-joint-mouth-width');
+      onUpdateProject(() => updated, coalesceKey);
       setJointGeometryError(null);
     } catch (error) {
-      setJointGeometryError(error instanceof NeckJointContractError ? error.message : 'Could not change the neck-joint mouth width.');
+      setJointGeometryError(error instanceof NeckJointContractError ? error.message : 'Could not change the neck-joint dimensions.');
     }
   };
+
+  const changeCustomJointDimension = (
+    parameter: keyof NeckJointPlanParameters,
+    displayValue: number,
+  ) => updateCustomJoint(
+    { parameters: { [parameter]: toMm(displayValue, settings.unitDisplay) } },
+    `neck-joint-${parameter}`,
+  );
 
   const bodyLayersPanel = (
     <div className="panel-section">
@@ -1063,7 +1079,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             <div className="panel-section">
               <div className="section-title">Neck Joint Geometry</div>
-              {!project.neckJointGeometry ? (
+              {!project.neckJointGeometry && project.instrumentType === 'bass' ? (
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  Generic bass pockets remain legacy-only while documented bass-joint profiles are researched.
+                </p>
+              ) : !project.neckJointGeometry ? (
                 <>
                   <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
                     This design uses the frozen generic legacy pocket. Convert it to make a local custom joint; the body’s locked mouth anchors remain the attachment points.
@@ -1075,7 +1095,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               ) : project.neckJointGeometry.mode === 'custom' ? (
                 <>
                   <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
-                    Custom {project.neckJointGeometry.mechanism === 'bolt_on' ? 'bolt-on pocket' : 'glued mortise'}. This first editor control moves the two locked mouth anchors symmetrically; sides and end geometry remain numeric and fixed.
+                    Custom {project.neckJointGeometry.mechanism === 'bolt_on' ? 'bolt-on pocket' : 'glued mortise'}. Numeric changes keep the mouth anchors symmetric and reject a rout that leaves the body.
                   </p>
                   <div className="form-group">
                     <label className="form-label" htmlFor="neck-joint-mouth-width">Mouth Width</label>
@@ -1087,12 +1107,166 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         digits={settings.unitDisplay === 'mm' ? 3 : 4}
                         min={toDisplayUnits(0.001, settings.unitDisplay)}
                         step={settings.unitDisplay === 'mm' ? 0.1 : 0.005}
-                        onValueChange={changeCustomJointMouthWidth}
+                        onValueChange={(value) => changeCustomJointDimension('mouthWidthMm', value)}
                         onBlur={onEndEdit}
                       />
                       <span>{unitLabel(settings.unitDisplay)}</span>
                     </div>
                   </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="neck-joint-plan-length">Plan Length</label>
+                    <div className="measured-input-row">
+                      <DecimalInput
+                        id="neck-joint-plan-length"
+                        className="form-input measured-input"
+                        value={toDisplayUnits(project.neckJointGeometry.parameters.planLengthMm, settings.unitDisplay)}
+                        digits={settings.unitDisplay === 'mm' ? 3 : 4}
+                        min={toDisplayUnits(
+                          project.neckJointGeometry.parameters.endTreatment === 'rounded'
+                            ? project.neckJointGeometry.parameters.endRoundnessMm
+                            : project.neckJointGeometry.parameters.endCornerRadiusMm,
+                          settings.unitDisplay,
+                        )}
+                        step={settings.unitDisplay === 'mm' ? 0.1 : 0.005}
+                        onValueChange={(value) => changeCustomJointDimension('planLengthMm', value)}
+                        onBlur={onEndEdit}
+                      />
+                      <span>{unitLabel(settings.unitDisplay)}</span>
+                    </div>
+                  </div>
+                  {(project.neckJointGeometry.planShape === 'bolt_on_pocket'
+                    || project.neckJointGeometry.planShape === 'tapered_mortise') && (
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="neck-joint-deep-width">Deep-End Width</label>
+                      <div className="measured-input-row">
+                        <DecimalInput
+                          id="neck-joint-deep-width"
+                          className="form-input measured-input"
+                          value={toDisplayUnits(
+                            project.neckJointGeometry.parameters.deepEndWidthMm
+                              ?? project.neckJointGeometry.parameters.mouthWidthMm,
+                            settings.unitDisplay,
+                          )}
+                          digits={settings.unitDisplay === 'mm' ? 3 : 4}
+                          min={toDisplayUnits(
+                            project.neckJointGeometry.planShape === 'bolt_on_pocket'
+                              ? project.neckJointGeometry.parameters.mouthWidthMm
+                              : 0.001,
+                            settings.unitDisplay,
+                          )}
+                          step={settings.unitDisplay === 'mm' ? 0.1 : 0.005}
+                          onValueChange={(value) => changeCustomJointDimension('deepEndWidthMm', value)}
+                          onBlur={onEndEdit}
+                        />
+                        <span>{unitLabel(settings.unitDisplay)}</span>
+                      </div>
+                    </div>
+                  )}
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="neck-joint-end-treatment">Deep End</label>
+                    <select
+                      id="neck-joint-end-treatment"
+                      value={project.neckJointGeometry.parameters.endTreatment}
+                      onChange={(event) => {
+                        const endTreatment = event.target.value as NeckJointPlanParameters['endTreatment'];
+                        const deepWidth = project.neckJointGeometry!.parameters.deepEndWidthMm
+                          ?? project.neckJointGeometry!.parameters.mouthWidthMm;
+                        updateCustomJoint(
+                          {
+                            parameters: endTreatment === 'rounded'
+                              ? {
+                                  endTreatment,
+                                  endRoundnessMm: project.neckJointGeometry!.parameters.endRoundnessMm || deepWidth / 2,
+                                }
+                              : { endTreatment },
+                          },
+                          'neck-joint-end-treatment',
+                        );
+                      }}
+                      className="form-select"
+                    >
+                      <option value="square">Cornered end</option>
+                      <option value="rounded">Rounded end</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="neck-joint-end-radius">
+                      {project.neckJointGeometry.parameters.endTreatment === 'rounded' ? 'Overall End Radius' : 'End-Corner Radius'}
+                    </label>
+                    <div className="measured-input-row">
+                      <DecimalInput
+                        id="neck-joint-end-radius"
+                        className="form-input measured-input"
+                        value={toDisplayUnits(
+                          project.neckJointGeometry.parameters.endTreatment === 'rounded'
+                            ? project.neckJointGeometry.parameters.endRoundnessMm
+                            : project.neckJointGeometry.parameters.endCornerRadiusMm,
+                          settings.unitDisplay,
+                        )}
+                        digits={settings.unitDisplay === 'mm' ? 3 : 4}
+                        min={0}
+                        max={toDisplayUnits(
+                          Math.min(
+                            (project.neckJointGeometry.parameters.deepEndWidthMm
+                              ?? project.neckJointGeometry.parameters.mouthWidthMm) / 2,
+                            project.neckJointGeometry.parameters.planLengthMm,
+                          ),
+                          settings.unitDisplay,
+                        )}
+                        step={settings.unitDisplay === 'mm' ? 0.1 : 0.005}
+                        onValueChange={(value) => changeCustomJointDimension(
+                          project.neckJointGeometry!.parameters.endTreatment === 'rounded'
+                            ? 'endRoundnessMm'
+                            : 'endCornerRadiusMm',
+                          value,
+                        )}
+                        onBlur={onEndEdit}
+                      />
+                      <span>{unitLabel(settings.unitDisplay)}</span>
+                    </div>
+                    <p className="panel-help" style={{ marginTop: '5px', marginBottom: 0 }}>
+                      A cornered and a rounded end are alternate generic shapes. The combined Strat end remains a separate documented profile.
+                    </p>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="neck-joint-cutter-diameter">Cutter Diameter (optional)</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto auto', alignItems: 'center', gap: '8px' }}>
+                      <DecimalInput
+                        id="neck-joint-cutter-diameter"
+                        className="form-input measured-input"
+                        value={project.neckJointGeometry.cutterDiameterMm === undefined
+                          ? null
+                          : toDisplayUnits(project.neckJointGeometry.cutterDiameterMm, settings.unitDisplay)}
+                        digits={settings.unitDisplay === 'mm' ? 3 : 4}
+                        min={toDisplayUnits(0.001, settings.unitDisplay)}
+                        step={settings.unitDisplay === 'mm' ? 0.1 : 0.005}
+                        placeholder="Unset"
+                        onValueChange={(value) => updateCustomJoint(
+                          { cutterDiameterMm: toMm(value, settings.unitDisplay) },
+                          'neck-joint-cutter-diameter',
+                        )}
+                        onBlur={onEndEdit}
+                      />
+                      <span style={{ minWidth: '22px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>
+                        {unitLabel(settings.unitDisplay)}
+                      </span>
+                      {project.neckJointGeometry.cutterDiameterMm !== undefined && (
+                        <button
+                          type="button"
+                          className="btn btn-sm"
+                          onClick={() => updateCustomJoint({ cutterDiameterMm: null }, 'neck-joint-cutter-diameter')}
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  {jointCutterWarnings.map((warning) => (
+                    <p key={warning} style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }} role="status">
+                      <Info size={14} style={{ verticalAlign: 'text-bottom', marginRight: '5px', color: 'var(--accent-blue)' }} />
+                      {warning}
+                    </p>
+                  ))}
                 </>
               ) : (
                 <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
