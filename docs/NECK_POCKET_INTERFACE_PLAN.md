@@ -348,6 +348,11 @@ discovery.
   or change the current default model by implication.
 - Prototype width edits against every relevant body class, especially
   anchor/handle movement at the mouth.
+- The web local-build spike may expose **Convert to Custom Joint** and its
+  numeric mouth-width field for the existing generic v7 shapes. It converts
+  only on explicit action, seeds its placement from the existing body datum,
+  and is a test surface for the attachment contract rather than promotion of
+  the compound S-style prototype or a Release-A profile editor.
 - Validate the numeric shape generator for square and rounded bolt-on ends.
 - Hold a go/no-go review. The S candidate may proceed only after the compound
   shape and its attachment rule pass the three-client parity gate. The T
