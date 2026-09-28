@@ -182,6 +182,44 @@ export function validateNeckJointAttachment(geometry: NeckJointGeometry, contour
   }
 }
 
+/**
+ * Release-B's numeric mouth-width operation, extracted for the Phase-0
+ * attachment spike. Anchor handles are offsets, so their values stay fixed:
+ * moving an anchor translates its absolute Bézier control point by the same
+ * delta. A locked profile is immutable; callers must explicitly convert it to
+ * a custom joint before invoking this operation.
+ */
+export function setCustomNeckJointMouthWidth(
+  geometry: NeckJointGeometry,
+  contour: BodyContour,
+  mouthWidthMm: number,
+): { geometry: NeckJointGeometry; contour: BodyContour } {
+  if (geometry.mode !== 'custom') {
+    throw new NeckJointContractError('Convert a locked neck joint to Custom before changing its mouth width.');
+  }
+  if (!finitePositive(mouthWidthMm)) {
+    throw new NeckJointContractError('Neck joint mouth width must be a positive finite number.');
+  }
+  validateNeckJointGeometry(geometry);
+  validateNeckJointAttachment(geometry, contour);
+  const [leftId, rightId] = geometry.mouthAnchorIds;
+  const updatedGeometry: NeckJointGeometry = {
+    ...geometry,
+    parameters: { ...geometry.parameters, mouthWidthMm },
+  };
+  const updatedContour: BodyContour = {
+    ...contour,
+    anchors: contour.anchors.map((anchor) => {
+      if (anchor.id === leftId) return { ...anchor, position: { ...anchor.position, x: -mouthWidthMm / 2 } };
+      if (anchor.id === rightId) return { ...anchor, position: { ...anchor.position, x: mouthWidthMm / 2 } };
+      return anchor;
+    }),
+  };
+  validateNeckJointGeometry(updatedGeometry);
+  validateNeckJointAttachment(updatedGeometry, updatedContour);
+  return { geometry: updatedGeometry, contour: updatedContour };
+}
+
 function appendArc(points: Vector2D[], center: Vector2D, radius: number, from: number, to: number, toleranceMm: number): void {
   if (radius === 0) {
     points.push({ x: center.x + Math.cos(to) * radius, y: center.y + Math.sin(to) * radius });

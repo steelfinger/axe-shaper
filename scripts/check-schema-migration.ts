@@ -627,6 +627,53 @@ async function main() {
       }), /not supported/, 'phase-0 prototype must not silently expand the persisted v7 contract');
     });
 
+    check('moves custom joint mouths symmetrically across every bundled body without changing handle offsets', () => {
+      const blueprints = readdirSync(BLUEPRINT_DIR).filter((file) => file.endsWith('.axe.svg'));
+      invariant(blueprints.length > 0, 'no bundled blueprints available for the mouth-width spike');
+      for (const file of blueprints) {
+        const project = decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8'));
+        const left = project.contour.anchors.find((anchor: any) => anchor.semanticRole === 'neck_pocket_left');
+        const right = project.contour.anchors.find((anchor: any) => anchor.semanticRole === 'neck_pocket_right');
+        invariant(left && right && left.locked && right.locked, `${file}: missing locked neck-pocket anchors`);
+        const currentWidth = right.position.x - left.position.x;
+        const boltOn = project.neckJointMechanism === 'bolt_on';
+        const custom = {
+          mode: 'custom' as const,
+          derivedFromProfileId: 'phase-0-attachment-spike',
+          mechanism: boltOn ? 'bolt_on' as const : 'glued' as const,
+          planShape: boltOn ? 'bolt_on_pocket' as const : 'straight_mortise' as const,
+          parameters: {
+            mouthWidthMm: currentWidth,
+            planLengthMm: 76.2,
+            endCornerRadiusMm: 0,
+            endTreatment: 'square' as const,
+            endRoundnessMm: 0,
+            ...(boltOn ? { deepEndWidthMm: currentWidth + 2 } : {}),
+          },
+          mouthAnchorIds: [left.id, right.id] as [string, string],
+        };
+        const targetWidth = currentWidth + 1;
+        const resized = neckJoint.setCustomNeckJointMouthWidth(custom, project.contour, targetWidth);
+        const resizedLeft = resized.contour.anchors.find((anchor: any) => anchor.id === left.id)!;
+        const resizedRight = resized.contour.anchors.find((anchor: any) => anchor.id === right.id)!;
+        invariant(resizedLeft.position.x === -targetWidth / 2 && resizedLeft.position.y === 0
+          && resizedRight.position.x === targetWidth / 2 && resizedRight.position.y === 0,
+        `${file}: mouth anchors did not move symmetrically on Y=0`);
+        deepStrictEqual(resizedLeft.handleIn, left.handleIn, `${file}: left handle offset changed`);
+        deepStrictEqual(resizedLeft.handleOut, left.handleOut, `${file}: left handle offset changed`);
+        deepStrictEqual(resizedRight.handleIn, right.handleIn, `${file}: right handle offset changed`);
+        deepStrictEqual(resizedRight.handleOut, right.handleOut, `${file}: right handle offset changed`);
+        if (left.handleIn) {
+          const oldControlX = left.position.x + left.handleIn.x;
+          const newControlX = resizedLeft.position.x + resizedLeft.handleIn!.x;
+          invariant(newControlX - oldControlX === resizedLeft.position.x - left.position.x,
+            `${file}: left absolute handle did not translate with its anchor`);
+        }
+      }
+      throws(() => neckJoint.setCustomNeckJointMouthWidth(documentedSStyleJoint, v7.contour, 56), /Convert a locked/,
+        'locked profiles must not permit a numeric mouth-width edit');
+    });
+
     check('rejects a v7 payload whose paired joint contract is stripped or corrupt', () => {
       const missingPlacement = presets.loadProject({ ...v7, neckPlacement: undefined });
       invariant(!missingPlacement.ok && missingPlacement.reason === 'malformed-neck-joint', 'missing v7 placement was accepted');
