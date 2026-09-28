@@ -24,6 +24,7 @@ import {
 } from './bridgeDrawing';
 import { CONTROL_DRAWING_GEOMETRY, PLAN_DRAWING_STYLE } from '../constants/planDrawingStyle';
 import { generateNeckJointOutline, neckJointOutlineToSVGPath } from './neckJointGeometry';
+import { neckJointFabricationDisclosure } from './neckJointDisclosure';
 
 /** Namespace for the <project:*> metadata elements. Must be declared or the file is not well-formed XML. */
 const PROJECT_NS = 'https://axe-shaper.app/ns/project/1';
@@ -322,6 +323,10 @@ export function exportProjectToSVG(rawProject: StoredProject): string {
       ry="${neck.jointCornerRadiusMm}"
       class="neck-pocket"
     />`;
+  const fabricationDisclosure = neckJointFabricationDisclosure(project);
+  // Keep legacy SVG output structurally identical. Only v7 joint exports
+  // reserve the extra line below the drawing for a fit disclosure.
+  const disclosureOffsetMm = fabricationDisclosure ? 12 : 0;
 
   const isHorizontal = settings.canvasOrientation === 'horizontal';
 
@@ -354,7 +359,7 @@ export function exportProjectToSVG(rawProject: StoredProject): string {
   const viewMinX = geometry.minX;
   const viewMinY = geometry.minY;
   const viewWidthMm = Math.max(geometry.width, MIN_PAGE_WIDTH_MM);
-  const viewHeightMm = geometry.height + INFO_BAND_MM;
+  const viewHeightMm = geometry.height + INFO_BAND_MM + disclosureOffsetMm;
   const bandTopY = geometry.minY + geometry.height;
   const bandLeftX = viewMinX + 12;
 
@@ -484,9 +489,10 @@ export function exportProjectToSVG(rawProject: StoredProject): string {
     <text x="${bandLeftX.toFixed(2)}" y="${(bandTopY + 33).toFixed(2)}" class="text-label">Scale: ${neck.scaleLengthMm.toFixed(1)}mm (${(neck.scaleLengthMm / 25.4).toFixed(2)}") | Joint: ${neck.jointWidthMm}mm W x ${neck.jointDepthMm}mm D | Saddle Y: ${saddleY.toFixed(1)}mm</text>
     <text x="${bandLeftX.toFixed(2)}" y="${(bandTopY + 43).toFixed(2)}" class="text-label">Date: ${new Date().toISOString().split('T')[0]} | Printable 100% True Scale (Do Not Scale Page)</text>
     <text x="${bandLeftX.toFixed(2)}" y="${(bandTopY + 56).toFixed(2)}" class="disclaimer-label">Editing this file in another app will not update Axe Shaper - re-importing it may discard your changes.</text>
+    ${fabricationDisclosure ? `<text x="${bandLeftX.toFixed(2)}" y="${(bandTopY + 68).toFixed(2)}" class="disclaimer-label">${escapeXml(fabricationDisclosure)}</text>` : ''}
 
     <!-- 100mm x 100mm Ruler Calibration Box -->
-    <g transform="translate(${bandLeftX.toFixed(2)}, ${(bandTopY + 68).toFixed(2)})">
+    <g transform="translate(${bandLeftX.toFixed(2)}, ${(bandTopY + 68 + disclosureOffsetMm).toFixed(2)})">
       <rect x="0" y="0" width="100" height="100" class="calibration-box" />
       <text x="5" y="15" class="text-label" font-weight="bold">CALIBRATION BOX</text>
       <text x="5" y="30" class="text-label">100 mm x 100 mm</text>

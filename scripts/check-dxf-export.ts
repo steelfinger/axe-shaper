@@ -114,7 +114,9 @@ try {
       evidenceLevel: 'unverified', provenance: 'test',
     },
   };
-  entities = read(exportProjectToDXF(project));
+  const unverifiedDxf = exportProjectToDXF(project);
+  assert.match(unverifiedDxf, /999\r?\nUnverified neck joint — verify against the physical neck before cutting\./);
+  entities = read(unverifiedDxf);
   const generatedPocket = entities.find(e => e.layer === 'NECK_POCKET')!.vertices;
   assert.equal(generatedPocket[0].x, -30);
   assert.equal(generatedPocket[0].y, 0);

@@ -558,6 +558,24 @@ async function main() {
       invariant(exporter.exportProjectToSVG(v7).includes('<path d="M -27.780000 0.000000'), 'v7 SVG did not render generated joint geometry');
     });
 
+    check('discloses only non-verified v7 neck joints in printable SVG', () => {
+      const legacySvg = exporter.exportProjectToSVG(plain);
+      const documentedSvg = exporter.exportProjectToSVG(v7);
+      const customSvg = exporter.exportProjectToSVG({
+        ...v7,
+        neckJointGeometry: {
+          ...documentedSStyleJoint,
+          mode: 'custom' as const,
+          profileId: undefined,
+          profileSnapshot: undefined,
+          derivedFromProfileId: documentedSStyleJoint.profileId,
+        },
+      });
+      invariant(!legacySvg.includes('verify against the physical neck'), 'legacy SVG output gained a v7 fit disclosure');
+      invariant(documentedSvg.includes('Documented neck joint — verify against the physical neck before cutting.'), 'documented v7 SVG has no fit disclosure');
+      invariant(customSvg.includes('Custom neck joint — verify against the physical neck before cutting.'), 'custom v7 SVG has no fit disclosure');
+    });
+
     check('derives a bolt-on pocket taper from neck geometry', () => {
       const neckWithTaper = {
         scaleLengthMm: 647.7,
