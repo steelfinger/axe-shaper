@@ -22,7 +22,7 @@ loss. This packet does not claim a fit to every Strat-compatible neck.
 | Plan length | 3.000 in +/- 1/32 in = 76.200 mm +/- 0.794 mm | High — Fender drawing |
 | Deep-end pocket width | 2.1875--2.2000 in = 55.5625--55.8800 mm | High — Fender drawing; this is a limit range, not an asserted nominal |
 | Side taper | 0.84 degree per side, +0/-0.25 degree | High — Fender drawing |
-| Mouth-side corner radii | 3/16 in (two) = 4.7625 mm | High — drawing callout; orientation transcribed from the supplied drawing context |
+| Mouth-side corner radii | 3/16 in (two) = 4.7625 mm | High — drawing callout; retained as locked `s_style` body-template geometry, not a portable profile parameter because the pocket is open at the mouth |
 | Deep-end corner radii | 0.250 in (two) = 6.3500 mm | High — drawing callout; orientation transcribed from the supplied drawing context |
 | Closing arc | 5.000 in = 127.000 mm | High — Fender drawing |
 | Rounded S-style family | Rounded heel rather than T-style square heel | High — Fender drawing plus replacement-neck sources |
@@ -51,18 +51,17 @@ presented as a factory fit guarantee.
 ## Current schema blocker — not an evidence blocker
 
 The base v7 `bolt_on_pocket` shape has one equal `endCornerRadiusMm` and one
-`endRoundnessMm`. It cannot faithfully generate this drawing's two different
-corner-radius pairs plus its 5 in closing arc. It also starts at the mouth
-anchors and does not yet say whether the mouth-corner fillets are generated
-joint geometry or attached body-contour geometry.
+`endRoundnessMm`. It cannot faithfully generate this drawing's 6.35 mm
+deep-end corners plus its 5 in closing arc. The 4.7625 mm mouth corners are
+not part of this blocker: the pocket is open at the mouth, and those fillets
+remain locked body-template geometry adjacent to the attachment anchors.
 
 Before this candidate can be shipped, add and test a named compound bolt-on
-shape with explicit `mouthCornerRadiusMm`, `deepCornerRadiusMm`, and
-`deepEndArcRadiusMm`, alongside the two width stations and plan length. The
-web, iOS and viewer must generate the same tangent-continuous outline and
-agree on how its mouth fillets bind to the locked body anchors. Do not quietly
-substitute the legacy 6.35 mm rounded-rectangle value or approximate the
-127 mm arc with a semicircle.
+shape with explicit `deepCornerRadiusMm` and `deepEndArcRadiusMm`, alongside
+the two width stations and plan length. The web, iOS and viewer must generate
+the same tangent-continuous outline, beginning exactly at the locked body
+mouth anchors. Do not quietly substitute the legacy 6.35 mm
+rounded-rectangle value or approximate the 127 mm arc with a semicircle.
 
 ## Limits and next evidence
 
@@ -72,3 +71,9 @@ diameter, pocket depth, paint allowance, or real fit result. A later
 measurement/fit packet should identify a specific neck and body and record
 clearance at both stations before this candidate can be promoted from
 **documented** to **verified**.
+
+The drawing's 6.35 mm deep-end corner radius is compatible with a 12.7 mm
+(1/2 in) cutter, but it is not *created* by a cutter choice alone. A cutter
+of diameter `D` has radius `D / 2`, which is the minimum practical internal
+corner radius; the profile may intentionally specify a larger radius. The
+127 mm closing arc is fitting geometry, not a router-bit radius.
