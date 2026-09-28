@@ -674,6 +674,33 @@ async function main() {
         'locked profiles must not permit a numeric mouth-width edit');
     });
 
+    check('explicitly converts a legacy joint before its numeric mouth width can change', () => {
+      const legacy = presets.migrateProject(currentBlueprint);
+      invariant(!legacy.neckJointGeometry && !legacy.neckPlacement, 'legacy fixture unexpectedly already has a v7 joint');
+      const converted = presets.convertLegacyNeckJointToCustom(legacy);
+      invariant(converted.schemaVersion === 7, 'custom-joint conversion did not raise the document to v7');
+      invariant(converted.neckJointGeometry?.mode === 'custom', 'conversion did not create a custom joint');
+      invariant(converted.neckJointGeometry?.derivedFromProfileId === 'legacy-frozen-adapter:s_style',
+        'conversion did not record the frozen legacy adapter source');
+      invariant(converted.neckPlacement?.jointToReferenceFretMm === hardware.FINGERBOARD_OVERHANG_MM.s_style,
+        'conversion did not seed the body placement from the S-style overhang constant');
+      const initialWidth = converted.neckJointGeometry!.parameters.mouthWidthMm;
+      const resized = neckJoint.setCustomNeckJointMouthWidth(
+        converted.neckJointGeometry!, converted.contour, initialWidth + 0.5,
+      );
+      const saved = presets.withEmbeddedPresets({ ...converted, contour: resized.contour, neckJointGeometry: resized.geometry });
+      invariant(saved.neckJointGeometry!.parameters.mouthWidthMm === initialWidth + 0.5,
+        'numeric mouth width did not survive the v7 compatibility write');
+      invariant(saved.neckPreset.jointWidthMm === initialWidth + 0.5,
+        'legacy width mirror was not derived from the custom v7 joint');
+      for (const file of readdirSync(BLUEPRINT_DIR).filter((name) => name.endsWith('.axe.svg')).sort()) {
+        const source = presets.migrateProject(decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8')));
+        const convertedBody = presets.convertLegacyNeckJointToCustom(source);
+        invariant(convertedBody.schemaVersion === 7 && convertedBody.neckJointGeometry?.mode === 'custom',
+          `${file}: conversion did not produce an editable custom v7 joint`);
+      }
+    });
+
     check('rejects a v7 payload whose paired joint contract is stripped or corrupt', () => {
       const missingPlacement = presets.loadProject({ ...v7, neckPlacement: undefined });
       invariant(!missingPlacement.ok && missingPlacement.reason === 'malformed-neck-joint', 'missing v7 placement was accepted');

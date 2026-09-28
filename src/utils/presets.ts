@@ -13,6 +13,7 @@ import type {
   BridgePreset,
   GuitarProject,
   InstrumentType,
+  NeckJointGeometry,
   NeckJointMechanism,
   NeckPreset,
   PickupPlacement,
@@ -461,6 +462,70 @@ export function withEmbeddedPresets(project: StoredProject): GuitarProject {
     // it is a no-op (see the type's own comment). They pass through via the
     // ...project spread above; every reader guards with `?? []` instead.
   };
+}
+
+/**
+ * Promote a legacy rectangle to the deliberately conservative v7 custom
+ * joint. This is an explicit user action: loading a legacy document continues
+ * to use the frozen legacy adapter and does not raise its format version.
+ *
+ * The body contour, rather than a catalogue number, supplies the opening
+ * width. That is the geometry the person is looking at and it keeps a legacy
+ * custom body from being silently snapped to a generic preset on conversion.
+ * The template's recorded reference-fret overhang supplies placement where it
+ * is available; a user template falls back to its already-resolved legacy
+ * neck datum. Neither answer is guessed from the new plan shape.
+ */
+export function convertLegacyNeckJointToCustom(project: GuitarProject): GuitarProject {
+  if (project.neckJointGeometry) return project;
+
+  const mechanism = resolvedNeckJointMechanism(project);
+  const neck = resolveNeckPreset(project);
+  const left = project.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_left');
+  const right = project.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_right');
+  const attachmentEpsilon = 0.000001;
+  if (!left || !right || !left.locked || !right.locked
+    || Math.abs(left.position.y) > attachmentEpsilon || Math.abs(right.position.y) > attachmentEpsilon) {
+    throw new NeckJointContractError('This body needs two locked neck-pocket anchors at Y = 0 before its legacy joint can be converted.');
+  }
+  const mouthWidthMm = right.position.x - left.position.x;
+  if (!Number.isFinite(mouthWidthMm) || mouthWidthMm <= 0
+    || Math.abs(left.position.x + mouthWidthMm / 2) > attachmentEpsilon) {
+    throw new NeckJointContractError('This body’s neck-pocket anchors do not describe a symmetric positive mouth width.');
+  }
+
+  const referenceFret = fingerboardReferenceFret(project.instrumentType);
+  const jointToReferenceFretMm = FINGERBOARD_OVERHANG_MM[project.activeTemplateId]
+    ?? getFretDistanceFromNutMm(referenceFret, neck.scaleLengthMm) - neck.nutToBodyEdgeMm;
+  const geometry: NeckJointGeometry = {
+    mode: 'custom',
+    derivedFromProfileId: `legacy-frozen-adapter:${project.activeTemplateId}`,
+    mechanism,
+    planShape: mechanism === 'bolt_on' ? 'bolt_on_pocket' : 'straight_mortise',
+    parameters: {
+      mouthWidthMm,
+      planLengthMm: neck.jointDepthMm,
+      endCornerRadiusMm: neck.jointCornerRadiusMm,
+      endTreatment: 'square',
+      endRoundnessMm: 0,
+    },
+    mouthAnchorIds: [left.id, right.id],
+  };
+  const placement = {
+    mode: 'blueprint' as const,
+    referenceFret,
+    jointToReferenceFretMm,
+    provenance: FINGERBOARD_OVERHANG_MM[project.activeTemplateId] === undefined
+      ? `legacy-neck-datum:${project.activeTemplateId}`
+      : `FINGERBOARD_OVERHANG_MM:${project.activeTemplateId}`,
+  };
+
+  return withEmbeddedPresets({
+    ...project,
+    neckJointMechanism: mechanism,
+    neckJointGeometry: geometry,
+    neckPlacement: placement,
+  });
 }
 
 /**

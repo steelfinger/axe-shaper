@@ -26,6 +26,7 @@ import type {
 } from '../types/guitar';
 import {
   bridgePresetFields,
+  convertLegacyNeckJointToCustom,
   neckPresetFields,
   neckPresetFieldsForTemplate,
   offeredBridgePresets,
@@ -36,6 +37,7 @@ import {
   resolvedNeckJointMechanism,
   withEmbeddedPresets,
 } from '../utils/presets';
+import { NeckJointContractError, setCustomNeckJointMouthWidth } from '../utils/neckJointGeometry';
 import { type ActiveLayer, activeLayersEqual } from '../utils/layerShapes';
 import { getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 import { GRID_PRESETS, formatLength, gridMinorDivisor, toDisplayUnits, toMm, unitLabel } from '../utils/units';
@@ -112,6 +114,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [activeTab, setActiveTab] = useState<'body' | 'hardware' | 'layers' | 'guide'>('body');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [bodyThicknessError, setBodyThicknessError] = useState<string | null>(null);
+  const [jointGeometryError, setJointGeometryError] = useState<string | null>(null);
 
   const edgeProfileKind = edgeProfileKindOf(project.edgeProfile);
   const knownEdgeKind: EdgeProfileKind = isKnownEdgeProfileKind(edgeProfileKind) ? edgeProfileKind : 'slab';
@@ -366,6 +369,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
       neckJointMechanism: mechanism,
       contour: { ...prev.contour, anchors: updatedAnchors },
     };
+  };
+
+  const convertLegacyJoint = () => {
+    try {
+      // Compute before scheduling React's state update so a malformed legacy
+      // contour becomes a visible field error, not an exception thrown from a
+      // deferred state updater.
+      const converted = convertLegacyNeckJointToCustom(project);
+      onUpdateProject(() => converted);
+      setJointGeometryError(null);
+    } catch (error) {
+      setJointGeometryError(error instanceof NeckJointContractError ? error.message : 'Could not convert the legacy neck joint.');
+    }
+  };
+
+  const changeCustomJointMouthWidth = (displayWidth: number) => {
+    const mouthWidthMm = toMm(displayWidth, settings.unitDisplay);
+    try {
+      if (!project.neckJointGeometry || project.neckJointGeometry.mode !== 'custom') return;
+      const resized = setCustomNeckJointMouthWidth(project.neckJointGeometry, project.contour, mouthWidthMm);
+      const updated = withEmbeddedPresets({ ...project, contour: resized.contour, neckJointGeometry: resized.geometry });
+      // As above, validate the complete candidate before handing it to React.
+      // This keeps failed numeric input local to the form instead of making
+      // the application's update callback throw after the event handler ends.
+      onUpdateProject(() => updated, 'neck-joint-mouth-width');
+      setJointGeometryError(null);
+    } catch (error) {
+      setJointGeometryError(error instanceof NeckJointContractError ? error.message : 'Could not change the neck-joint mouth width.');
+    }
   };
 
   const bodyLayersPanel = (
@@ -1003,14 +1035,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }
                   className="form-select"
                   disabled={Boolean(project.neckJointGeometry)}
-                  title={project.neckJointGeometry ? 'This neck joint is locked to its selected profile.' : undefined}
+                  title={project.neckJointGeometry
+                    ? project.neckJointGeometry.mode === 'locked'
+                      ? 'This neck joint is locked to its selected profile.'
+                      : 'Construction changes require creating a new custom joint.'
+                    : undefined}
                 >
                   <option value="bolt_on">Bolt-On</option>
                   <option value="glued">Glued</option>
                 </select>
                 {project.neckJointGeometry && (
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                    Joint construction is locked to the selected profile.
+                    {project.neckJointGeometry.mode === 'locked'
+                      ? 'Joint construction is locked to the selected profile.'
+                      : 'Construction changes require creating a new custom joint.'}
                   </div>
                 )}
               </div>
@@ -1021,6 +1059,51 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div>• Joint Pocket Depth: <strong>{currentNeck.jointDepthMm} mm</strong></div>
                 <div>• Nut-to-Joint: <strong>{currentNeck.nutToJointMm} mm</strong></div>
               </div>
+            </div>
+
+            <div className="panel-section">
+              <div className="section-title">Neck Joint Geometry</div>
+              {!project.neckJointGeometry ? (
+                <>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
+                    This design uses the frozen generic legacy pocket. Convert it to make a local custom joint; the body’s locked mouth anchors remain the attachment points.
+                  </p>
+                  <button type="button" className="btn btn-sm" onClick={convertLegacyJoint}>
+                    Convert to Custom Joint
+                  </button>
+                </>
+              ) : project.neckJointGeometry.mode === 'custom' ? (
+                <>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
+                    Custom {project.neckJointGeometry.mechanism === 'bolt_on' ? 'bolt-on pocket' : 'glued mortise'}. This first editor control moves the two locked mouth anchors symmetrically; sides and end geometry remain numeric and fixed.
+                  </p>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="neck-joint-mouth-width">Mouth Width</label>
+                    <div className="measured-input-row">
+                      <DecimalInput
+                        id="neck-joint-mouth-width"
+                        className="form-input measured-input"
+                        value={toDisplayUnits(project.neckJointGeometry.parameters.mouthWidthMm, settings.unitDisplay)}
+                        digits={settings.unitDisplay === 'mm' ? 3 : 4}
+                        min={toDisplayUnits(0.001, settings.unitDisplay)}
+                        step={settings.unitDisplay === 'mm' ? 0.1 : 0.005}
+                        onValueChange={changeCustomJointMouthWidth}
+                        onBlur={onEndEdit}
+                      />
+                      <span>{unitLabel(settings.unitDisplay)}</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  Locked profile: its mouth anchors, sides and end geometry are read-only.
+                </p>
+              )}
+              {jointGeometryError && (
+                <p style={{ fontSize: '0.75rem', color: 'var(--accent-red)', marginTop: '6px' }} role="alert">
+                  {jointGeometryError}
+                </p>
+              )}
             </div>
 
             <div className="panel-section">
