@@ -285,6 +285,8 @@ export interface CustomNeckJointUpdate {
   parameters?: Partial<NeckJointPlanParameters>;
   /** `null` explicitly removes the optional cutter declaration. */
   cutterDiameterMm?: number | null;
+  /** `null` explicitly removes an optional glued-joint construction angle. */
+  neckAngleDegrees?: number | null;
 }
 
 /**
@@ -307,6 +309,9 @@ export function updateCustomNeckJoint(
     parameters: { ...geometry.parameters, ...update.parameters },
     ...(Object.prototype.hasOwnProperty.call(update, 'cutterDiameterMm')
       ? { cutterDiameterMm: update.cutterDiameterMm ?? undefined }
+      : {}),
+    ...(Object.prototype.hasOwnProperty.call(update, 'neckAngleDegrees')
+      ? { neckAngleDegrees: update.neckAngleDegrees ?? undefined }
       : {}),
   };
   const [leftId, rightId] = geometry.mouthAnchorIds;

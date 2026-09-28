@@ -794,6 +794,15 @@ async function main() {
       const archedOutline = neckJoint.generateNeckJointOutline({ ...glued.neckJointGeometry, neckAngleDegrees: 4 }).points;
       deepStrictEqual(archedOutline, flatOutline);
       deepStrictEqual(presets.migrateProject(glued).neckJointGeometry.neckAngleDegrees, 4);
+      const customGlued = {
+        ...glued.neckJointGeometry,
+        mode: 'custom' as const,
+        profileId: undefined,
+        profileSnapshot: undefined,
+        derivedFromProfileId: 'straight-mortise-v1',
+      };
+      const editedAngle = neckJoint.updateCustomNeckJoint(customGlued, v7.contour, { neckAngleDegrees: 3.5 });
+      deepStrictEqual(editedAngle.geometry.neckAngleDegrees, 3.5);
     });
 
     check('bundled blueprints are version 6 witnesses', () => {

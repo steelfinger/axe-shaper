@@ -1236,6 +1236,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       A cornered and a rounded end are alternate generic shapes. The combined Strat end remains a separate documented profile.
                     </p>
                   </div>
+                  {project.neckJointGeometry.mechanism === 'glued' && (
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="neck-joint-angle">Neck Angle</label>
+                      <div className="measured-input-row">
+                        <DecimalInput
+                          id="neck-joint-angle"
+                          className="form-input measured-input"
+                          value={project.neckJointGeometry.neckAngleDegrees ?? 0}
+                          digits={1}
+                          step={0.1}
+                          onValueChange={(value) => updateCustomJoint(
+                            { neckAngleDegrees: value },
+                            'neck-joint-angle',
+                          )}
+                          onBlur={onEndEdit}
+                        />
+                        <span>°</span>
+                      </div>
+                      <p className="panel-help" style={{ marginTop: '5px', marginBottom: 0 }}>
+                        0° is parallel to the body construction plane; positive raises the nut/headstock end. An arched top does not set this value or make this a complete angled-mortise template.
+                      </p>
+                    </div>
+                  )}
                   <div className="form-group">
                     <label className="form-label" htmlFor="neck-joint-cutter-diameter">Cutter Diameter (optional)</label>
                     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto auto', alignItems: 'center', gap: '8px' }}>
