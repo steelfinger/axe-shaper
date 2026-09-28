@@ -44,6 +44,7 @@ import {
   updateCustomNeckJoint,
   type CustomNeckJointUpdate,
 } from '../utils/neckJointGeometry';
+import { neckJointFabricationDisclosure } from '../utils/neckJointDisclosure';
 import { type ActiveLayer, activeLayersEqual } from '../utils/layerShapes';
 import { getSaddleYMm, getTheoreticalSaddleYMm } from '../utils/scaleMath';
 import { GRID_PRESETS, formatLength, gridMinorDivisor, toDisplayUnits, toMm, unitLabel } from '../utils/units';
@@ -334,6 +335,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const jointCutterWarnings = project.neckJointGeometry
     ? neckJointCutterWarnings(project.neckJointGeometry)
     : [];
+  const jointFabricationDisclosure = neckJointFabricationDisclosure(project);
 
   /**
    * Re-resolve the neck for `neckId`/`mechanism` against the active body and
@@ -1079,6 +1081,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             <div className="panel-section">
               <div className="section-title">Neck Joint Geometry</div>
+              {jointFabricationDisclosure && (
+                <p className="panel-help" role="status">
+                  <Info size={14} style={{ verticalAlign: 'text-bottom', marginRight: '5px', color: 'var(--accent-blue)' }} />
+                  {jointFabricationDisclosure} DXF and print export require confirmation.
+                </p>
+              )}
               {!project.neckJointGeometry && project.instrumentType === 'bass' ? (
                 <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                   Generic bass pockets remain legacy-only while documented bass-joint profiles are researched.
