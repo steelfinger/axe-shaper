@@ -531,23 +531,18 @@ export function migrateProject(project: StoredProject): GuitarProject {
     );
   }
 
+  // withEmbeddedPresets() stamps the version, because it is also what runs on
+  // the way out. A migrated version 1 or 2 payload therefore lands at 3 - the
+  // fields that function backfills - and climbs only if the document itself
+  // uses a version 4 or 5 field.
   try {
-    if (project.neckJointGeometry || project.neckPlacement || project.schemaVersion === 7) {
-      validateNeckJointContract(project.neckJointGeometry, project.neckPlacement, instrument.instrumentType);
-      validateNeckJointAttachment(project.neckJointGeometry!, project.contour);
-    }
+    return withEmbeddedPresets(project);
   } catch (error) {
     if (error instanceof NeckJointContractError) {
       throw new UnsupportedProjectError('malformed-neck-joint', `This version 7 neck-joint data is invalid: ${error.message}`);
     }
     throw error;
   }
-
-  // withEmbeddedPresets() stamps the version, because it is also what runs on
-  // the way out. A migrated version 1 or 2 payload therefore lands at 3 - the
-  // fields that function backfills - and climbs only if the document itself
-  // uses a version 4 or 5 field.
-  return withEmbeddedPresets(project);
 }
 
 /** What `loadProject()` returns: a project ready to edit, or why not. */
