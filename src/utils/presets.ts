@@ -38,6 +38,7 @@ import {
   nutToBodyEdgeFromPlacement,
   validateNeckJointAttachment,
   validateNeckJointContract,
+  validateNeckJointWithinBody,
 } from './neckJointGeometry';
 
 /**
@@ -478,6 +479,9 @@ export function withEmbeddedPresets(project: StoredProject): GuitarProject {
  */
 export function convertLegacyNeckJointToCustom(project: GuitarProject): GuitarProject {
   if (project.neckJointGeometry) return project;
+  if (project.instrumentType === 'bass') {
+    throw new NeckJointContractError('Generic bass neck pockets remain legacy-only while their documented joint profiles are researched.');
+  }
 
   const mechanism = resolvedNeckJointMechanism(project);
   const neck = resolveNeckPreset(project);
@@ -519,6 +523,10 @@ export function convertLegacyNeckJointToCustom(project: GuitarProject): GuitarPr
       ? `legacy-neck-datum:${project.activeTemplateId}`
       : `FINGERBOARD_OVERHANG_MM:${project.activeTemplateId}`,
   };
+  // Conversion is the first moment this legacy pocket becomes an editable
+  // generated rout. Reject a custom body that cannot contain it rather than
+  // creating a v7 document whose very first numeric edit fails clearance.
+  validateNeckJointWithinBody(geometry, project.contour);
 
   return withEmbeddedPresets({
     ...project,
