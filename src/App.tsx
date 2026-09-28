@@ -466,6 +466,10 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       if (selectedAnchorIds.size === 1) {
         const id = [...selectedAnchorIds][0];
         const selected = anchors.find((a) => a.id === id);
+        // The keyboard shortcut reaches this handler directly, unlike the
+        // Inspector button. Keep locked anchors immutable at the mutation
+        // point so a v7 joint can never lose one of its named mouth anchors.
+        if (!selected || selected.locked) return prev;
         // Mirrored-partner deletion is a body-only, live-centerline concept.
         const partner =
           activeLayer.kind === 'body' && prev.settings.symmetry.mode === 'live_centerline' && selected?.mirrorId
@@ -489,10 +493,16 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       // multi-selection is already an explicit set the user built by
       // shift-clicking; auto-expanding it with hidden partners would make
       // "delete these N" silently delete more than N.
-      if (anchors.length - selectedAnchorIds.size < MIN_ANCHOR_COUNT) return prev;
+      const idsToRemove = new Set(
+        [...selectedAnchorIds].filter((id) => {
+          const anchor = anchors.find((candidate) => candidate.id === id);
+          return anchor !== undefined && !anchor.locked;
+        }),
+      );
+      if (idsToRemove.size === 0 || anchors.length - idsToRemove.size < MIN_ANCHOR_COUNT) return prev;
       return withActiveContour(prev, activeLayer, {
         ...active,
-        anchors: anchors.filter((a) => !selectedAnchorIds.has(a.id)),
+        anchors: anchors.filter((a) => !idsToRemove.has(a.id)),
       });
     });
     setSelectedAnchorIds(new Set());
@@ -582,9 +592,15 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
 
   // Save the project as a .axe.svg - a printable 1:1 true-scale SVG that
   // also embeds the full project data, so it doubles as the save file.
-  const downloadProjectSVG = () => {
-    const svgString = exportProjectToSVG(project);
-    downloadSVGFile(buildProjectFilename(project.settings.name), svgString);
+  const downloadProjectSVG = (): boolean => {
+    try {
+      const svgString = exportProjectToSVG(project);
+      downloadSVGFile(buildProjectFilename(project.settings.name), svgString);
+      return true;
+    } catch (error) {
+      alert(`Save failed. ${error instanceof Error ? error.message : 'Check the design and try again.'}`);
+      return false;
+    }
   };
 
   const handleSaveProject = () => {
@@ -592,8 +608,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       setIsSaveInfoModalOpen(true);
       return;
     }
-    downloadProjectSVG();
-    setIsDirty(false);
+    if (downloadProjectSVG()) setIsDirty(false);
   };
 
   const handleExportDXF = () => {
@@ -605,7 +620,13 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
   };
 
   const handleShareProject = async () => {
-    const svgString = exportProjectToSVG(project);
+    let svgString: string;
+    try {
+      svgString = exportProjectToSVG(project);
+    } catch (error) {
+      alert(`Share failed. ${error instanceof Error ? error.message : 'Check the design and try again.'}`);
+      return;
+    }
     const filename = buildProjectFilename(project.settings.name);
     const file = new File([svgString], filename, { type: 'image/svg+xml' });
 
