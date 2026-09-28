@@ -328,14 +328,28 @@ discovery.
 
 - Measure or obtain source material for the two initial S/T numeric profiles.
 - Write the evidence packets.
+- The supplied Fender `BODY, VINTAGE STRATOCASTER 1962`, part `019574`
+  drawing gives the S-style candidate a source-backed 76.2 mm span,
+  0.84-degree-per-side taper, 55.5625--55.8800 mm deep-end limits, 4.7625 mm
+  mouth corners, 6.35 mm deep corners and a 127 mm closing arc. Its proposed
+  55.8800 mm deep target resolves to a 53.6456 mm mouth; these target values
+  are a clearance choice, not a newly asserted factory nominal.
+- Spike a **named compound bolt-on end** before publishing that candidate:
+  prove a tangent-continuous generator with independent mouth-corner,
+  deep-corner and closing-arc radii, and decide whether mouth fillets are part
+  of the joint outline or the locked attached body contour. Do not replace it
+  with the generic rounded-end shape or change the current default model by
+  implication.
 - Prototype width edits against every relevant body class, especially
   anchor/handle movement at the mouth.
 - Validate the numeric shape generator for square and rounded bolt-on ends.
-- Hold a go/no-go review. If neither S nor T has citable or measurable geometry
-  evidence, do not convert the bundled blueprints or label a profile
-  documented. Retain legacy geometry and its editor/export disclosure while
-  evidence work continues. Fender pocket drawings are not broadly published,
-  so this is a real release risk rather than a formality.
+- Hold a go/no-go review. The S candidate may proceed only after the compound
+  shape and its attachment rule pass the three-client parity gate. The T
+  candidate remains evidence-blocked. Do not convert either bundled blueprint
+  or label a shipped profile documented until its own evidence and executable
+  shape are complete. Retain legacy geometry and its editor/export disclosure
+  while evidence work continues. Fender pocket drawings are not broadly
+  published, so this remains a real release risk rather than a formality.
 
 ### Phase 1 — web reference contract
 
