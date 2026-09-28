@@ -18,18 +18,32 @@ that establishes only the width/length envelope and qualitative heel family
 is useful research, but is not enough to choose a round-end radius or a
 tooling-corner radius on the user's behalf.
 
-## Current Phase 0 result — 2026-09-27
+## Current Phase 0 result — 2026-09-28
 
 Warmoth and Musikraft independently establish the common 2-3/16 in (55.56mm)
 Fender-family heel width and the distinct rounded S-style / squared T-style
-end families. Warmoth also publishes a 3 in (76.2mm) pocket length. Neither
-source publishes the planar radius needed to generate the rounded S-style end
-or the cutter-corner radius required to turn a nominally square T-style end
-into routable geometry.
+end families. Warmoth also publishes a 3 in (76.2mm) pocket length.
 
-Therefore **the Phase 0 profile go/no-go is no-go**: do not convert the
-bundled S/T blueprints or label either v7 profile documented yet. The
-v1-v6 legacy adapter remains the only released geometry for those blueprints.
+A supplied copy of the Fender `BODY, VINTAGE STRATOCASTER 1962` body drawing,
+part no. `019574`, adds a source-backed S-style result. It dimensions the
+pocket's 3 in length, 2.1875--2.2000 in deep-end width limits, 0.84 degree
+per-side taper, the two corner-radius pairs, and the 5 in closing arc. See
+[`s-style.md`](s-style.md) for the recorded source identity, transcription,
+tolerances and the distinction between source dimensions and the app's
+proposed fitting target.
+
+This changes the **S-style evidence decision** to *conditional go*: the
+drawing supplies enough plan-view information for a documented candidate, but
+the current `bolt_on_pocket` contract cannot encode its different mouth/deep
+corner radii and 5 in closing arc. It would be dishonest to squeeze those
+numbers into `endRoundnessMm`. The next contract spike must prove a named
+compound-end generator and explicitly decide whether the two mouth radii live
+in the generated joint outline or in the attached body contour. Until that
+spike is complete in web, iOS and viewer, no bundled blueprint is converted.
+
+**The T-style decision remains no-go.** No source in this packet supplies its
+inside-corner radius, taper and fitting limits. The v1-v6 legacy adapter
+therefore remains the only released geometry for both bundled blueprints.
 
 The next acceptable evidence is one of:
 
@@ -39,13 +53,10 @@ The next acceptable evidence is one of:
    repeat measurements; or
 3. an actual neck-to-pocket fit record for promotion from measured to verified.
 
-### Open modelling question: straight versus tapered bolt-on sides
+### Closed modelling question: bolt-on sides may taper
 
-An [unofficial Warmoth-forum measurement](https://unofficialwarmoth.com/threads/neck-pocket-dimension-question.2680/)
-reports approximately 0.0456 in (about 1.16mm) width change over a 3 in
-Fender-family pocket. It is not a manufacturer-controlled source and is not
-used as profile data. It is nevertheless a reason to measure both mouth and
-deep-end widths in the next evidence pass: the current v7 `bolt_on_pocket`
-shape assumes parallel straight sides, while the existing `tapered_mortise`
-shape is glued-only. Do not quietly flatten a measured bolt-on taper into a
-parallel-sided profile.
+The Fender drawing confirms that the two S-style sides are straight and taper
+symmetrically: 0.84 degree per side, with a +0/-0.25 degree tolerance. A
+nominal 76.2 mm pocket therefore changes total width by 2.234 mm. Bolt-on
+profiles must retain explicit `mouthWidthMm` and `deepEndWidthMm`; they must
+not be flattened to a parallel-sided generic rectangle.
