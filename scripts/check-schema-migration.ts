@@ -983,13 +983,35 @@ async function main() {
       invariant(singleCut.instrumentAppearance, 'single_cut no longer carries persisted instrument appearance');
       deepStrictEqual(singleCut.neckPlacement?.jointToReferenceFretMm, hardware.FINGERBOARD_OVERHANG_MM.single_cut);
       invariant(singleCut.neckJointGeometry?.mode === 'custom', 'single_cut must retain a conservative custom glued joint');
+      deepStrictEqual(singleCut.neckJointGeometry?.derivedFromProfileId, 'blueprint-baseline:single_cut');
+      invariant(presets.isBlueprintNeckJointBaseline(singleCut), 'single_cut must begin behind the Customize Joint action');
+      const customizedSingleCut = presets.customizeBlueprintNeckJoint(singleCut);
+      invariant(!presets.isBlueprintNeckJointBaseline(customizedSingleCut), 'Customize Joint did not unlock the single-cut baseline');
+      deepStrictEqual(customizedSingleCut.neckJointGeometry?.derivedFromProfileId, 'blueprint-custom:single_cut');
       const sStyle = decodePayload(readFileSync(BASE_BLUEPRINT, 'utf8'));
       deepStrictEqual(sStyle.schemaVersion, 7);
       invariant(sStyle.neckJointGeometry?.mode === 'locked', 'S-style must use its locked compound bolt-on profile');
       deepStrictEqual(sStyle.neckJointGeometry?.parameters.endTreatment, 'compound');
+      invariant(presets.isBlueprintNeckJointBaseline(sStyle), 'S-style must begin behind the Customize Joint action');
+      const customizedSStyle = presets.customizeBlueprintNeckJoint(sStyle);
+      deepStrictEqual(customizedSStyle.neckJointGeometry?.mode, 'custom');
+      deepStrictEqual(customizedSStyle.neckJointGeometry?.derivedFromProfileId, 's-style-1962-fender-019574-v1');
       const tStyle = decodePayload(readFileSync(join(BLUEPRINT_DIR, 't_style.axe.svg'), 'utf8'));
       invariant(tStyle.neckJointGeometry?.mode === 'locked', 'T-style must use its locked straight bolt-on profile');
       deepStrictEqual(tStyle.neckJointGeometry?.parameters.endTreatment, 'square');
+
+      const sgStyle = presets.customizeBlueprintNeckJoint(
+        decodePayload(readFileSync(join(BLUEPRINT_DIR, 'sg_style.axe.svg'), 'utf8')),
+      );
+      const boltOnSG = presets.changeCustomNeckJointMechanism(sgStyle, 'bolt_on');
+      const restoredSG = presets.changeCustomNeckJointMechanism(boltOnSG, 'glued');
+      const sgDefault = presets.neckPresetFieldsForTemplate(
+        restoredSG.neckPresetId, 'sg_style', 'glued', 'guitar',
+      ).neckPreset;
+      deepStrictEqual(restoredSG.neckJointGeometry?.mechanism, 'glued');
+      deepStrictEqual(restoredSG.neckJointGeometry?.parameters.mouthWidthMm, sgDefault.jointWidthMm);
+      deepStrictEqual(restoredSG.neckJointGeometry?.parameters.planLengthMm, sgDefault.jointDepthMm);
+      deepStrictEqual(restoredSG.neckJointGeometry?.parameters.endCornerRadiusMm, sgDefault.jointCornerRadiusMm);
     });
 
     check('re-saving an untouched file does not move its version', () => {

@@ -544,7 +544,57 @@ export function withBundledGuitarNeckJointContract(project: GuitarProject): Guit
       neckPlacement: placement,
     });
   }
-  return convertLegacyNeckJointToCustom(project);
+  const converted = convertLegacyNeckJointToCustom(project);
+  // These are product-owned blueprint baselines, not user-authored custom
+  // work. Persist that distinction so a fresh built-in design starts with a
+  // single Customize Joint action, while a saved custom joint reopens in its
+  // numeric editor.
+  return {
+    ...converted,
+    neckJointGeometry: {
+      ...converted.neckJointGeometry!,
+      derivedFromProfileId: `blueprint-baseline:${project.activeTemplateId}`,
+    },
+  };
+}
+
+/** A bundled blueprint has not entered joint editing until its baseline is explicitly customized. */
+export function isBlueprintNeckJointBaseline(project: GuitarProject): boolean {
+  const joint = project.neckJointGeometry;
+  if (!joint || project.instrumentType !== 'guitar') return false;
+  if (joint.mode === 'locked') return true;
+  return joint.derivedFromProfileId === `blueprint-baseline:${project.activeTemplateId}`;
+}
+
+/**
+ * Make the template's starting joint locally editable. Locked S/T snapshots
+ * become ordinary custom copies; the other guitar templates already carry a
+ * conservative custom shape, so only their baseline marker changes.
+ */
+export function customizeBlueprintNeckJoint(project: GuitarProject): GuitarProject {
+  const joint = project.neckJointGeometry;
+  if (!joint || !isBlueprintNeckJointBaseline(project)) return project;
+  if (joint.mode === 'locked') {
+    const customJoint = { ...joint };
+    const profileId = customJoint.profileId;
+    delete customJoint.profileId;
+    delete customJoint.profileSnapshot;
+    return withEmbeddedPresets({
+      ...project,
+      neckJointGeometry: {
+        ...customJoint,
+        mode: 'custom',
+        derivedFromProfileId: profileId ?? `blueprint-profile:${project.activeTemplateId}`,
+      },
+    });
+  }
+  return withEmbeddedPresets({
+    ...project,
+    neckJointGeometry: {
+      ...joint,
+      derivedFromProfileId: `blueprint-custom:${project.activeTemplateId}`,
+    },
+  });
 }
 
 /**
@@ -709,12 +759,21 @@ export function changeCustomNeckJointMechanism(
     throw new NeckJointContractError('Convert the neck joint to Custom before changing its construction.');
   }
   if (joint.mechanism === mechanism) return project;
+  const returningToTemplateDefault = mechanism === defaultNeckJointMechanism(project.activeTemplateId);
+  const templateDefault = returningToTemplateDefault
+    ? neckPresetFieldsForTemplate(
+        project.neckPresetId,
+        project.activeTemplateId,
+        mechanism,
+        project.instrumentType,
+      ).neckPreset
+    : undefined;
   const parameters = mechanism === 'bolt_on'
     ? defaultBoltOnParametersForTemplate(project.activeTemplateId)
     : {
-        mouthWidthMm: joint.parameters.mouthWidthMm,
-        planLengthMm: joint.parameters.planLengthMm,
-        endCornerRadiusMm: joint.parameters.endCornerRadiusMm,
+        mouthWidthMm: templateDefault?.jointWidthMm ?? joint.parameters.mouthWidthMm,
+        planLengthMm: templateDefault?.jointDepthMm ?? joint.parameters.planLengthMm,
+        endCornerRadiusMm: templateDefault?.jointCornerRadiusMm ?? joint.parameters.endCornerRadiusMm,
         endTreatment: 'square' as const,
         endRoundnessMm: 0,
       };

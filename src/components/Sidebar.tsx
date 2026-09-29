@@ -28,11 +28,13 @@ import type {
 import {
   bridgePresetFields,
   changeCustomNeckJointMechanism as replaceCustomNeckJointConstruction,
+  customizeBlueprintNeckJoint,
   convertLegacyNeckJointToCustom,
   blueprintNeckJointProfile,
   documentedBlueprintNeckPlacement,
   neckPresetFields,
   neckPresetFieldsForTemplate,
+  isBlueprintNeckJointBaseline,
   offeredBridgePresets,
   offeredNeckPresets,
   offeredPickupTypes,
@@ -344,6 +346,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     ? neckJointCutterWarnings(project.neckJointGeometry)
     : [];
   const jointFabricationDisclosure = neckJointFabricationDisclosure(project);
+  const jointIsTemplateBaseline = isBlueprintNeckJointBaseline(project);
 
   /**
    * Re-resolve the neck for `neckId`/`mechanism` against the active body and
@@ -399,6 +402,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
       setJointGeometryError(null);
     } catch (error) {
       setJointGeometryError(error instanceof NeckJointContractError ? error.message : 'Could not convert the legacy neck joint.');
+    }
+  };
+
+  const customizeBlueprintJoint = () => {
+    try {
+      onUpdateProject((prev) => customizeBlueprintNeckJoint(prev));
+      setJointGeometryError(null);
+    } catch (error) {
+      setJointGeometryError(error instanceof NeckJointContractError ? error.message : 'Could not customize the template neck joint.');
     }
   };
 
@@ -1160,6 +1172,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     Convert to Custom Joint
                   </button>
                 </>
+              ) : jointIsTemplateBaseline ? (
+                <>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
+                    This template starts with its default neck joint. Customize it to change dimensions or construction for this design.
+                  </p>
+                  <button type="button" className="btn btn-sm" onClick={customizeBlueprintJoint}>
+                    Customize Joint
+                  </button>
+                </>
               ) : project.neckJointGeometry.mode === 'custom' ? (
                 <>
                   <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
@@ -1177,7 +1198,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       <option value="glued">Glued</option>
                     </select>
                     <p className="panel-help" style={{ marginTop: '5px', marginBottom: 0 }}>
-                      Changing construction replaces this custom joint shape with the appropriate starting geometry.
+                      Changing construction replaces this custom joint shape with the appropriate starting geometry. Returning to this template’s default construction restores its default joint dimensions.
                     </p>
                   </div>
                   {project.neckJointGeometry.planShape !== 'bolt_on_pocket' && (
@@ -1497,11 +1518,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </div>
                   )}
                 </>
-              ) : (
-                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  Locked profile: its mouth anchors, sides and end geometry are read-only.
-                </p>
-              )}
+              ) : null}
               {jointGeometryError && (
                 <p style={{ fontSize: '0.75rem', color: 'var(--accent-red)', marginTop: '6px' }} role="alert">
                   {jointGeometryError}

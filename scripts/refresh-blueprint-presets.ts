@@ -118,7 +118,16 @@ async function main() {
       ...presets.bridgePresetFields(project.bridgePresetId),
     });
     const refreshed = migrated.instrumentType === 'guitar'
-      ? presets.withBundledGuitarNeckJointContract(migrated)
+      ? presets.withBundledGuitarNeckJointContract({
+          // Re-author the product-owned baseline from its legacy mirrors on
+          // every refresh. Keeping an older v7 object here would retain its
+          // former editable marker and make a fresh blueprint skip the
+          // Customize Joint action.
+          ...migrated,
+          schemaVersion: 6,
+          neckJointGeometry: undefined,
+          neckPlacement: undefined,
+        })
       : migrated;
     const svg = svgExporter.exportProjectToSVG(refreshed);
     writeFileSync(path, svg);
