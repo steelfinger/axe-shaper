@@ -27,6 +27,7 @@ import type {
 } from '../types/guitar';
 import {
   bridgePresetFields,
+  changeCustomNeckJointMechanism,
   convertLegacyNeckJointToCustom,
   blueprintNeckJointProfile,
   documentedBlueprintNeckPlacement,
@@ -398,6 +399,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
       setJointGeometryError(null);
     } catch (error) {
       setJointGeometryError(error instanceof NeckJointContractError ? error.message : 'Could not convert the legacy neck joint.');
+    }
+  };
+
+  const changeNeckJointMechanism = (mechanism: NeckJointMechanism) => {
+    try {
+      const changed = project.neckJointGeometry
+        ? changeCustomNeckJointMechanism(project, mechanism)
+        : mechanism === 'bolt_on' && currentMechanism !== 'bolt_on'
+          ? convertLegacyNeckJointToCustom(applyNeckJointChange(project, neckPresetId, mechanism))
+          : applyNeckJointChange(project, neckPresetId, mechanism);
+      onUpdateProject(() => changed);
+      setJointGeometryError(null);
+    } catch (error) {
+      setJointGeometryError(error instanceof NeckJointContractError ? error.message : 'Could not change neck-joint construction.');
     }
   };
 
@@ -1121,17 +1136,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <label className="form-label">Neck Joint</label>
                 <select
                   value={currentMechanism}
-                  onChange={(e) =>
-                    onUpdateProject((prev) =>
-                      applyNeckJointChange(prev, neckPresetId, e.target.value as NeckJointMechanism)
-                    )
-                  }
+                  onChange={(e) => changeNeckJointMechanism(e.target.value as NeckJointMechanism)}
                   className="form-select"
-                  disabled={Boolean(project.neckJointGeometry)}
+                  disabled={project.neckJointGeometry?.mode === 'locked'}
                   title={project.neckJointGeometry
                     ? project.neckJointGeometry.mode === 'locked'
                       ? 'This neck joint is locked to its selected profile.'
-                      : 'Construction changes require creating a new custom joint.'
+                      : undefined
                     : undefined}
                 >
                   <option value="bolt_on">Bolt-On</option>
@@ -1141,7 +1152,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '4px' }}>
                     {project.neckJointGeometry.mode === 'locked'
                       ? 'Joint construction is locked to the selected profile.'
-                      : 'Construction changes require creating a new custom joint.'}
+                      : 'Changing construction replaces the custom joint shape.'}
                   </div>
                 )}
               </div>
@@ -1366,10 +1377,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       }}
                       className="form-select"
                     >
-                      <option value="square">Cornered end</option>
-                      <option value="rounded">Rounded end</option>
-                      {project.neckJointGeometry.planShape === 'bolt_on_pocket' && (
-                        <option value="compound">S-style compound end</option>
+                      {project.neckJointGeometry.planShape === 'bolt_on_pocket' ? (
+                        <>
+                          <option value="square">Straight end</option>
+                          <option value="compound">Rounded end</option>
+                          {project.neckJointGeometry.parameters.endTreatment === 'rounded' && (
+                            <option value="rounded" disabled>Legacy rounded end</option>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <option value="square">Corner radii</option>
+                          <option value="rounded">Rounded end</option>
+                        </>
                       )}
                     </select>
                   </div>
@@ -1410,12 +1430,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       <span>{unitLabel(settings.unitDisplay)}</span>
                     </div>
                     <p className="panel-help" style={{ marginTop: '5px', marginBottom: 0 }}>
-                      A cornered and a rounded end are alternate generic shapes.
+                      This legacy rounded-end shape is retained only so older files stay editable.
                     </p>
                   </div>
                   ) : (
                     <p className="panel-help" style={{ marginTop: '5px', marginBottom: 0 }}>
-                      S-style deep end: 6.35 mm corner fillets flow into a 127 mm / 5″ closing arc. The 0.84° side taper derives the mouth width.
+                      Rounded end: 6.35 mm corner fillets flow into a 127 mm / 5″ closing arc. The 0.84° side taper derives the mouth width.
                     </p>
                   )}
                   {project.neckJointGeometry.mechanism === 'glued' && (

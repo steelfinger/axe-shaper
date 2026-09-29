@@ -37,10 +37,32 @@ import { getFretDistanceFromNutMm } from './scaleMath';
 import {
   NeckJointContractError,
   nutToBodyEdgeFromPlacement,
+  updateCustomNeckJoint,
   validateNeckJointAttachment,
   validateNeckJointContract,
   validateNeckJointWithinBody,
 } from './neckJointGeometry';
+
+const BOLT_ON_SIDE_TAPER_RADIANS = 0.84 * Math.PI / 180;
+const BOLT_ON_DEEP_CORNER_RADIUS_MM = 6.35;
+const BOLT_ON_CLOSING_ARC_RADIUS_MM = 127;
+
+function boltOnParametersForTemplate(
+  templateId: string,
+  mouthWidthMm: number,
+  planLengthMm: number,
+): NeckJointGeometry['parameters'] {
+  const deepEndWidthMm = mouthWidthMm + 2 * planLengthMm * Math.tan(BOLT_ON_SIDE_TAPER_RADIANS);
+  const isStraightEnd = templateId === 't_style';
+  return {
+    mouthWidthMm,
+    deepEndWidthMm,
+    planLengthMm,
+    endCornerRadiusMm: BOLT_ON_DEEP_CORNER_RADIUS_MM,
+    endTreatment: isStraightEnd ? 'square' : 'compound',
+    endRoundnessMm: isStraightEnd ? 0 : BOLT_ON_CLOSING_ARC_RADIUS_MM,
+  };
+}
 
 /**
  * Hardware resolution for a project.
@@ -567,18 +589,21 @@ export function convertLegacyNeckJointToCustom(project: GuitarProject): GuitarPr
   const referenceFret = fingerboardReferenceFret(project.instrumentType);
   const jointToReferenceFretMm = FINGERBOARD_OVERHANG_MM[project.activeTemplateId]
     ?? getFretDistanceFromNutMm(referenceFret, neck.scaleLengthMm) - neck.nutToBodyEdgeMm;
+  const planLengthMm = neck.jointDepthMm;
   const geometry: NeckJointGeometry = {
     mode: 'custom',
     derivedFromProfileId: `legacy-frozen-adapter:${project.activeTemplateId}`,
     mechanism,
     planShape: mechanism === 'bolt_on' ? 'bolt_on_pocket' : 'straight_mortise',
-    parameters: {
-      mouthWidthMm,
-      planLengthMm: neck.jointDepthMm,
-      endCornerRadiusMm: neck.jointCornerRadiusMm,
-      endTreatment: 'square',
-      endRoundnessMm: 0,
-    },
+    parameters: mechanism === 'bolt_on'
+      ? boltOnParametersForTemplate(project.activeTemplateId, mouthWidthMm, planLengthMm)
+      : {
+          mouthWidthMm,
+          planLengthMm,
+          endCornerRadiusMm: neck.jointCornerRadiusMm,
+          endTreatment: 'square',
+          endRoundnessMm: 0,
+        },
     mouthAnchorIds: [left.id, right.id],
   };
   const placement = {
@@ -599,6 +624,50 @@ export function convertLegacyNeckJointToCustom(project: GuitarProject): GuitarPr
     neckJointMechanism: mechanism,
     neckJointGeometry: geometry,
     neckPlacement: placement,
+  });
+}
+
+/**
+ * Replace the construction of an already-custom joint. Bolt-on conversion
+ * always starts from the two useful heel families: the T-style straight end,
+ * or the rounded S-style compound end for every other body. The mouth stays
+ * body-owned and fixed; the deep station is derived from the standard taper.
+ */
+export function changeCustomNeckJointMechanism(
+  project: GuitarProject,
+  mechanism: NeckJointMechanism,
+): GuitarProject {
+  const joint = project.neckJointGeometry;
+  if (!joint || joint.mode !== 'custom') {
+    throw new NeckJointContractError('Convert the neck joint to Custom before changing its construction.');
+  }
+  if (joint.mechanism === mechanism) return project;
+  const parameters = mechanism === 'bolt_on'
+    ? boltOnParametersForTemplate(
+        project.activeTemplateId,
+        joint.parameters.mouthWidthMm,
+        joint.parameters.planLengthMm,
+      )
+    : {
+        mouthWidthMm: joint.parameters.mouthWidthMm,
+        planLengthMm: joint.parameters.planLengthMm,
+        endCornerRadiusMm: joint.parameters.endCornerRadiusMm,
+        endTreatment: 'square' as const,
+        endRoundnessMm: 0,
+      };
+  const replacement: NeckJointGeometry = {
+    ...joint,
+    mechanism,
+    planShape: mechanism === 'bolt_on' ? 'bolt_on_pocket' : 'straight_mortise',
+    parameters,
+    neckAngleDegrees: mechanism === 'bolt_on' ? undefined : joint.neckAngleDegrees,
+  };
+  const resized = updateCustomNeckJoint(replacement, project.contour, {});
+  return withEmbeddedPresets({
+    ...project,
+    contour: resized.contour,
+    neckJointMechanism: mechanism,
+    neckJointGeometry: resized.geometry,
   });
 }
 
