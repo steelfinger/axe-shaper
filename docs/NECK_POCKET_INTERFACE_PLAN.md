@@ -339,11 +339,10 @@ discovery.
   mouth corners, 6.35 mm deep corners and a 127 mm closing arc. Its proposed
   55.8800 mm deep target resolves to a 53.6456 mm mouth; these target values
   are a clearance choice, not a newly asserted factory nominal.
-- The web Phase 0 spike now proves a tangent-continuous compound bolt-on end
-  with independent deep-corner and closing-arc radii, using the documented
-  S-style values. It is deliberately non-persisted: promote it to a named
-  contract shape only once iOS and viewer can decode the same fixtures. The
-  pocket is open at the mouth, so its 3/16 in fillets remain locked `s_style`
+- The v7 `compound` bolt-on end now records independent deep-corner and
+  closing-arc radii using the documented S-style values. Web and iOS generate
+  the same tangent-continuous outline; the viewer validates the same contract.
+  The pocket is open at the mouth, so its 3/16 in fillets remain locked `s_style`
   body-template geometry while the joint outline begins at the locked mouth
   anchors. Do not replace the compound end with the generic rounded-end shape
   or change the current default model by implication.

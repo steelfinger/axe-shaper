@@ -1,9 +1,8 @@
 # S-style rounded heel — Phase 0 evidence packet
 
-**Status:** documented candidate; not yet a released `neckJointGeometry`
-profile. The source is sufficient for the candidate's plan-view geometry, but
-the current v7 `bolt_on_pocket` shape cannot yet represent all of it without
-loss. This packet does not claim a fit to every Strat-compatible neck.
+**Status:** documented v7 profile. The profile is available through **Reset
+Neck Joint to Blueprint** on an S-style body. It records the drawing's
+plan-view interface and does not claim a fit to every Strat-compatible neck.
 
 ## Sources
 
@@ -48,21 +47,17 @@ If paired with a perfectly matching 2-3/16 in (55.5625 mm) heel, it leaves
 and clearance assumption must be shown to the builder and must not be
 presented as a factory fit guarantee.
 
-## Current schema blocker — not an evidence blocker
+## v7 representation
 
-The base v7 `bolt_on_pocket` shape has one equal `endCornerRadiusMm` and one
-`endRoundnessMm`. It cannot faithfully generate this drawing's 6.35 mm
-deep-end corners plus its 5 in closing arc. The 4.7625 mm mouth corners are
-not part of this blocker: the pocket is open at the mouth, and those fillets
-remain locked body-template geometry adjacent to the attachment anchors.
+The v7 `bolt_on_pocket` shape now supports a `compound` end treatment. It
+uses `endCornerRadiusMm` for the 6.35 mm deep-corner fillets and
+`endRoundnessMm` for the 127 mm closing arc, alongside the two width stations
+and plan length. Web and iOS regenerate the same tangent-continuous outline;
+the 3D viewer validates the same stored contract. The 4.7625 mm mouth fillets
+remain locked body-template geometry: the pocket is open at the mouth, so
+they are not portable neck-interface parameters.
 
-The web Phase 0 spike now generates the source values as tangent-continuous
-geometry, beginning exactly at the locked body mouth anchors, while asserting
-that it has **not** silently become a persisted v7 shape. Before this candidate
-can ship, promote it to a named shape with explicit `deepCornerRadiusMm` and
-`deepEndArcRadiusMm`, alongside the two width stations and plan length, then
-port the exact decoder and fixtures to iOS and viewer. Do not quietly
-substitute the legacy 6.35 mm rounded-rectangle value or approximate the
+Do not substitute the legacy 6.35 mm rounded rectangle or approximate the
 127 mm arc with a semicircle.
 
 ## Limits and next evidence

@@ -32,16 +32,13 @@ per-side taper, the two corner-radius pairs, and the 5 in closing arc. See
 tolerances and the distinction between source dimensions and the app's
 proposed fitting target.
 
-This changes the **S-style evidence decision** to *conditional go*: the
-drawing supplies enough plan-view information for a documented candidate, but
-the current `bolt_on_pocket` contract cannot encode its deep-end corner radii
-and 5 in closing arc. It would be dishonest to squeeze those numbers into
-`endRoundnessMm`. The web Phase 0 spike now proves a tangent-continuous
-compound-end generator against the documented numeric values without changing
-the persisted v7 contract. The 3/16 in mouth fillets stay a locked
-body-template feature: the pocket is open there, so they are not a portable
-neck-interface parameter. The named shape still requires iOS and viewer
-implementations before any bundled blueprint is converted.
+This changes the **S-style evidence decision** to *documented, not verified*.
+The v7 `compound` end treatment stores the two width stations, 6.35 mm
+deep-corner fillets and 127 mm closing arc without loss; web and iOS generate
+the same tangent-continuous outline and the viewer validates the contract.
+The 3/16 in mouth fillets remain a locked body-template feature because the
+pocket is open there. The bundled S blueprint itself stays at version 6 until
+the release gate permits raising its iPad reader floor.
 
 **The T-style decision remains no-go.** No source in this packet supplies its
 inside-corner radius, taper and fitting limits. The v1-v6 legacy adapter
