@@ -186,9 +186,12 @@ when a user selects a different neck: a catalogue neck's broad nut-to-heel
 taper is not necessarily its heel/pocket taper. Measured heel width plus
 per-side clearance validates fit; it does not silently reshape the rout. An
 optional `neckTaper` record is retained for a future evidence-backed profile
-authoring workflow only. A T-style starting profile uses a square end
-treatment; an S-style profile uses the documented compound treatment. Custom
-editing changes numeric values only.
+authoring workflow only. A T-style product profile uses a square end treatment
+with the same 76.2 mm span, width stations, taper, and 6.35 mm deep fillets as
+the documented S-style profile; its straight deep edge moves those fillets
+back within that shared span. It is explicitly unverified product geometry,
+not source evidence. An S-style profile uses the documented compound
+treatment. Custom editing changes numeric values only.
 
 Glued joints expose a distinct, construction-appropriate set: mortise width,
 plan length, optional deep-end width for a taper, tenon/end treatment and
@@ -332,7 +335,7 @@ discovery.
 
 ### Phase 0 — evidence and joint-attachment spike
 
-- Measure or obtain source material for the two initial S/T numeric profiles.
+- Measure or obtain source material for the initial S/T numeric profiles.
 - Write the evidence packets.
 - The supplied Fender `BODY, VINTAGE STRATOCASTER 1962`, part `019574`
   drawing gives the S-style candidate a source-backed 76.2 mm span,
@@ -347,6 +350,11 @@ discovery.
   body-template geometry while the joint outline begins at the locked mouth
   anchors. Do not replace the compound end with the generic rounded-end shape
   or change the current default model by implication.
+- The supplied T-style reference material remains research only. Pending
+  defensible source evidence, ship the user-directed T-style product profile
+  as unverified: it reuses the S-style span, stations, taper and deep fillets,
+  with a straight deep edge. It must never be described as documented or
+  source-backed.
 - Prototype width edits against every relevant body class, especially
   anchor/handle movement at the mouth.
 - The web local-build spike may expose **Convert to Custom Joint** and the
@@ -400,8 +408,10 @@ discovery.
 ### Release A — profiles and exports, no custom editing
 
 - Ship the v7 model in both clients.
-- Convert only the researched S- and T-style bundled blueprints to documented
-  profiles with distinct joint geometry.
+- Convert the researched S-style bundled blueprint to its documented profile.
+  Offer the T-style straight-end product profile as unverified geometry with
+  its export disclosure; do not represent it as a documented T-style blueprint
+  conversion until evidence supports that claim.
 - Ship provenance and unverified-export disclosure.
 - Resolve and display `neckPlacement`, but keep it locked.
 - Keep custom editing unavailable while the contract receives real use.
@@ -428,7 +438,8 @@ Add the following to the web schema/corpus/DXF gates and their iOS equivalents:
 - Release-A S/T migration seeded from the existing placement constants, with
   their current `scaleMathMatrix` corpus rows unchanged within the established
   cross-platform corpus epsilon;
-- distinct, source-backed S- and T-style v7 bolt-on geometry;
+- distinct documented S-style and explicitly unverified product-defined
+  T-style v7 bolt-on geometry;
 - web-to-iOS and iOS-to-web v7 round trips;
 - v7 viewer decoding/rendering and a `check:all` gate that includes all three
   consumers;
@@ -467,6 +478,7 @@ Add the following to the web schema/corpus/DXF gates and their iOS equivalents:
 
 The feature is ready only when web, iOS and the 3D viewer resolve the same v7
 numeric joint geometry, render it in the correct physical position, and retain
-legacy exports unchanged. A user can distinguish documented S and T profiles,
-but cannot mistake either for a universal fit guarantee. Custom joint editing
-remains symmetric, numeric, anchored, validated and explicitly user-owned.
+legacy exports unchanged. A user can distinguish the documented S-style
+profile from the unverified product-defined T-style profile, but cannot mistake
+either for a universal fit guarantee. Custom joint editing remains symmetric,
+numeric, anchored, validated and explicitly user-owned.

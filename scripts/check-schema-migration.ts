@@ -707,7 +707,7 @@ async function main() {
           mouthWidthMm, deepEndWidthMm, planLengthMm, deepEndCornerRadiusMm: 6.35, deepEndArcRadiusMm: 127,
         }).points,
       'v7 compound end diverged from the documented tangent construction');
-      const reset = presets.documentedBlueprintNeckJoint({
+      const reset = presets.blueprintNeckJointProfile({
         activeTemplateId: 's_style', instrumentType: 'guitar', contour: v7.contour,
       });
       invariant(reset?.parameters.endTreatment === 'compound', 'S-style blueprint reset has no compound pocket');
@@ -725,6 +725,30 @@ async function main() {
         neckJointGeometry: reset!,
       });
       invariant(resetProject.neckJointGeometry?.mode === 'locked', 'S-style blueprint reset did not produce a valid locked joint');
+    });
+
+    check('builds the unverified straight-end T-style product profile from the shared bolt-on stations', () => {
+      const reset = presets.blueprintNeckJointProfile({
+        activeTemplateId: 't_style', instrumentType: 'guitar', contour: v7.contour,
+      });
+      invariant(reset?.profileId === 't-style-product-straight-end-v1',
+        'T-style blueprint reset did not select the product profile');
+      invariant(reset.profileSnapshot?.evidenceLevel === 'unverified',
+        'T-style product geometry was incorrectly labelled as source-backed');
+      invariant(reset.parameters.endTreatment === 'square'
+        && reset.parameters.planLengthMm === 76.2
+        && reset.parameters.endCornerRadiusMm === 6.35,
+      'T-style product geometry did not retain the specified straight deep edge, span, and fillets');
+      invariant(reset.parameters.mouthWidthMm === 53.64553921225705
+        && reset.parameters.deepEndWidthMm === 55.88,
+      'T-style product geometry did not retain the S-style taper stations');
+      const outline = neckJoint.generateNeckJointOutline(reset).points;
+      const straightHalfWidth = reset.parameters.deepEndWidthMm! / 2 - reset.parameters.endCornerRadiusMm;
+      invariant(outline.some((point: any) => Math.abs(point.y - 76.2) < 0.000000001
+        && Math.abs(point.x - straightHalfWidth) < 0.000000001)
+        && outline.some((point: any) => Math.abs(point.y - 76.2) < 0.000000001
+          && Math.abs(point.x + straightHalfWidth) < 0.000000001),
+        'T-style product geometry did not retain a straight deep edge between its corner fillets');
     });
 
     check('validates custom joint mouth attachments across every convertible guitar body without changing handle offsets', () => {

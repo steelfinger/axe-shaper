@@ -415,34 +415,39 @@ export function documentedBlueprintNeckPlacement(project: Pick<GuitarProject,
 }
 
 /**
- * The only blueprint joint currently backed by a supplied, citable drawing.
- * The 1962 S-style body drawing (Fender 019574) specifies a 0.84° side
- * taper, 1/4 in deep-corner fillets, and a 5 in closing arc.  T-style stays
- * on the frozen legacy adapter until equivalent evidence is assembled.
+ * Return the selected body template's locked joint profile when the product
+ * has one. The S-style profile is documented by Fender drawing 019574. The
+ * T-style profile is a clearly-labelled product definition: it intentionally
+ * shares the S-style span, width stations, taper and 1/4 in deep fillets, but
+ * uses a straight deep edge. It is unverified, never source provenance.
  */
-export function documentedBlueprintNeckJoint(project: Pick<GuitarProject,
+export function blueprintNeckJointProfile(project: Pick<GuitarProject,
   'activeTemplateId' | 'instrumentType' | 'contour'
 >): NeckJointGeometry | undefined {
-  if (project.activeTemplateId !== 's_style' || project.instrumentType !== 'guitar') return undefined;
+  if ((project.activeTemplateId !== 's_style' && project.activeTemplateId !== 't_style')
+    || project.instrumentType !== 'guitar') return undefined;
   const left = project.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_left');
   const right = project.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_right');
   if (!left || !right) return undefined;
+  const isSStyle = project.activeTemplateId === 's_style';
   const parameters = {
     mouthWidthMm: 53.64553921225705,
     deepEndWidthMm: 55.88,
     planLengthMm: 76.2,
     endCornerRadiusMm: 6.35,
-    endTreatment: 'compound' as const,
-    endRoundnessMm: 127,
+    endTreatment: isSStyle ? 'compound' as const : 'square' as const,
+    endRoundnessMm: isSStyle ? 127 : 0,
   };
   const snapshot = {
-    id: 's-style-1962-fender-019574-v1',
-    name: 'S-style 1962 compound pocket',
+    id: isSStyle ? 's-style-1962-fender-019574-v1' : 't-style-product-straight-end-v1',
+    name: isSStyle ? 'S-style 1962 compound pocket' : 'T-style straight-end pocket',
     mechanism: 'bolt_on' as const,
     planShape: 'bolt_on_pocket' as const,
     parameters,
-    evidenceLevel: 'documented' as const,
-    provenance: 'Fender Vintage Stratocaster 1962 body, part 019574 (released 1982)',
+    evidenceLevel: isSStyle ? 'documented' as const : 'unverified' as const,
+    provenance: isSStyle
+      ? 'Fender Vintage Stratocaster 1962 body, part 019574 (released 1982)'
+      : 'Axe Shaper product geometry: S-style 76.2mm span, width stations, 0.84° taper and 6.35mm deep fillets; straight deep edge (2026-09-29)',
   };
   return {
     mode: 'locked',
