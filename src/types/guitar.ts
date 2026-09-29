@@ -87,10 +87,9 @@ export interface SymmetryConfig {
 }
 
 /**
- * The physical, straight-sided neck taper used to derive a bolt-on pocket's
- * two widths. `nutToHeelMm` is measured on the centreline from the nut to the
- * station at which `heelWidthMm` is measured; it is deliberately not the
- * legacy `nutToJointMm` fingerboard-overhang datum.
+ * Optional source data for a measured physical neck. It is preserved for a
+ * future, evidence-backed profile-authoring workflow; selecting a neck never
+ * silently reshapes a pocket from these values.
  */
 export interface NeckTaper {
   nutWidthMm: LengthMm;
@@ -165,8 +164,8 @@ export type NeckJointEvidenceLevel = 'documented' | 'measured' | 'verified' | 'u
 
 /**
  * Numeric parameters shared by the initial symmetric plan-view shape family.
- * A tapered mortise owns `deepEndWidthMm`; a bolt-on pocket may carry it as
- * the immutable result of its selected neck's `neckTaper` calculation. The
+ * A tapered mortise owns `deepEndWidthMm`; a bolt-on pocket persists its
+ * profile-authored deep station explicitly. The
  * end treatment describes the closing end opposite the Y = 0 mouth; the two
  * end-corner radii are intentionally equal, so only one value is stored.
  */

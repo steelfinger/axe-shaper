@@ -1251,7 +1251,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   )}
                   {project.neckJointGeometry.planShape === 'bolt_on_pocket' && (
                     <p className="panel-help" style={{ marginTop: '-4px' }}>
-                      Mouth width: {formatLength(project.neckJointGeometry.parameters.mouthWidthMm, settings.unitDisplay, 3)} {unitLabel(settings.unitDisplay)}. It follows the stored pocket taper; the mouth anchors update symmetrically.
+                      Mouth width: {formatLength(project.neckJointGeometry.parameters.mouthWidthMm, settings.unitDisplay, 3)} {unitLabel(settings.unitDisplay)}. It follows this pocket profile’s taper; the mouth anchors update symmetrically.
                     </p>
                   )}
                   {project.neckJointGeometry.targetHeelWidthMm === undefined ? (
