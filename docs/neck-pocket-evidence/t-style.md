@@ -1,6 +1,20 @@
 # T-style squared heel — Phase 0 evidence packet
 
-**Status:** research only; not a released `neckJointGeometry` profile.
+**Evidence status:** research only; no source-backed T-style profile is released.
+
+## Product-defined profile — separate from source evidence
+
+The application offers a locked `t-style-product-straight-end-v1` profile as
+an **unverified product choice**, not as a sourced Telecaster specification.
+It deliberately shares the S-style profile's 76.2mm plan length, 55.88mm
+deep-end station, 53.645539mm mouth station and 0.84-degree-per-side taper.
+Its only plan-view distinction is a straight deep edge joined to the sides by
+two 6.35mm corner fillets. Those fillets begin farther into the body than the
+S-style compound closing arc, while the overall plan length remains equal.
+
+This is a user-directed design baseline (2026-09-29). It must retain the
+in-app and export `unverified` disclosure, and it must never be described as
+the geometry proven by the reference sources below.
 
 ## Sources
 

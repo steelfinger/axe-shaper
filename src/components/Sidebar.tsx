@@ -28,7 +28,7 @@ import type {
 import {
   bridgePresetFields,
   convertLegacyNeckJointToCustom,
-  documentedBlueprintNeckJoint,
+  blueprintNeckJointProfile,
   documentedBlueprintNeckPlacement,
   neckPresetFields,
   neckPresetFieldsForTemplate,
@@ -436,10 +436,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const resetNeckJointToBlueprint = () => {
-    const joint = documentedBlueprintNeckJoint(project);
+    const joint = blueprintNeckJointProfile(project);
     if (!joint) return;
     onUpdateProject((prev) => {
-      const reset = documentedBlueprintNeckJoint(prev);
+      const reset = blueprintNeckJointProfile(prev);
       if (!reset) return prev;
       const halfWidth = reset.parameters.mouthWidthMm / 2;
       const contour = {
@@ -1171,9 +1171,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
                     This design uses the frozen generic legacy pocket. Convert it to make a local custom joint; the body’s locked mouth anchors remain the attachment points.
                   </p>
-                  {documentedBlueprintNeckJoint(project) && (
+                  {blueprintNeckJointProfile(project) && (
                     <button type="button" className="btn btn-sm" onClick={resetNeckJointToBlueprint} style={{ marginRight: '8px' }}>
-                      Use Documented S-Style Joint
+                      {project.activeTemplateId === 's_style' ? 'Use Documented S-Style Joint' : 'Use T-Style Straight-End Pocket'}
                     </button>
                   )}
                   <button type="button" className="btn btn-sm" onClick={convertLegacyJoint}>
@@ -1485,7 +1485,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       {warning}
                     </p>
                   ))}
-                  {documentedBlueprintNeckJoint(project) && (
+                  {blueprintNeckJointProfile(project) && (
                     <div className="form-group" style={{ marginTop: '12px' }}>
                       <button type="button" className="btn btn-sm" onClick={resetNeckJointToBlueprint}>
                         Reset Neck Joint to Blueprint

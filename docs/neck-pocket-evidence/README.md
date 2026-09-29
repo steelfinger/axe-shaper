@@ -40,12 +40,14 @@ The 3/16 in mouth fillets remain a locked body-template feature because the
 pocket is open there. The bundled S blueprint itself stays at version 6 until
 the release gate permits raising its iPad reader floor.
 
-**The T-style decision remains no-go.** A current Musikraft 50's/60's Tele
-body product independently corroborates a routed four-bolt 3 in × 2-3/16 in
-envelope (and .670 in depth). No source in this packet supplies its
-inside-corner radius, taper and fitting limits, however. The v1-v6 legacy
-adapter therefore remains the only released geometry for both bundled
-blueprints.
+**The T-style evidence decision remains no-go.** A current Musikraft 50's/60's
+Tele body product independently corroborates a routed four-bolt 3 in ×
+2-3/16 in envelope (and .670 in depth). No source in this packet supplies its
+inside-corner radius, taper and fitting limits. The application nevertheless
+offers a separate user-directed, **unverified** T-style product profile: it
+shares the documented S-style stations and taper, while using a straight deep
+edge with 6.35mm corner fillets. That product decision is not evidence and
+does not upgrade the T-style claim; see [`t-style.md`](t-style.md).
 
 The next acceptable evidence is one of:
 
