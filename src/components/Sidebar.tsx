@@ -41,6 +41,7 @@ import {
 import {
   NeckJointContractError,
   neckJointCutterWarnings,
+  requiredPocketWidthForHeelFit,
   updateCustomNeckPlacement,
   updateCustomNeckJoint,
   type CustomNeckJointUpdate,
@@ -1195,6 +1196,87 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       </div>
                     </div>
                   )}
+                  {project.neckJointGeometry.targetHeelWidthMm === undefined ? (
+                    <div className="form-group">
+                      <button
+                        type="button"
+                        className="btn btn-sm"
+                        onClick={() => updateCustomJoint(
+                          {
+                            targetHeelWidthMm: project.neckJointGeometry!.parameters.deepEndWidthMm
+                              ?? project.neckJointGeometry!.parameters.mouthWidthMm,
+                            fittingClearanceMm: 0,
+                          },
+                          'neck-joint-fit-target',
+                        )}
+                      >
+                        Add Heel Fit Target
+                      </button>
+                    </div>
+                  ) : (() => {
+                    const joint = project.neckJointGeometry!;
+                    const deepEndWidthMm = joint.parameters.deepEndWidthMm ?? joint.parameters.mouthWidthMm;
+                    const targetHeelWidthMm = joint.targetHeelWidthMm!;
+                    const requiredWidthMm = requiredPocketWidthForHeelFit(joint)!;
+                    const availablePerSideMm = (deepEndWidthMm - targetHeelWidthMm) / 2;
+                    return (
+                      <>
+                        <div className="form-group">
+                          <label className="form-label" htmlFor="neck-joint-heel-width">Measured Heel Width</label>
+                          <div className="measured-input-row">
+                            <DecimalInput
+                              id="neck-joint-heel-width"
+                              className="form-input measured-input"
+                              value={toDisplayUnits(targetHeelWidthMm, settings.unitDisplay)}
+                              digits={settings.unitDisplay === 'mm' ? 3 : 4}
+                              min={toDisplayUnits(0.001, settings.unitDisplay)}
+                              step={settings.unitDisplay === 'mm' ? 0.1 : 0.005}
+                              onValueChange={(value) => updateCustomJoint(
+                                { targetHeelWidthMm: toMm(value, settings.unitDisplay) },
+                                'neck-joint-fit-target',
+                              )}
+                              onBlur={onEndEdit}
+                            />
+                            <span>{unitLabel(settings.unitDisplay)}</span>
+                          </div>
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label" htmlFor="neck-joint-side-clearance">Side Clearance</label>
+                          <div className="measured-input-row">
+                            <DecimalInput
+                              id="neck-joint-side-clearance"
+                              className="form-input measured-input"
+                              value={toDisplayUnits(joint.fittingClearanceMm ?? 0, settings.unitDisplay)}
+                              digits={settings.unitDisplay === 'mm' ? 3 : 4}
+                              min={0}
+                              step={settings.unitDisplay === 'mm' ? 0.05 : 0.002}
+                              onValueChange={(value) => updateCustomJoint(
+                                { fittingClearanceMm: toMm(value, settings.unitDisplay) },
+                                'neck-joint-fit-clearance',
+                              )}
+                              onBlur={onEndEdit}
+                            />
+                            <span>{unitLabel(settings.unitDisplay)}</span>
+                          </div>
+                        </div>
+                        <p className="panel-help" role="status">
+                          Deep end: {formatLength(deepEndWidthMm, settings.unitDisplay, 3)} {unitLabel(settings.unitDisplay)} pocket; {formatLength(availablePerSideMm, settings.unitDisplay, 3)} {unitLabel(settings.unitDisplay)} per side. Required: {formatLength(requiredWidthMm, settings.unitDisplay, 3)} {unitLabel(settings.unitDisplay)}.
+                        </p>
+                        <div className="form-group">
+                          <button
+                            type="button"
+                            className="btn btn-sm"
+                            onClick={() => updateCustomJoint(
+                              { targetHeelWidthMm: null, fittingClearanceMm: null },
+                              'neck-joint-fit-target',
+                            )}
+                          >
+                            Clear Heel Fit Target
+                          </button>
+                        </div>
+                      </>
+                    );
+                  })()}
                   <div className="form-group">
                     <label className="form-label" htmlFor="neck-joint-end-treatment">Deep End</label>
                     <select

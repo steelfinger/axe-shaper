@@ -784,6 +784,15 @@ async function main() {
       const cutterChecked = neckJoint.updateCustomNeckJoint(tapered.geometry, tapered.contour, { cutterDiameterMm: 20 });
       invariant(neckJoint.neckJointCutterWarnings(cutterChecked.geometry).length === 1,
         'an oversized cutter did not produce an advisory warning');
+      const fitted = neckJoint.updateCustomNeckJoint(current, converted.contour, {
+        targetHeelWidthMm: current.parameters.mouthWidthMm - 0.4,
+        fittingClearanceMm: 0.1,
+      });
+      invariant(Math.abs(neckJoint.requiredPocketWidthForHeelFit(fitted.geometry) - (current.parameters.mouthWidthMm - 0.2)) < 0.000000001,
+        'per-side clearance was not added twice to the required heel-fit width');
+      throws(() => neckJoint.updateCustomNeckJoint(fitted.geometry, fitted.contour, {
+        fittingClearanceMm: 0.3,
+      }), /twice the per-side clearance/, 'a heel fit with insufficient pocket width was accepted');
       throws(() => neckJoint.updateCustomNeckJoint(current, converted.contour, {
         parameters: { planLengthMm: current.parameters.planLengthMm + 1000 },
       }), /leaves the body/, 'a joint that leaves the body was accepted');

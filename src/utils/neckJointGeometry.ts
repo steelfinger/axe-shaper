@@ -120,13 +120,25 @@ export function validateNeckJointGeometry(geometry: NeckJointGeometry): void {
     && geometry.parameters.deepEndWidthMm < geometry.parameters.mouthWidthMm) {
     throw new NeckJointContractError('A bolt-on deep-end width must not be narrower than its mouth.');
   }
+  if (geometry.targetHeelWidthMm !== undefined && !finitePositive(geometry.targetHeelWidthMm)) {
+    throw new NeckJointContractError('Neck joint target heel width must be positive when present.');
+  }
+  if (geometry.targetHeelWidthMm === undefined && geometry.fittingClearanceMm !== undefined) {
+    throw new NeckJointContractError('Neck joint fitting clearance requires a target heel width.');
+  }
   for (const [label, value] of [
-    ['target heel width', geometry.targetHeelWidthMm],
     ['fitting clearance', geometry.fittingClearanceMm],
     ['cutter diameter', geometry.cutterDiameterMm],
   ] as const) {
     if (value !== undefined && !finiteNonNegative(value)) {
       throw new NeckJointContractError(`Neck joint ${label} must be non-negative when present.`);
+    }
+  }
+  if (geometry.targetHeelWidthMm !== undefined) {
+    const deepWidth = geometry.parameters.deepEndWidthMm ?? geometry.parameters.mouthWidthMm;
+    const requiredWidth = requiredPocketWidthForHeelFit(geometry);
+    if (requiredWidth !== undefined && deepWidth < requiredWidth) {
+      throw new NeckJointContractError('Neck joint deep-end width must fit the measured heel plus twice the per-side clearance.');
     }
   }
   if (geometry.neckAngleDegrees !== undefined) {
@@ -281,8 +293,23 @@ export function neckJointCutterWarnings(geometry: NeckJointGeometry): string[] {
   return [];
 }
 
+/**
+ * A fit target is measured at the deep end of the heel. Clearance is stored
+ * per side, so it contributes twice to the required pocket width.
+ */
+export function requiredPocketWidthForHeelFit(geometry: Pick<NeckJointGeometry,
+  'targetHeelWidthMm' | 'fittingClearanceMm'
+>): number | undefined {
+  if (geometry.targetHeelWidthMm === undefined) return undefined;
+  return geometry.targetHeelWidthMm + 2 * (geometry.fittingClearanceMm ?? 0);
+}
+
 export interface CustomNeckJointUpdate {
   parameters?: Partial<NeckJointPlanParameters>;
+  /** `null` removes the optional measured heel and its side-clearance target. */
+  targetHeelWidthMm?: number | null;
+  /** Stored per side; required pocket width adds this value twice. */
+  fittingClearanceMm?: number | null;
   /** `null` explicitly removes the optional cutter declaration. */
   cutterDiameterMm?: number | null;
   /** `null` explicitly removes an optional glued-joint construction angle. */
@@ -309,6 +336,12 @@ export function updateCustomNeckJoint(
     parameters: { ...geometry.parameters, ...update.parameters },
     ...(Object.prototype.hasOwnProperty.call(update, 'cutterDiameterMm')
       ? { cutterDiameterMm: update.cutterDiameterMm ?? undefined }
+      : {}),
+    ...(Object.prototype.hasOwnProperty.call(update, 'targetHeelWidthMm')
+      ? { targetHeelWidthMm: update.targetHeelWidthMm ?? undefined }
+      : {}),
+    ...(Object.prototype.hasOwnProperty.call(update, 'fittingClearanceMm')
+      ? { fittingClearanceMm: update.fittingClearanceMm ?? undefined }
       : {}),
     ...(Object.prototype.hasOwnProperty.call(update, 'neckAngleDegrees')
       ? { neckAngleDegrees: update.neckAngleDegrees ?? undefined }
