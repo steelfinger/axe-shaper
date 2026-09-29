@@ -27,7 +27,7 @@ import type {
 } from '../types/guitar';
 import {
   bridgePresetFields,
-  changeCustomNeckJointMechanism,
+  changeCustomNeckJointMechanism as replaceCustomNeckJointConstruction,
   convertLegacyNeckJointToCustom,
   blueprintNeckJointProfile,
   documentedBlueprintNeckPlacement,
@@ -346,10 +346,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   /**
    * Re-resolve the neck for `neckId`/`mechanism` against the active body and
-   * snap the neck-pocket shoulder anchors to the result's joint width - the
-   * one piece of geometry both the Neck and Neck Joint pickers have to keep
-   * in sync (the pocket's rout shape comes from the mechanism, not the neck,
-   * but both pickers can change it).
+   * snap the neck-pocket shoulder anchors to the result's joint width. This
+   * only services legacy projects: a v7 custom joint owns its own geometry,
+   * while construction is changed from the Custom Joint controls below.
    */
   const applyNeckJointChange = (
     prev: GuitarProject,
@@ -402,17 +401,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
-  const changeNeckJointMechanism = (mechanism: NeckJointMechanism) => {
+  const changeCustomJointConstruction = (mechanism: NeckJointMechanism) => {
     try {
-      const changed = project.neckJointGeometry
-        ? changeCustomNeckJointMechanism(project, mechanism)
-        : mechanism === 'bolt_on' && currentMechanism !== 'bolt_on'
-          // Promote the *existing glued* joint first, then replace it with
-          // the bolt-on family. Applying the legacy mechanism first would
-          // route through its generic rectangle and make this look like a
-          // rounded glued mortise rather than a fresh bolt-on pocket.
-          ? changeCustomNeckJointMechanism(convertLegacyNeckJointToCustom(project), mechanism)
-          : applyNeckJointChange(project, neckPresetId, mechanism);
+      if (project.neckJointGeometry?.mode !== 'custom') return;
+      const changed = replaceCustomNeckJointConstruction(project, mechanism);
       onUpdateProject(() => changed);
       setJointGeometryError(null);
     } catch (error) {
@@ -1103,7 +1095,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {activeTab === 'hardware' && (
           <div>
             <div className="panel-section">
-              <div className="section-title">Neck & Joint Presets</div>
+              <div className="section-title">Neck Preset</div>
 
               <div className="form-group">
                 <label className="form-label">Neck & Scale Length</label>
@@ -1134,31 +1126,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       </option>
                     )}
                 </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Neck Joint</label>
-                <select
-                  value={currentMechanism}
-                  onChange={(e) => changeNeckJointMechanism(e.target.value as NeckJointMechanism)}
-                  className="form-select"
-                  disabled={project.neckJointGeometry?.mode === 'locked'}
-                  title={project.neckJointGeometry
-                    ? project.neckJointGeometry.mode === 'locked'
-                      ? 'This neck joint is locked to its selected profile.'
-                      : undefined
-                    : undefined}
-                >
-                  <option value="bolt_on">Bolt-On</option>
-                  <option value="glued">Glued</option>
-                </select>
-                {project.neckJointGeometry && (
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                    {project.neckJointGeometry.mode === 'locked'
-                      ? 'Joint construction is locked to the selected profile.'
-                      : 'Changing construction replaces the custom joint shape.'}
-                  </div>
-                )}
               </div>
 
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '8px' }}>
@@ -1195,6 +1162,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
                     Custom {project.neckJointGeometry.mechanism === 'bolt_on' ? 'bolt-on pocket' : 'glued mortise'}. Numeric changes keep the mouth anchors symmetric and reject a rout that leaves the body.
                   </p>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="neck-joint-construction">Joint Construction</label>
+                    <select
+                      id="neck-joint-construction"
+                      value={project.neckJointGeometry.mechanism}
+                      onChange={(e) => changeCustomJointConstruction(e.target.value as NeckJointMechanism)}
+                      className="form-select"
+                    >
+                      <option value="bolt_on">Bolt-On</option>
+                      <option value="glued">Glued</option>
+                    </select>
+                    <p className="panel-help" style={{ marginTop: '5px', marginBottom: 0 }}>
+                      Changing construction replaces this custom joint shape with the appropriate starting geometry.
+                    </p>
+                  </div>
                   {project.neckJointGeometry.planShape !== 'bolt_on_pocket' && (
                   <div className="form-group">
                     <label className="form-label" htmlFor="neck-joint-mouth-width">Mouth Width</label>
