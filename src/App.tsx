@@ -466,6 +466,16 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
   // Delete Anchor(s)
   const handleDeleteSelectedAnchors = () => {
     if (selectedAnchorIds.size === 0) return;
+    const activeContour = getActiveContour(project, activeLayer);
+    if (!activeContour) return;
+    const selectedAnchors = activeContour.anchors.filter((anchor) => selectedAnchorIds.has(anchor.id));
+    const canDelete = selectedAnchorIds.size === 1
+      ? selectedAnchors.length === 1 && !selectedAnchors[0].locked
+      : selectedAnchors.filter((anchor) => !anchor.locked).length > 0
+        && activeContour.anchors.length - selectedAnchors.filter((anchor) => !anchor.locked).length >= MIN_ANCHOR_COUNT;
+    // Do not clear a selection when keyboard deletion has no effect. In
+    // particular, a locked v7 mouth anchor must remain selected and intact.
+    if (!canDelete) return;
     handleUpdateProject((prev) => {
       const active = getActiveContour(prev, activeLayer);
       if (!active) return prev;

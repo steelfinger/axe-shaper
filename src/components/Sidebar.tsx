@@ -43,6 +43,7 @@ import {
 } from '../utils/presets';
 import {
   NeckJointContractError,
+  boltOnMouthWidthForTaper,
   neckJointCutterWarnings,
   requiredPocketWidthForHeelFit,
   updateCustomNeckPlacement,
@@ -435,13 +436,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
     const joint = project.neckJointGeometry;
     if (!joint || joint.mode !== 'custom') return;
     const parameters: Partial<NeckJointPlanParameters> = { [parameter]: valueMm };
-    if (joint.planShape === 'bolt_on_pocket' && joint.parameters.endTreatment === 'compound') {
+    if (joint.planShape === 'bolt_on_pocket'
+      && joint.parameters.endTreatment === 'compound'
+      && (parameter === 'deepEndWidthMm' || parameter === 'planLengthMm')) {
       const deepWidthMm = parameter === 'deepEndWidthMm'
         ? valueMm
         : joint.parameters.deepEndWidthMm ?? joint.parameters.mouthWidthMm;
       const planLengthMm = parameter === 'planLengthMm' ? valueMm : joint.parameters.planLengthMm;
       parameters.deepEndWidthMm = deepWidthMm;
-      parameters.mouthWidthMm = deepWidthMm - 2 * planLengthMm * Math.tan(0.84 * Math.PI / 180);
+      parameters.mouthWidthMm = boltOnMouthWidthForTaper(joint.parameters, deepWidthMm, planLengthMm);
     }
     updateCustomJoint({ parameters }, `neck-joint-${parameter}`);
   };
@@ -1349,7 +1352,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                   endCornerRadiusMm: 6.35,
                                   endRoundnessMm: 127,
                                   deepEndWidthMm: deepWidth,
-                                  mouthWidthMm: deepWidth - 2 * project.neckJointGeometry!.parameters.planLengthMm * Math.tan(0.84 * Math.PI / 180),
+                                  mouthWidthMm: project.neckJointGeometry!.parameters.mouthWidthMm,
                                 }
                               : endTreatment === 'rounded'
                               ? {
@@ -1421,7 +1424,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                   ) : (
                     <p className="panel-help" style={{ marginTop: '5px', marginBottom: 0 }}>
-                      Rounded end: 6.35 mm corner fillets flow into a 127 mm / 5″ closing arc. The 0.84° side taper derives the mouth width.
+                      Rounded end: 6.35 mm corner fillets flow into a 127 mm / 5″ closing arc. The current side taper is preserved when its dimensions change.
                     </p>
                   )}
                   {project.neckJointGeometry.mechanism === 'glued' && (
