@@ -153,7 +153,12 @@ export type NeckJointPlanShape = 'bolt_on_pocket' | 'straight_mortise' | 'tapere
 
 export type NeckJointGeometryMode = 'locked' | 'custom';
 
-export type NeckJointEndTreatment = 'square' | 'rounded';
+/**
+ * `compound` is the documented S-style deep end: two small deep-corner
+ * fillets flowing into one larger closing arc. It is not approximated by a
+ * single generic radius.
+ */
+export type NeckJointEndTreatment = 'square' | 'rounded' | 'compound';
 
 /** Evidence is a scoped statement about an authored interface, never a fit guarantee. */
 export type NeckJointEvidenceLevel = 'documented' | 'measured' | 'verified' | 'unverified';

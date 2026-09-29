@@ -28,6 +28,7 @@ import type {
 import {
   bridgePresetFields,
   convertLegacyNeckJointToCustom,
+  documentedBlueprintNeckJoint,
   documentedBlueprintNeckPlacement,
   neckPresetFields,
   neckPresetFieldsForTemplate,
@@ -418,10 +419,42 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const changeCustomJointDimension = (
     parameter: keyof NeckJointPlanParameters,
     displayValue: number,
-  ) => updateCustomJoint(
-    { parameters: { [parameter]: toMm(displayValue, settings.unitDisplay) } },
-    `neck-joint-${parameter}`,
-  );
+  ) => {
+    const valueMm = toMm(displayValue, settings.unitDisplay);
+    const joint = project.neckJointGeometry;
+    if (!joint || joint.mode !== 'custom') return;
+    const parameters: Partial<NeckJointPlanParameters> = { [parameter]: valueMm };
+    if (joint.planShape === 'bolt_on_pocket' && joint.parameters.endTreatment === 'compound') {
+      const deepWidthMm = parameter === 'deepEndWidthMm'
+        ? valueMm
+        : joint.parameters.deepEndWidthMm ?? joint.parameters.mouthWidthMm;
+      const planLengthMm = parameter === 'planLengthMm' ? valueMm : joint.parameters.planLengthMm;
+      parameters.deepEndWidthMm = deepWidthMm;
+      parameters.mouthWidthMm = deepWidthMm - 2 * planLengthMm * Math.tan(0.84 * Math.PI / 180);
+    }
+    updateCustomJoint({ parameters }, `neck-joint-${parameter}`);
+  };
+
+  const resetNeckJointToBlueprint = () => {
+    const joint = documentedBlueprintNeckJoint(project);
+    if (!joint) return;
+    onUpdateProject((prev) => {
+      const reset = documentedBlueprintNeckJoint(prev);
+      if (!reset) return prev;
+      const halfWidth = reset.parameters.mouthWidthMm / 2;
+      const contour = {
+        ...prev.contour,
+        anchors: prev.contour.anchors.map((anchor) => {
+          if (anchor.id === reset.mouthAnchorIds[0]) return { ...anchor, locked: true, position: { ...anchor.position, x: -halfWidth, y: 0 } };
+          if (anchor.id === reset.mouthAnchorIds[1]) return { ...anchor, locked: true, position: { ...anchor.position, x: halfWidth, y: 0 } };
+          return anchor;
+        }),
+      };
+      return withEmbeddedPresets({ ...prev, contour, neckJointGeometry: reset });
+    }, 'neck-joint-reset-blueprint');
+    setJointGeometryError(null);
+    onEndEdit();
+  };
 
   const applyCustomNeckPlacement = () => {
     if (!project.neckPlacement) return;
@@ -1147,6 +1180,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
                     Custom {project.neckJointGeometry.mechanism === 'bolt_on' ? 'bolt-on pocket' : 'glued mortise'}. Numeric changes keep the mouth anchors symmetric and reject a rout that leaves the body.
                   </p>
+                  {project.neckJointGeometry.planShape !== 'bolt_on_pocket' && (
                   <div className="form-group">
                     <label className="form-label" htmlFor="neck-joint-mouth-width">Mouth Width</label>
                     <div className="measured-input-row">
@@ -1163,6 +1197,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       <span>{unitLabel(settings.unitDisplay)}</span>
                     </div>
                   </div>
+                  )}
                   <div className="form-group">
                     <label className="form-label" htmlFor="neck-joint-plan-length">Plan Length</label>
                     <div className="measured-input-row">
@@ -1187,7 +1222,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {(project.neckJointGeometry.planShape === 'bolt_on_pocket'
                     || project.neckJointGeometry.planShape === 'tapered_mortise') && (
                     <div className="form-group">
-                      <label className="form-label" htmlFor="neck-joint-deep-width">Deep-End Width</label>
+                      <label className="form-label" htmlFor="neck-joint-deep-width">
+                        {project.neckJointGeometry.planShape === 'bolt_on_pocket' ? 'Pocket Width (Deep End)' : 'Deep-End Width'}
+                      </label>
                       <div className="measured-input-row">
                         <DecimalInput
                           id="neck-joint-deep-width"
@@ -1211,6 +1248,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         <span>{unitLabel(settings.unitDisplay)}</span>
                       </div>
                     </div>
+                  )}
+                  {project.neckJointGeometry.planShape === 'bolt_on_pocket' && (
+                    <p className="panel-help" style={{ marginTop: '-4px' }}>
+                      Mouth width: {formatLength(project.neckJointGeometry.parameters.mouthWidthMm, settings.unitDisplay, 3)} {unitLabel(settings.unitDisplay)}. It follows the stored pocket taper; the mouth anchors update symmetrically.
+                    </p>
                   )}
                   {project.neckJointGeometry.targetHeelWidthMm === undefined ? (
                     <div className="form-group">
@@ -1304,7 +1346,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           ?? project.neckJointGeometry!.parameters.mouthWidthMm;
                         updateCustomJoint(
                           {
-                            parameters: endTreatment === 'rounded'
+                            parameters: endTreatment === 'compound'
+                              ? {
+                                  endTreatment,
+                                  endCornerRadiusMm: 6.35,
+                                  endRoundnessMm: 127,
+                                  deepEndWidthMm: deepWidth,
+                                  mouthWidthMm: deepWidth - 2 * project.neckJointGeometry!.parameters.planLengthMm * Math.tan(0.84 * Math.PI / 180),
+                                }
+                              : endTreatment === 'rounded'
                               ? {
                                   endTreatment,
                                   endRoundnessMm: project.neckJointGeometry!.parameters.endRoundnessMm || deepWidth / 2,
@@ -1318,8 +1368,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     >
                       <option value="square">Cornered end</option>
                       <option value="rounded">Rounded end</option>
+                      {project.neckJointGeometry.planShape === 'bolt_on_pocket' && (
+                        <option value="compound">S-style compound end</option>
+                      )}
                     </select>
                   </div>
+                  {project.neckJointGeometry.parameters.endTreatment !== 'compound' ? (
                   <div className="form-group">
                     <label className="form-label" htmlFor="neck-joint-end-radius">
                       {project.neckJointGeometry.parameters.endTreatment === 'rounded' ? 'Overall End Radius' : 'End-Corner Radius'}
@@ -1356,9 +1410,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       <span>{unitLabel(settings.unitDisplay)}</span>
                     </div>
                     <p className="panel-help" style={{ marginTop: '5px', marginBottom: 0 }}>
-                      A cornered and a rounded end are alternate generic shapes. The combined Strat end remains a separate documented profile.
+                      A cornered and a rounded end are alternate generic shapes.
                     </p>
                   </div>
+                  ) : (
+                    <p className="panel-help" style={{ marginTop: '5px', marginBottom: 0 }}>
+                      Documented S-style deep end: 6.35 mm corner fillets flow into a 127 mm / 5″ closing arc. The 0.84° side taper derives the mouth width.
+                    </p>
+                  )}
                   {project.neckJointGeometry.mechanism === 'glued' && (
                     <div className="form-group">
                       <label className="form-label" htmlFor="neck-joint-angle">Neck Angle</label>
@@ -1421,6 +1480,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       {warning}
                     </p>
                   ))}
+                  {documentedBlueprintNeckJoint(project) && (
+                    <div className="form-group" style={{ marginTop: '12px' }}>
+                      <button type="button" className="btn btn-sm" onClick={resetNeckJointToBlueprint}>
+                        Reset Neck Joint to Blueprint
+                      </button>
+                    </div>
+                  )}
                 </>
               ) : (
                 <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>

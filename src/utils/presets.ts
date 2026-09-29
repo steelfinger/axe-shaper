@@ -415,6 +415,47 @@ export function documentedBlueprintNeckPlacement(project: Pick<GuitarProject,
 }
 
 /**
+ * The only blueprint joint currently backed by a supplied, citable drawing.
+ * The 1962 S-style body drawing (Fender 019574) specifies a 0.84° side
+ * taper, 1/4 in deep-corner fillets, and a 5 in closing arc.  T-style stays
+ * on the frozen legacy adapter until equivalent evidence is assembled.
+ */
+export function documentedBlueprintNeckJoint(project: Pick<GuitarProject,
+  'activeTemplateId' | 'instrumentType' | 'contour'
+>): NeckJointGeometry | undefined {
+  if (project.activeTemplateId !== 's_style' || project.instrumentType !== 'guitar') return undefined;
+  const left = project.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_left');
+  const right = project.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_right');
+  if (!left || !right) return undefined;
+  const parameters = {
+    mouthWidthMm: 53.64553921225705,
+    deepEndWidthMm: 55.88,
+    planLengthMm: 76.2,
+    endCornerRadiusMm: 6.35,
+    endTreatment: 'compound' as const,
+    endRoundnessMm: 127,
+  };
+  const snapshot = {
+    id: 's-style-1962-fender-019574-v1',
+    name: 'S-style 1962 compound pocket',
+    mechanism: 'bolt_on' as const,
+    planShape: 'bolt_on_pocket' as const,
+    parameters,
+    evidenceLevel: 'documented' as const,
+    provenance: 'Fender Vintage Stratocaster 1962 body, part 019574 (released 1982)',
+  };
+  return {
+    mode: 'locked',
+    profileId: snapshot.id,
+    mechanism: 'bolt_on',
+    planShape: 'bolt_on_pocket',
+    parameters,
+    mouthAnchorIds: [left.id, right.id],
+    profileSnapshot: snapshot,
+  };
+}
+
+/**
  * Backfill the embedded presets and the instrument axis without disturbing
  * anything already there. Safe to call on a project of any schema version -
  * this is what turns a decoded `StoredProject` into a `GuitarProject`.
