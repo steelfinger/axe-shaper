@@ -16,6 +16,7 @@ import type {
   NeckJointGeometry,
   NeckJointMechanism,
   NeckPreset,
+  NeckPlacement,
   PickupPlacement,
   PickupRoutSpec,
   PickupType,
@@ -392,6 +393,25 @@ export function withEmbeddedPickupSpecs(pickups: PickupPlacement[]): PickupPlace
     const type = migratedPickupType(p.type);
     return { ...p, type, ...structuredClone(resolvePickupSpec({ ...p, type })) };
   });
+}
+
+/**
+ * The one resettable source for a body template's scale datum. A custom body
+ * has no hidden generic answer: callers leave its local placement intact.
+ */
+export function documentedBlueprintNeckPlacement(project: Pick<GuitarProject,
+  'activeTemplateId' | 'instrumentType'
+>): NeckPlacement | undefined {
+  const templateId = project.activeTemplateId;
+  if (!templateId) return undefined;
+  const jointToReferenceFretMm = FINGERBOARD_OVERHANG_MM[templateId];
+  if (jointToReferenceFretMm === undefined) return undefined;
+  return {
+    mode: 'blueprint',
+    referenceFret: fingerboardReferenceFret(project.instrumentType),
+    jointToReferenceFretMm,
+    provenance: `FINGERBOARD_OVERHANG_MM:${templateId}`,
+  };
 }
 
 /**

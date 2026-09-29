@@ -28,6 +28,7 @@ import type {
 import {
   bridgePresetFields,
   convertLegacyNeckJointToCustom,
+  documentedBlueprintNeckPlacement,
   neckPresetFields,
   neckPresetFieldsForTemplate,
   offeredBridgePresets,
@@ -442,6 +443,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
     } catch (error) {
       setNeckPlacementError(error instanceof NeckJointContractError ? error.message : 'Could not change neck placement.');
     }
+  };
+
+  const resetNeckPlacementToBlueprint = () => {
+    const reset = documentedBlueprintNeckPlacement(project);
+    if (!reset) return;
+    onUpdateProject(
+      (prev) => {
+        const placement = documentedBlueprintNeckPlacement(prev);
+        return placement ? withEmbeddedPresets({ ...prev, neckPlacement: placement }) : prev;
+      },
+      'neck-placement',
+    );
+    setNeckPlacementDraftMm(null);
+    setNeckPlacementError(null);
+    onEndEdit();
   };
 
   const bodyLayersPanel = (
@@ -1459,6 +1475,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   >
                     Apply Placement
                   </button>
+                  {project.neckPlacement.mode === 'custom' && documentedBlueprintNeckPlacement(project) && (
+                    <button
+                      type="button"
+                      className="btn btn-sm"
+                      style={{ marginLeft: '8px' }}
+                      onClick={resetNeckPlacementToBlueprint}
+                    >
+                      Reset to Blueprint
+                    </button>
+                  )}
                   {neckPlacementError && (
                     <p className="panel-help" style={{ color: 'var(--accent-red)' }} role="alert">
                       {neckPlacementError}
