@@ -585,6 +585,16 @@ async function main() {
         ),
         /nut before the body joint line/,
       );
+      deepStrictEqual(
+        presets.documentedBlueprintNeckPlacement({ activeTemplateId: 's_style', instrumentType: 'guitar' }),
+        v7.neckPlacement,
+        'blueprint reset did not restore the documented S-style datum',
+      );
+      deepStrictEqual(
+        presets.documentedBlueprintNeckPlacement({ activeTemplateId: undefined, instrumentType: 'guitar' }),
+        undefined,
+        'a custom body unexpectedly received a blueprint reset datum',
+      );
     });
 
     check('discloses only non-verified v7 neck joints in printable SVG', () => {
