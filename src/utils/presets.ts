@@ -46,6 +46,8 @@ import {
 const BOLT_ON_SIDE_TAPER_RADIANS = 0.84 * Math.PI / 180;
 const BOLT_ON_DEEP_CORNER_RADIUS_MM = 6.35;
 const BOLT_ON_CLOSING_ARC_RADIUS_MM = 127;
+const BOLT_ON_DEFAULT_MOUTH_WIDTH_MM = 53.64553921225705;
+const BOLT_ON_DEFAULT_PLAN_LENGTH_MM = 76.2;
 
 function boltOnParametersForTemplate(
   templateId: string,
@@ -62,6 +64,21 @@ function boltOnParametersForTemplate(
     endTreatment: isStraightEnd ? 'square' : 'compound',
     endRoundnessMm: isStraightEnd ? 0 : BOLT_ON_CLOSING_ARC_RADIUS_MM,
   };
+}
+
+/**
+ * Construction is not a conversion of the old mortise. When a builder elects
+ * to make a glued-neck body bolt-on, start with the common 3 in tapered
+ * bolt-on envelope and let the normal numeric controls refine it for the
+ * actual heel. T-style bodies retain their straight deep edge; every other
+ * guitar body begins with the rounded compound end.
+ */
+function defaultBoltOnParametersForTemplate(templateId: string): NeckJointGeometry['parameters'] {
+  return boltOnParametersForTemplate(
+    templateId,
+    BOLT_ON_DEFAULT_MOUTH_WIDTH_MM,
+    BOLT_ON_DEFAULT_PLAN_LENGTH_MM,
+  );
 }
 
 /**
@@ -452,13 +469,16 @@ export function blueprintNeckJointProfile(project: Pick<GuitarProject,
   const right = project.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_right');
   if (!left || !right) return undefined;
   const isSStyle = project.activeTemplateId === 's_style';
+  // Keep the locked source-derived profile in its stated dimensions. The
+  // editable construction default below derives the deep station from the
+  // rounded 0.84° taper instead.
   const parameters = {
-    mouthWidthMm: 53.64553921225705,
+    mouthWidthMm: BOLT_ON_DEFAULT_MOUTH_WIDTH_MM,
     deepEndWidthMm: 55.88,
-    planLengthMm: 76.2,
-    endCornerRadiusMm: 6.35,
+    planLengthMm: BOLT_ON_DEFAULT_PLAN_LENGTH_MM,
+    endCornerRadiusMm: BOLT_ON_DEEP_CORNER_RADIUS_MM,
     endTreatment: isSStyle ? 'compound' as const : 'square' as const,
-    endRoundnessMm: isSStyle ? 127 : 0,
+    endRoundnessMm: isSStyle ? BOLT_ON_CLOSING_ARC_RADIUS_MM : 0,
   };
   const snapshot = {
     id: isSStyle ? 's-style-1962-fender-019574-v1' : 't-style-product-straight-end-v1',
@@ -630,8 +650,10 @@ export function convertLegacyNeckJointToCustom(project: GuitarProject): GuitarPr
 /**
  * Replace the construction of an already-custom joint. Bolt-on conversion
  * always starts from the two useful heel families: the T-style straight end,
- * or the rounded S-style compound end for every other body. The mouth stays
- * body-owned and fixed; the deep station is derived from the standard taper.
+ * or the rounded S-style compound end for every other body. This deliberately
+ * replaces a glued mortise's dimensions: it resets the body-owned mouth to
+ * the shared bolt-on starting width, and derives the deep station from the
+ * standard taper.
  */
 export function changeCustomNeckJointMechanism(
   project: GuitarProject,
@@ -643,11 +665,7 @@ export function changeCustomNeckJointMechanism(
   }
   if (joint.mechanism === mechanism) return project;
   const parameters = mechanism === 'bolt_on'
-    ? boltOnParametersForTemplate(
-        project.activeTemplateId,
-        joint.parameters.mouthWidthMm,
-        joint.parameters.planLengthMm,
-      )
+    ? defaultBoltOnParametersForTemplate(project.activeTemplateId)
     : {
         mouthWidthMm: joint.parameters.mouthWidthMm,
         planLengthMm: joint.parameters.planLengthMm,
@@ -662,7 +680,20 @@ export function changeCustomNeckJointMechanism(
     parameters,
     neckAngleDegrees: mechanism === 'bolt_on' ? undefined : joint.neckAngleDegrees,
   };
-  const resized = updateCustomNeckJoint(replacement, project.contour, {});
+  // `updateCustomNeckJoint` correctly refuses a geometry whose stored mouth
+  // width no longer matches the body. A construction change intentionally
+  // changes both at once, so bring the paired body anchors to the new width
+  // before entering its shared validation path.
+  const halfWidth = parameters.mouthWidthMm / 2;
+  const contour = {
+    ...project.contour,
+    anchors: project.contour.anchors.map((anchor) => {
+      if (anchor.id === joint.mouthAnchorIds[0]) return { ...anchor, position: { ...anchor.position, x: -halfWidth, y: 0 } };
+      if (anchor.id === joint.mouthAnchorIds[1]) return { ...anchor, position: { ...anchor.position, x: halfWidth, y: 0 } };
+      return anchor;
+    }),
+  };
+  const resized = updateCustomNeckJoint(replacement, contour, {});
   return withEmbeddedPresets({
     ...project,
     contour: resized.contour,

@@ -839,8 +839,14 @@ async function main() {
       };
       const roundedBoltOn = presets.changeCustomNeckJointMechanism(asGlued, 'bolt_on');
       invariant(roundedBoltOn.neckJointGeometry?.planShape === 'bolt_on_pocket'
-        && roundedBoltOn.neckJointGeometry.parameters.endTreatment === 'compound',
-      'changing a glued joint to bolt-on did not select the rounded-end default');
+        && roundedBoltOn.neckJointGeometry.parameters.endTreatment === 'compound'
+        && roundedBoltOn.neckJointGeometry.parameters.mouthWidthMm === 53.64553921225705
+        && roundedBoltOn.neckJointGeometry.parameters.planLengthMm === 76.2,
+      'changing a glued joint to bolt-on did not replace its mortise dimensions with the rounded-end bolt-on default');
+      const roundedLeft = roundedBoltOn.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_left')!;
+      const roundedRight = roundedBoltOn.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_right')!;
+      invariant(roundedLeft.position.x === -53.64553921225705 / 2 && roundedRight.position.x === 53.64553921225705 / 2,
+        'changing a glued joint to bolt-on did not reset the body mouth anchors to the bolt-on default');
       const straightBoltOn = presets.changeCustomNeckJointMechanism({ ...asGlued, activeTemplateId: 't_style' }, 'bolt_on');
       invariant(straightBoltOn.neckJointGeometry?.parameters.endTreatment === 'square',
         'changing a T-style glued joint to bolt-on did not select the straight-end default');
