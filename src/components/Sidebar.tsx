@@ -1171,6 +1171,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
                     This design uses the frozen generic legacy pocket. Convert it to make a local custom joint; the body’s locked mouth anchors remain the attachment points.
                   </p>
+                  {documentedBlueprintNeckJoint(project) && (
+                    <button type="button" className="btn btn-sm" onClick={resetNeckJointToBlueprint} style={{ marginRight: '8px' }}>
+                      Use Documented S-Style Joint
+                    </button>
+                  )}
                   <button type="button" className="btn btn-sm" onClick={convertLegacyJoint}>
                     Convert to Custom Joint
                   </button>
