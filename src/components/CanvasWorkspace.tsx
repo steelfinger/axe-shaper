@@ -1515,7 +1515,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                     stroke="#fff"
                     strokeWidth={1.5}
                     opacity={handleOpacity}
-                    draggable={!isPanMode && !anchor.locked}
+                    draggable={!anchor.locked}
                     onDragStart={() => {
                       onSelectAnchor(anchor.id);
                       onBeginEdit(handleDragKey(anchor.id, 'in'));
@@ -1536,7 +1536,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                     stroke="#fff"
                     strokeWidth={1.5}
                     opacity={handleOpacity}
-                    draggable={!isPanMode && !anchor.locked}
+                    draggable={!anchor.locked}
                     onDragStart={() => {
                       onSelectAnchor(anchor.id);
                       onBeginEdit(handleDragKey(anchor.id, 'out'));

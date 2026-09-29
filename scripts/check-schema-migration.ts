@@ -727,6 +727,22 @@ async function main() {
       invariant(resetProject.neckJointGeometry?.mode === 'locked', 'S-style blueprint reset did not produce a valid locked joint');
     });
 
+    check('preserves a custom compound bolt-on side taper across dimension edits', () => {
+      const before = {
+        mouthWidthMm: 53.64553921225705,
+        deepEndWidthMm: 55.88,
+        planLengthMm: 76.2,
+      };
+      const originalTaper = neckJoint.boltOnSideTaperRadians(before);
+      const after = {
+        mouthWidthMm: neckJoint.boltOnMouthWidthForTaper(before, 57.1, 80),
+        deepEndWidthMm: 57.1,
+        planLengthMm: 80,
+      };
+      invariant(Math.abs(neckJoint.boltOnSideTaperRadians(after) - originalTaper) < 1e-12,
+        'compound bolt-on dimension edit changed the stored side taper');
+    });
+
     check('builds the unverified straight-end T-style product profile from the shared bolt-on stations', () => {
       const reset = presets.blueprintNeckJointProfile({
         activeTemplateId: 't_style', instrumentType: 'guitar', contour: v7.contour,

@@ -314,6 +314,26 @@ export function requiredPocketWidthForHeelFit(geometry: Pick<NeckJointGeometry,
   return geometry.targetHeelWidthMm + 2 * (geometry.fittingClearanceMm ?? 0);
 }
 
+/**
+ * The slope already authored into a bolt-on's two width stations. Custom
+ * dimensions preserve this value; 0.84° is only the initial bolt-on default,
+ * never an editor-side override of a custom pocket.
+ */
+export function boltOnSideTaperRadians(parameters: Pick<NeckJointPlanParameters,
+  'mouthWidthMm' | 'deepEndWidthMm' | 'planLengthMm'>): number {
+  const deepEndWidthMm = parameters.deepEndWidthMm ?? parameters.mouthWidthMm;
+  return Math.atan2(deepEndWidthMm - parameters.mouthWidthMm, 2 * parameters.planLengthMm);
+}
+
+/** Preserve an authored bolt-on taper while changing its length or deep width. */
+export function boltOnMouthWidthForTaper(
+  parameters: Pick<NeckJointPlanParameters, 'mouthWidthMm' | 'deepEndWidthMm' | 'planLengthMm'>,
+  deepEndWidthMm: number,
+  planLengthMm: number,
+): number {
+  return deepEndWidthMm - 2 * planLengthMm * Math.tan(boltOnSideTaperRadians(parameters));
+}
+
 export interface CustomNeckJointUpdate {
   parameters?: Partial<NeckJointPlanParameters>;
   /** `null` removes the optional measured heel and its side-clearance target. */
