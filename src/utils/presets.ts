@@ -503,6 +503,51 @@ export function blueprintNeckJointProfile(project: Pick<GuitarProject,
 }
 
 /**
+ * Give a bundled guitar its first explicit v7 joint contract. The S/T
+ * templates carry the two locked bolt-on product profiles; every other
+ * guitar retains its legacy dimensions as a conservative custom joint. In
+ * both cases placement comes from the body template's existing datum, never
+ * from a presumed common neck length.
+ *
+ * This is deliberately for product-owned blueprints and newly created
+ * built-in designs. Loading an ordinary legacy file remains non-mutating
+ * until its owner explicitly chooses Convert to Custom Joint.
+ */
+export function withBundledGuitarNeckJointContract(project: GuitarProject): GuitarProject {
+  if (project.instrumentType !== 'guitar' || project.neckJointGeometry || project.neckPlacement) {
+    return project;
+  }
+  const profile = blueprintNeckJointProfile(project);
+  const placement = documentedBlueprintNeckPlacement(project);
+  if (profile && placement) {
+    // The bundled v6 contours still carry their former generic 55.56mm
+    // opening. A locked profile owns the mouth width, so initialise its two
+    // named anchors together exactly as the Reset to Blueprint action does.
+    const halfWidth = profile.parameters.mouthWidthMm / 2;
+    const contour = {
+      ...project.contour,
+      anchors: project.contour.anchors.map((anchor) => {
+        if (anchor.id === profile.mouthAnchorIds[0]) {
+          return { ...anchor, locked: true, position: { ...anchor.position, x: -halfWidth, y: 0 } };
+        }
+        if (anchor.id === profile.mouthAnchorIds[1]) {
+          return { ...anchor, locked: true, position: { ...anchor.position, x: halfWidth, y: 0 } };
+        }
+        return anchor;
+      }),
+    };
+    return withEmbeddedPresets({
+      ...project,
+      contour,
+      neckJointMechanism: profile.mechanism,
+      neckJointGeometry: profile,
+      neckPlacement: placement,
+    });
+  }
+  return convertLegacyNeckJointToCustom(project);
+}
+
+/**
  * Backfill the embedded presets and the instrument axis without disturbing
  * anything already there. Safe to call on a project of any schema version -
  * this is what turns a decoded `StoredProject` into a `GuitarProject`.

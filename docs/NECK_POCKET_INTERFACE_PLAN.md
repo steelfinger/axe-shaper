@@ -368,13 +368,14 @@ discovery.
   contract, not promotion of the compound S-style prototype or a Release-A
   profile editor.
 - Validate the numeric shape generator for square and rounded bolt-on ends.
-- Hold a go/no-go review. The S candidate may proceed only after the compound
-  shape and its attachment rule pass the three-client parity gate. The T
-  candidate remains evidence-blocked. Do not convert either bundled blueprint
-  or label a shipped profile documented until its own evidence and executable
-  shape are complete. Retain legacy geometry and its editor/export disclosure
-  while evidence work continues. Fender pocket drawings are not broadly
-  published, so this remains a real release risk rather than a formality.
+- Hold a go/no-go review. The compound shape and its attachment rule must pass
+  the three-client parity gate before publication. Once that gate is green,
+  publish every bundled **guitar** blueprint as v7: S/T use their locked
+  bolt-on profiles; the other guitar bodies retain conservative custom joints
+  derived from their legacy dimensions. Every placement is seeded from its own
+  existing `FINGERBOARD_OVERHANG_MM` value, never a presumed common neck
+  length. Bass blueprints remain legacy v6 while their joint research is
+  separate.
 
 ### Phase 1 — web reference contract
 
@@ -408,15 +409,16 @@ discovery.
 ### Release A — profiles and exports, no custom editing
 
 - Ship the v7 model in both clients.
-- Convert the researched S-style bundled blueprint to its documented profile.
-  Offer the T-style straight-end product profile as unverified geometry with
-  its export disclosure; do not represent it as a documented T-style blueprint
-  conversion until evidence supports that claim.
+- Convert every bundled guitar blueprint to v7. The S-style blueprint uses its
+  locked compound bolt-on profile and T-style uses its locked straight-end
+  product profile. Other guitar blueprints carry a conservative custom glued
+  or bolt-on joint seeded from their prior dimensions; this is not a claim that
+  each model's original tenon specification has been measured.
 - Ship provenance and unverified-export disclosure.
 - Resolve and display `neckPlacement`, but keep it locked.
 - Keep custom editing unavailable while the contract receives real use.
 - Accept the version-floor consequence explicitly: new projects created from
-  those updated S/T blueprints require v7. Their release therefore waits for a
+  those updated guitar blueprints require v7. Their release therefore waits for a
   tagged web build, an App Store iOS build and a viewer release that all support
   v7, even though untouched legacy documents still stamp their lowest required
   version.

@@ -449,7 +449,7 @@ it means recomputing every one of them on both platforms.
 ## 3D viewer compatibility
 
 `steelfinger/axe-shape-3D-viewer` (the pinned bundle in `public/viewer3d`)
-accepts numeric schema versions including version 6 and renders the supported
+accepts numeric schema versions through version 7 and renders the supported
 Guitar/6 and Bass/4 document matrix, placed controls, the version-5
 `bodyTop.construction` choice, and persisted version-6 neck and fingerboard
 appearance. It reads those saved choices for the normal preview, which is the
@@ -457,9 +457,9 @@ only 3D entry point the editor links to. The viewer also keeps an opt-in
 `?arch=1` mode whose prototype controls are local to that session and never
 reach the document. Other unfamiliar fields pass through untouched.
 
-Version 7 joint geometry and placement are not published until the viewer and
-iOS both decode and render the paired contract; a viewer that only understands
-version 6 must reject a version 7 project at its editable/view gate.
+Version 7 joint geometry and placement are published only alongside viewer and
+iOS builds that decode and render the paired contract. A viewer whose schema
+ceiling is version 6 must reject a version 7 project at its editable/view gate.
 
 Native iOS must not write version-6 documents until it can preserve the full
 appearance object and render it consistently, or opens those documents

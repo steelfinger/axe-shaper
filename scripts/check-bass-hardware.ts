@@ -235,7 +235,13 @@ async function main() {
 
     // A synthetic Bass/4 project. The contour is the S-Style's - this
     // exercises the hardware, not the body; real bass outlines arrive at W6.
-    const baseline = presets.migrateProject(decodePayload(BASE_BLUEPRINT));
+    // The product-owned S-style blueprint is now v7. This fixture is
+    // deliberately a legacy guitar body repurposed as a synthetic Bass/4,
+    // so remove the guitar-only joint pair instead of carrying fret 22 into
+    // the bass reference-fret contract.
+    const currentSStyle = decodePayload(BASE_BLUEPRINT);
+    const { neckJointGeometry: _baselineJoint, neckPlacement: _baselinePlacement, ...legacySStyle } = currentSStyle;
+    const baseline = presets.migrateProject({ ...legacySStyle, schemaVersion: 6 });
     const bassProject = {
       ...baseline,
       instrumentType: 'bass',

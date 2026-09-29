@@ -108,16 +108,15 @@ async function main() {
         + ' - re-export the bundled blueprints (npx tsx scripts/refresh-blueprint-presets.ts)'
     );
 
-    // Every bundled blueprint now owns persisted appearance, so all of them
-    // must use schema v6. The synthetic cases below keep the lower version
-    // on-demand rules covered.
-    const bundledVersions = new Set(bundledBlueprints.map((file) => (
-      decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8')).schemaVersion
-    )));
-    invariant(
-      bundledVersions.size === 1 && bundledVersions.has(6),
-      `every bundled blueprint must be schema 6 once it owns instrumentAppearance; found ${[...bundledVersions].join(', ')}`
-    );
+    // Every product-owned guitar now carries the paired v7 neck-joint and
+    // placement contract. Bass pockets remain intentionally legacy pending
+    // their own research, so they retain their v6 appearance-only payload.
+    for (const file of bundledBlueprints) {
+      const payload = decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8'));
+      const expectedVersion = payload.instrumentType === 'guitar' ? 7 : 6;
+      invariant(payload.schemaVersion === expectedVersion,
+        `${file} must be schema ${expectedVersion}; found ${payload.schemaVersion}`);
+    }
 
     check('blueprint appearance is encoded and new projects inherit it', () => {
       for (const id of manifest.BLUEPRINT_ORDER) {
@@ -151,6 +150,8 @@ async function main() {
       instrumentAppearance: _instrumentAppearance,
       potentiometers: _potentiometers,
       switches: _switches,
+      neckJointGeometry: _neckJointGeometry,
+      neckPlacement: _neckPlacement,
       ...withoutV3AndV4Fields
     } = currentBlueprint;
     const {
@@ -162,6 +163,9 @@ async function main() {
       ...withoutV3AndV4Fields,
       schemaVersion: 2,
       settings: v2Settings,
+      // Keep this as a genuine historical v2 fixture rather than inheriting
+      // v7's compatibility mirrors from the current bundled S-style file.
+      ...presets.neckPresetFields(currentBlueprint.neckPresetId),
     };
 
     console.log('version 2 -> current (the bundled blueprints and every existing save)');
@@ -459,8 +463,11 @@ async function main() {
     // minutes, the iPad app waits on App Store review - so an unconditional
     // stamp makes every file saved on the newer side unopenable on the older
     // one, including files that use none of the new fields.
+    const createdSStyle = projectFactory.createProject({ templateId: 's_style' });
+    const { neckJointGeometry: _plainJoint, neckPlacement: _plainPlacement, ...plainBeforeV7 } = createdSStyle;
     const plain = {
-      ...projectFactory.createProject({ templateId: 's_style' }),
+      ...plainBeforeV7,
+      schemaVersion: 3,
       potentiometers: [],
       switches: [],
       bodyTop: undefined,
@@ -509,11 +516,11 @@ async function main() {
       mechanism: 'bolt_on' as const,
       planShape: 'bolt_on_pocket' as const,
       parameters: {
-        mouthWidthMm: 55.56,
+        mouthWidthMm: 53.64553921225705,
         planLengthMm: 76.2,
         endCornerRadiusMm: 0,
         endTreatment: 'rounded' as const,
-        endRoundnessMm: 27.78,
+        endRoundnessMm: 26,
       },
       mouthAnchorIds: ['s_pocket_left', 's_pocket_right'] as [string, string],
       profileSnapshot: {
@@ -522,11 +529,11 @@ async function main() {
         mechanism: 'bolt_on' as const,
         planShape: 'bolt_on_pocket' as const,
         parameters: {
-          mouthWidthMm: 55.56,
+          mouthWidthMm: 53.64553921225705,
           planLengthMm: 76.2,
           endCornerRadiusMm: 0,
           endTreatment: 'rounded' as const,
-          endRoundnessMm: 27.78,
+          endRoundnessMm: 26,
         },
         evidenceLevel: 'documented' as const,
         provenance: 'schema test fixture',
@@ -552,10 +559,10 @@ async function main() {
       deepStrictEqual(savedVersion(v7), 7);
       // The legacy fields survive only as output mirrors; v7 resolution uses
       // the paired fields even when a stale embedded preset disagrees.
-      deepStrictEqual(migrated.neckPreset.jointWidthMm, 55.56);
+      deepStrictEqual(migrated.neckPreset.jointWidthMm, 53.64553921225705);
       deepStrictEqual(migrated.neckPreset.nutToBodyEdgeMm,
         neckJoint.nutToBodyEdgeFromPlacement(v7.neckPlacement, migrated.neckPreset.scaleLengthMm));
-      invariant(exporter.exportProjectToSVG(v7).includes('<path d="M -27.780000 0.000000'), 'v7 SVG did not render generated joint geometry');
+      invariant(exporter.exportProjectToSVG(v7).includes('<path d="M -26.822770 0.000000'), 'v7 SVG did not render generated joint geometry');
     });
 
     check('custom neck placement moves only the scale-linked neck and bridge datum', () => {
@@ -825,7 +832,7 @@ async function main() {
     });
 
     check('explicitly converts a legacy joint before its numeric mouth width can change', () => {
-      const legacy = presets.migrateProject(currentBlueprint);
+      const legacy = presets.migrateProject(v2);
       invariant(!legacy.neckJointGeometry && !legacy.neckPlacement, 'legacy fixture unexpectedly already has a v7 joint');
       const converted = presets.convertLegacyNeckJointToCustom(legacy);
       invariant(converted.schemaVersion === 7, 'custom-joint conversion did not raise the document to v7');
@@ -883,7 +890,9 @@ async function main() {
         .filter((name) => name.endsWith('.axe.svg'))
         .filter((name) => decodePayload(readFileSync(join(BLUEPRINT_DIR, name), 'utf8')).instrumentType === 'guitar')
         .sort()) {
-        const source = presets.migrateProject(decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8')));
+        const bundled = decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8'));
+        const { neckJointGeometry: _geometry, neckPlacement: _placement, ...legacyPayload } = bundled;
+        const source = presets.migrateProject({ ...legacyPayload, schemaVersion: 6 });
         const convertedBody = presets.convertLegacyNeckJointToCustom(source);
         invariant(convertedBody.schemaVersion === 7 && convertedBody.neckJointGeometry?.mode === 'custom',
           `${file}: conversion did not produce an editable custom v7 joint`);
@@ -893,13 +902,13 @@ async function main() {
           throw new Error(`${file}: ${(error as Error).message}`);
         }
       }
-      const bass = presets.migrateProject({ ...currentBlueprint, instrumentType: 'bass', stringCount: 4 });
+      const bass = presets.migrateProject({ ...v2, instrumentType: 'bass', stringCount: 4 });
       throws(() => presets.convertLegacyNeckJointToCustom(bass), /bass neck pockets remain legacy-only/,
         'bass must not silently enter the generic custom-joint editor');
     });
 
     check('keeps numeric custom-joint edits inside the body and warns about an incompatible cutter', () => {
-      const converted = presets.convertLegacyNeckJointToCustom(presets.migrateProject(currentBlueprint));
+      const converted = presets.convertLegacyNeckJointToCustom(presets.migrateProject(v2));
       const current = converted.neckJointGeometry!;
       const tapered = neckJoint.updateCustomNeckJoint(current, converted.contour, {
         parameters: { deepEndWidthMm: current.parameters.mouthWidthMm + 0.1 },
@@ -968,12 +977,19 @@ async function main() {
       deepStrictEqual(editedAngle.geometry.neckAngleDegrees, 3.5);
     });
 
-    check('bundled blueprints are version 6 witnesses', () => {
+    check('bundled guitar blueprints are version 7 witnesses with body-specific placement', () => {
       const singleCut = decodePayload(readFileSync(join(BLUEPRINT_DIR, 'single_cut.axe.svg'), 'utf8'));
-      deepStrictEqual(singleCut.schemaVersion, 6);
+      deepStrictEqual(singleCut.schemaVersion, 7);
       invariant(singleCut.instrumentAppearance, 'single_cut no longer carries persisted instrument appearance');
+      deepStrictEqual(singleCut.neckPlacement?.jointToReferenceFretMm, hardware.FINGERBOARD_OVERHANG_MM.single_cut);
+      invariant(singleCut.neckJointGeometry?.mode === 'custom', 'single_cut must retain a conservative custom glued joint');
       const sStyle = decodePayload(readFileSync(BASE_BLUEPRINT, 'utf8'));
-      deepStrictEqual(sStyle.schemaVersion, 6);
+      deepStrictEqual(sStyle.schemaVersion, 7);
+      invariant(sStyle.neckJointGeometry?.mode === 'locked', 'S-style must use its locked compound bolt-on profile');
+      deepStrictEqual(sStyle.neckJointGeometry?.parameters.endTreatment, 'compound');
+      const tStyle = decodePayload(readFileSync(join(BLUEPRINT_DIR, 't_style.axe.svg'), 'utf8'));
+      invariant(tStyle.neckJointGeometry?.mode === 'locked', 'T-style must use its locked straight bolt-on profile');
+      deepStrictEqual(tStyle.neckJointGeometry?.parameters.endTreatment, 'square');
     });
 
     check('re-saving an untouched file does not move its version', () => {
