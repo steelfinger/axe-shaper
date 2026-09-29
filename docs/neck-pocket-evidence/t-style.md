@@ -8,6 +8,7 @@
 | --- | --- | --- |
 | [Warmoth: Guitar Neck Pocket Options](https://warmoth.com/guitar-body-neck-pockets) | 2026-09-27 | Warmoth publishes the shared 2-3/16 in (56mm) × 3 in (76mm) Strat/Tele-style pocket envelope and identifies the Tele-style heel as squared. It explicitly warns that the dimensions are not universal. |
 | [Musikraft: Heel Width](https://musikraft.com/heel-width/) | 2026-09-27 | Musikraft independently calls 2-3/16 in (55.56mm) its Fender-sized guitar heel and says Tele necks have a squared-off base. |
+| [Musikraft: 50's / 60's Style Tele body](https://musikraft.com/product/tele-body/) | 2026-09-29 | Musikraft publishes a routed, four-bolt Tele body pocket at 3 in × 2-3/16 in × .670 in deep. This corroborates the plan-view envelope on an actual body product, but does not dimension its inside corners or side taper. |
 
 ## Supported facts
 
@@ -16,6 +17,7 @@
 | Mouth / heel width | 55.56mm nominal (2-3/16 in) | High — Warmoth and Musikraft |
 | Plan length | 76.2mm nominal (3 in) | High — published by Warmoth |
 | End family | Squared T-style | High — Warmoth and Musikraft |
+| Pocket depth | 17.018mm nominal (.670 in) | High — Musikraft body product; depth is outside the v7 plan-view contract |
 
 ## Missing facts — profile blocker
 
