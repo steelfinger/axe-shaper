@@ -163,9 +163,9 @@ must not persist or expose editable joint nodes or Bézier handles.
 | --- | --- |
 | `mouthWidthMm` | Width at the `Y = 0` body-joint mouth. |
 | `planLengthMm` | Positive-Y depth into the body. |
-| `endCornerRadiusMm` | Equal closing-end corner radii for a square treatment. |
-| `endTreatment` | `square` or `rounded`. |
-| `endRoundnessMm` | Closing-end radius for a rounded treatment. |
+| `endCornerRadiusMm` | Equal closing-end corner radii for a square treatment; the small deep-corner fillets for `compound`. |
+| `endTreatment` | `square`, `rounded`, or `compound`. |
+| `endRoundnessMm` | Closing-end radius for `rounded`; the larger centre closing arc for `compound`. |
 | `deepEndWidthMm` | Required for `tapered_mortise`; optional for `bolt_on_pocket`, where it is the persisted result of the selected neck's linear taper calculation. |
 
 An embedded `neckPreset` may carry an optional `neckTaper` object with

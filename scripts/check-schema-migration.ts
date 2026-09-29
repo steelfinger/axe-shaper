@@ -649,7 +649,7 @@ async function main() {
       invariant(outline[outline.length - 1].x < outline[0].x, 'bolt-on taper was not symmetric about the centreline');
     });
 
-    check('prototypes the documented compound S-style pocket end without changing v7', () => {
+    check('round-trips the documented compound S-style pocket end in v7', () => {
       // Fender Body, Vintage Stratocaster 1962, part 019574: use the selected
       // maximum deep-end target and nominal 0.84° side angle. The open-mouth
       // 3/16 in fillets are locked body-template geometry, not this profile.
@@ -677,11 +677,52 @@ async function main() {
       invariant(Math.abs(leftSideEnd.x + outline[2].x) < 0.000000001
         && Math.abs(leftSideEnd.y - outline[2].y) < 0.000000001,
       'compound pocket lost its mirrored straight-side construction');
-      throws(() => neckJoint.validateNeckJointGeometry({
+      const compoundJoint = {
         ...documentedSStyleJoint,
-        planShape: 'bolt_on_compound_end' as any,
-        profileSnapshot: { ...documentedSStyleJoint.profileSnapshot, planShape: 'bolt_on_compound_end' as any },
-      }), /not supported/, 'phase-0 prototype must not silently expand the persisted v7 contract');
+        parameters: {
+          mouthWidthMm,
+          deepEndWidthMm,
+          planLengthMm,
+          endCornerRadiusMm: 6.35,
+          endTreatment: 'compound' as const,
+          endRoundnessMm: 127,
+        },
+        profileSnapshot: {
+          ...documentedSStyleJoint.profileSnapshot,
+          parameters: {
+            mouthWidthMm,
+            deepEndWidthMm,
+            planLengthMm,
+            endCornerRadiusMm: 6.35,
+            endTreatment: 'compound' as const,
+            endRoundnessMm: 127,
+          },
+        },
+      };
+      neckJoint.validateNeckJointGeometry(compoundJoint);
+      deepStrictEqual(neckJoint.generateNeckJointOutline(compoundJoint).points,
+        neckJoint.generateCompoundBoltOnPocketPrototypeOutline({
+          mouthWidthMm, deepEndWidthMm, planLengthMm, deepEndCornerRadiusMm: 6.35, deepEndArcRadiusMm: 127,
+        }).points,
+      'v7 compound end diverged from the documented tangent construction');
+      const reset = presets.documentedBlueprintNeckJoint({
+        activeTemplateId: 's_style', instrumentType: 'guitar', contour: v7.contour,
+      });
+      invariant(reset?.parameters.endTreatment === 'compound', 'S-style blueprint reset has no compound pocket');
+      const resetHalfWidth = reset!.parameters.mouthWidthMm / 2;
+      const resetProject = presets.withEmbeddedPresets({
+        ...v7,
+        contour: {
+          ...v7.contour,
+          anchors: v7.contour.anchors.map((anchor: any) => anchor.id === reset!.mouthAnchorIds[0]
+            ? { ...anchor, locked: true, position: { ...anchor.position, x: -resetHalfWidth, y: 0 } }
+            : anchor.id === reset!.mouthAnchorIds[1]
+              ? { ...anchor, locked: true, position: { ...anchor.position, x: resetHalfWidth, y: 0 } }
+              : anchor),
+        },
+        neckJointGeometry: reset!,
+      });
+      invariant(resetProject.neckJointGeometry?.mode === 'locked', 'S-style blueprint reset did not produce a valid locked joint');
     });
 
     check('validates custom joint mouth attachments across every convertible guitar body without changing handle offsets', () => {

@@ -50,8 +50,8 @@ function validateParameters(parameters: NeckJointPlanParameters, tapered: boolea
   if (!finitePositive(parameters.planLengthMm)) throw new NeckJointContractError('Neck joint plan length must be a positive finite number.');
   if (!finiteNonNegative(parameters.endCornerRadiusMm)) throw new NeckJointContractError('Neck joint end-corner radius must be non-negative.');
   if (!finiteNonNegative(parameters.endRoundnessMm)) throw new NeckJointContractError('Neck joint end roundness must be non-negative.');
-  if (parameters.endTreatment !== 'square' && parameters.endTreatment !== 'rounded') {
-    throw new NeckJointContractError('Neck joint end treatment must be square or rounded.');
+  if (!['square', 'rounded', 'compound'].includes(parameters.endTreatment)) {
+    throw new NeckJointContractError('Neck joint end treatment must be square, rounded, or compound.');
   }
   if (tapered && !finitePositive(parameters.deepEndWidthMm)) {
     throw new NeckJointContractError('A tapered mortise needs a positive deep-end width.');
@@ -60,6 +60,13 @@ function validateParameters(parameters: NeckJointPlanParameters, tapered: boolea
     throw new NeckJointContractError('A supplied deep-end width must be positive.');
   }
   const deepWidth = parameters.deepEndWidthMm ?? parameters.mouthWidthMm;
+  if (parameters.endTreatment === 'compound') {
+    if (parameters.endCornerRadiusMm <= 0
+      || parameters.endRoundnessMm <= parameters.endCornerRadiusMm) {
+      throw new NeckJointContractError('A compound deep end needs positive corner fillets and a larger closing arc.');
+    }
+    return;
+  }
   const activeRadius = parameters.endTreatment === 'rounded'
     ? parameters.endRoundnessMm
     : parameters.endCornerRadiusMm;
@@ -109,6 +116,9 @@ export function validateNeckJointGeometry(geometry: NeckJointGeometry): void {
   }
   if (!['bolt_on_pocket', 'straight_mortise', 'tapered_mortise'].includes(geometry.planShape)) {
     throw new NeckJointContractError('Neck joint plan shape is not supported by this version.');
+  }
+  if (geometry.parameters.endTreatment === 'compound' && geometry.planShape !== 'bolt_on_pocket') {
+    throw new NeckJointContractError('A compound deep end is supported only for bolt-on pockets.');
   }
   validateParameters(geometry.parameters, tapered);
   if (!tapered && geometry.planShape !== 'bolt_on_pocket'
@@ -522,6 +532,15 @@ export function generateCompoundBoltOnPocketPrototypeOutline(
 export function generateNeckJointOutline(geometry: NeckJointGeometry, toleranceMm = 0.01): NeckJointOutline {
   validateNeckJointGeometry(geometry);
   const { mouthWidthMm, planLengthMm, endCornerRadiusMm, endTreatment, endRoundnessMm } = geometry.parameters;
+  if (endTreatment === 'compound') {
+    return generateCompoundBoltOnPocketPrototypeOutline({
+      mouthWidthMm,
+      deepEndWidthMm: geometry.parameters.deepEndWidthMm ?? mouthWidthMm,
+      planLengthMm,
+      deepEndCornerRadiusMm: endCornerRadiusMm,
+      deepEndArcRadiusMm: endRoundnessMm,
+    }, toleranceMm);
+  }
   const deepWidthMm = geometry.parameters.deepEndWidthMm ?? mouthWidthMm;
   const halfMouth = mouthWidthMm / 2;
   const halfDeep = deepWidthMm / 2;
