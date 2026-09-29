@@ -1173,7 +1173,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </p>
                   {blueprintNeckJointProfile(project) && (
                     <button type="button" className="btn btn-sm" onClick={resetNeckJointToBlueprint} style={{ marginRight: '8px' }}>
-                      {project.activeTemplateId === 's_style' ? 'Use Documented S-Style Joint' : 'Use T-Style Straight-End Pocket'}
+                      {project.activeTemplateId === 's_style' ? 'Use S-Style Rounded Pocket' : 'Use T-Style Straight-End Pocket'}
                     </button>
                   )}
                   <button type="button" className="btn btn-sm" onClick={convertLegacyJoint}>
@@ -1420,7 +1420,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                   ) : (
                     <p className="panel-help" style={{ marginTop: '5px', marginBottom: 0 }}>
-                      Documented S-style deep end: 6.35 mm corner fillets flow into a 127 mm / 5″ closing arc. The 0.84° side taper derives the mouth width.
+                      S-style deep end: 6.35 mm corner fillets flow into a 127 mm / 5″ closing arc. The 0.84° side taper derives the mouth width.
                     </p>
                   )}
                   {project.neckJointGeometry.mechanism === 'glued' && (
@@ -1488,7 +1488,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {blueprintNeckJointProfile(project) && (
                     <div className="form-group" style={{ marginTop: '12px' }}>
                       <button type="button" className="btn btn-sm" onClick={resetNeckJointToBlueprint}>
-                        Reset Neck Joint to Blueprint
+                        Reset Neck Joint to Template
                       </button>
                     </div>
                   )}
