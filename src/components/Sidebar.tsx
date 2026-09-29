@@ -407,7 +407,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       const changed = project.neckJointGeometry
         ? changeCustomNeckJointMechanism(project, mechanism)
         : mechanism === 'bolt_on' && currentMechanism !== 'bolt_on'
-          ? convertLegacyNeckJointToCustom(applyNeckJointChange(project, neckPresetId, mechanism))
+          // Promote the *existing glued* joint first, then replace it with
+          // the bolt-on family. Applying the legacy mechanism first would
+          // route through its generic rectangle and make this look like a
+          // rounded glued mortise rather than a fresh bolt-on pocket.
+          ? changeCustomNeckJointMechanism(convertLegacyNeckJointToCustom(project), mechanism)
           : applyNeckJointChange(project, neckPresetId, mechanism);
       onUpdateProject(() => changed);
       setJointGeometryError(null);
