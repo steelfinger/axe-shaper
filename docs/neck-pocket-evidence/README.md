@@ -18,7 +18,7 @@ that establishes only the width/length envelope and qualitative heel family
 is useful research, but is not enough to choose a round-end radius or a
 tooling-corner radius on the user's behalf.
 
-## Current Phase 0 result — 2026-09-28
+## Current Phase 0 result — 2026-09-29
 
 Warmoth and Musikraft independently establish the common 2-3/16 in (55.56mm)
 Fender-family heel width and the distinct rounded S-style / squared T-style
@@ -40,9 +40,12 @@ The 3/16 in mouth fillets remain a locked body-template feature because the
 pocket is open there. The bundled S blueprint itself stays at version 6 until
 the release gate permits raising its iPad reader floor.
 
-**The T-style decision remains no-go.** No source in this packet supplies its
-inside-corner radius, taper and fitting limits. The v1-v6 legacy adapter
-therefore remains the only released geometry for both bundled blueprints.
+**The T-style decision remains no-go.** A current Musikraft 50's/60's Tele
+body product independently corroborates a routed four-bolt 3 in × 2-3/16 in
+envelope (and .670 in depth). No source in this packet supplies its
+inside-corner radius, taper and fitting limits, however. The v1-v6 legacy
+adapter therefore remains the only released geometry for both bundled
+blueprints.
 
 The next acceptable evidence is one of:
 
