@@ -818,6 +818,32 @@ async function main() {
         'conversion did not record the frozen legacy adapter source');
       invariant(converted.neckPlacement?.jointToReferenceFretMm === hardware.FINGERBOARD_OVERHANG_MM.s_style,
         'conversion did not seed the body placement from the S-style overhang constant');
+      invariant(converted.neckJointGeometry?.parameters.endTreatment === 'compound'
+        && converted.neckJointGeometry.parameters.deepEndWidthMm! > converted.neckJointGeometry.parameters.mouthWidthMm,
+      'non-T bolt-on conversion did not use the rounded tapered default');
+      const asGlued = {
+        ...converted,
+        neckJointMechanism: 'glued' as const,
+        neckJointGeometry: {
+          ...converted.neckJointGeometry!,
+          mechanism: 'glued' as const,
+          planShape: 'straight_mortise' as const,
+          parameters: {
+            mouthWidthMm: converted.neckJointGeometry!.parameters.mouthWidthMm,
+            planLengthMm: converted.neckJointGeometry!.parameters.planLengthMm,
+            endCornerRadiusMm: 6.35,
+            endTreatment: 'square' as const,
+            endRoundnessMm: 0,
+          },
+        },
+      };
+      const roundedBoltOn = presets.changeCustomNeckJointMechanism(asGlued, 'bolt_on');
+      invariant(roundedBoltOn.neckJointGeometry?.planShape === 'bolt_on_pocket'
+        && roundedBoltOn.neckJointGeometry.parameters.endTreatment === 'compound',
+      'changing a glued joint to bolt-on did not select the rounded-end default');
+      const straightBoltOn = presets.changeCustomNeckJointMechanism({ ...asGlued, activeTemplateId: 't_style' }, 'bolt_on');
+      invariant(straightBoltOn.neckJointGeometry?.parameters.endTreatment === 'square',
+        'changing a T-style glued joint to bolt-on did not select the straight-end default');
       const initialWidth = converted.neckJointGeometry!.parameters.mouthWidthMm;
       const resized = neckJoint.setCustomNeckJointMouthWidth(
         converted.neckJointGeometry!, converted.contour, initialWidth + 0.5,
@@ -825,8 +851,8 @@ async function main() {
       const saved = presets.withEmbeddedPresets({ ...converted, contour: resized.contour, neckJointGeometry: resized.geometry });
       invariant(saved.neckJointGeometry!.parameters.mouthWidthMm === initialWidth + 0.5,
         'numeric mouth width did not survive the v7 compatibility write');
-      invariant(saved.neckPreset.jointWidthMm === initialWidth + 0.5,
-        'legacy width mirror was not derived from the custom v7 joint');
+      invariant(saved.neckPreset.jointWidthMm === saved.neckJointGeometry!.parameters.deepEndWidthMm,
+        'legacy width mirror was not derived from the custom v7 deep-end width');
       const savedLeft = saved.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_left')!;
       const savedRight = saved.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_right')!;
       invariant(savedLeft.position.x === -(initialWidth + 0.5) / 2 && savedRight.position.x === (initialWidth + 0.5) / 2,
@@ -862,16 +888,16 @@ async function main() {
       invariant(neckJoint.neckJointCutterWarnings(cutterChecked.geometry).length === 1,
         'an oversized cutter did not produce an advisory warning');
       const fitted = neckJoint.updateCustomNeckJoint(current, converted.contour, {
-        targetHeelWidthMm: current.parameters.mouthWidthMm - 0.4,
+        targetHeelWidthMm: current.parameters.deepEndWidthMm! - 0.4,
         fittingClearanceMm: 0.1,
       });
-      invariant(Math.abs(neckJoint.requiredPocketWidthForHeelFit(fitted.geometry) - (current.parameters.mouthWidthMm - 0.2)) < 0.000000001,
+      invariant(Math.abs(neckJoint.requiredPocketWidthForHeelFit(fitted.geometry) - (current.parameters.deepEndWidthMm! - 0.2)) < 0.000000001,
         'per-side clearance was not added twice to the required heel-fit width');
       throws(() => neckJoint.updateCustomNeckJoint(fitted.geometry, fitted.contour, {
         fittingClearanceMm: 0.3,
       }), /twice the per-side clearance/, 'a heel fit with insufficient pocket width was accepted');
       throws(() => neckJoint.updateCustomNeckJoint(current, converted.contour, {
-        parameters: { planLengthMm: current.parameters.planLengthMm + 1000 },
+        parameters: { deepEndWidthMm: 1000 },
       }), /leaves the body/, 'a joint that leaves the body was accepted');
     });
 
