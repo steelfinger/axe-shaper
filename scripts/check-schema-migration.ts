@@ -677,6 +677,8 @@ async function main() {
       invariant(Math.abs(leftSideEnd.x + outline[2].x) < 0.000000001
         && Math.abs(leftSideEnd.y - outline[2].y) < 0.000000001,
       'compound pocket lost its mirrored straight-side construction');
+      invariant(outline.length < 50,
+        'compound pocket traversed the left fillet around the long arc instead of the tangent fillet');
       const compoundJoint = {
         ...documentedSStyleJoint,
         parameters: {

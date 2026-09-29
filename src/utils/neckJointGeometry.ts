@@ -510,10 +510,14 @@ export function generateCompoundBoltOnPocketPrototypeOutline(
     leftArcStart.y - leftFilletCenter.y,
     leftArcStart.x - leftFilletCenter.x,
   );
-  const leftFilletEndAngle = Math.atan2(
+  let leftFilletEndAngle = Math.atan2(
     leftSideEnd.y - leftFilletCenter.y,
     leftSideEnd.x - leftFilletCenter.x,
   );
+  // Mirroring crosses atan2's -π/π seam. Follow the short, tangent-continuous
+  // fillet from the closing arc to the left wall rather than looping almost a
+  // full turn around the fillet circle.
+  if (leftFilletEndAngle < leftFilletStartAngle) leftFilletEndAngle += 2 * Math.PI;
   const points: Vector2D[] = [leftMouth, rightMouth, rightSideEnd];
   appendArc(points, rightFilletCenter, deepEndCornerRadiusMm, rightFilletStartAngle, rightFilletEndAngle, toleranceMm);
   appendArc(points, closingCenter, deepEndArcRadiusMm, rightClosingAngle, Math.PI / 2, toleranceMm);
