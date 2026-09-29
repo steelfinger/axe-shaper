@@ -87,7 +87,7 @@ web reference implementation proves them. The object must nevertheless cover:
   optional deep-end width for a taper, two equal end-corner radii, and an
   end-treatment/radius for the centre of the heel or tenon end;
 - IDs of the two body-contour anchors forming the mouth;
-- optional target heel width, requested fitting clearance, and cutter diameter
+- optional target heel width, requested **per-side** fitting clearance, and cutter diameter
   for custom joints;
 - optional `neckAngleDegrees` for glued joints only. `0°` means the fretboard
   plane is parallel to the body **construction plane**; positive values raise
@@ -204,7 +204,8 @@ and is prototyped before the contract is finalized; it must cover bodies whose
 contour treatment at `Y = 0` differs from Fender-style horns.
 
 There is no app-wide numeric width range. If target heel width is known, the
-minimum valid pocket width is that value plus the requested clearance. If it
+minimum valid deep-end pocket width is that value plus **twice** the requested
+per-side clearance. If it
 is not known, a Custom Joint remains valid only within the selected profile's
 explicit authored bounds; if the profile supplies no bounds, width editing is
 disabled until the user enters a target heel width. This avoids silently

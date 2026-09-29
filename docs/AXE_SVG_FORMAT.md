@@ -190,7 +190,7 @@ must never infer equivalent anchors from visual proximity.
 A locked geometry carries `profileId` and a matching immutable
 `profileSnapshot`; a custom geometry carries `derivedFromProfileId` and its
 own numeric parameters, without a locked snapshot. Optional custom fitting
-data is `targetHeelWidthMm`, `fittingClearanceMm`, and `cutterDiameterMm`.
+data is `targetHeelWidthMm`, per-side `fittingClearanceMm`, and `cutterDiameterMm`.
 `neckAngleDegrees` is permitted only for glued joints. It is measured against
 the body **construction plane**: `0` is parallel, positive raises the
 nut/headstock end. It is not inferred from an arched/carved top, and a
