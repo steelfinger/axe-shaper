@@ -75,7 +75,11 @@ try {
     }
   }
 
-  const project: GuitarProject = createProject();
+  const createdProject: GuitarProject = createProject();
+  // This fixture asserts the frozen legacy rectangle independently of the
+  // product-owned S-style v7 default created by the factory.
+  const { neckJointGeometry: _fixtureJoint, neckPlacement: _fixturePlacement, ...legacyFixture } = createdProject;
+  const project: GuitarProject = { ...legacyFixture, schemaVersion: 6 };
   project.contour = contour([[0, 0], [100, 0], [100, 50], [0, 50]]);
   project.neckPreset = { ...project.neckPreset!, jointWidthMm: 60, jointDepthMm: 80, jointCornerRadiusMm: 0 };
   project.frontRoutes = [{ id: 'front', contour: contour([[10, 10], [20, 10], [20, 20], [10, 20]]), depthMm: 15 }];
@@ -95,7 +99,19 @@ try {
   // rounded rectangle. Keep the established NECK_POCKET layer name so CAM
   // workflows do not need a layer migration merely because the data model
   // became construction-aware.
-  project.neckJointGeometry = {
+  const v7Project: GuitarProject = {
+    ...project,
+    schemaVersion: 7,
+    contour: {
+      closed: true,
+      anchors: [
+        { id: 'left', position: { x: -30, y: 0 }, locked: true, semanticRole: 'neck_pocket_left' },
+        { id: 'right', position: { x: 30, y: 0 }, locked: true, semanticRole: 'neck_pocket_right' },
+        { id: 'tail-right', position: { x: 50, y: 50 } },
+        { id: 'tail-left', position: { x: -50, y: 50 } },
+      ],
+    },
+    neckJointGeometry: {
     mode: 'locked',
     profileId: 'dxf-s-style',
     mechanism: 'bolt_on',
@@ -113,8 +129,12 @@ try {
       parameters: { mouthWidthMm: 60, planLengthMm: 80, endCornerRadiusMm: 0, endTreatment: 'rounded', endRoundnessMm: 30 },
       evidenceLevel: 'unverified', provenance: 'test',
     },
+    },
+    neckPlacement: {
+      mode: 'blueprint', referenceFret: 22, jointToReferenceFretMm: 75.2453, provenance: 'test',
+    },
   };
-  const unverifiedDxf = exportProjectToDXF(project);
+  const unverifiedDxf = exportProjectToDXF(v7Project);
   assert.match(unverifiedDxf, /999\r?\nUnverified neck joint — verify against the physical neck before cutting\./);
   entities = read(unverifiedDxf);
   const generatedPocket = entities.find(e => e.layer === 'NECK_POCKET')!.vertices;
@@ -122,8 +142,6 @@ try {
   assert.equal(generatedPocket[0].y, 0);
   assert(generatedPocket.length > 4, 'v7 rounded joint was exported as a legacy rectangle');
   assert(Math.min(...generatedPocket.map(p => p.y)) === -80, 'v7 joint did not retain its authored plan length');
-  delete project.neckJointGeometry;
-
   // Dense independent sampling bounds deviation of a strongly curved edge.
   const a = { x: 0, y: 0 }, b = { x: -40, y: -90 }, c = { x: 140, y: -90 }, d = { x: 100, y: 0 };
   project.contour.anchors[0].handleOut = b;

@@ -2,7 +2,12 @@ import { REFERENCE_TEMPLATES } from '../constants/templates';
 import { BASE_SCHEMA_VERSION, requiredSchemaVersion } from '../constants/schema';
 import type { GuitarProject, InstrumentType, ReferenceTemplate } from '../types/guitar';
 import { defaultStringCount } from './instrument';
-import { bridgePresetFields, defaultNeckJointMechanism, neckPresetFieldsForNewTemplate } from './presets';
+import {
+  bridgePresetFields,
+  defaultNeckJointMechanism,
+  neckPresetFieldsForNewTemplate,
+  withBundledGuitarNeckJointContract,
+} from './presets';
 import { projectNameFromTemplate } from './projectNaming';
 import { getUserTemplate, userTemplateInstrument } from './userTemplates';
 import { legacyInstrumentAppearance } from './instrumentAppearance';
@@ -153,5 +158,8 @@ export function createProject(options: CreateProjectOptions = {}): GuitarProject
     backRoutes: structuredClone(template.defaultBackRoutes ?? []),
   };
 
-  return { ...project, schemaVersion: requiredSchemaVersion(project) };
+  const withBlueprintJoint = REFERENCE_TEMPLATES[templateId] && project.instrumentType === 'guitar'
+    ? withBundledGuitarNeckJointContract(project)
+    : project;
+  return { ...withBlueprintJoint, schemaVersion: requiredSchemaVersion(withBlueprintJoint) };
 }
