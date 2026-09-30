@@ -801,7 +801,7 @@ async function main() {
           },
         };
         const resized = neckJoint.setCustomNeckJointMouthWidth(custom, currentWidth + 1);
-        invariant(resized.mouthAnchorIds === undefined && resized.parameters.mouthWidthMm === currentWidth + 1,
+        invariant(!Object.hasOwn(resized, 'mouthAnchorIds') && resized.parameters.mouthWidthMm === currentWidth + 1,
           `${file}: custom numeric width retained a body-mouth attachment`);
         deepStrictEqual(project.contour.anchors.find((anchor: any) => anchor.id === left.id), left,
           `${file}: custom numeric width changed the body contour`);

@@ -462,8 +462,13 @@ only 3D entry point the editor links to. The viewer also keeps an opt-in
 reach the document. Other unfamiliar fields pass through untouched.
 
 Version 7 joint geometry and placement are published only alongside viewer and
-iOS builds that decode and render the paired contract. A viewer whose schema
-ceiling is version 6 must reject a version 7 project at its editable/view gate.
+iOS builds that decode and validate the paired contract. The normal 3D viewer
+uses `neckPlacement` to register the neck and scale-derived bridge, but does
+not cut the top-view joint rout into its finished-body mesh: a custom rout may
+legitimately extend past the final perimeter, while a rendered cavity cannot.
+A future routing-operation overlay may show that raw plan separately. A viewer
+whose schema ceiling is version 6 must reject a version 7 project at its
+editable/view gate.
 
 Native iOS must not write version-6 documents until it can preserve the full
 appearance object and render it consistently, or opens those documents
