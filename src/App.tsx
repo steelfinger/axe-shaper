@@ -473,8 +473,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       ? selectedAnchors.length === 1 && !selectedAnchors[0].locked
       : selectedAnchors.filter((anchor) => !anchor.locked).length > 0
         && activeContour.anchors.length - selectedAnchors.filter((anchor) => !anchor.locked).length >= MIN_ANCHOR_COUNT;
-    // Do not clear a selection when keyboard deletion has no effect. In
-    // particular, a locked v7 mouth anchor must remain selected and intact.
+    // Do not clear a selection when keyboard deletion has no effect.
     if (!canDelete) return;
     handleUpdateProject((prev) => {
       const active = getActiveContour(prev, activeLayer);
@@ -485,8 +484,8 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         const id = [...selectedAnchorIds][0];
         const selected = anchors.find((a) => a.id === id);
         // The keyboard shortcut reaches this handler directly, unlike the
-        // Inspector button. Keep locked anchors immutable at the mutation
-        // point so a v7 joint can never lose one of its named mouth anchors.
+        // Inspector button. Keep generic locked anchors immutable at the
+        // mutation point.
         if (!selected || selected.locked) return prev;
         // Mirrored-partner deletion is a body-only, live-centerline concept.
         const partner =

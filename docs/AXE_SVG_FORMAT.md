@@ -150,7 +150,7 @@ the web's answer for every file the iOS writer produced.
 
 Version 7 is an atomic pair of root objects. A file at version 7 must carry
 both objects; a file carrying either object requires version 7. A current
-reader rejects a partial, corrupt, or attachment-mismatched pair rather than
+reader rejects a partial or corrupt pair rather than
 falling back to a generic pocket.
 
 `neckJointGeometry` is the authoritative **top-view** shape. It stores a
@@ -182,13 +182,10 @@ The generated joint uses the stored two stations and straight sides;
 an input because it is the legacy fingerboard-overhang datum, not a physical
 heel-length measurement.
 
-`mouthAnchorIds` is present **only for a locked profile**. It is the ordered
-pair `[left, right]` of body-contour anchors and must respectively have the
-`neck_pocket_left` and `neck_pocket_right` roles, be locked at
-`(-mouthWidthMm / 2, 0)` and `(+mouthWidthMm / 2, 0)`, and include their
-handles in that lock. A reader must never infer equivalent anchors from visual
-proximity. A custom joint omits this field entirely: it is a numeric rout at
-the `Y = 0` datum, independent of the final body perimeter and its nodes.
+`mouthAnchorIds` was a pre-release v7 field and is removed when current
+readers load a project. No joint profile attaches to body-contour nodes: every
+v7 joint is a numeric rout at the `Y = 0` datum, independent of the final body
+perimeter and its nodes.
 
 A locked geometry carries `profileId`, a matching immutable
 `profileSnapshot`; a custom geometry carries `derivedFromProfileId` and its

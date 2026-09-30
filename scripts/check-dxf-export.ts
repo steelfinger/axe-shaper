@@ -105,8 +105,8 @@ try {
     contour: {
       closed: true,
       anchors: [
-        { id: 'left', position: { x: -30, y: 0 }, locked: true, semanticRole: 'neck_pocket_left' },
-        { id: 'right', position: { x: 30, y: 0 }, locked: true, semanticRole: 'neck_pocket_right' },
+        { id: 'left', position: { x: -30, y: 0 }, semanticRole: 'neck_pocket_left' },
+        { id: 'right', position: { x: 30, y: 0 }, semanticRole: 'neck_pocket_right' },
         { id: 'tail-right', position: { x: 50, y: 50 } },
         { id: 'tail-left', position: { x: -50, y: 50 } },
       ],
@@ -123,7 +123,6 @@ try {
       endTreatment: 'rounded',
       endRoundnessMm: 30,
     },
-    mouthAnchorIds: ['left', 'right'],
     profileSnapshot: {
       id: 'dxf-s-style', name: 'DXF S-style', mechanism: 'bolt_on', planShape: 'bolt_on_pocket',
       parameters: { mouthWidthMm: 60, planLengthMm: 80, endCornerRadiusMm: 0, endTreatment: 'rounded', endRoundnessMm: 30 },

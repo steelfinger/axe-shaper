@@ -58,7 +58,7 @@
 
     <!-- Outer Custom Body Profile -->
     <path d="M -31.75 0.00 C -31.75 0.00, -42.72 35.20, -80.83 51.22 C -111.63 64.16, -168.41 72.57, -169.10 128.86 C -169.66 173.42, -127.94 215.03, -127.93 286.93 C -127.92 333.35, -145.31 363.79, -167.93 406.84 C -192.96 454.48, -231.42 526.32, -205.93 562.28 C -195.25 577.34, -181.57 586.58, -148.83 583.98 C -102.95 580.34, -53.10 567.51, 1.11 550.26 C 92.40 521.21, 200.46 469.03, 199.08 434.81 C 197.04 384.07, 151.08 348.26, 148.67 262.02 C 147.91 234.56, 159.07 189.06, 173.45 144.89 C 187.83 100.72, 205.50 57.88, 205.85 32.80 C 206.25 3.90, 188.42 -20.52, 171.57 -20.87 C 151.76 -21.29, 140.94 -10.79, 130.85 1.23 C 115.28 19.78, 103.47 42.80, 78.79 43.03 C 37.73 43.42, 31.75 0.00, 31.75 0.00 C 31.75 0.00, -31.75 0.00, -31.75 0.00 Z" class="body-line" />
-    
+
 
     <!-- Pickguard (translucent, above the body, under the hardware) -->
     <path d="M 56.88 56.01 C 56.88 56.01, 73.85 64.57, 93.40 54.19 C 116.91 41.72, 143.90 -16.06, 174.59 -5.63 C 216.76 8.71, 167.61 129.39, 147.56 190.00 C 127.50 250.62, 115.73 313.07, 57.51 354.37 C 57.51 354.37, 56.88 56.01, 56.88 56.01 Z" class="pickguard" style="fill:#ffffff" />
@@ -75,26 +75,26 @@
     />
 
     <!-- Front Routed Cavities (control cavities, etc. - under pickup hardware) -->
-    
+
 
     <!-- Pickup routing cavities and visible cover cut lines (above front routes) -->
-    
+
           <g transform="translate(0, 206.40772481188057) rotate(0)">
             <path d="M -40.47 -18.71 C -40.47 -18.71, 40.47 -18.71, 40.47 -18.71 C 42.69 -18.71, 44.47 -16.92, 44.47 -14.71 C 44.47 -14.71, 44.47 14.71, 44.47 14.71 C 44.47 16.92, 42.69 18.71, 40.47 18.71 C 40.47 18.71, -40.47 18.71, -40.47 18.71 C -42.69 18.71, -44.47 16.92, -44.47 14.71 C -44.47 14.71, -44.47 -14.71, -44.47 -14.71 C -44.47 -16.92, -42.69 -18.71, -40.47 -18.71 Z" class="pickup-rout" />
-            
+
             <circle cx="0" cy="0" r="1.5" fill="#28a745" />
           </g>
-        
+
           <g transform="translate(0, 338.37883794251843) rotate(0)">
             <path d="M -40.47 -18.71 C -40.47 -18.71, 40.47 -18.71, 40.47 -18.71 C 42.69 -18.71, 44.47 -16.92, 44.47 -14.71 C 44.47 -14.71, 44.47 14.71, 44.47 14.71 C 44.47 16.92, 42.69 18.71, 40.47 18.71 C 40.47 18.71, -40.47 18.71, -40.47 18.71 C -42.69 18.71, -44.47 16.92, -44.47 14.71 C -44.47 14.71, -44.47 -14.71, -44.47 -14.71 C -44.47 -16.92, -42.69 -18.71, -40.47 -18.71 Z" class="pickup-rout" />
-            
+
             <circle cx="0" cy="0" r="1.5" fill="#28a745" />
           </g>
-        
+
 
     <!-- Potentiometer body, knob and shaft-hole footprints. -->
     <g id="control-knobs">
-      
+
       <g transform="translate(91.00, 377.91)" data-knob-style="generic">
         <circle cx="0" cy="0" r="12.00" class="control-body" />
         <circle cx="0" cy="0" r="10.00" class="control-outline" />
@@ -114,7 +114,7 @@
 
     <!-- Selector switch hardware. Special mounting cavities are outside this version's scope. -->
     <g id="control-switches">
-      
+
     </g>
 
     <!-- Family-specific bridge hardware and scale-length reference line -->
@@ -131,8 +131,9 @@
     <line x1="-246.42" y1="601.58" x2="296.76" y2="601.58" class="band-rule" />
     <text x="-234.42" y="621.58" class="title-label">Thunderbird-Style Bass - 1:1 Scale Print Template</text>
     <text x="-234.42" y="634.58" class="text-label">Scale: 863.6mm (34.00") | Joint: 63.5mm W x 98.425mm D | Saddle Y: 415.2mm</text>
-    <text x="-234.42" y="644.58" class="text-label">Date: 2026-09-25 | Printable 100% True Scale (Do Not Scale Page)</text>
+    <text x="-234.42" y="644.58" class="text-label">Date: 2026-09-30 | Printable 100% True Scale (Do Not Scale Page)</text>
     <text x="-234.42" y="657.58" class="disclaimer-label">Editing this file in another app will not update Axe Shaper - re-importing it may discard your changes.</text>
+
 
     <!-- 100mm x 100mm Ruler Calibration Box -->
     <g transform="translate(-234.42, 669.58)">

@@ -1,5 +1,4 @@
 import type {
-  BodyContour,
   InstrumentType,
   NeckJointGeometry,
   NeckJointPlanParameters,
@@ -22,9 +21,8 @@ export interface NeckJointOutline {
 /**
  * Phase-0 geometry spike for the documented 1962 S-style pocket. It is
  * intentionally not a v7 `planShape` yet: the persisted contract must wait
- * for iOS and viewer parity. The pocket mouth is open/body-owned; this shape
- * starts at its two locked mouth anchors and models only the fitting walls and
- * compound deep end.
+ * for iOS and viewer parity. The pocket mouth is an open numeric datum at
+ * Y=0; this shape models only the fitting walls and compound deep end.
  */
 export interface CompoundBoltOnPocketPrototypeParameters {
   mouthWidthMm: number;
@@ -101,11 +99,6 @@ export function validateNeckJointGeometry(geometry: NeckJointGeometry): void {
   if (geometry.mode === 'custom' && (!geometry.derivedFromProfileId || geometry.profileSnapshot)) {
     throw new NeckJointContractError('A custom neck joint must record its source profile without carrying a locked snapshot.');
   }
-  if (geometry.mode === 'locked' && (!Array.isArray(geometry.mouthAnchorIds) || geometry.mouthAnchorIds.length !== 2
-    || !geometry.mouthAnchorIds.every((id) => typeof id === 'string' && id.length > 0)
-    || geometry.mouthAnchorIds[0] === geometry.mouthAnchorIds[1])) {
-    throw new NeckJointContractError('A locked neck joint must identify two distinct mouth anchors.');
-  }
   const tapered = geometry.planShape === 'tapered_mortise';
   if (geometry.planShape === 'bolt_on_pocket' && geometry.mechanism !== 'bolt_on') {
     throw new NeckJointContractError('bolt_on_pocket geometry requires a bolt-on neck mechanism.');
@@ -178,30 +171,6 @@ export function validateNeckJointContract(
   }
   if (typeof placement.provenance !== 'string' || placement.provenance.trim().length === 0) {
     throw new NeckJointContractError('Neck placement must record its provenance.');
-  }
-}
-
-/**
- * Attachment belongs only to a locked template profile. Custom numeric routs
- * deliberately have no relationship to the final body contour.
- */
-export function validateNeckJointAttachment(geometry: NeckJointGeometry, contour: BodyContour): void {
-  if (geometry.mode !== 'locked' || !geometry.mouthAnchorIds) {
-    throw new NeckJointContractError('Only a locked neck joint may attach to body anchors.');
-  }
-  const [leftId, rightId] = geometry.mouthAnchorIds;
-  const left = contour.anchors.find((anchor) => anchor.id === leftId);
-  const right = contour.anchors.find((anchor) => anchor.id === rightId);
-  if (!left || !right) throw new NeckJointContractError('Neck joint mouth-anchor ids do not exist on this body.');
-  if (left.semanticRole !== 'neck_pocket_left' || right.semanticRole !== 'neck_pocket_right') {
-    throw new NeckJointContractError('Neck joint mouth anchors must use the explicit left/right neck-pocket roles.');
-  }
-  const epsilon = 0.000001;
-  const halfWidth = geometry.parameters.mouthWidthMm / 2;
-  if (!left.locked || !right.locked
-    || Math.abs(left.position.y) > epsilon || Math.abs(right.position.y) > epsilon
-    || Math.abs(left.position.x + halfWidth) > epsilon || Math.abs(right.position.x - halfWidth) > epsilon) {
-    throw new NeckJointContractError('Neck joint mouth anchors must be locked at Y=0 and match the authored symmetric width.');
   }
 }
 

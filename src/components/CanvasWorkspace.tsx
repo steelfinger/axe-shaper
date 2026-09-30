@@ -1058,9 +1058,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                       // React props, until the gesture ends - pinning offsetXMm to 0 in
                       // committed state (movingPickup) only snaps it back at drag end,
                       // which lets the shape visibly wander off-axis mid-drag. This
-                      // constrains the live drag itself, every frame, the same way
-                      // toModel/toScreen already convert for the locked neck-pocket
-                      // anchors above.
+                      // constrains the live drag itself, every frame.
                       dragBoundFunc={(pos) => {
                         const model = toModel(pos);
                         const y = settings.snapToGridEnabled

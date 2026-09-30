@@ -9,7 +9,7 @@ import {
   BEVEL_INTENSITY_MIN,
   BEVEL_INTENSITY_STEP,
 } from '../constants/edgeProfiles';
-import { isFixedNeckPocketAnchor, variableInsetWidthMm } from '../utils/bevelIntensity';
+import { variableInsetWidthMm } from '../utils/bevelIntensity';
 import { distanceVector, isSegmentStraight, updateAnchorHandle } from '../utils/bezier';
 import { type ActiveLayer, getActiveContour, withActiveContour } from '../utils/layerShapes';
 import {
@@ -147,8 +147,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
   // that happens to do nothing today.
   const bevelIsDrawn = variableInsetWidthMm(project.edgeProfile) !== null;
 
-  const bevelIntensityOf = (anchor: PathAnchor): number =>
-    isFixedNeckPocketAnchor(anchor) ? 0 : anchor.bevelIntensity ?? BEVEL_INTENSITY_DEFAULT;
+  const bevelIntensityOf = (anchor: PathAnchor): number => anchor.bevelIntensity ?? BEVEL_INTENSITY_DEFAULT;
 
   const mirrorsIntensity =
     activeLayer.kind === 'body' && settings.symmetry.mode === 'live_centerline';
@@ -178,7 +177,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
         if (!prevContour) return prev;
         const target = new Set(ids);
         let anchors = prevContour.anchors.map((a) =>
-          target.has(a.id) && !isFixedNeckPocketAnchor(a) ? { ...a, bevelIntensity: value } : a
+          target.has(a.id) ? { ...a, bevelIntensity: value } : a
         );
         if (activeLayer.kind === 'body') {
           for (const id of ids) {
@@ -324,7 +323,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
                   min={BEVEL_INTENSITY_MIN}
                   max={BEVEL_INTENSITY_MAX}
                   step={BEVEL_INTENSITY_STEP}
-                  disabled={isFixedNeckPocketAnchor(selectedAnchor)}
+                  disabled={false}
                   value={bevelIntensityOf(selectedAnchor)}
                   onChange={(e) =>
                     handleBevelIntensityChange(
@@ -338,11 +337,9 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
                   style={{ width: '100%' }}
                 />
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                  {isFixedNeckPocketAnchor(selectedAnchor)
-                    ? 'The bevel always runs out to nothing at the neck pocket.'
-                    : mirrorsIntensity
-                      ? 'How far the bevel runs here, as a multiple of the edge width. Mirrored to the opposite node.'
-                      : 'How far the bevel runs here, as a multiple of the edge width.'}
+                  {mirrorsIntensity
+                    ? 'How far the bevel runs here, as a multiple of the edge width. Mirrored to the opposite node.'
+                    : 'How far the bevel runs here, as a multiple of the edge width.'}
                 </p>
                 <EdgeProfilePreview
                   profile={project.edgeProfile}
