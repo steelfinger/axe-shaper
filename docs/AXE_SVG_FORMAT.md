@@ -219,7 +219,7 @@ nutToBodyEdgeMm = fretDistanceFromNut(referenceFret, scaleLengthMm)
 ```
 
 For version 7, `neckJointGeometry` and `neckPlacement` win. The old
-`joint*`, `pocket*`, and `nutToBodyEdgeMm` fields in `neckPreset` are output
+`joint*`, `pocket*`, `nutToBodyEdgeMm`, and `nutToJointMm` fields in `neckPreset` are output
 compatibility mirrors only and must not resolve the joint or scale datum.
 Changing placement moves the neck and scale-derived bridge/saddle reference;
 pickups remain body-relative and are never moved automatically.

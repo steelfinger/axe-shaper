@@ -148,7 +148,7 @@ For v7, `neckJointGeometry` is authoritative for joint rendering, validation
 and export. `neckPlacement` is authoritative for the body-to-scale datum. The
 `joint*` and `pocket*` fields embedded in `neckPreset` remain legacy-compatible
 mirrors only: writers derive their bounding dimensions from resolved numeric
-geometry, derive `nutToBodyEdgeMm` from resolved placement, and v7 readers do
+geometry, derive `nutToBodyEdgeMm` and the minimum `nutToJointMm` fingerboard end from resolved placement, and v7 readers do
 not use these fields to resolve either answer. The 3D viewer must read both v7
 objects; it cannot continue treating those mirrors as joint geometry.
 

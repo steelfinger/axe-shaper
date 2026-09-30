@@ -671,6 +671,13 @@ export function withEmbeddedPresets(project: StoredProject): GuitarProject {
           ? v7Joint.parameters.endRoundnessMm
           : v7Joint.parameters.endCornerRadiusMm,
         nutToBodyEdgeMm: nutToBodyEdgeFromPlacement(v7Placement, resolvedNeck.scaleLengthMm),
+        // The legacy mirror is also consumed by older 3D readers as the
+        // fingerboard-end station. Keep it at least as far as v7's datum
+        // fret while retaining a longer authored 24-fret end.
+        nutToJointMm: Math.max(
+          resolvedNeck.nutToJointMm,
+          getFretDistanceFromNutMm(v7Placement.referenceFret, resolvedNeck.scaleLengthMm),
+        ),
       }
     : resolvedNeck;
   return {
