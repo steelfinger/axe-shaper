@@ -6,7 +6,7 @@ import {
   bridgePresetFields,
   defaultNeckJointMechanism,
   neckPresetFieldsForNewTemplate,
-  withBundledGuitarNeckJointContract,
+  withBundledNeckJointContract,
 } from './presets';
 import { projectNameFromTemplate } from './projectNaming';
 import { getUserTemplate, userTemplateInstrument } from './userTemplates';
@@ -158,8 +158,8 @@ export function createProject(options: CreateProjectOptions = {}): GuitarProject
     backRoutes: structuredClone(template.defaultBackRoutes ?? []),
   };
 
-  const withBlueprintJoint = REFERENCE_TEMPLATES[templateId] && project.instrumentType === 'guitar'
-    ? withBundledGuitarNeckJointContract(project)
+  const withBlueprintJoint = REFERENCE_TEMPLATES[templateId]
+    ? withBundledNeckJointContract(project)
     : project;
   return { ...withBlueprintJoint, schemaVersion: requiredSchemaVersion(withBlueprintJoint) };
 }

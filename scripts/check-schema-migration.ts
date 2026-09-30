@@ -81,6 +81,7 @@ async function main() {
     const bodyThickness = await load('/src/utils/bodyThickness.ts');
     const controls = await load('/src/utils/controlEditing.ts');
     const neckJoint = await load('/src/utils/neckJointGeometry.ts');
+    const scaleMath = await load('/src/utils/scaleMath.ts');
 
     const currentBlueprint = decodePayload(readFileSync(BASE_BLUEPRINT, 'utf8'));
     // Strict equality against each blueprint's *own* answer, not a range and
@@ -108,12 +109,11 @@ async function main() {
         + ' - re-export the bundled blueprints (npx tsx scripts/refresh-blueprint-presets.ts)'
     );
 
-    // Every product-owned guitar now carries the paired v7 neck-joint and
-    // placement contract. Bass pockets remain intentionally legacy pending
-    // their own research, so they retain their v6 appearance-only payload.
+    // Every product-owned blueprint, guitar and bass, carries the paired v7
+    // neck-joint and placement contract.
     for (const file of bundledBlueprints) {
       const payload = decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8'));
-      const expectedVersion = payload.instrumentType === 'guitar' ? 7 : 6;
+      const expectedVersion = 7;
       invariant(payload.schemaVersion === expectedVersion,
         `${file} must be schema ${expectedVersion}; found ${payload.schemaVersion}`);
     }
@@ -860,9 +860,23 @@ async function main() {
         invariant(convertedBody.neckJointGeometry?.mouthAnchorIds === undefined,
           `${file}: converted custom joint retained body-mouth anchors`);
       }
-      const bass = presets.migrateProject({ ...v2, instrumentType: 'bass', stringCount: 4 });
-      throws(() => presets.convertLegacyNeckJointToCustom(bass), /bass neck pockets remain legacy-only/,
-        'bass must not silently enter the generic custom-joint editor');
+      const bass = presets.migrateProject({
+        ...v2,
+        instrumentType: 'bass',
+        stringCount: 4,
+        ...presets.neckPresetFields('bass_long_34'),
+        ...presets.bridgePresetFields('bass_vintage_plate'),
+      });
+      const saddleY = (p: any) => scaleMath.getSaddleYMm(presets.resolveNeckPreset(p), presets.resolveBridgePreset(p));
+      const bassBefore = saddleY(bass);
+      const bassConverted = presets.convertLegacyNeckJointToCustom(bass);
+      const bassJoint = bassConverted.neckJointGeometry!;
+      invariant(bassJoint.mode === 'custom' && bassJoint.planShape === 'bolt_on_pocket'
+        && bassJoint.parameters.mouthWidthMm === 63.5 && bassJoint.parameters.deepEndWidthMm === 63.5
+        && bassJoint.parameters.planLengthMm === 98.425 && bassJoint.parameters.endTreatment === 'square',
+        'bass conversion must keep the frozen 63.5 x 98.425 rectangle, untapered and square-ended');
+      invariant(bassConverted.neckPlacement?.referenceFret === 20, 'bass placement must reference fret 20');
+      invariant(Math.abs(saddleY(bassConverted) - bassBefore) < 1e-9, 'converting a bass neck joint moved its saddle');
     });
 
     check('keeps custom numeric routs independent of the body and warns about an incompatible cutter', () => {

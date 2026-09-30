@@ -107,18 +107,17 @@ async function main() {
       }
     }
     // Through migrateProject - the same door every other read goes through.
-    // Product-owned guitar blueprints then receive their explicit v7 joint
-    // contract. S/T select their locked bolt-on profiles; all other guitars
-    // preserve their existing body-specific scale datum and conservative
-    // legacy-derived joint. Bass blueprints intentionally remain legacy.
+    // Product-owned blueprints then receive their explicit v7 joint
+    // contract. S/T select their locked bolt-on profiles; every other guitar
+    // and bass preserves its existing body-specific scale datum and
+    // conservative legacy-derived joint.
     const migrated = presets.migrateProject({
       ...project,
       settings: project.settings,
       ...neck,
       ...presets.bridgePresetFields(project.bridgePresetId),
     });
-    const refreshed = migrated.instrumentType === 'guitar'
-      ? presets.withBundledGuitarNeckJointContract({
+    const refreshed = presets.withBundledNeckJointContract({
           // Re-author the product-owned baseline from its legacy mirrors on
           // every refresh. Keeping an older v7 object here would retain its
           // former editable marker and make a fresh blueprint skip the
@@ -127,8 +126,7 @@ async function main() {
           schemaVersion: 6,
           neckJointGeometry: undefined,
           neckPlacement: undefined,
-        })
-      : migrated;
+        });
     const svg = svgExporter.exportProjectToSVG(refreshed);
     writeFileSync(path, svg);
     console.log(`refreshed ${id} (neck: ${project.neckPresetId}, bridge: ${project.bridgePresetId})`);
