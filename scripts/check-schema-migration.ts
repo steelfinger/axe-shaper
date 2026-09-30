@@ -1012,6 +1012,16 @@ async function main() {
       deepStrictEqual(restoredSG.neckJointGeometry?.parameters.mouthWidthMm, sgDefault.jointWidthMm);
       deepStrictEqual(restoredSG.neckJointGeometry?.parameters.planLengthMm, sgDefault.jointDepthMm);
       deepStrictEqual(restoredSG.neckJointGeometry?.parameters.endCornerRadiusMm, sgDefault.jointCornerRadiusMm);
+
+      for (const file of ['single_cut.axe.svg', 'gretsch_thunderbird.axe.svg', 'gibson_flying_v.axe.svg']) {
+        const gluedBlueprint = presets.customizeBlueprintNeckJoint(
+          decodePayload(readFileSync(join(BLUEPRINT_DIR, file), 'utf8')),
+        );
+        const boltOn = presets.changeCustomNeckJointMechanism(gluedBlueprint, 'bolt_on');
+        invariant(boltOn.neckJointGeometry?.mechanism === 'bolt_on'
+          && boltOn.neckJointGeometry.parameters.endTreatment === 'compound',
+        `${file}: bolt-on conversion did not retain a valid rounded S-style end`);
+      }
     });
 
     check('re-saving an untouched file does not move its version', () => {
