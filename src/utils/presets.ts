@@ -788,16 +788,34 @@ export function changeCustomNeckJointMechanism(
   // width no longer matches the body. A construction change intentionally
   // changes both at once, so bring the paired body anchors to the new width
   // before entering its shared validation path.
-  const halfWidth = parameters.mouthWidthMm / 2;
-  const contour = {
-    ...project.contour,
-    anchors: project.contour.anchors.map((anchor) => {
-      if (anchor.id === joint.mouthAnchorIds[0]) return { ...anchor, position: { ...anchor.position, x: -halfWidth, y: 0 } };
-      if (anchor.id === joint.mouthAnchorIds[1]) return { ...anchor, position: { ...anchor.position, x: halfWidth, y: 0 } };
-      return anchor;
-    }),
+  const resizeFor = (nextParameters: NeckJointGeometry['parameters']) => {
+    const halfWidth = nextParameters.mouthWidthMm / 2;
+    const contour = {
+      ...project.contour,
+      anchors: project.contour.anchors.map((anchor) => {
+        if (anchor.id === joint.mouthAnchorIds[0]) return { ...anchor, position: { ...anchor.position, x: -halfWidth, y: 0 } };
+        if (anchor.id === joint.mouthAnchorIds[1]) return { ...anchor, position: { ...anchor.position, x: halfWidth, y: 0 } };
+        return anchor;
+      }),
+    };
+    return updateCustomNeckJoint({ ...replacement, parameters: nextParameters }, contour, {});
   };
-  const resized = updateCustomNeckJoint(replacement, contour, {});
+
+  let resized: ReturnType<typeof updateCustomNeckJoint>;
+  try {
+    resized = resizeFor(parameters);
+  } catch (error) {
+    // A three-inch bolt-on envelope cannot fit every body that began life as
+    // a glued neck (notably the V, Thunderbird and Single-Cut). Retain that
+    // body's validated mouth/span, but still apply the same tapered,
+    // compound S-style bolt-on end rather than leaving the user stranded.
+    if (mechanism !== 'bolt_on' || !(error instanceof NeckJointContractError)) throw error;
+    resized = resizeFor(boltOnParametersForTemplate(
+      project.activeTemplateId,
+      joint.parameters.mouthWidthMm,
+      joint.parameters.planLengthMm,
+    ));
+  }
   return withEmbeddedPresets({
     ...project,
     contour: resized.contour,
