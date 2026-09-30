@@ -937,6 +937,26 @@ async function main() {
       'pre-release v7 attachment was not removed on load');
     });
 
+    check('refuses dimensions its heel shape cannot be built from instead of crashing the renderer', () => {
+      // Typing "60" into the width field passes through 6: positive, not
+      // narrower than its mouth, yet impossible as a compound heel end.
+      const sStyleProfile = presets.blueprintNeckJointProfile({ activeTemplateId: 's_style', instrumentType: 'guitar' });
+      const { profileId: _id, profileSnapshot: _snapshot, ...rest } = sStyleProfile;
+      const custom = { ...rest, mode: 'custom', derivedFromProfileId: 'blueprint-baseline:s_style' };
+      const taper = Math.tan(0.84 * Math.PI / 180);
+      const widthed = (deepEndWidthMm: number) => neckJoint.updateCustomNeckJoint(custom, {
+        parameters: { deepEndWidthMm, mouthWidthMm: deepEndWidthMm - 2 * custom.parameters.planLengthMm * taper },
+      });
+      throws(() => widthed(6), /cannot form this joint shape/, 'an unbuildable compound width was accepted');
+      const sixty = widthed(60);
+      invariant(neckJoint.generateNeckJointOutline(sixty).points.length > 8, 'a buildable 60mm width produced no outline');
+      const smuggled = presets.loadProject({
+        ...v7,
+        neckJointGeometry: { ...custom, parameters: { ...custom.parameters, deepEndWidthMm: 6, mouthWidthMm: 3.77 } },
+      });
+      invariant(!smuggled.ok && smuggled.reason === 'malformed-neck-joint', 'a file with an unbuildable joint outline was loaded');
+    });
+
     check('stores a glued neck angle without treating an arched top as geometry', () => {
       const glued = {
         ...v7,
