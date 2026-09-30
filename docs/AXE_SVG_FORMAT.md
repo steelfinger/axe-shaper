@@ -182,15 +182,19 @@ The generated joint uses the stored two stations and straight sides;
 an input because it is the legacy fingerboard-overhang datum, not a physical
 heel-length measurement.
 
-`mouthAnchorIds` is the ordered pair `[left, right]` of body-contour anchors.
-They must respectively have the `neck_pocket_left` and `neck_pocket_right`
-roles, be locked at `(-mouthWidthMm / 2, 0)` and
-`(+mouthWidthMm / 2, 0)`, and include their handles in that lock. A reader
-must never infer equivalent anchors from visual proximity.
+`mouthAnchorIds` is present **only for a locked profile**. It is the ordered
+pair `[left, right]` of body-contour anchors and must respectively have the
+`neck_pocket_left` and `neck_pocket_right` roles, be locked at
+`(-mouthWidthMm / 2, 0)` and `(+mouthWidthMm / 2, 0)`, and include their
+handles in that lock. A reader must never infer equivalent anchors from visual
+proximity. A custom joint omits this field entirely: it is a numeric rout at
+the `Y = 0` datum, independent of the final body perimeter and its nodes.
 
-A locked geometry carries `profileId` and a matching immutable
+A locked geometry carries `profileId`, a matching immutable
 `profileSnapshot`; a custom geometry carries `derivedFromProfileId` and its
-own numeric parameters, without a locked snapshot. Optional custom fitting
+own numeric parameters, without a locked snapshot or mouth attachment. The
+body may be shaped before or after the rout, so a custom rout extending beyond
+the final outline is not malformed. Optional custom fitting
 data is `targetHeelWidthMm`, per-side `fittingClearanceMm`, and `cutterDiameterMm`.
 `neckAngleDegrees` is permitted only for glued joints. It is measured against
 the body **construction plane**: `0` is parallel, positive raises the

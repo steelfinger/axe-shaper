@@ -41,6 +41,8 @@ export type ViewerLinkProject = Pick<
   | 'bodyThicknessMm'
   | 'bodyTop'
   | 'neckJointMechanism'
+  | 'neckJointGeometry'
+  | 'neckPlacement'
   | 'neckPreset'
   | 'bridgePreset'
   | 'pickups'
@@ -67,6 +69,8 @@ export function projectForViewerLink(project: GuitarProject): ViewerLinkProject 
     bodyThicknessMm: project.bodyThicknessMm,
     bodyTop: project.bodyTop,
     neckJointMechanism: project.neckJointMechanism,
+    neckJointGeometry: project.neckJointGeometry,
+    neckPlacement: project.neckPlacement,
     neckPreset: project.neckPreset,
     bridgePreset: project.bridgePreset,
     pickups: project.pickups,

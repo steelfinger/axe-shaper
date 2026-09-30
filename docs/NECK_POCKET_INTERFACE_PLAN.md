@@ -163,20 +163,19 @@ Joint geometry has its own symmetry contract. It is independent of the body's
 
 For every supported joint shape:
 
-- The two mouth anchors are the body anchors with semantic roles
-  `neck_pocket_left` and `neck_pocket_right`, recorded by ID in the geometry.
-- Both anchors remain on the joint line, `Y = 0`. Their positions **and both
-  Bézier handles** are locked against ordinary body editing in locked and
-  custom modes.
-- A numeric width edit moves them to `-width / 2` and `+width / 2` in one undo
-  transaction. Their Bézier handles are stored as offsets, so those offset
-  values remain unchanged and their absolute control points translate with the
-  anchors by the same X delta.
+- A **locked template profile** records the two body anchors with semantic
+  roles `neck_pocket_left` and `neck_pocket_right`. Both remain on `Y = 0`,
+  and their positions and both Bézier handles are locked.
+- A **custom numeric joint** has no mouth-anchor IDs and never moves, locks,
+  or validates against body-contour nodes. Converting a locked profile to
+  Custom releases those two template anchors for ordinary body editing.
 - The mouth is an attachment boundary, not an editable curve; the two side
   walls are always generated as straight lines. No joint nodes or handles are
   exposed on canvas.
-- The generated outline must be finite, closed, non-self-intersecting, and
-  remain inside the body except for its two mouth points.
+- The generated outline must be finite, closed and non-self-intersecting.
+  It may cross or extend beyond the final body perimeter: builders commonly
+  rout a blank before the outside contour is cut. Any overlap guidance is
+  advisory, never an export block.
 
 Bolt-on pockets expose only the meaningful plan-view values: deep-end width,
 plan length, profile-authored taper, matching end-corner radii, and heel-end
@@ -201,11 +200,10 @@ tongue and extension-length schema rather than a misleading reuse of mortise
 parameters. Glued joints may also record a neck angle, but a top-view export
 must state that it is not a complete angled mortise template.
 
-If a template does not have a valid, unambiguous pair of mouth anchors,
-width editing is unavailable. The app must never infer shoulder anchors from
-visual proximity. This attachment behavior is the highest-risk geometry piece
-and is prototyped before the contract is finalized; it must cover bodies whose
-contour treatment at `Y = 0` differs from Fender-style horns.
+If a locked template does not have a valid, unambiguous pair of mouth anchors,
+it cannot claim a locked body attachment. The app must never infer shoulder
+anchors from visual proximity. Custom numeric width editing remains available
+without those anchors.
 
 There is no app-wide numeric width range. If target heel width is known, the
 minimum valid deep-end pocket width is that value plus **twice** the requested
@@ -224,8 +222,9 @@ corner is routable. A later CAM-specific workflow may choose to make the
 warning blocking.
 
 Asymmetric joints, curved/tapered bolt-on sides beyond the named parameters,
-free movement of mouth nodes in Y, and a body without mapped attachment anchors
-are explicit non-goals for this release.
+and free-form joint nodes are explicit non-goals for this release. A triangular
+neck support is body material, not a neck rout, and is made with the ordinary
+body-contour tools.
 
 ## Neck placement and scale
 
@@ -278,15 +277,14 @@ The Hardware panel receives a **Neck Joint Geometry** card.
    generated geometry is visible but has no ordinary node editing affordances.
 3. **Convert to Custom Joint** makes one explicit undoable copy and asks for
    target heel width, desired fitting clearance and cutter/tool diameter where
-   known.
+   known. It releases the profile's two body anchors; the numeric rout remains
+   at the same `Y = 0` datum but is otherwise contour-independent.
 4. Custom controls are numeric: width, plan length, end-corner radius and
    heel/tenon-end roundness; tapered mortises additionally show deep-end width.
    Glued shapes show neck angle as clearly limited supplementary data.
 
 For a legacy project, **Convert to Custom Joint** uses the frozen legacy
-adapter as its seed. If its body lacks valid mouth-anchor roles, the resulting
-geometry remains visible/exportable but width editing stays unavailable; the
-app does not invent attachment anchors.
+adapter as its seed. It never needs to infer or create attachment anchors.
 
 On the canvas, locked joint geometry retains the existing gold/locked visual
 language. It has dimension overlays but no geometry drag affordances; values
@@ -448,12 +446,11 @@ Add the following to the web schema/corpus/DXF gates and their iOS equivalents:
 - v7 authority when embedded legacy `neckPreset` joint dimensions disagree
   with generated joint geometry or its `nutToBodyEdgeMm` disagrees with resolved
   `neckPlacement`;
-- fixed mouth `Y = 0`, symmetric numeric width changes and translated paired
-  handles;
+- fixed locked-profile mouth `Y = 0` and symmetric numeric custom widths;
 - locked mouth anchors resisting ordinary body edits while a locked profile is
   active;
-- numeric width edits moving mouth anchors symmetrically while their handles
-  remain non-editable; generated straight side walls and named end treatments;
+- numeric width edits leaving the body contour unchanged; generated straight
+  side walls and named end treatments;
 - straight and tapered mortise generation, including the fact that a stored
   neck angle does not alter the 2D plan shape;
 - the neck-angle unit/sign convention and full-precision placement derivation
@@ -461,9 +458,10 @@ Add the following to the web schema/corpus/DXF gates and their iOS equivalents:
 - neck-preset changes retaining active v7 joint geometry, and explicit
   construction changes preserving the old state through undo rather than
   overwriting it;
-- missing/invalid attachment-anchor IDs;
+- missing/invalid attachment-anchor IDs on a locked profile;
 - malformed numeric values or an impossible generated outline;
-- a joint that leaves the body or contacts its perimeter away from the mouth;
+- a custom joint extending beyond or contacting the final body perimeter,
+  which remains exportable;
 - concave corners smaller than half the supplied cutter diameter;
 - fixed reference fret by instrument type, placement-to-nut derivation, and a
   custom placement shift moving only neck and scale-derived bridge/saddle
