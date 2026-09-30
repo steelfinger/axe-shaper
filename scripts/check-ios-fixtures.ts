@@ -243,6 +243,25 @@ async function main() {
         invariant(finite(plateTop), `bridge plate top Y is ${plateTop}`);
       });
 
+      check('legacy joint conversion honors the iOS pocket mirrors', () => {
+        const migrated = presets.migrateProject(project);
+        // Synthetic fixtures deliberately omit production hardware, and bass
+        // remains legacy-only in v7. The production Guitar/6 fixtures are the
+        // cross-writer case this assertion is intended to pin.
+        if (!project.neckPreset || migrated.instrumentType !== 'guitar') return;
+        const converted = presets.convertLegacyNeckJointToCustom(migrated);
+        const source = migrated.neckPreset;
+        if (source.pocketWidthMm === undefined || source.pocketDepthMm === undefined) return;
+        invariant(
+          converted.neckJointGeometry?.parameters.mouthWidthMm === source.pocketWidthMm,
+          `converted mouth width ${String(converted.neckJointGeometry?.parameters.mouthWidthMm)} did not retain iOS pocketWidthMm ${String(source.pocketWidthMm)}`,
+        );
+        invariant(
+          converted.neckJointGeometry?.parameters.planLengthMm === source.pocketDepthMm,
+          `converted plan length ${String(converted.neckJointGeometry?.parameters.planLengthMm)} did not retain iOS pocketDepthMm ${String(source.pocketDepthMm)}`,
+        );
+      });
+
       check('every pickup rout resolves from the placement itself', () => {
         for (const p of project.pickups ?? []) {
           const spec = presets.resolvePickupSpec(p);

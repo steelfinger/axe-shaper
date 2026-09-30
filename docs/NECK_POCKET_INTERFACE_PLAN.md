@@ -397,9 +397,11 @@ discovery.
 
 ### Phase 2b — 3D viewer parity
 
-- Update the pinned `axe-shape-3D-viewer` consumer to decode and render the
-  v7 parametric joint geometry and neck-placement datum rather than legacy
-  `neckPreset` joint/placement fields.
+- Update the pinned `axe-shape-3D-viewer` consumer to decode and validate the
+  v7 parametric joint geometry and use its neck-placement datum rather than
+  legacy `neckPreset` joint/placement fields. The finished-body preview does
+  not cut a joint cavity into its mesh; a raw rout may extend beyond the final
+  perimeter and belongs in a future routing-operation overlay.
 - Add viewer fixtures for v7, legacy and malformed v7 projects.
 - Keep the viewer in the same release gate: `check:all` must pass across web,
   iOS and viewer before any v7 blueprint is published.

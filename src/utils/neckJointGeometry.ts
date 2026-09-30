@@ -272,9 +272,12 @@ export function updateCustomNeckJoint(
     throw new NeckJointContractError('Convert a locked neck joint to Custom before changing its dimensions.');
   }
   validateNeckJointGeometry(geometry);
+  // A custom rout is never contour-attached. Delete rather than assigning
+  // `undefined`, so the in-memory object follows the serialized contract too.
+  const detachedGeometry = { ...geometry };
+  delete detachedGeometry.mouthAnchorIds;
   const updatedGeometry: NeckJointGeometry = {
-    ...geometry,
-    mouthAnchorIds: undefined,
+    ...detachedGeometry,
     parameters: { ...geometry.parameters, ...update.parameters },
     ...(Object.prototype.hasOwnProperty.call(update, 'cutterDiameterMm')
       ? { cutterDiameterMm: update.cutterDiameterMm ?? undefined }

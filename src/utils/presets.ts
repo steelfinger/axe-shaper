@@ -762,12 +762,14 @@ export function convertLegacyNeckJointToCustom(project: GuitarProject): GuitarPr
   const frozenPocket = templatePocket?.mechanism === mechanism
     ? templatePocket
     : GENERIC_POCKET_SPEC[project.instrumentType][mechanism];
-  const mouthWidthMm = neck.jointWidthMm ?? neck.pocketWidthMm ?? frozenPocket.jointWidthMm;
+  // `pocket*` is the iOS wire spelling. Prefer it where both compatibility
+  // mirrors are present so legacy-to-custom conversion is cross-client stable.
+  const mouthWidthMm = neck.pocketWidthMm ?? neck.jointWidthMm ?? frozenPocket.jointWidthMm;
 
   const referenceFret = fingerboardReferenceFret(project.instrumentType);
   const jointToReferenceFretMm = FINGERBOARD_OVERHANG_MM[project.activeTemplateId]
     ?? getFretDistanceFromNutMm(referenceFret, neck.scaleLengthMm) - neck.nutToBodyEdgeMm;
-  const planLengthMm = neck.jointDepthMm ?? neck.pocketDepthMm ?? frozenPocket.jointDepthMm;
+  const planLengthMm = neck.pocketDepthMm ?? neck.jointDepthMm ?? frozenPocket.jointDepthMm;
   const geometry: NeckJointGeometry = {
     mode: 'custom',
     derivedFromProfileId: `legacy-frozen-adapter:${project.activeTemplateId}`,
@@ -778,7 +780,7 @@ export function convertLegacyNeckJointToCustom(project: GuitarProject): GuitarPr
       : {
           mouthWidthMm,
           planLengthMm,
-          endCornerRadiusMm: neck.jointCornerRadiusMm ?? neck.pocketCornerRadiusMm ?? frozenPocket.jointCornerRadiusMm,
+          endCornerRadiusMm: neck.pocketCornerRadiusMm ?? neck.jointCornerRadiusMm ?? frozenPocket.jointCornerRadiusMm,
           endTreatment: 'square',
           endRoundnessMm: 0,
         },
