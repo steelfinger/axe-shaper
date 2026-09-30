@@ -38,7 +38,6 @@ import {
   NeckJointContractError,
   nutToBodyEdgeFromPlacement,
   updateCustomNeckJoint,
-  validateNeckJointAttachment,
   validateNeckJointContract,
 } from './neckJointGeometry';
 
@@ -473,13 +472,10 @@ export function documentedBlueprintNeckPlacement(project: Pick<GuitarProject,
  * uses a straight deep edge. It is unverified, never source provenance.
  */
 export function blueprintNeckJointProfile(project: Pick<GuitarProject,
-  'activeTemplateId' | 'instrumentType' | 'contour'
+  'activeTemplateId' | 'instrumentType'
 >): NeckJointGeometry | undefined {
   if ((project.activeTemplateId !== 's_style' && project.activeTemplateId !== 't_style')
     || project.instrumentType !== 'guitar') return undefined;
-  const left = project.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_left');
-  const right = project.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_right');
-  if (!left || !right) return undefined;
   const isSStyle = project.activeTemplateId === 's_style';
   // Keep the locked source-derived profile in its stated dimensions. The
   // editable construction default below derives the deep station from the
@@ -509,14 +505,13 @@ export function blueprintNeckJointProfile(project: Pick<GuitarProject,
     mechanism: 'bolt_on',
     planShape: 'bolt_on_pocket',
     parameters,
-    mouthAnchorIds: [left.id, right.id],
     profileSnapshot: snapshot,
   };
 }
 
 /** The authored reset target for every bundled guitar template. */
 export function blueprintNeckJointBaseline(project: Pick<GuitarProject,
-  'activeTemplateId' | 'instrumentType' | 'contour'
+  'activeTemplateId' | 'instrumentType'
 >): NeckJointGeometry | undefined {
   const profile = blueprintNeckJointProfile(project);
   if (profile) return profile;
@@ -535,7 +530,7 @@ export function blueprintNeckJointBaseline(project: Pick<GuitarProject,
 
 /**
  * Give a bundled guitar its first explicit v7 joint contract. The S/T
- * templates carry the two locked bolt-on product profiles; every other
+ * templates carry their read-only bolt-on product profiles; every other
  * guitar retains its legacy dimensions as a conservative custom joint. In
  * both cases placement comes from the body template's existing datum, never
  * from a presumed common neck length.
@@ -551,27 +546,8 @@ export function withBundledGuitarNeckJointContract(project: GuitarProject): Guit
   const profile = blueprintNeckJointProfile(project);
   const placement = documentedBlueprintNeckPlacement(project);
   if (profile && placement) {
-    const mouthAnchorIds = profile.mouthAnchorIds;
-    if (!mouthAnchorIds) return project;
-    // The bundled v6 contours still carry their former generic 55.56mm
-    // opening. A locked profile owns the mouth width, so initialise its two
-    // named anchors together exactly as the Reset to Blueprint action does.
-    const halfWidth = profile.parameters.mouthWidthMm / 2;
-    const contour = {
-      ...project.contour,
-      anchors: project.contour.anchors.map((anchor) => {
-        if (anchor.id === mouthAnchorIds[0]) {
-          return { ...anchor, locked: true, position: { ...anchor.position, x: -halfWidth, y: 0 } };
-        }
-        if (anchor.id === mouthAnchorIds[1]) {
-          return { ...anchor, locked: true, position: { ...anchor.position, x: halfWidth, y: 0 } };
-        }
-        return anchor;
-      }),
-    };
     return withEmbeddedPresets({
       ...project,
-      contour,
       neckJointMechanism: profile.mechanism,
       neckJointGeometry: profile,
       neckPlacement: placement,
@@ -610,22 +586,11 @@ export function customizeBlueprintNeckJoint(project: GuitarProject): GuitarProje
   if (joint.mode === 'locked') {
     const customJoint = { ...joint };
     const profileId = customJoint.profileId;
-    const mouthAnchorIds = customJoint.mouthAnchorIds;
     delete customJoint.profileId;
     delete customJoint.profileSnapshot;
     delete customJoint.mouthAnchorIds;
     return withEmbeddedPresets({
       ...project,
-      contour: mouthAnchorIds
-        ? {
-            ...project.contour,
-            anchors: project.contour.anchors.map((anchor) => (
-              anchor.id === mouthAnchorIds[0] || anchor.id === mouthAnchorIds[1]
-                ? { ...anchor, locked: false }
-                : anchor
-            )),
-          }
-        : project.contour,
       neckJointGeometry: {
         ...customJoint,
         mode: 'custom',
@@ -643,14 +608,17 @@ export function customizeBlueprintNeckJoint(project: GuitarProject): GuitarProje
 }
 
 /**
- * v7 was revised before release: custom routs no longer own contour anchors.
- * Normalise pre-revision local drafts on load/save, leaving their body shape
- * editable and preserving the numeric rout exactly.
+ * v7 was revised before release: no joint rout owns contour anchors.
+ * Normalise pre-revision local drafts on load/save, releasing the old named
+ * anchors while preserving the numeric rout exactly.
  */
-function decoupleCustomJoint(project: StoredProject): StoredProject {
+function decoupleNeckJointAttachment(project: StoredProject): StoredProject {
   const joint = project.neckJointGeometry;
-  if (!joint || joint.mode !== 'custom' || !joint.mouthAnchorIds) return project;
-  const [leftId, rightId] = joint.mouthAnchorIds;
+  const attachedAnchorIDs = new Set(joint?.mouthAnchorIds ?? []);
+  const hasLockedPocketAnchor = Boolean(joint) && project.contour.anchors.some((anchor) => (
+    anchor.locked && (anchor.semanticRole === 'neck_pocket_left' || anchor.semanticRole === 'neck_pocket_right')
+  ));
+  if (!joint || (attachedAnchorIDs.size === 0 && !hasLockedPocketAnchor)) return project;
   const geometry = { ...joint };
   delete geometry.mouthAnchorIds;
   return {
@@ -658,7 +626,11 @@ function decoupleCustomJoint(project: StoredProject): StoredProject {
     contour: {
       ...project.contour,
       anchors: project.contour.anchors.map((anchor) => (
-        anchor.id === leftId || anchor.id === rightId ? { ...anchor, locked: false } : anchor
+        attachedAnchorIDs.has(anchor.id)
+          || anchor.semanticRole === 'neck_pocket_left'
+          || anchor.semanticRole === 'neck_pocket_right'
+          ? { ...anchor, locked: false }
+          : anchor
       )),
     },
     neckJointGeometry: geometry,
@@ -671,16 +643,13 @@ function decoupleCustomJoint(project: StoredProject): StoredProject {
  * this is what turns a decoded `StoredProject` into a `GuitarProject`.
  */
 export function withEmbeddedPresets(project: StoredProject): GuitarProject {
-  project = decoupleCustomJoint(project);
+  project = decoupleNeckJointAttachment(project);
   const instrumentDefaults = resolveInstrument(project);
   const instrumentType = project.instrumentType ?? instrumentDefaults.instrumentType;
   // A v7 joint is atomic. Validate it before resolving the output mirrors so
   // a malformed modern payload never silently falls back to legacy geometry.
   if (project.neckJointGeometry || project.neckPlacement || project.schemaVersion === 7) {
     validateNeckJointContract(project.neckJointGeometry, project.neckPlacement, instrumentType);
-    if (project.neckJointGeometry?.mode === 'locked') {
-      validateNeckJointAttachment(project.neckJointGeometry, project.contour);
-    }
   }
   const resolvedNeck = resolveNeckPreset(project);
   const v7Joint = project.neckJointGeometry;

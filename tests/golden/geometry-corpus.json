@@ -3676,7 +3676,6 @@
             "position": [-19.05, 0],
             "handleOut": [-59.704, 0.1498],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_left"
           },
           {
@@ -3770,7 +3769,6 @@
             "position": [19.05, 0],
             "handleIn": [2.5888, 0],
             "handleMode": "smooth",
-            "locked": true,
             "semanticRole": "neck_pocket_right"
           }
         ]
@@ -5686,7 +5684,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [-29.852, 0.0749],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -5788,7 +5785,6 @@
                 "position": [19.05, 0],
                 "handleIn": [2.5888, 0],
                 "handleMode": "smooth",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -5800,7 +5796,6 @@
                 "id": "sc_pocket_left",
                 "position": [-19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -5893,7 +5888,6 @@
                 "position": [19.05, 0],
                 "handleIn": [2.5888, 0],
                 "handleMode": "smooth",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -5906,7 +5900,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [-33.598867, 22.403733],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -6000,7 +5993,6 @@
                 "position": [19.05, 0],
                 "handleIn": [2.5888, 0],
                 "handleMode": "smooth",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -6013,7 +6005,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [-33.27996, 22.191086],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -6107,7 +6098,6 @@
                 "position": [19.05, 0],
                 "handleIn": [2.5888, 0],
                 "handleMode": "smooth",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -6121,7 +6111,6 @@
                 "handleIn": [12.7, 0],
                 "handleOut": [-59.704, 0.1498],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -6215,7 +6204,6 @@
                 "position": [19.05, 0],
                 "handleIn": [2.5888, 0],
                 "handleMode": "smooth",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -6229,7 +6217,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [-29.852, 0.0749],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -6341,26 +6328,25 @@
                 "position": [19.05, 0],
                 "handleIn": [2.5888, 0],
                 "handleMode": "smooth",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
           },
           "applyLiveSymmetry": {
-            "movedAnchorId": "sc_upper_shoulder",
+            "movedAnchorId": "sc_pocket_left",
             "dragMm": [7.5, -3.25],
             "anchors": [
               {
                 "id": "sc_pocket_left",
-                "position": [-19.05, 0],
+                "position": [-11.55, -3.25],
                 "handleOut": [-59.704, 0.1498],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_left"
+                "semanticRole": "neck_pocket_left",
+                "mirrorId": "sc_pocket_right"
               },
               {
                 "id": "sc_upper_shoulder",
-                "position": [-112.3466, 63.9612],
+                "position": [-119.8466, 67.2112],
                 "handleIn": [0.948, -38.8223],
                 "handleOut": [-0.9669, 39.5971],
                 "handleMode": "smooth"
@@ -6446,11 +6432,11 @@
               },
               {
                 "id": "sc_pocket_right",
-                "position": [19.05, 0],
-                "handleIn": [2.5888, 0],
-                "handleMode": "smooth",
-                "locked": true,
-                "semanticRole": "neck_pocket_right"
+                "position": [11.55, -3.25],
+                "handleIn": [59.704, 0.1498],
+                "handleMode": "corner",
+                "semanticRole": "neck_pocket_right",
+                "mirrorId": "sc_pocket_left"
               }
             ]
           }
@@ -6475,7 +6461,6 @@
             "position": [-19.05, 0],
             "handleIn": [20.2742, 0.0424],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_left"
           },
           {
@@ -6607,7 +6592,6 @@
             "position": [19.05, 0],
             "handleOut": [-20.2697, -0.431],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_right"
           }
         ]
@@ -9370,7 +9354,6 @@
                 "handleIn": [20.2742, 0.0424],
                 "handleOut": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -9511,7 +9494,6 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -9524,7 +9506,6 @@
                 "position": [-19.05, 0],
                 "handleIn": [20.2742, 0.0424],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -9656,7 +9637,6 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -9670,7 +9650,6 @@
                 "handleIn": [20.2742, 0.0424],
                 "handleOut": [-3.318281, 3.321447],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -9803,7 +9782,6 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -9817,7 +9795,6 @@
                 "handleIn": [20.2742, 0.0424],
                 "handleOut": [-5.654156, 5.659551],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -9949,7 +9926,6 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -9962,7 +9938,6 @@
                 "position": [-19.05, 0],
                 "handleIn": [12.7, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -10094,7 +10069,6 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -10109,7 +10083,6 @@
                 "handleIn": [20.2742, 0.0424],
                 "handleOut": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -10260,26 +10233,25 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
           },
           "applyLiveSymmetry": {
-            "movedAnchorId": "anchor_1786050848555_ekh25",
+            "movedAnchorId": "sg_pocket_left",
             "dragMm": [7.5, -3.25],
             "anchors": [
               {
                 "id": "sg_pocket_left",
-                "position": [-19.05, 0],
+                "position": [-11.55, -3.25],
                 "handleIn": [20.2742, 0.0424],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_left"
+                "semanticRole": "neck_pocket_left",
+                "mirrorId": "sg_pocket_right"
               },
               {
                 "id": "anchor_1786050848555_ekh25",
-                "position": [-21.504842, 6.714341],
+                "position": [-29.004842, 9.964341],
                 "handleMode": "corner",
                 "semanticRole": "custom"
               },
@@ -10403,11 +10375,11 @@
               },
               {
                 "id": "sg_pocket_right",
-                "position": [19.05, 0],
-                "handleOut": [-20.2697, -0.431],
+                "position": [11.55, -3.25],
+                "handleOut": [-20.2742, 0.0424],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_right"
+                "semanticRole": "neck_pocket_right",
+                "mirrorId": "sg_pocket_left"
               }
             ]
           }
@@ -10433,7 +10405,6 @@
             "handleIn": [25.4661, -0.2415],
             "handleOut": [0.2857, 10.2857],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_left"
           },
           {
@@ -10556,7 +10527,6 @@
             "position": [26.82277, 0],
             "handleOut": [-21.1533, 0.2551],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_right"
           }
         ]
@@ -13049,7 +13019,6 @@
                 "handleIn": [25.4661, -0.2415],
                 "handleOut": [0.14285, 5.14285],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -13180,7 +13149,6 @@
                 "position": [26.82277, 0],
                 "handleOut": [-21.1533, 0.2551],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -13193,7 +13161,6 @@
                 "position": [-26.82277, 0],
                 "handleIn": [25.4661, -0.2415],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -13315,7 +13282,6 @@
                 "position": [26.82277, 0],
                 "handleOut": [-21.1533, 0.2551],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -13329,7 +13295,6 @@
                 "handleIn": [25.4661, -0.2415],
                 "handleOut": [-8.370377, 6.5962],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -13452,7 +13417,6 @@
                 "position": [26.82277, 0],
                 "handleOut": [-21.1533, 0.2551],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -13466,7 +13430,6 @@
                 "handleIn": [25.4661, -0.2415],
                 "handleOut": [-8.370377, 6.5962],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -13589,7 +13552,6 @@
                 "position": [26.82277, 0],
                 "handleOut": [-21.1533, 0.2551],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -13603,7 +13565,6 @@
                 "handleIn": [17.881846, 0],
                 "handleOut": [0.2857, 10.2857],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -13726,7 +13687,6 @@
                 "position": [26.82277, 0],
                 "handleOut": [-21.1533, 0.2551],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -13741,7 +13701,6 @@
                 "handleIn": [25.4661, -0.2415],
                 "handleOut": [0.14285, 5.14285],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -13882,27 +13841,26 @@
                 "position": [26.82277, 0],
                 "handleOut": [-21.1533, 0.2551],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
           },
           "applyLiveSymmetry": {
-            "movedAnchorId": "s_horn_scoop_left",
+            "movedAnchorId": "s_pocket_left",
             "dragMm": [7.5, -3.25],
             "anchors": [
               {
                 "id": "s_pocket_left",
-                "position": [-26.82277, 0],
+                "position": [-19.32277, -3.25],
                 "handleIn": [25.4661, -0.2415],
                 "handleOut": [0.2857, 10.2857],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_left"
+                "semanticRole": "neck_pocket_left",
+                "mirrorId": "s_pocket_right"
               },
               {
                 "id": "s_horn_scoop_left",
-                "position": [-44.4339, 16.5386],
+                "position": [-51.9339, 19.7886],
                 "handleIn": [18.2792, 0.8649],
                 "handleOut": [-14.8712, -0.7037],
                 "handleMode": "smooth"
@@ -14017,11 +13975,12 @@
               },
               {
                 "id": "s_pocket_right",
-                "position": [26.82277, 0],
-                "handleOut": [-21.1533, 0.2551],
+                "position": [19.32277, -3.25],
+                "handleIn": [-0.2857, 10.2857],
+                "handleOut": [-25.4661, -0.2415],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_right"
+                "semanticRole": "neck_pocket_right",
+                "mirrorId": "s_pocket_left"
               }
             ]
           }
@@ -14047,7 +14006,6 @@
             "handleIn": [3.7715, -0.1988],
             "handleOut": [-3.7715, 0.1988],
             "handleMode": "symmetric",
-            "locked": true,
             "semanticRole": "neck_pocket_left"
           },
           {
@@ -14164,7 +14122,6 @@
             "handleIn": [0.4424, 4.6073],
             "handleOut": [-14.7067, 0],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_right"
           }
         ]
@@ -16504,7 +16461,6 @@
                 "handleIn": [3.7715, -0.1988],
                 "handleOut": [-1.88575, 0.0994],
                 "handleMode": "symmetric",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -16629,7 +16585,6 @@
                 "handleIn": [0.4424, 4.6073],
                 "handleOut": [-14.7067, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -16642,7 +16597,6 @@
                 "position": [-26.82277, 0],
                 "handleIn": [3.7715, -0.1988],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -16758,7 +16712,6 @@
                 "handleIn": [0.4424, 4.6073],
                 "handleOut": [-14.7067, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -16772,7 +16725,6 @@
                 "handleIn": [3.7715, -0.1988],
                 "handleOut": [-3.598943, 5.592433],
                 "handleMode": "symmetric",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -16889,7 +16841,6 @@
                 "handleIn": [0.4424, 4.6073],
                 "handleOut": [-14.7067, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -16903,7 +16854,6 @@
                 "handleIn": [4.329301, -6.727343],
                 "handleOut": [-4.329301, 6.727343],
                 "handleMode": "symmetric",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -17020,7 +16970,6 @@
                 "handleIn": [0.4424, 4.6073],
                 "handleOut": [-14.7067, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -17034,7 +16983,6 @@
                 "handleIn": [17.881846, 0],
                 "handleOut": [-17.881846, 0],
                 "handleMode": "symmetric",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -17151,7 +17099,6 @@
                 "handleIn": [0.4424, 4.6073],
                 "handleOut": [-14.7067, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -17166,7 +17113,6 @@
                 "handleIn": [3.7715, -0.1988],
                 "handleOut": [-1.88575, 0.0994],
                 "handleMode": "symmetric",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -17301,27 +17247,26 @@
                 "handleIn": [0.4424, 4.6073],
                 "handleOut": [-14.7067, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
           },
           "applyLiveSymmetry": {
-            "movedAnchorId": "anchor_1785067009169_pw65q",
+            "movedAnchorId": "t_pocket_left",
             "dragMm": [7.5, -3.25],
             "anchors": [
               {
                 "id": "t_pocket_left",
-                "position": [-26.82277, 0],
+                "position": [-19.32277, -3.25],
                 "handleIn": [3.7715, -0.1988],
                 "handleOut": [-3.7715, 0.1988],
                 "handleMode": "symmetric",
-                "locked": true,
-                "semanticRole": "neck_pocket_left"
+                "semanticRole": "neck_pocket_left",
+                "mirrorId": "t_pocket_right"
               },
               {
                 "id": "anchor_1785067009169_pw65q",
-                "position": [-30.1196, 13.5273],
+                "position": [-37.6196, 16.7773],
                 "handleIn": [13.1847, -0.0605],
                 "handleOut": [-8.8679, 0.0407],
                 "handleMode": "smooth",
@@ -17429,12 +17374,12 @@
               },
               {
                 "id": "t_pocket_right",
-                "position": [26.82277, 0],
-                "handleIn": [0.4424, 4.6073],
-                "handleOut": [-14.7067, 0],
-                "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_right"
+                "position": [19.32277, -3.25],
+                "handleIn": [3.7715, 0.1988],
+                "handleOut": [-3.7715, -0.1988],
+                "handleMode": "symmetric",
+                "semanticRole": "neck_pocket_right",
+                "mirrorId": "t_pocket_left"
               }
             ]
           }
@@ -17458,7 +17403,6 @@
             "id": "sc_pocket_left",
             "position": [-19.05, 0],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_left"
           },
           {
@@ -17606,7 +17550,6 @@
             "id": "sc_pocket_right",
             "position": [19.05, 0],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_right"
           }
         ]
@@ -20509,7 +20452,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -20666,7 +20608,6 @@
                 "id": "sc_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -20678,7 +20619,6 @@
                 "id": "sc_pocket_left",
                 "position": [-19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -20826,7 +20766,6 @@
                 "id": "sc_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -20839,7 +20778,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [-2.992552, 11.66128],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -20988,7 +20926,6 @@
                 "id": "sc_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -21001,7 +20938,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [-2.992552, 11.66128],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -21149,7 +21085,6 @@
                 "id": "sc_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -21162,7 +21097,6 @@
                 "position": [-19.05, 0],
                 "handleIn": [12.7, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -21310,7 +21244,6 @@
                 "id": "sc_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -21324,7 +21257,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -21491,25 +21423,24 @@
                 "id": "sc_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
           },
           "applyLiveSymmetry": {
-            "movedAnchorId": "anchor_1785150198769_73vv7",
+            "movedAnchorId": "sc_pocket_left",
             "dragMm": [7.5, -3.25],
             "anchors": [
               {
                 "id": "sc_pocket_left",
-                "position": [-19.05, 0],
+                "position": [-11.55, -3.25],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_left"
+                "semanticRole": "neck_pocket_left",
+                "mirrorId": "sc_pocket_right"
               },
               {
                 "id": "anchor_1785150198769_73vv7",
-                "position": [-20.527657, 31.733841],
+                "position": [-28.027657, 34.983841],
                 "handleOut": [-1.914934, 31.768761],
                 "handleMode": "corner",
                 "semanticRole": "custom"
@@ -21650,10 +21581,10 @@
               },
               {
                 "id": "sc_pocket_right",
-                "position": [19.05, 0],
+                "position": [11.55, -3.25],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_right"
+                "semanticRole": "neck_pocket_right",
+                "mirrorId": "sc_pocket_left"
               }
             ]
           }
@@ -21678,7 +21609,6 @@
             "position": [-19.05, 0],
             "handleIn": [20.2742, 0.0424],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_left"
           },
           {
@@ -21828,7 +21758,6 @@
             "position": [19.05, 0],
             "handleOut": [-20.2697, -0.431],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_right"
           }
         ]
@@ -25014,7 +24943,6 @@
                 "handleIn": [20.2742, 0.0424],
                 "handleOut": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -25173,7 +25101,6 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -25186,7 +25113,6 @@
                 "position": [-19.05, 0],
                 "handleIn": [20.2742, 0.0424],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -25336,7 +25262,6 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -25350,7 +25275,6 @@
                 "handleIn": [20.2742, 0.0424],
                 "handleOut": [-1.56618, 0.016078],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -25501,7 +25425,6 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -25515,7 +25438,6 @@
                 "handleIn": [20.2742, 0.0424],
                 "handleOut": [-7.999579, 0.08212],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -25665,7 +25587,6 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -25678,7 +25599,6 @@
                 "position": [-19.05, 0],
                 "handleIn": [12.7, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -25828,7 +25748,6 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -25843,7 +25762,6 @@
                 "handleIn": [20.2742, 0.0424],
                 "handleOut": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -26012,30 +25930,28 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
           },
           "applyLiveSymmetry": {
-            "movedAnchorId": "anchor_1785159099149_9137v",
+            "movedAnchorId": "sg_pocket_left",
             "dragMm": [7.5, -3.25],
             "anchors": [
               {
                 "id": "sg_pocket_left",
-                "position": [-19.05, 0],
+                "position": [-11.55, -3.25],
                 "handleIn": [20.2742, 0.0424],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_left"
+                "semanticRole": "neck_pocket_left",
+                "mirrorId": "sg_pocket_right"
               },
               {
                 "id": "anchor_1785159099149_9137v",
-                "position": [-16.24854, -3.201767],
+                "position": [-23.74854, 0.048233],
                 "handleOut": [0.659534, 20.415773],
                 "handleMode": "corner",
-                "semanticRole": "custom",
-                "mirrorId": "sg_pocket_right"
+                "semanticRole": "custom"
               },
               {
                 "id": "sg_horn_scoop_left",
@@ -26174,12 +26090,11 @@
               },
               {
                 "id": "sg_pocket_right",
-                "position": [19.05, 0],
-                "handleOut": [-20.2697, -0.431],
+                "position": [11.55, -3.25],
+                "handleOut": [-20.2742, 0.0424],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right",
-                "mirrorId": "anchor_1785159099149_9137v"
+                "mirrorId": "sg_pocket_left"
               }
             ]
           }
@@ -26204,7 +26119,6 @@
             "position": [-19.05, 0],
             "handleIn": [20.2742, 0.0424],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_left"
           },
           {
@@ -26279,7 +26193,6 @@
             "position": [19.05, 0],
             "handleOut": [-20.2697, -0.431],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_right"
           }
         ]
@@ -28055,7 +27968,6 @@
                 "handleIn": [20.2742, 0.0424],
                 "handleOut": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -28139,7 +28051,6 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -28152,7 +28063,6 @@
                 "position": [-19.05, 0],
                 "handleIn": [20.2742, 0.0424],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -28227,7 +28137,6 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -28241,7 +28150,6 @@
                 "handleIn": [20.2742, 0.0424],
                 "handleOut": [-3.236864, 17.63526],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -28317,7 +28225,6 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -28331,7 +28238,6 @@
                 "handleIn": [20.2742, 0.0424],
                 "handleOut": [-3.236864, 17.63526],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -28406,7 +28312,6 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -28419,7 +28324,6 @@
                 "position": [-19.05, 0],
                 "handleIn": [12.7, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -28494,7 +28398,6 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -28509,7 +28412,6 @@
                 "handleIn": [20.2742, 0.0424],
                 "handleOut": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -28603,26 +28505,25 @@
                 "position": [19.05, 0],
                 "handleOut": [-20.2697, -0.431],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
           },
           "applyLiveSymmetry": {
-            "movedAnchorId": "sg_horn_scoop_left",
+            "movedAnchorId": "sg_pocket_left",
             "dragMm": [7.5, -3.25],
             "anchors": [
               {
                 "id": "sg_pocket_left",
-                "position": [-19.05, 0],
+                "position": [-11.55, -3.25],
                 "handleIn": [20.2742, 0.0424],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_left"
+                "semanticRole": "neck_pocket_left",
+                "mirrorId": "sg_pocket_right"
               },
               {
                 "id": "sg_horn_scoop_left",
-                "position": [-21.260591, 49.65578],
+                "position": [-28.760591, 52.90578],
                 "handleOut": [-2.302039, 18.681335],
                 "handleMode": "corner"
               },
@@ -28689,11 +28590,11 @@
               },
               {
                 "id": "sg_pocket_right",
-                "position": [19.05, 0],
-                "handleOut": [-20.2697, -0.431],
+                "position": [11.55, -3.25],
+                "handleOut": [-20.2742, 0.0424],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_right"
+                "semanticRole": "neck_pocket_right",
+                "mirrorId": "sg_pocket_left"
               }
             ]
           }
@@ -28717,7 +28618,6 @@
             "id": "explorer_pocket_left",
             "position": [-19.05, 0],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_left"
           },
           {
@@ -28854,7 +28754,6 @@
             "id": "explorer_pocket_right",
             "position": [19.05, 0],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_right"
           }
         ]
@@ -32180,7 +32079,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -32326,7 +32224,6 @@
                 "id": "explorer_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -32338,7 +32235,6 @@
                 "id": "explorer_pocket_left",
                 "position": [-19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -32475,7 +32371,6 @@
                 "id": "explorer_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -32488,7 +32383,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [-3.075333, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -32626,7 +32520,6 @@
                 "id": "explorer_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -32639,7 +32532,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [-8, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -32776,7 +32668,6 @@
                 "id": "explorer_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -32789,7 +32680,6 @@
                 "position": [-19.05, 0],
                 "handleIn": [12.7, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -32926,7 +32816,6 @@
                 "id": "explorer_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -32940,7 +32829,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -33096,27 +32984,25 @@
                 "id": "explorer_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
           },
           "applyLiveSymmetry": {
-            "movedAnchorId": "explorer_top_left",
+            "movedAnchorId": "explorer_pocket_left",
             "dragMm": [7.5, -3.25],
             "anchors": [
               {
                 "id": "explorer_pocket_left",
-                "position": [-19.05, 0],
+                "position": [-11.55, -3.25],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_left"
+                "semanticRole": "neck_pocket_left",
+                "mirrorId": "explorer_pocket_right"
               },
               {
                 "id": "explorer_top_left",
-                "position": [-20.776, -3.25],
-                "handleMode": "corner",
-                "mirrorId": "explorer_pocket_right"
+                "position": [-28.276, 0],
+                "handleMode": "corner"
               },
               {
                 "id": "explorer_body_01",
@@ -33245,11 +33131,10 @@
               },
               {
                 "id": "explorer_pocket_right",
-                "position": [19.05, 0],
+                "position": [11.55, -3.25],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right",
-                "mirrorId": "explorer_top_left"
+                "mirrorId": "explorer_pocket_left"
               }
             ]
           }
@@ -33273,7 +33158,6 @@
             "id": "prs_pocket_left",
             "position": [-27.15, 0],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_left"
           },
           {
@@ -33404,7 +33288,6 @@
             "position": [27.15, 0],
             "handleIn": [0, 0],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_right"
           }
         ]
@@ -36166,7 +36049,6 @@
                 "position": [-27.15, 0],
                 "handleOut": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -36305,7 +36187,6 @@
                 "position": [27.15, 0],
                 "handleIn": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -36317,7 +36198,6 @@
                 "id": "prs_pocket_left",
                 "position": [-27.15, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -36447,7 +36327,6 @@
                 "position": [27.15, 0],
                 "handleIn": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -36460,7 +36339,6 @@
                 "position": [-27.15, 0],
                 "handleOut": [-0.21205, -1.314192],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -36591,7 +36469,6 @@
                 "position": [27.15, 0],
                 "handleIn": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -36604,7 +36481,6 @@
                 "position": [-27.15, 0],
                 "handleOut": [-1.27435, -7.89785],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -36735,7 +36611,6 @@
                 "position": [27.15, 0],
                 "handleIn": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -36748,7 +36623,6 @@
                 "position": [-27.15, 0],
                 "handleIn": [18.1, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -36879,7 +36753,6 @@
                 "position": [27.15, 0],
                 "handleIn": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -36893,7 +36766,6 @@
                 "position": [-27.15, 0],
                 "handleOut": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -37042,25 +36914,24 @@
                 "position": [27.15, 0],
                 "handleIn": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
           },
           "applyLiveSymmetry": {
-            "movedAnchorId": "prs_body_01",
+            "movedAnchorId": "prs_pocket_left",
             "dragMm": [7.5, -3.25],
             "anchors": [
               {
                 "id": "prs_pocket_left",
-                "position": [-27.15, 0],
+                "position": [-19.65, -3.25],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_left"
+                "semanticRole": "neck_pocket_left",
+                "mirrorId": "prs_pocket_right"
               },
               {
                 "id": "prs_body_01",
-                "position": [-20.286151, -7.192577],
+                "position": [-27.786151, -3.942577],
                 "handleIn": [0.334859, 2.924],
                 "handleOut": [-17.855912, -4.698925],
                 "handleMode": "corner"
@@ -37183,11 +37054,10 @@
               },
               {
                 "id": "prs_pocket_right",
-                "position": [27.15, 0],
-                "handleIn": [0, 0],
+                "position": [19.65, -3.25],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_right"
+                "semanticRole": "neck_pocket_right",
+                "mirrorId": "prs_pocket_left"
               }
             ]
           }
@@ -37211,7 +37081,6 @@
             "id": "es335_pocket_left",
             "position": [-19.05, 0],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_left"
           },
           {
@@ -37362,7 +37231,6 @@
             "id": "es335_pocket_right",
             "position": [19.05, 0],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_right"
           }
         ]
@@ -40265,7 +40133,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -40425,7 +40292,6 @@
                 "id": "es335_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -40437,7 +40303,6 @@
                 "id": "es335_pocket_left",
                 "position": [-19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -40588,7 +40453,6 @@
                 "id": "es335_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -40601,7 +40465,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [-3.1709, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -40753,7 +40616,6 @@
                 "id": "es335_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -40766,7 +40628,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [-8, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -40917,7 +40778,6 @@
                 "id": "es335_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -40930,7 +40790,6 @@
                 "position": [-19.05, 0],
                 "handleIn": [12.7, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -41081,7 +40940,6 @@
                 "id": "es335_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -41095,7 +40953,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -41265,25 +41122,24 @@
                 "id": "es335_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
           },
           "applyLiveSymmetry": {
-            "movedAnchorId": "es335_top_left",
+            "movedAnchorId": "es335_pocket_left",
             "dragMm": [7.5, -3.25],
             "anchors": [
               {
                 "id": "es335_pocket_left",
-                "position": [-19.05, 0],
+                "position": [-11.55, -3.25],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_left"
+                "semanticRole": "neck_pocket_left",
+                "mirrorId": "es335_pocket_right"
               },
               {
                 "id": "es335_top_left",
-                "position": [-21.062701, -3.25],
+                "position": [-28.562701, 0],
                 "handleOut": [-3.056675, 11.407665],
                 "handleMode": "corner",
                 "mirrorId": "es335_top_right"
@@ -41420,17 +41276,17 @@
               },
               {
                 "id": "es335_top_right",
-                "position": [21.062701, -3.25],
+                "position": [28.562701, 0],
                 "handleIn": [3.056675, 11.407665],
                 "handleMode": "corner",
                 "mirrorId": "es335_top_left"
               },
               {
                 "id": "es335_pocket_right",
-                "position": [19.05, 0],
+                "position": [11.55, -3.25],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_right"
+                "semanticRole": "neck_pocket_right",
+                "mirrorId": "es335_pocket_left"
               }
             ]
           }
@@ -41454,7 +41310,6 @@
             "id": "es225_pocket_left",
             "position": [-19.05, 0],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_left"
           },
           {
@@ -41589,7 +41444,6 @@
             "id": "es225_pocket_right",
             "position": [19.05, 0],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_right"
           }
         ]
@@ -44339,7 +44193,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -44482,7 +44335,6 @@
                 "id": "es225_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -44494,7 +44346,6 @@
                 "id": "es225_pocket_left",
                 "position": [-19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -44628,7 +44479,6 @@
                 "id": "es225_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -44641,7 +44491,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [-25.412163, 3.390121],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -44776,7 +44625,6 @@
                 "id": "es225_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -44789,7 +44637,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [-25.412163, 3.390121],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -44924,7 +44771,6 @@
                 "id": "es225_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -44937,7 +44783,6 @@
                 "position": [-19.05, 0],
                 "handleIn": [12.7, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -45072,7 +44917,6 @@
                 "id": "es225_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -45086,7 +44930,6 @@
                 "position": [-19.05, 0],
                 "handleOut": [0, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -45239,25 +45082,24 @@
                 "id": "es225_pocket_right",
                 "position": [19.05, 0],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
           },
           "applyLiveSymmetry": {
-            "movedAnchorId": "es225_body_04",
+            "movedAnchorId": "es225_pocket_left",
             "dragMm": [7.5, -3.25],
             "anchors": [
               {
                 "id": "es225_pocket_left",
-                "position": [-19.05, 0],
+                "position": [-11.55, -3.25],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_left"
+                "semanticRole": "neck_pocket_left",
+                "mirrorId": "es225_pocket_right"
               },
               {
                 "id": "es225_body_04",
-                "position": [-87.78649, 6.920362],
+                "position": [-95.28649, 10.170362],
                 "handleIn": [26.487084, -11.137499],
                 "handleOut": [-26.487084, 11.137499],
                 "handleMode": "symmetric"
@@ -45385,10 +45227,10 @@
               },
               {
                 "id": "es225_pocket_right",
-                "position": [19.05, 0],
+                "position": [11.55, -3.25],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_right"
+                "semanticRole": "neck_pocket_right",
+                "mirrorId": "es225_pocket_left"
               }
             ]
           }
@@ -45414,7 +45256,6 @@
             "handleIn": [25.4661, -0.2415],
             "handleOut": [-4.748853, 8.847256],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_left"
           },
           {
@@ -45545,7 +45386,6 @@
             "position": [27.78, 0],
             "handleOut": [-21.1533, 0.2551],
             "handleMode": "corner",
-            "locked": true,
             "semanticRole": "neck_pocket_right"
           }
         ]
@@ -48167,7 +48007,6 @@
                 "handleIn": [25.4661, -0.2415],
                 "handleOut": [-2.374426, 4.423628],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -48306,7 +48145,6 @@
                 "position": [27.78, 0],
                 "handleOut": [-21.1533, 0.2551],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -48319,7 +48157,6 @@
                 "position": [-27.78, 0],
                 "handleIn": [25.4661, -0.2415],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -48449,7 +48286,6 @@
                 "position": [27.78, 0],
                 "handleOut": [-21.1533, 0.2551],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -48463,7 +48299,6 @@
                 "handleIn": [25.4661, -0.2415],
                 "handleOut": [-6.732727, 4.318664],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -48594,7 +48429,6 @@
                 "position": [27.78, 0],
                 "handleOut": [-21.1533, 0.2551],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -48608,7 +48442,6 @@
                 "handleIn": [25.4661, -0.2415],
                 "handleOut": [-6.733754, 4.319323],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -48739,7 +48572,6 @@
                 "position": [27.78, 0],
                 "handleOut": [-21.1533, 0.2551],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -48753,7 +48585,6 @@
                 "handleIn": [18.52, 0],
                 "handleOut": [-4.748853, 8.847256],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -48884,7 +48715,6 @@
                 "position": [27.78, 0],
                 "handleOut": [-21.1533, 0.2551],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
@@ -48899,7 +48729,6 @@
                 "handleIn": [25.4661, -0.2415],
                 "handleOut": [-2.374426, 4.423628],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_left"
               },
               {
@@ -49048,27 +48877,26 @@
                 "position": [27.78, 0],
                 "handleOut": [-21.1533, 0.2551],
                 "handleMode": "corner",
-                "locked": true,
                 "semanticRole": "neck_pocket_right"
               }
             ]
           },
           "applyLiveSymmetry": {
-            "movedAnchorId": "s_horn_scoop_left",
+            "movedAnchorId": "s_pocket_left",
             "dragMm": [7.5, -3.25],
             "anchors": [
               {
                 "id": "s_pocket_left",
-                "position": [-27.78, 0],
+                "position": [-20.28, -3.25],
                 "handleIn": [25.4661, -0.2415],
                 "handleOut": [-4.748853, 8.847256],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_left"
+                "semanticRole": "neck_pocket_left",
+                "mirrorId": "s_pocket_right"
               },
               {
                 "id": "s_horn_scoop_left",
-                "position": [-40.47818, 9.705993],
+                "position": [-47.97818, 12.955993],
                 "handleIn": [12.211798, -0.022503],
                 "handleOut": [-27.762741, 0.051159],
                 "handleMode": "smooth"
@@ -49191,11 +49019,12 @@
               },
               {
                 "id": "s_pocket_right",
-                "position": [27.78, 0],
-                "handleOut": [-21.1533, 0.2551],
+                "position": [20.28, -3.25],
+                "handleIn": [4.748853, 8.847256],
+                "handleOut": [-25.4661, -0.2415],
                 "handleMode": "corner",
-                "locked": true,
-                "semanticRole": "neck_pocket_right"
+                "semanticRole": "neck_pocket_right",
+                "mirrorId": "s_pocket_left"
               }
             ]
           }

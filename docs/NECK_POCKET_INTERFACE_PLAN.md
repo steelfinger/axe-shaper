@@ -163,12 +163,10 @@ Joint geometry has its own symmetry contract. It is independent of the body's
 
 For every supported joint shape:
 
-- A **locked template profile** records the two body anchors with semantic
-  roles `neck_pocket_left` and `neck_pocket_right`. Both remain on `Y = 0`,
-  and their positions and both Bézier handles are locked.
+- A **locked template profile** is read-only numeric geometry. It never moves,
+  locks, or validates against body-contour nodes.
 - A **custom numeric joint** has no mouth-anchor IDs and never moves, locks,
-  or validates against body-contour nodes. Converting a locked profile to
-  Custom releases those two template anchors for ordinary body editing.
+  or validates against body-contour nodes.
 - The mouth is an attachment boundary, not an editable curve; the two side
   walls are always generated as straight lines. No joint nodes or handles are
   exposed on canvas.
@@ -200,10 +198,9 @@ tongue and extension-length schema rather than a misleading reuse of mortise
 parameters. Glued joints may also record a neck angle, but a top-view export
 must state that it is not a complete angled mortise template.
 
-If a locked template does not have a valid, unambiguous pair of mouth anchors,
-it cannot claim a locked body attachment. The app must never infer shoulder
-anchors from visual proximity. Custom numeric width editing remains available
-without those anchors.
+No profile needs a body-anchor attachment. The app must never infer shoulder
+anchors from visual proximity, because numeric joints remain valid regardless
+of the body contour or its node count.
 
 There is no app-wide numeric width range. If target heel width is known, the
 minimum valid deep-end pocket width is that value plus **twice** the requested
@@ -273,12 +270,12 @@ The Hardware panel receives a **Neck Joint Geometry** card.
 1. It presents the chosen locked profile, construction, named plan shape,
    dimensions, end treatment, neck angle where applicable,
    evidence level, provenance and compatibility scope.
-2. The default profile and its two body-mouth anchors/handles are locked. Its
-   generated geometry is visible but has no ordinary node editing affordances.
+2. The default profile's numeric parameters are read-only. Its generated
+   geometry is visible but has no ordinary node editing affordances.
 3. **Convert to Custom Joint** makes one explicit undoable copy and asks for
    target heel width, desired fitting clearance and cutter/tool diameter where
-   known. It releases the profile's two body anchors; the numeric rout remains
-   at the same `Y = 0` datum but is otherwise contour-independent.
+   known. The numeric rout remains at the same `Y = 0` datum and is otherwise
+   contour-independent.
 4. Custom controls are numeric: width, plan length, end-corner radius and
    heel/tenon-end roundness; tapered mortises additionally show deep-end width.
    Glued shapes show neck angle as clearly limited supplementary data.
@@ -448,9 +445,8 @@ Add the following to the web schema/corpus/DXF gates and their iOS equivalents:
 - v7 authority when embedded legacy `neckPreset` joint dimensions disagree
   with generated joint geometry or its `nutToBodyEdgeMm` disagrees with resolved
   `neckPlacement`;
-- fixed locked-profile mouth `Y = 0` and symmetric numeric custom widths;
-- locked mouth anchors resisting ordinary body edits while a locked profile is
-  active;
+- locked-profile mouth `Y = 0` and symmetric numeric custom widths;
+- locked profiles leaving ordinary body nodes editable and deletable;
 - numeric width edits leaving the body contour unchanged; generated straight
   side walls and named end treatments;
 - straight and tapered mortise generation, including the fact that a stored

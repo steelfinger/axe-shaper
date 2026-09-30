@@ -157,12 +157,6 @@ export class PeriodicMonotoneCubic {
   }
 }
 
-/** The neck pocket's bevel is pinned to 0: the top face runs flat into the joint. */
-export function isFixedNeckPocketAnchor(anchor: BodyContour['anchors'][number]): boolean {
-  return anchor.locked === true
-    && (anchor.semanticRole === 'neck_pocket_left' || anchor.semanticRole === 'neck_pocket_right');
-}
-
 /** Resolves the dense per-anchor values onto the adaptively flattened outline. */
 export function resolveBevelIntensities(contour: BodyContour, flattened: FlattenedContour): number[] {
   const loop = [...flattened.points];
@@ -182,7 +176,7 @@ export function resolveBevelIntensities(contour: BodyContour, flattened: Flatten
     if (index === undefined || index >= loop.length) continue;
     keyframes.push({
       position: arcLengths[index],
-      value: isFixedNeckPocketAnchor(anchor) ? 0 : (anchor.bevelIntensity ?? 1),
+      value: anchor.bevelIntensity ?? 1,
     });
   }
   keyframes.sort((a, b) => a.position - b.position);

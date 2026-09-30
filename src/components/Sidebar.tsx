@@ -361,7 +361,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ): GuitarProject => {
     // A v7 joint is its own authoritative contract. Changing scale/fret data
     // may update the compatibility mirrors, but must never replace the
-    // profile, move its mouth anchors, or alter body-owned placement. A
+    // profile, alter body nodes, or alter body-owned placement. A
     // construction change needs the explicit replacement flow (Release B),
     // not the legacy generic resolver below.
     if (prev.neckJointGeometry) {
@@ -467,18 +467,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     onUpdateProject((prev) => {
       const reset = blueprintNeckJointBaseline(prev);
       if (!reset) return prev;
-      const mouthAnchorIds = reset.mouthAnchorIds;
-      if (!mouthAnchorIds) return withEmbeddedPresets({ ...prev, neckJointGeometry: reset });
-      const halfWidth = reset.parameters.mouthWidthMm / 2;
-      const contour = {
-        ...prev.contour,
-        anchors: prev.contour.anchors.map((anchor) => {
-          if (anchor.id === mouthAnchorIds[0]) return { ...anchor, locked: true, position: { ...anchor.position, x: -halfWidth, y: 0 } };
-          if (anchor.id === mouthAnchorIds[1]) return { ...anchor, locked: true, position: { ...anchor.position, x: halfWidth, y: 0 } };
-          return anchor;
-        }),
-      };
-      return withEmbeddedPresets({ ...prev, contour, neckJointGeometry: reset });
+      return withEmbeddedPresets({ ...prev, neckJointGeometry: reset });
     }, 'neck-joint-reset-blueprint');
     setJointGeometryError(null);
     onEndEdit();
@@ -1168,7 +1157,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               ) : !project.neckJointGeometry ? (
                 <>
                   <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
-                    This design uses the frozen generic legacy pocket. Convert it to make a local custom joint; the body’s locked mouth anchors remain the attachment points.
+                    This design uses the frozen generic legacy pocket. Convert it to make a local custom joint; the rout stays independent of the body outline.
                   </p>
                   <button type="button" className="btn btn-sm" onClick={convertLegacyJoint}>
                     Convert to Custom Joint
@@ -1186,7 +1175,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               ) : project.neckJointGeometry.mode === 'custom' ? (
                 <>
                   <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
-                    Custom {project.neckJointGeometry.mechanism === 'bolt_on' ? 'bolt-on pocket' : 'glued mortise'}. Numeric changes keep the mouth anchors symmetric and reject a rout that leaves the body.
+                    Custom {project.neckJointGeometry.mechanism === 'bolt_on' ? 'bolt-on pocket' : 'glued mortise'}. Numeric changes affect the rout only; it may extend beyond the final body outline.
                   </p>
                   <div className="form-group">
                     <label className="form-label" htmlFor="neck-joint-construction">Joint Construction</label>
@@ -1274,7 +1263,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   )}
                   {project.neckJointGeometry.planShape === 'bolt_on_pocket' && (
                     <p className="panel-help" style={{ marginTop: '-4px' }}>
-                      Mouth width: {formatLength(project.neckJointGeometry.parameters.mouthWidthMm, settings.unitDisplay, 3)} {unitLabel(settings.unitDisplay)}. It follows this pocket profile’s taper; the mouth anchors update symmetrically.
+                      Mouth width: {formatLength(project.neckJointGeometry.parameters.mouthWidthMm, settings.unitDisplay, 3)} {unitLabel(settings.unitDisplay)}. It follows this pocket profile’s taper; body nodes remain independent.
                     </p>
                   )}
                   {project.neckJointGeometry.targetHeelWidthMm === undefined ? (

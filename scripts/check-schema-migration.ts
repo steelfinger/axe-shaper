@@ -522,7 +522,6 @@ async function main() {
         endTreatment: 'rounded' as const,
         endRoundnessMm: 26,
       },
-      mouthAnchorIds: ['s_pocket_left', 's_pocket_right'] as [string, string],
       profileSnapshot: {
         id: 's-style-rounded-v1',
         name: 'S-style rounded',
@@ -715,20 +714,11 @@ async function main() {
         }).points,
       'v7 compound end diverged from the documented tangent construction');
       const reset = presets.blueprintNeckJointProfile({
-        activeTemplateId: 's_style', instrumentType: 'guitar', contour: v7.contour,
+        activeTemplateId: 's_style', instrumentType: 'guitar',
       });
       invariant(reset?.parameters.endTreatment === 'compound', 'S-style blueprint reset has no compound pocket');
-      const resetHalfWidth = reset!.parameters.mouthWidthMm / 2;
       const resetProject = presets.withEmbeddedPresets({
         ...v7,
-        contour: {
-          ...v7.contour,
-          anchors: v7.contour.anchors.map((anchor: any) => anchor.id === reset!.mouthAnchorIds[0]
-            ? { ...anchor, locked: true, position: { ...anchor.position, x: -resetHalfWidth, y: 0 } }
-            : anchor.id === reset!.mouthAnchorIds[1]
-              ? { ...anchor, locked: true, position: { ...anchor.position, x: resetHalfWidth, y: 0 } }
-              : anchor),
-        },
         neckJointGeometry: reset!,
       });
       invariant(resetProject.neckJointGeometry?.mode === 'locked', 'S-style blueprint reset did not produce a valid locked joint');
@@ -905,13 +895,32 @@ async function main() {
       invariant(!missingPlacement.ok && missingPlacement.reason === 'malformed-neck-joint', 'missing v7 placement was accepted');
       const wrongReferenceFret = presets.loadProject({ ...v7, neckPlacement: { ...v7.neckPlacement, referenceFret: 21 } });
       invariant(!wrongReferenceFret.ok && wrongReferenceFret.reason === 'malformed-neck-joint', 'wrong v7 reference fret was accepted');
-      const looseMouth = presets.loadProject({
+      const mismatchedSnapshot = presets.loadProject({
         ...v7,
-        contour: { ...v7.contour, anchors: v7.contour.anchors.map((anchor: any) => (
-          anchor.id === 's_pocket_left' ? { ...anchor, locked: false } : anchor
-        )) },
+        neckJointGeometry: {
+          ...documentedSStyleJoint,
+          profileSnapshot: { ...documentedSStyleJoint.profileSnapshot, id: 'wrong-snapshot' },
+        },
       });
-      invariant(!looseMouth.ok && looseMouth.reason === 'malformed-neck-joint', 'unlocked v7 mouth anchor was accepted');
+      invariant(!mismatchedSnapshot.ok && mismatchedSnapshot.reason === 'malformed-neck-joint', 'mismatched locked snapshot was accepted');
+      const oldAttachment = presets.loadProject({
+        ...v7,
+        neckJointGeometry: { ...documentedSStyleJoint, mouthAnchorIds: ['s_pocket_left', 's_pocket_right'] },
+        contour: {
+          ...v7.contour,
+          anchors: v7.contour.anchors.map((anchor: any) => (
+            anchor.semanticRole === 'neck_pocket_left' || anchor.semanticRole === 'neck_pocket_right'
+              ? { ...anchor, locked: true }
+              : anchor
+          )),
+        },
+      });
+      invariant(oldAttachment.ok
+        && oldAttachment.project.neckJointGeometry?.mouthAnchorIds === undefined
+        && oldAttachment.project.contour.anchors.filter((anchor) => (
+          anchor.semanticRole === 'neck_pocket_left' || anchor.semanticRole === 'neck_pocket_right'
+        )).every((anchor) => !anchor.locked),
+      'pre-release v7 attachment was not removed on load');
     });
 
     check('stores a glued neck angle without treating an arched top as geometry', () => {

@@ -75,20 +75,20 @@
     />
 
     <!-- Front Routed Cavities (control cavities, etc. - under pickup hardware) -->
-    
+
 
     <!-- Pickup routing cavities and visible cover cut lines (above front routes) -->
-    
+
           <g transform="translate(0, 127.07642152173861) rotate(0)">
             <path d="M -30.15 -21.62 C -30.15 -21.62, 30.15 -21.62, 30.15 -21.62 C 32.37 -21.62, 34.15 -19.83, 34.15 -17.62 C 34.15 -17.62, 34.15 17.62, 34.15 17.62 C 34.15 19.83, 32.37 21.62, 30.15 21.62 C 30.15 21.62, -30.15 21.62, -30.15 21.62 C -32.37 21.62, -34.15 19.83, -34.15 17.62 C -34.15 17.62, -34.15 -17.62, -34.15 -17.62 C -34.15 -19.83, -32.37 -21.62, -30.15 -21.62 Z" class="pickup-rout" />
-            
+
             <circle cx="0" cy="0" r="1.5" fill="#28a745" />
           </g>
-        
+
 
     <!-- Potentiometer body, knob and shaft-hole footprints. -->
     <g id="control-knobs">
-      
+
       <g transform="translate(135.74, 322.68)" data-knob-style="generic">
         <circle cx="0" cy="0" r="12.00" class="control-body" />
         <circle cx="0" cy="0" r="10.00" class="control-outline" />
@@ -103,7 +103,7 @@
 
     <!-- Selector switch hardware. Special mounting cavities are outside this version's scope. -->
     <g id="control-switches">
-      
+
     </g>
 
     <!-- Family-specific bridge hardware and scale-length reference line -->
@@ -120,8 +120,9 @@
     <line x1="-191.59" y1="444.41" x2="251.36" y2="444.41" class="band-rule" />
     <text x="-179.59" y="464.41" class="title-label">SG-Style Bass - 1:1 Scale Print Template</text>
     <text x="-179.59" y="477.41" class="text-label">Scale: 774.7mm (30.50") | Joint: 63.5mm W x 98.425mm D | Saddle Y: 343.2mm</text>
-    <text x="-179.59" y="487.41" class="text-label">Date: 2026-09-25 | Printable 100% True Scale (Do Not Scale Page)</text>
+    <text x="-179.59" y="487.41" class="text-label">Date: 2026-09-30 | Printable 100% True Scale (Do Not Scale Page)</text>
     <text x="-179.59" y="500.41" class="disclaimer-label">Editing this file in another app will not update Axe Shaper - re-importing it may discard your changes.</text>
+
 
     <!-- 100mm x 100mm Ruler Calibration Box -->
     <g transform="translate(-179.59, 512.41)">

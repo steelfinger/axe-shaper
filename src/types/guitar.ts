@@ -190,10 +190,10 @@ export interface NeckJointProfileSnapshot {
 }
 
 /**
- * Schema v7's authoritative top-view joint contract. Locked blueprint
- * profiles retain a mouth attachment to their body template. Custom joints
- * are free-standing numeric routs at the Y=0 datum: they never store or edit
- * joint nodes or Bézier handles.
+ * Schema v7's authoritative top-view joint contract. Both locked blueprint
+ * profiles and custom joints are free-standing numeric routs at the Y=0
+ * datum: they never store or edit joint nodes or Bézier handles. `locked`
+ * applies only to the profile specification, never the body contour.
  */
 export interface NeckJointGeometry {
   mode: NeckJointGeometryMode;
@@ -202,7 +202,7 @@ export interface NeckJointGeometry {
   mechanism: NeckJointMechanism;
   planShape: NeckJointPlanShape;
   parameters: NeckJointPlanParameters;
-  /** Locked profiles only, ordered `[left, right]`. */
+  /** Pre-release v7 import-only field; current projects remove it on load. */
   mouthAnchorIds?: [string, string];
   profileSnapshot?: NeckJointProfileSnapshot;
   targetHeelWidthMm?: LengthMm;
