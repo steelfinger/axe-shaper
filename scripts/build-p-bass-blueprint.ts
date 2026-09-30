@@ -104,7 +104,7 @@ async function main() {
     backRoutes: [],
   };
 
-  const svg = svgExporter.exportProjectToSVG(project);
+  const svg = svgExporter.exportProjectToSVG(presets.withBundledNeckJointContract(presets.migrateProject(project)));
   writeFileSync(join(ROOT, 'src', 'constants', 'blueprints', 'p_bass_style.axe.svg'), svg);
   console.log(
     `wrote p_bass_style (traced body ${source.contour.anchors.length} anchors, ` +

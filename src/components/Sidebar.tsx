@@ -1150,11 +1150,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {jointFabricationDisclosure} DXF and print export require confirmation.
                 </p>
               )}
-              {!project.neckJointGeometry && project.instrumentType === 'bass' ? (
-                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  Generic bass pockets remain legacy-only while documented bass-joint profiles are researched.
-                </p>
-              ) : !project.neckJointGeometry ? (
+              {!project.neckJointGeometry ? (
                 <>
                   <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
                     This design uses the frozen generic legacy pocket. Convert it to make a local custom joint; the rout stays independent of the body outline.

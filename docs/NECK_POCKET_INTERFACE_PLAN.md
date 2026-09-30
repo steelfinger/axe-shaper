@@ -60,9 +60,12 @@ The first two research targets are:
 2. T-style, square heel.
 
 All other guitar profiles, including glued-neck instruments, remain legacy in
-the first release. Bass profiles also remain legacy; a later Custom Joint flow
-may seed from the existing 63.5 mm x 98.425 mm bass geometry, but must not
-make a compatibility claim.
+the first release. Bass has no documented profile, but it shares the same
+Custom Joint flow: a bass joint is seeded from its frozen legacy pocket (63.5
+mm x 98.425 mm, or the R-style 40 mm neck-through strip), untapered and
+square-ended, and never makes a compatibility claim. Bass placement is derived
+from the project's own neck datum at full precision, so conversion cannot move
+the saddle.
 
 ## v7 document contract
 
@@ -357,20 +360,18 @@ discovery.
   where the named shape supports taper, alternate cornered/rounded end radius,
   and optional cutter diameter. Every change preserves the locked symmetric
   mouth attachment and rejects an outline that exits the body; cutter/radius
-  incompatibility warns rather than blocks. It converts only guitar projects
-  on explicit action, seeds placement from the existing body datum, and leaves
-  generic bass pockets legacy-only. This is a test surface for the attachment
+  incompatibility warns rather than blocks. It converts guitar and bass projects
+  on explicit action and seeds placement from the existing body datum. This is a test surface for the attachment
   contract, not promotion of the compound S-style prototype or a Release-A
   profile editor.
 - Validate the numeric shape generator for square and rounded bolt-on ends.
 - Hold a go/no-go review. The compound shape and its attachment rule must pass
   the three-client parity gate before publication. Once that gate is green,
-  publish every bundled **guitar** blueprint as v7: S/T use their locked
+  publish every bundled blueprint as v7: S/T use their locked
   bolt-on profiles; the other guitar bodies retain conservative custom joints
-  derived from their legacy dimensions. Every placement is seeded from its own
-  existing `FINGERBOARD_OVERHANG_MM` value, never a presumed common neck
-  length. Bass blueprints remain legacy v6 while their joint research is
-  separate.
+  derived from their legacy dimensions, as do the eight bass blueprints (fret
+  20 reference, full-precision placement). Every placement is seeded from its
+  own existing datum, never a presumed common neck length.
 
 ### Phase 1 — web reference contract
 

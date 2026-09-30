@@ -78,13 +78,42 @@ function boltOnParametersForTemplate(
 }
 
 /**
+ * A bass bolt-on starts as the measured 63.5 x 98.425 mm rectangle, untapered
+ * and square-ended. The guitar's 0.84 degree taper and compound S-style end
+ * are guitar heel geometry; applying them would silently reshape a bass rout
+ * on conversion. Both width stations are stored so the editor's taper-keeping
+ * controls start from zero taper.
+ */
+function rectangularBassBoltOnParameters(
+  mouthWidthMm: number,
+  planLengthMm: number,
+  cornerRadiusMm: number,
+): NeckJointGeometry['parameters'] {
+  return {
+    mouthWidthMm,
+    deepEndWidthMm: mouthWidthMm,
+    planLengthMm,
+    endCornerRadiusMm: cornerRadiusMm,
+    endTreatment: 'square',
+    endRoundnessMm: 0,
+  };
+}
+
+/**
  * Construction is not a conversion of the old mortise. When a builder elects
  * to make a glued-neck body bolt-on, start with the common 3 in tapered
  * bolt-on envelope and let the normal numeric controls refine it for the
  * actual heel. T-style bodies retain their straight deep edge; every other
  * guitar body begins with the rounded compound end.
  */
-function defaultBoltOnParametersForTemplate(templateId: string): NeckJointGeometry['parameters'] {
+function defaultBoltOnParametersForTemplate(
+  templateId: string,
+  instrumentType: InstrumentType,
+): NeckJointGeometry['parameters'] {
+  if (instrumentType === 'bass') {
+    const pocket = GENERIC_POCKET_SPEC.bass.bolt_on;
+    return rectangularBassBoltOnParameters(pocket.jointWidthMm, pocket.jointDepthMm, pocket.jointCornerRadiusMm);
+  }
   return boltOnParametersForTemplate(
     templateId,
     BOLT_ON_DEFAULT_MOUTH_WIDTH_MM,
@@ -509,7 +538,36 @@ export function blueprintNeckJointProfile(project: Pick<GuitarProject,
   };
 }
 
-/** The authored reset target for every bundled guitar template. */
+/**
+ * A bundled bass body's joint baseline: its frozen legacy pocket, expressed as
+ * a numeric rout. Bass has no documented profile yet, so nothing here claims
+ * more than the existing 63.5 x 98.425 mm (or R-style 40 mm) dimensions.
+ */
+function bundledBassJointBaseline(
+  templateId: string,
+): Pick<NeckJointGeometry, 'mechanism' | 'planShape' | 'parameters'> | undefined {
+  if (!templateId.endsWith('_bass_style') || FINGERBOARD_OVERHANG_MM[templateId] === undefined) return undefined;
+  const mechanism = defaultNeckJointMechanism(templateId);
+  const templatePocket = TEMPLATE_NECK_POCKET_SPEC[templateId];
+  const pocket = templatePocket?.mechanism === mechanism
+    ? templatePocket
+    : GENERIC_POCKET_SPEC.bass[mechanism];
+  return {
+    mechanism,
+    planShape: mechanism === 'bolt_on' ? 'bolt_on_pocket' : 'straight_mortise',
+    parameters: mechanism === 'bolt_on'
+      ? rectangularBassBoltOnParameters(pocket.jointWidthMm, pocket.jointDepthMm, pocket.jointCornerRadiusMm)
+      : {
+          mouthWidthMm: pocket.jointWidthMm,
+          planLengthMm: pocket.jointDepthMm,
+          endCornerRadiusMm: pocket.jointCornerRadiusMm,
+          endTreatment: 'square',
+          endRoundnessMm: 0,
+        },
+  };
+}
+
+/** The authored reset target for every bundled template. */
 export function blueprintNeckJointBaseline(project: Pick<GuitarProject,
   'activeTemplateId' | 'instrumentType'
 >): NeckJointGeometry | undefined {
@@ -517,7 +575,7 @@ export function blueprintNeckJointBaseline(project: Pick<GuitarProject,
   if (profile) return profile;
   const baseline = project.instrumentType === 'guitar'
     ? BUNDLED_GUITAR_JOINT_BASELINES[project.activeTemplateId]
-    : undefined;
+    : bundledBassJointBaseline(project.activeTemplateId);
   if (!baseline) return undefined;
   return {
     mode: 'custom',
@@ -529,7 +587,7 @@ export function blueprintNeckJointBaseline(project: Pick<GuitarProject,
 }
 
 /**
- * Give a bundled guitar its first explicit v7 joint contract. The S/T
+ * Give a bundled guitar or bass its first explicit v7 joint contract. The S/T
  * templates carry their read-only bolt-on product profiles; every other
  * guitar retains its legacy dimensions as a conservative custom joint. In
  * both cases placement comes from the body template's existing datum, never
@@ -539,8 +597,8 @@ export function blueprintNeckJointBaseline(project: Pick<GuitarProject,
  * built-in designs. Loading an ordinary legacy file remains non-mutating
  * until its owner explicitly chooses Convert to Custom Joint.
  */
-export function withBundledGuitarNeckJointContract(project: GuitarProject): GuitarProject {
-  if (project.instrumentType !== 'guitar' || project.neckJointGeometry || project.neckPlacement) {
+export function withBundledNeckJointContract(project: GuitarProject): GuitarProject {
+  if (project.neckJointGeometry || project.neckPlacement) {
     return project;
   }
   const profile = blueprintNeckJointProfile(project);
@@ -570,7 +628,7 @@ export function withBundledGuitarNeckJointContract(project: GuitarProject): Guit
 /** A bundled blueprint has not entered joint editing until its baseline is explicitly customized. */
 export function isBlueprintNeckJointBaseline(project: GuitarProject): boolean {
   const joint = project.neckJointGeometry;
-  if (!joint || project.instrumentType !== 'guitar') return false;
+  if (!joint) return false;
   if (joint.mode === 'locked') return true;
   return joint.derivedFromProfileId === `blueprint-baseline:${project.activeTemplateId}`;
 }
@@ -728,10 +786,6 @@ export function withEmbeddedPresets(project: StoredProject): GuitarProject {
  */
 export function convertLegacyNeckJointToCustom(project: GuitarProject): GuitarProject {
   if (project.neckJointGeometry) return project;
-  if (project.instrumentType === 'bass') {
-    throw new NeckJointContractError('Generic bass neck pockets remain legacy-only while their documented joint profiles are researched.');
-  }
-
   const mechanism = resolvedNeckJointMechanism(project);
   const neck = resolveNeckPreset(project);
   const templatePocket = TEMPLATE_NECK_POCKET_SPEC[project.activeTemplateId];
@@ -743,8 +797,13 @@ export function convertLegacyNeckJointToCustom(project: GuitarProject): GuitarPr
   const mouthWidthMm = neck.pocketWidthMm ?? neck.jointWidthMm ?? frozenPocket.jointWidthMm;
 
   const referenceFret = fingerboardReferenceFret(project.instrumentType);
-  const jointToReferenceFretMm = FINGERBOARD_OVERHANG_MM[project.activeTemplateId]
-    ?? getFretDistanceFromNutMm(referenceFret, neck.scaleLengthMm) - neck.nutToBodyEdgeMm;
+  // A bass is derived from its own datum at full precision. The table stores
+  // 4dp, and a bass bridge is held to its approved theoretical line: a
+  // rounded overhang would move the saddle ~5e-5mm just by converting.
+  const jointToReferenceFretMm = project.instrumentType === 'bass'
+    || FINGERBOARD_OVERHANG_MM[project.activeTemplateId] === undefined
+    ? getFretDistanceFromNutMm(referenceFret, neck.scaleLengthMm) - neck.nutToBodyEdgeMm
+    : FINGERBOARD_OVERHANG_MM[project.activeTemplateId];
   const planLengthMm = neck.pocketDepthMm ?? neck.jointDepthMm ?? frozenPocket.jointDepthMm;
   const geometry: NeckJointGeometry = {
     mode: 'custom',
@@ -752,7 +811,13 @@ export function convertLegacyNeckJointToCustom(project: GuitarProject): GuitarPr
     mechanism,
     planShape: mechanism === 'bolt_on' ? 'bolt_on_pocket' : 'straight_mortise',
     parameters: mechanism === 'bolt_on'
-      ? boltOnParametersForTemplate(project.activeTemplateId, mouthWidthMm, planLengthMm)
+      ? (project.instrumentType === 'bass'
+          ? rectangularBassBoltOnParameters(
+              mouthWidthMm,
+              planLengthMm,
+              neck.pocketCornerRadiusMm ?? neck.jointCornerRadiusMm ?? frozenPocket.jointCornerRadiusMm,
+            )
+          : boltOnParametersForTemplate(project.activeTemplateId, mouthWidthMm, planLengthMm))
       : {
           mouthWidthMm,
           planLengthMm,
@@ -804,7 +869,7 @@ export function changeCustomNeckJointMechanism(
       ).neckPreset
     : undefined;
   const parameters = mechanism === 'bolt_on'
-    ? defaultBoltOnParametersForTemplate(project.activeTemplateId)
+    ? defaultBoltOnParametersForTemplate(project.activeTemplateId, project.instrumentType)
     : {
         mouthWidthMm: templateDefault?.jointWidthMm ?? joint.parameters.mouthWidthMm,
         planLengthMm: templateDefault?.jointDepthMm ?? joint.parameters.planLengthMm,

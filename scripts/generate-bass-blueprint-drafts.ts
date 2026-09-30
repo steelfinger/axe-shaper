@@ -268,7 +268,7 @@ async function main() {
       backRoutes: [],
     };
 
-    const svg = svgExporter.exportProjectToSVG(project);
+    const svg = svgExporter.exportProjectToSVG(presets.withBundledNeckJointContract(presets.migrateProject(project)));
     writeFileSync(outPath, svg);
     console.log(`wrote ${draft.id} (from ${draft.sourceBlueprintId}, scaleX=${scaleX.toFixed(4)}, scaleY=${scaleY.toFixed(4)})`);
   }

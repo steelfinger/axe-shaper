@@ -168,7 +168,7 @@ async function main() {
       }
     });
 
-    check('every bass blueprint locks its neck-pocket anchors to the joint line', () => {
+    check('every bass blueprint keeps its neck-pocket anchors on the joint line', () => {
       for (const id of manifest.BLUEPRINT_ORDER.filter((id: string) => manifest.BLUEPRINT_MANIFEST[id].instrumentType === 'bass')) {
         const raw = readFileSync(join(ROOT, 'src', 'constants', 'blueprints', `${id}.axe.svg`), 'utf8');
         const encoded = raw.match(/<project:data>([\s\S]*?)<\/project:data>/)?.[1];
@@ -179,8 +179,8 @@ async function main() {
         );
         invariant(pocketAnchors.length === 2, `${id}: expected two neck-pocket anchors`);
         invariant(
-          pocketAnchors.every((anchor: { locked?: boolean; position: { y: number } }) => anchor.locked === true && anchor.position.y === 0),
-          `${id}: neck-pocket anchors must be locked at Y=0`
+          pocketAnchors.every((anchor: { locked?: boolean; position: { y: number } }) => (project.neckJointGeometry ? true : anchor.locked === true) && anchor.position.y === 0),
+          `${id}: neck-pocket anchors must sit at Y=0 (locked, unless a v7 joint owns the rout)`
         );
       }
     });
