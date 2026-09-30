@@ -151,6 +151,23 @@ export function validateNeckJointGeometry(geometry: NeckJointGeometry): void {
 }
 
 /** Validate the paired v7 root objects and their instrument-specific reference fret. */
+/**
+ * A joint is only valid if its outline can actually be built. The numeric
+ * checks in `validateNeckJointGeometry` are necessary but not sufficient: a
+ * compound heel end needs its corner fillets and closing arc to be tangent,
+ * which fails for some otherwise positive widths (typing "60" into the width
+ * field passes through 6). Building the outline here stops such geometry
+ * reaching the project, where every renderer and exporter would throw on it.
+ */
+export function assertNeckJointOutlineGenerates(geometry: NeckJointGeometry): void {
+  try {
+    generateNeckJointOutline(geometry);
+  } catch (error) {
+    if (!(error instanceof NeckJointContractError)) throw error;
+    throw new NeckJointContractError(`These dimensions cannot form this joint shape: ${error.message}`);
+  }
+}
+
 export function validateNeckJointContract(
   geometry: NeckJointGeometry | undefined,
   placement: NeckPlacement | undefined,
@@ -160,6 +177,7 @@ export function validateNeckJointContract(
     throw new NeckJointContractError('Schema 7 requires both neckJointGeometry and neckPlacement.');
   }
   validateNeckJointGeometry(geometry);
+  assertNeckJointOutlineGenerates(geometry);
   if (placement.mode !== 'blueprint' && placement.mode !== 'custom') {
     throw new NeckJointContractError('Neck placement mode must be blueprint or custom.');
   }
@@ -262,6 +280,7 @@ export function updateCustomNeckJoint(
       : {}),
   };
   validateNeckJointGeometry(updatedGeometry);
+  assertNeckJointOutlineGenerates(updatedGeometry);
   return updatedGeometry;
 }
 

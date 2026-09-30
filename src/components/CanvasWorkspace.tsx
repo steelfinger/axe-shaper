@@ -173,9 +173,17 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   const selectedPickupId = selectedHardware?.kind === 'pickup' ? selectedHardware.id : null;
   const neck = resolveNeckPreset(project);
   const bridge = resolveBridgePreset(project);
-  const neckPocketPath = project.neckJointGeometry
-    ? neckJointOutlineToSVGPath(generateNeckJointOutline(project.neckJointGeometry))
-    : null;
+  // Edits and loads are validated to build an outline, so this should not
+  // throw; if a path ever slips through, skip the pocket rather than blanking
+  // the whole editor from a render-time exception.
+  let neckPocketPath: string | null = null;
+  if (project.neckJointGeometry) {
+    try {
+      neckPocketPath = neckJointOutlineToSVGPath(generateNeckJointOutline(project.neckJointGeometry));
+    } catch (error) {
+      console.error('Neck joint outline could not be generated', error);
+    }
+  }
   const activeTemplate = REFERENCE_TEMPLATES[activeTemplateId] || REFERENCE_TEMPLATES.s_style;
 
   const isBodyActive = activeLayer.kind === 'body';
