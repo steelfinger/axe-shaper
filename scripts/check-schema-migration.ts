@@ -988,6 +988,9 @@ async function main() {
       const customizedSingleCut = presets.customizeBlueprintNeckJoint(singleCut);
       invariant(!presets.isBlueprintNeckJointBaseline(customizedSingleCut), 'Customize Joint did not unlock the single-cut baseline');
       deepStrictEqual(customizedSingleCut.neckJointGeometry?.derivedFromProfileId, 'blueprint-custom:single_cut');
+      const resetSingleCut = presets.blueprintNeckJointBaseline(customizedSingleCut);
+      deepStrictEqual(resetSingleCut?.mechanism, 'glued');
+      deepStrictEqual(resetSingleCut?.parameters.planLengthMm, 101.6);
       const sStyle = decodePayload(readFileSync(BASE_BLUEPRINT, 'utf8'));
       deepStrictEqual(sStyle.schemaVersion, 7);
       invariant(sStyle.neckJointGeometry?.mode === 'locked', 'S-style must use its locked compound bolt-on profile');

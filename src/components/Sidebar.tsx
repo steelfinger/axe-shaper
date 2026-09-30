@@ -30,7 +30,7 @@ import {
   changeCustomNeckJointMechanism as replaceCustomNeckJointConstruction,
   customizeBlueprintNeckJoint,
   convertLegacyNeckJointToCustom,
-  blueprintNeckJointProfile,
+  blueprintNeckJointBaseline,
   documentedBlueprintNeckPlacement,
   neckPresetFields,
   neckPresetFieldsForTemplate,
@@ -462,10 +462,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const resetNeckJointToBlueprint = () => {
-    const joint = blueprintNeckJointProfile(project);
+    const joint = blueprintNeckJointBaseline(project);
     if (!joint) return;
     onUpdateProject((prev) => {
-      const reset = blueprintNeckJointProfile(prev);
+      const reset = blueprintNeckJointBaseline(prev);
       if (!reset) return prev;
       const halfWidth = reset.parameters.mouthWidthMm / 2;
       const contour = {
@@ -1510,7 +1510,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       {warning}
                     </p>
                   ))}
-                  {blueprintNeckJointProfile(project) && (
+                  {blueprintNeckJointBaseline(project) && (
                     <div className="form-group" style={{ marginTop: '12px' }}>
                       <button type="button" className="btn btn-sm" onClick={resetNeckJointToBlueprint}>
                         Reset Neck Joint to Template

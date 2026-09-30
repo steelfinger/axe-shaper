@@ -49,6 +49,19 @@ const BOLT_ON_CLOSING_ARC_RADIUS_MM = 127;
 const BOLT_ON_DEFAULT_MOUTH_WIDTH_MM = 53.64553921225705;
 const BOLT_ON_DEFAULT_PLAN_LENGTH_MM = 76.2;
 
+const BUNDLED_GUITAR_JOINT_BASELINES: Record<string, Pick<NeckJointGeometry, 'mechanism' | 'planShape' | 'parameters'>> = {
+  gibson_explorer: { mechanism: 'glued', planShape: 'straight_mortise', parameters: { mouthWidthMm: 38.1, planLengthMm: 122.06, endCornerRadiusMm: 8, endTreatment: 'square', endRoundnessMm: 0 } },
+  gibson_firebird: { mechanism: 'glued', planShape: 'straight_mortise', parameters: { mouthWidthMm: 38.1, planLengthMm: 82, endCornerRadiusMm: 6.35, endTreatment: 'square', endRoundnessMm: 0 } },
+  gibson_flying_v: { mechanism: 'glued', planShape: 'straight_mortise', parameters: { mouthWidthMm: 38.1, planLengthMm: 67, endCornerRadiusMm: 6.35, endTreatment: 'square', endRoundnessMm: 0 } },
+  gretsch_thunderbird: { mechanism: 'glued', planShape: 'straight_mortise', parameters: { mouthWidthMm: 38.1, planLengthMm: 76.2, endCornerRadiusMm: 6.35, endTreatment: 'square', endRoundnessMm: 0 } },
+  jag_style: { mechanism: 'bolt_on', planShape: 'bolt_on_pocket', parameters: { mouthWidthMm: 55.56, deepEndWidthMm: 57.794460787742956, planLengthMm: 76.2, endCornerRadiusMm: 6.35, endTreatment: 'compound', endRoundnessMm: 127 } },
+  prs_style: { mechanism: 'glued', planShape: 'straight_mortise', parameters: { mouthWidthMm: 54.3, planLengthMm: 68, endCornerRadiusMm: 6.35, endTreatment: 'square', endRoundnessMm: 0 } },
+  semi_hollow_double_cut: { mechanism: 'glued', planShape: 'straight_mortise', parameters: { mouthWidthMm: 38.1, planLengthMm: 101.6, endCornerRadiusMm: 6.35, endTreatment: 'square', endRoundnessMm: 0 } },
+  semi_hollow_single_cut: { mechanism: 'glued', planShape: 'straight_mortise', parameters: { mouthWidthMm: 38.1, planLengthMm: 101.6, endCornerRadiusMm: 6.35, endTreatment: 'square', endRoundnessMm: 0 } },
+  sg_style: { mechanism: 'glued', planShape: 'straight_mortise', parameters: { mouthWidthMm: 38.1, planLengthMm: 76.2, endCornerRadiusMm: 6.35, endTreatment: 'square', endRoundnessMm: 0 } },
+  single_cut: { mechanism: 'glued', planShape: 'straight_mortise', parameters: { mouthWidthMm: 38.1, planLengthMm: 101.6, endCornerRadiusMm: 6.35, endTreatment: 'square', endRoundnessMm: 0 } },
+};
+
 function boltOnParametersForTemplate(
   templateId: string,
   mouthWidthMm: number,
@@ -499,6 +512,29 @@ export function blueprintNeckJointProfile(project: Pick<GuitarProject,
     parameters,
     mouthAnchorIds: [left.id, right.id],
     profileSnapshot: snapshot,
+  };
+}
+
+/** The authored reset target for every bundled guitar template. */
+export function blueprintNeckJointBaseline(project: Pick<GuitarProject,
+  'activeTemplateId' | 'instrumentType' | 'contour'
+>): NeckJointGeometry | undefined {
+  const profile = blueprintNeckJointProfile(project);
+  if (profile) return profile;
+  const baseline = project.instrumentType === 'guitar'
+    ? BUNDLED_GUITAR_JOINT_BASELINES[project.activeTemplateId]
+    : undefined;
+  if (!baseline) return undefined;
+  const left = project.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_left');
+  const right = project.contour.anchors.find((anchor) => anchor.semanticRole === 'neck_pocket_right');
+  if (!left || !right) return undefined;
+  return {
+    mode: 'custom',
+    derivedFromProfileId: `blueprint-baseline:${project.activeTemplateId}`,
+    mechanism: baseline.mechanism,
+    planShape: baseline.planShape,
+    parameters: structuredClone(baseline.parameters),
+    mouthAnchorIds: [left.id, right.id],
   };
 }
 
