@@ -67,6 +67,14 @@ square-ended, and never makes a compatibility claim. Bass placement is derived
 from the project's own neck datum at full precision, so conversion cannot move
 the saddle.
 
+**Known difference, guitar and bass alike:** the legacy rout is a rectangle with
+all four corners rounded by the corner radius. A v7 outline keeps the deep-end
+fillets but its mouth corners, at the `Y = 0` joint line, are sharp, because
+the mouth is an attachment boundary and the schema has no mouth-corner radius.
+Converting (or opening a re-exported bass blueprint) therefore changes SVG/DXF
+output at those two corners. The Convert action says so. Preserving them would
+need a new optional field, which both clients and the viewer must read.
+
 ## v7 document contract
 
 Add paired project-root `neckJointGeometry` and `neckPlacement` objects. A
