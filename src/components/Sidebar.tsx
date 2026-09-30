@@ -428,8 +428,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const updateCustomJoint = (update: CustomNeckJointUpdate, coalesceKey: string) => {
     try {
       if (!project.neckJointGeometry || project.neckJointGeometry.mode !== 'custom') return;
-      const resized = updateCustomNeckJoint(project.neckJointGeometry, project.contour, update);
-      const updated = withEmbeddedPresets({ ...project, contour: resized.contour, neckJointGeometry: resized.geometry });
+      const geometry = updateCustomNeckJoint(project.neckJointGeometry, update);
+      const updated = withEmbeddedPresets({ ...project, neckJointGeometry: geometry });
       // As above, validate the complete candidate before handing it to React.
       // This keeps failed numeric input local to the form instead of making
       // the application's update callback throw after the event handler ends.
@@ -467,12 +467,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
     onUpdateProject((prev) => {
       const reset = blueprintNeckJointBaseline(prev);
       if (!reset) return prev;
+      const mouthAnchorIds = reset.mouthAnchorIds;
+      if (!mouthAnchorIds) return withEmbeddedPresets({ ...prev, neckJointGeometry: reset });
       const halfWidth = reset.parameters.mouthWidthMm / 2;
       const contour = {
         ...prev.contour,
         anchors: prev.contour.anchors.map((anchor) => {
-          if (anchor.id === reset.mouthAnchorIds[0]) return { ...anchor, locked: true, position: { ...anchor.position, x: -halfWidth, y: 0 } };
-          if (anchor.id === reset.mouthAnchorIds[1]) return { ...anchor, locked: true, position: { ...anchor.position, x: halfWidth, y: 0 } };
+          if (anchor.id === mouthAnchorIds[0]) return { ...anchor, locked: true, position: { ...anchor.position, x: -halfWidth, y: 0 } };
+          if (anchor.id === mouthAnchorIds[1]) return { ...anchor, locked: true, position: { ...anchor.position, x: halfWidth, y: 0 } };
           return anchor;
         }),
       };

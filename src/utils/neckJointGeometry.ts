@@ -8,7 +8,6 @@ import type {
   Vector2D,
 } from '../types/guitar';
 import { fingerboardReferenceFret } from './instrument';
-import { evaluateCubicBezier } from './bezier';
 
 /**
  * A deterministic polyline approximation of a joint outline. The format stores
@@ -83,11 +82,6 @@ export function validateNeckJointGeometry(geometry: NeckJointGeometry): void {
   if (geometry.mechanism !== 'bolt_on' && geometry.mechanism !== 'glued') {
     throw new NeckJointContractError('Neck joint mechanism must be bolt-on or glued.');
   }
-  if (!Array.isArray(geometry.mouthAnchorIds) || geometry.mouthAnchorIds.length !== 2
-    || !geometry.mouthAnchorIds.every((id) => typeof id === 'string' && id.length > 0)
-    || geometry.mouthAnchorIds[0] === geometry.mouthAnchorIds[1]) {
-    throw new NeckJointContractError('Neck joint must identify two distinct mouth anchors.');
-  }
   if (geometry.mode === 'locked' && (!geometry.profileId || !geometry.profileSnapshot)) {
     throw new NeckJointContractError('A locked neck joint must include its profile id and embedded profile snapshot.');
   }
@@ -106,6 +100,11 @@ export function validateNeckJointGeometry(geometry: NeckJointGeometry): void {
   }
   if (geometry.mode === 'custom' && (!geometry.derivedFromProfileId || geometry.profileSnapshot)) {
     throw new NeckJointContractError('A custom neck joint must record its source profile without carrying a locked snapshot.');
+  }
+  if (geometry.mode === 'locked' && (!Array.isArray(geometry.mouthAnchorIds) || geometry.mouthAnchorIds.length !== 2
+    || !geometry.mouthAnchorIds.every((id) => typeof id === 'string' && id.length > 0)
+    || geometry.mouthAnchorIds[0] === geometry.mouthAnchorIds[1])) {
+    throw new NeckJointContractError('A locked neck joint must identify two distinct mouth anchors.');
   }
   const tapered = geometry.planShape === 'tapered_mortise';
   if (geometry.planShape === 'bolt_on_pocket' && geometry.mechanism !== 'bolt_on') {
@@ -183,12 +182,13 @@ export function validateNeckJointContract(
 }
 
 /**
- * Attachment is separate from the numeric shape: a valid profile must bind to
- * the two explicitly mapped body anchors, at the exact Y=0 mouth. We never
- * infer a shoulder from proximity because that would make a fabricated
- * manufacturing decision on bodies with different contour treatment.
+ * Attachment belongs only to a locked template profile. Custom numeric routs
+ * deliberately have no relationship to the final body contour.
  */
 export function validateNeckJointAttachment(geometry: NeckJointGeometry, contour: BodyContour): void {
+  if (geometry.mode !== 'locked' || !geometry.mouthAnchorIds) {
+    throw new NeckJointContractError('Only a locked neck joint may attach to body anchors.');
+  }
   const [leftId, rightId] = geometry.mouthAnchorIds;
   const left = contour.anchors.find((anchor) => anchor.id === leftId);
   const right = contour.anchors.find((anchor) => anchor.id === rightId);
@@ -202,92 +202,6 @@ export function validateNeckJointAttachment(geometry: NeckJointGeometry, contour
     || Math.abs(left.position.y) > epsilon || Math.abs(right.position.y) > epsilon
     || Math.abs(left.position.x + halfWidth) > epsilon || Math.abs(right.position.x - halfWidth) > epsilon) {
     throw new NeckJointContractError('Neck joint mouth anchors must be locked at Y=0 and match the authored symmetric width.');
-  }
-}
-
-const CLEARANCE_SAMPLE_SPACING_MM = 0.25;
-const CLEARANCE_BOUNDARY_EPSILON_MM = 0.1;
-
-function absoluteHandle(anchor: BodyContour['anchors'][number], side: 'in' | 'out'): Vector2D {
-  const handle = side === 'in' ? anchor.handleIn : anchor.handleOut;
-  return handle
-    ? { x: anchor.position.x + handle.x, y: anchor.position.y + handle.y }
-    : anchor.position;
-}
-
-/** Flatten the editable body path tightly enough for a routing-clearance decision. */
-function bodyContourPolygon(contour: BodyContour): Vector2D[] {
-  if (!contour.closed || contour.anchors.length < 3) {
-    throw new NeckJointContractError('Neck joint clearance needs a closed body contour with at least three anchors.');
-  }
-  const polygon: Vector2D[] = [];
-  for (let index = 0; index < contour.anchors.length; index += 1) {
-    const start = contour.anchors[index];
-    const end = contour.anchors[(index + 1) % contour.anchors.length];
-    const p0 = start.position;
-    const p1 = absoluteHandle(start, 'out');
-    const p2 = absoluteHandle(end, 'in');
-    const p3 = end.position;
-    const controlLength = Math.hypot(p1.x - p0.x, p1.y - p0.y)
-      + Math.hypot(p2.x - p1.x, p2.y - p1.y)
-      + Math.hypot(p3.x - p2.x, p3.y - p2.y);
-    // Normal body segments use the requested 0.25mm spacing. The ceiling only
-    // protects the editor from a hand-authored million-millimetre handle.
-    const steps = Math.max(1, Math.min(4096, Math.ceil(controlLength / CLEARANCE_SAMPLE_SPACING_MM)));
-    if (index === 0) polygon.push(p0);
-    for (let step = 1; step <= steps; step += 1) {
-      polygon.push(evaluateCubicBezier(p0, p1, p2, p3, step / steps));
-    }
-  }
-  return polygon;
-}
-
-function pointOnSegment(point: Vector2D, start: Vector2D, end: Vector2D): boolean {
-  const dx = end.x - start.x;
-  const dy = end.y - start.y;
-  const lengthSquared = dx * dx + dy * dy;
-  if (lengthSquared === 0) return Math.hypot(point.x - start.x, point.y - start.y) <= CLEARANCE_BOUNDARY_EPSILON_MM;
-  const t = Math.max(0, Math.min(1, ((point.x - start.x) * dx + (point.y - start.y) * dy) / lengthSquared));
-  return Math.hypot(point.x - (start.x + t * dx), point.y - (start.y + t * dy)) <= CLEARANCE_BOUNDARY_EPSILON_MM;
-}
-
-function pointInOrOnPolygon(point: Vector2D, polygon: Vector2D[]): boolean {
-  let inside = false;
-  for (let index = 0, previous = polygon.length - 1; index < polygon.length; previous = index, index += 1) {
-    const currentPoint = polygon[index];
-    const previousPoint = polygon[previous];
-    if (pointOnSegment(point, previousPoint, currentPoint)) return true;
-    const crossesRay = (currentPoint.y > point.y) !== (previousPoint.y > point.y);
-    if (crossesRay) {
-      const intersectionX = (previousPoint.x - currentPoint.x) * (point.y - currentPoint.y)
-        / (previousPoint.y - currentPoint.y) + currentPoint.x;
-      if (point.x < intersectionX) inside = !inside;
-    }
-  }
-  return inside;
-}
-
-/**
- * Reject a custom rout that leaves the body. The mouth's closing edge is not
- * sampled: it is the open, body-owned perimeter edge, whose two endpoints and
- * width are already checked by `validateNeckJointAttachment`.
- */
-export function validateNeckJointWithinBody(geometry: NeckJointGeometry, contour: BodyContour): void {
-  const body = bodyContourPolygon(contour);
-  const outline = generateNeckJointOutline(geometry, 0.025).points;
-  for (let index = 0; index < outline.length - 1; index += 1) {
-    const start = outline[index];
-    const end = outline[index + 1];
-    const steps = Math.max(1, Math.ceil(Math.hypot(end.x - start.x, end.y - start.y) / CLEARANCE_SAMPLE_SPACING_MM));
-    for (let step = 0; step <= steps; step += 1) {
-      const point = {
-        x: start.x + ((end.x - start.x) * step) / steps,
-        y: start.y + ((end.y - start.y) * step) / steps,
-      };
-      if (!pointInOrOnPolygon(point, body)) {
-        throw new NeckJointContractError('Neck joint outline leaves the body; reduce its width, length, taper or end radius.');
-      }
-    }
   }
 }
 
@@ -347,22 +261,20 @@ export interface CustomNeckJointUpdate {
 }
 
 /**
- * The only mutation path for a custom v7 joint. It preserves the body-owned,
- * locked mouth attachment when width changes and verifies the generated rout
- * remains wholly inside the body before returning an editable candidate.
+ * The only mutation path for a custom v7 joint. Its numeric rout is
+ * independent of the body outline, so editing it never moves body anchors.
  */
 export function updateCustomNeckJoint(
   geometry: NeckJointGeometry,
-  contour: BodyContour,
   update: CustomNeckJointUpdate,
-): { geometry: NeckJointGeometry; contour: BodyContour } {
+): NeckJointGeometry {
   if (geometry.mode !== 'custom') {
     throw new NeckJointContractError('Convert a locked neck joint to Custom before changing its dimensions.');
   }
   validateNeckJointGeometry(geometry);
-  validateNeckJointAttachment(geometry, contour);
   const updatedGeometry: NeckJointGeometry = {
     ...geometry,
+    mouthAnchorIds: undefined,
     parameters: { ...geometry.parameters, ...update.parameters },
     ...(Object.prototype.hasOwnProperty.call(update, 'cutterDiameterMm')
       ? { cutterDiameterMm: update.cutterDiameterMm ?? undefined }
@@ -377,20 +289,8 @@ export function updateCustomNeckJoint(
       ? { neckAngleDegrees: update.neckAngleDegrees ?? undefined }
       : {}),
   };
-  const [leftId, rightId] = geometry.mouthAnchorIds;
-  const mouthWidthMm = updatedGeometry.parameters.mouthWidthMm;
-  const updatedContour: BodyContour = {
-    ...contour,
-    anchors: contour.anchors.map((anchor) => {
-      if (anchor.id === leftId) return { ...anchor, position: { ...anchor.position, x: -mouthWidthMm / 2 } };
-      if (anchor.id === rightId) return { ...anchor, position: { ...anchor.position, x: mouthWidthMm / 2 } };
-      return anchor;
-    }),
-  };
   validateNeckJointGeometry(updatedGeometry);
-  validateNeckJointAttachment(updatedGeometry, updatedContour);
-  validateNeckJointWithinBody(updatedGeometry, updatedContour);
-  return { geometry: updatedGeometry, contour: updatedContour };
+  return updatedGeometry;
 }
 
 /**
@@ -402,10 +302,9 @@ export function updateCustomNeckJoint(
  */
 export function setCustomNeckJointMouthWidth(
   geometry: NeckJointGeometry,
-  contour: BodyContour,
   mouthWidthMm: number,
-): { geometry: NeckJointGeometry; contour: BodyContour } {
-  return updateCustomNeckJoint(geometry, contour, { parameters: { mouthWidthMm } });
+): NeckJointGeometry {
+  return updateCustomNeckJoint(geometry, { parameters: { mouthWidthMm } });
 }
 
 function appendArc(points: Vector2D[], center: Vector2D, radius: number, from: number, to: number, toleranceMm: number): void {
