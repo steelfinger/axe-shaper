@@ -1153,7 +1153,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {!project.neckJointGeometry ? (
                 <>
                   <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
-                    This design uses the frozen generic legacy pocket. Convert it to make a local custom joint; the rout stays independent of the body outline.
+                    This design uses the frozen generic legacy pocket. Convert it to make a local custom joint; the rout stays independent of the body outline. Conversion keeps the pocket's width, length and end radius, but the mouth corners at the joint line become sharp: the legacy rectangle rounds all four.
                   </p>
                   <button type="button" className="btn btn-sm" onClick={convertLegacyJoint}>
                     Convert to Custom Joint
