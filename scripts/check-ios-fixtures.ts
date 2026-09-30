@@ -159,6 +159,7 @@ function expectedWithV7CompatibilityMirrors(
     'pocketDepthMm',
     'pocketCornerRadiusMm',
     'nutToBodyEdgeMm',
+    'nutToJointMm',
   ];
   const neckPreset = { ...expected.neckPreset };
   for (const key of mirrorKeys) neckPreset[key] = actual.neckPreset[key];
