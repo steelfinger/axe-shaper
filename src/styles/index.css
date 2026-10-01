@@ -3638,3 +3638,20 @@ html.marketing-document {
 .sidebar-instrument > svg {
   flex-shrink: 0;
 }
+
+/* Optional fabrication checks in the neck joint panel: closed by default so
+   the common controls (width, length, deep end, radius) are what a first-time
+   user sees. */
+.neck-joint-checks {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--panel-border);
+}
+
+.neck-joint-checks > summary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
