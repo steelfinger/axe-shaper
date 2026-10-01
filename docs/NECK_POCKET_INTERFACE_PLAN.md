@@ -209,6 +209,13 @@ tongue and extension-length schema rather than a misleading reuse of mortise
 parameters. Glued joints may also record a neck angle, but a top-view export
 must state that it is not a complete angled mortise template.
 
+**Editor exposure.** `neckAngleDegrees` stays in the schema so existing files
+and other clients round-trip, but neither editor shows a control for it: no
+export, drawing or viewer reads it, and a field for it implies a modelled
+angled mortise that does not exist. The heel fit target and cutter diameter
+only add warnings and notes, so they sit in a closed "Fabrication checks
+(optional)" section and never change the drawing.
+
 No profile needs a body-anchor attachment. The app must never infer shoulder
 anchors from visual proximity, because numeric joints remain valid regardless
 of the body contour or its node count.
