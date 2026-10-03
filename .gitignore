@@ -39,3 +39,6 @@ script_*.js
 
 # Firebase CLI local cache
 .firebase/
+
+# Scratch reference renders
+tmp/
