@@ -12,6 +12,7 @@ npm run build      # tsc -b && vite build
 npm run build:site # build + viewer3d:fetch - what CI deploys
 npm run deploy     # build:site && firebase deploy (rarely needed - see below)
 npm run lint       # oxlint
+npm test           # vitest: unit tests for pure logic in src/**/__tests__
 npm run corpus     # regenerate tests/golden/geometry-corpus.json
 npm run corpus:check  # fail if the committed corpus is stale
 npm run schema:check  # schema v3 contract: migration, round-trip, rejections
@@ -39,6 +40,12 @@ Actions minutes are billed, and when that lapses the jobs die in seconds with
 neither repo has branch protection (a paid feature there), so nothing is
 gated on them either. A stale cross-platform mesh corpus once rode that
 ambiguity for two commits. The local run is the evidence.
+
+`npm test` is Vitest in a Node environment (no DOM), for pure logic under
+`src/utils` and `src/constants`. It complements the contract checks below
+rather than replacing them - those own the golden corpus and the iOS fixtures.
+Logic that needs `window` should be pulled out into a function that takes its
+input as an argument, as `planParamFromSearch` was.
 
 `corpus:check`, `schema:check`, `bass:check` and `fixtures:check` all run in
 CI now, in the `verify` workflow. Still run them by hand before committing

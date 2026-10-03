@@ -93,7 +93,7 @@ function iPadSimulator(): { destination: string; label: string } | undefined {
 function webSteps(): Step[] {
   // The `verify` workflow's steps, in its order. `build` is tsc + vite, and
   // carries bridge:check with it.
-  return ['lint', 'build', 'dxf:check', 'corpus:check', 'schema:check', 'bass:check', 'fixtures:check']
+  return ['lint', 'test', 'build', 'dxf:check', 'corpus:check', 'schema:check', 'bass:check', 'fixtures:check']
     .map(script => ({ label: script, command: 'npm', args: ['run', '--silent', script], cwd: ROOT }));
 }
 

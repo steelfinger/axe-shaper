@@ -11,6 +11,7 @@
     "build:site": "npm run build && npm run viewer3d:fetch",
     "deploy": "npm run build:site && firebase deploy --only hosting",
     "lint": "oxlint",
+    "test": "vitest run",
     "corpus": "node scripts/generate-golden-corpus.ts",
     "corpus:check": "node scripts/generate-golden-corpus.ts --check",
     "bridge:check": "node scripts/check-bridge-drawing.ts",
@@ -37,6 +38,7 @@
     "dxf-parser": "^1.1.2",
     "oxlint": "^1.71.0",
     "typescript": "~6.0.2",
-    "vite": "^8.1.1"
+    "vite": "^8.1.1",
+    "vitest": "^4.1.11"
   }
 }

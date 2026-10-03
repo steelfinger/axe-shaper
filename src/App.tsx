@@ -27,6 +27,7 @@ import type {
 } from './types/guitar';
 import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
+import { planParamFromSearch } from './utils/planParam';
 import { mirroredSegmentIndex, withMirroredInsertion } from './utils/symmetry';
 import { buildProjectFilename, downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
 import { downloadDXFFile, exportProjectToDXF } from './utils/dxfExporter';
@@ -103,19 +104,7 @@ const cloneDoc = (doc: EditorDoc): EditorDoc => ({
 
 const UNDO_STEPS = 50;
 
-/**
- * A plan for `/app?plan=...` to open on load, or null.
- *
- * Deliberately restricted to a same-origin absolute path. This fetches
- * whatever it points at and loads it as the project, so allowing an off-site
- * URL would let a crafted link drop arbitrary content into someone's editor.
- * "/marketing/x.axe.svg" passes; "//host/x" and "https://host/x" do not.
- */
-const planParamFromLocation = (): string | null => {
-  const raw = new URLSearchParams(window.location.search).get('plan');
-  if (!raw || !raw.startsWith('/') || raw.startsWith('//')) return null;
-  return raw;
-};
+const planParamFromLocation = (): string | null => planParamFromSearch(window.location.search);
 
 /** What the editor was showing when it left for the New Design screen, so the
  *  chooser can open on that instrument/blueprint instead of the guitar default -

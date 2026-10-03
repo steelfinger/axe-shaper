@@ -40,6 +40,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Unit tests
+        run: npm test
+
       # `build` is `bridge:check && tsc -b && vite build`, so this covers
       # type-checking and the bridge drawing check too.
       - name: Build
