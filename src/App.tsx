@@ -19,7 +19,6 @@ import type {
   GuideImageState,
   CalibrationState,
   InstrumentType,
-  StoredProject,
   Vector2D,
   PickupType,
   SelectedHardwarePlacement,
@@ -28,6 +27,14 @@ import type {
 import { curveSegment, insertAnchorOnSegment, isSegmentStraight, straightenSegment } from './utils/bezier';
 import { HistoryManager } from './utils/history';
 import { planParamFromSearch } from './utils/planParam';
+import {
+  loadPlan,
+  mayStartNewDesign,
+  noteEditorOpened,
+  noteReturnedToChooser,
+  resolvePopState,
+  type NavigationEnv,
+} from './utils/editorNavigation';
 import { mirroredSegmentIndex, withMirroredInsertion } from './utils/symmetry';
 import { buildProjectFilename, downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
 import { downloadDXFFile, exportProjectToDXF } from './utils/dxfExporter';
@@ -708,7 +715,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
    * teaches people to click through prompts without reading them.
    */
   const handleNewDesign = () => {
-    if (isDirty && !window.confirm('Start a new design? Unsaved changes to this one will be lost.')) return;
+    if (!mayStartNewDesign(isDirty, (m) => window.confirm(m))) return;
     onNewDesign(hintFromProject(project));
   };
 
@@ -969,18 +976,11 @@ type EditorRouteState =
   | { kind: 'choosing'; from?: NewDesignHint }
   | { kind: 'editing'; project: GuitarProject; session: number };
 
-/**
- * `history.state.axe === 'editing'` marks the one extra history entry the
- * editor pushes on top of the chooser. It exists so the browser Back button
- * returns to the New Design screen instead of leaving `/app` entirely, and so
- * the popstate handler below can tell "Back out of the editor" from navigation
- * between two chooser entries.
- */
-const EDITING_HISTORY_STATE = { axe: 'editing' } as const;
-
-function isEditingHistoryEntry(): boolean {
-  return (window.history.state as { axe?: string } | null)?.axe === 'editing';
-}
+/** The real browser, for the history and confirm rules in utils/editorNavigation.ts. */
+const browserEnv = (): NavigationEnv => ({
+  history: window.history,
+  confirm: (message) => window.confirm(message),
+});
 
 function EditorRoute(): React.JSX.Element {
   const [state, setState] = useState<EditorRouteState>(() =>
@@ -1010,9 +1010,7 @@ function EditorRoute(): React.JSX.Element {
     // chooser - not for a `?plan=` open (still `loading` here), whose own
     // effect normalises the URL, and not if somehow already on the editor
     // entry. Back from the editor then lands on the chooser.
-    if (stateRef.current.kind === 'choosing' && !isEditingHistoryEntry()) {
-      window.history.pushState(EDITING_HISTORY_STATE, '');
-    }
+    noteEditorOpened(stateRef.current.kind, browserEnv());
     setState({ kind: 'editing', project, session: sessionRef.current });
   };
 
@@ -1023,7 +1021,7 @@ function EditorRoute(): React.JSX.Element {
    * doesn't drop back onto a torn-down editor.
    */
   const returnToChooser = (from: NewDesignHint) => {
-    if (isEditingHistoryEntry()) window.history.replaceState(null, '');
+    noteReturnedToChooser(browserEnv());
     dirtyRef.current = false;
     setState({ kind: 'choosing', from });
   };
@@ -1032,21 +1030,8 @@ function EditorRoute(): React.JSX.Element {
   useEffect(() => {
     const onPopState = () => {
       const prev = stateRef.current;
-      if (isEditingHistoryEntry()) {
-        // Forward, back into the editor entry - but its EditorApp is gone and
-        // there is no project to restore. Normalise the entry and stay put.
-        if (prev.kind !== 'editing') window.history.replaceState(null, '');
-        return;
-      }
+      if (resolvePopState(prev.kind, dirtyRef.current, browserEnv()) === 'stay') return;
       if (prev.kind !== 'editing') return;
-      if (
-        dirtyRef.current &&
-        !window.confirm('Leave this design for the New Design screen? Unsaved changes will be lost.')
-      ) {
-        // Cancelled: re-push the entry the browser just popped.
-        window.history.pushState(EDITING_HISTORY_STATE, '');
-        return;
-      }
       dirtyRef.current = false;
       setState({ kind: 'choosing', from: hintFromProject(prev.project) });
     };
@@ -1080,17 +1065,9 @@ function EditorRoute(): React.JSX.Element {
     let cancelled = false;
 
     void (async () => {
-      let imported: StoredProject | null = null;
-      try {
-        const response = await fetch(src);
-        if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-        imported = extractProjectFromSVG(await response.text());
-      } catch {
-        imported = null;
-      }
+      const result = await loadPlan(src, (url) => fetch(url));
       if (cancelled) return;
 
-      const result = loadProject(imported);
       if (result.ok) openProject(result.project);
       else {
         alert(`${result.message} Choose a blueprint to start a new design instead.`);
