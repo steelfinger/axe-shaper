@@ -42,3 +42,7 @@ script_*.js
 
 # Scratch reference renders
 tmp/
+
+# Playwright
+test-results/
+playwright-report/

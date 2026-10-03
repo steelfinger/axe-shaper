@@ -13,6 +13,7 @@ npm run build:site # build + viewer3d:fetch - what CI deploys
 npm run deploy     # build:site && firebase deploy (rarely needed - see below)
 npm run lint       # oxlint
 npm test           # vitest: unit tests for pure logic in src/**/__tests__
+npm run e2e        # build, then Playwright smoke flows in e2e/ (Chromium)
 npm run corpus     # regenerate tests/golden/geometry-corpus.json
 npm run corpus:check  # fail if the committed corpus is stale
 npm run schema:check  # schema v3 contract: migration, round-trip, rejections
@@ -45,7 +46,17 @@ ambiguity for two commits. The local run is the evidence.
 `src/utils` and `src/constants`. It complements the contract checks below
 rather than replacing them - those own the golden corpus and the iOS fixtures.
 Logic that needs `window` should be pulled out into a function that takes its
-input as an argument, as `planParamFromSearch` was.
+input as an argument, as `planParamFromSearch` and `utils/editorNavigation.ts`
+were.
+
+`e2e/` is a small Playwright suite against `vite preview` of the production
+build: the failures that do not throw (blank canvas, a Back that leaves
+`/app`, a deep link that flashes the chooser, the header squeezing the name
+field). Keep it to smoke flows - if a check can be a unit test it should be.
+The first run needs `npx playwright install chromium`. In CI it runs in
+`verify` right after Build, so it never touches `VIEWER3D_RELEASE_TOKEN`.
+The Konva canvas is a bitmap, so flows assert that it is sized and drawn, not
+what is on it; do not add pixel assertions.
 
 `corpus:check`, `schema:check`, `bass:check` and `fixtures:check` all run in
 CI now, in the `verify` workflow. Still run them by hand before committing
