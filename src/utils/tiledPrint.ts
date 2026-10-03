@@ -9,7 +9,7 @@ interface PaperSize {
   heightMm: number;
 }
 
-const PAPER_SIZES: Record<PrintPaper, PaperSize> = {
+export const PAPER_SIZES: Record<PrintPaper, PaperSize> = {
   a4: { label: 'A4', widthMm: 210, heightMm: 297 },
   letter: { label: 'Letter', widthMm: 215.9, heightMm: 279.4 },
 };
@@ -26,7 +26,7 @@ interface TilingPlan {
   stepYMm: number;
 }
 
-function tilingFor(widthMm: number, heightMm: number, paper: PaperSize): TilingPlan {
+export function tilingFor(widthMm: number, heightMm: number, paper: PaperSize): TilingPlan {
   const usableWidthMm = paper.widthMm - MARGIN_MM * 2;
   const usableHeightMm = paper.heightMm - MARGIN_MM * 2;
   const stepXMm = usableWidthMm - OVERLAP_MM;
@@ -41,7 +41,7 @@ function tilingFor(widthMm: number, heightMm: number, paper: PaperSize): TilingP
   };
 }
 
-function parseMm(value: string | null): number | null {
+export function parseMm(value: string | null): number | null {
   const match = value?.trim().match(/^([0-9]+(?:\.[0-9]+)?)mm$/i);
   return match ? Number(match[1]) : null;
 }
