@@ -136,20 +136,31 @@ Binding is unchanged in its other respects: cream, a separate physical mesh,
 inset within the fingerboard width.
 
 **Sharkfins.** A right triangle, one centered per marked fret (including the
-12th and 24th, like the other long inlays). Its legs and spacing are set by
-clearance rather than by the 70% rule:
+12th and 24th, like the other long inlays). It is sized by a single 3 mm
+clearance on every side, not by the 70% rule:
 
 ```text
-inlayHeightY = interval - 2 x 2 mm      (2 mm clear of each fret wire)
-inlayWidthX  = fretboardWidth(centre) - 2 x 3 mm   (3 mm clear of each edge)
+inlayHeightY = interval - 2 x 3 mm                 (3 mm from each fret centreline)
+inlayWidthX  = fretboardWidth(centre) - 2 x 3 mm   (3 mm from each physical edge)
 ```
 
-The two legs span the full height and width, the hypotenuse joins their free
-ends, and the **acute point faces the bridge** (the sharp end is on the bridge
-side). The right angle is at the nut-side corner on the *bass-side* edge.
-This one geometry serves the Jackson style and the Rickenbacker bass; they are
-the same option, not two. Fret clearance is measured from the fret's
-centreline, as for the other markers.
+Seen from above with the nut at the top and the bass side on the left, its
+three corners are:
+
+- **top-left** (nut side, bass edge): the upper acute point;
+- **bottom-left** (bridge side, bass edge): the **right angle**;
+- **bottom-right** (bridge side, treble edge): the lower acute point.
+
+So the vertical leg runs along the bass edge, the **flat leg is the edge
+nearer the bridge**, and the hypotenuse runs from the nut-side bass corner to
+the treble-side bridge corner, leaving the sharp point on the treble side. The
+shape is a plain straight-edged triangle; the hypotenuse is not curved. The
+same orientation applies on bass and guitar necks, and is not mirrored for
+left-handed instruments in the preview.
+
+This one geometry serves both the Jackson style and the Rickenbacker bass; they
+are the same option, not two. The 3 mm values are nominal and need not be
+precise.
 
 Implement blocks as the conventional centered rectangular fretboard inlay,
 with the same shallow raised/inset visual treatment used by the existing
@@ -256,8 +267,9 @@ Phase 1 (steps 1-4) first; phase 2 (steps 5-7) only after the iOS gate above.
 - Viewer mesh tests verify `inlayWidthX = fretboardWidth(centre) - 16 mm` for
   blocks and trapezoids with binding on and off, and a trapezoid bottom edge exactly 8 mm narrower
   than its top edge;
-- Viewer mesh tests verify a sharkfin's height is `interval - 4 mm`, its
-  width `fretboardWidth(centre) - 6 mm`, and its acute point faces the bridge;
+- Viewer mesh tests verify a sharkfin's height is `interval - 6 mm`, its
+  width `fretboardWidth(centre) - 6 mm`, its flat edge is toward the bridge and
+  its sharp point is on the treble side;
 - Viewer mesh tests verify one centered block/trapezoid/sharkfin at frets 12 and 24,
   unchanged paired dot positions, and `inlayHeightY = interval × 0.70` at
   every marked fret.
