@@ -54,8 +54,7 @@ Keep the controls in the existing **Instrument Appearance** modal:
 
 - Keep the all-model **Cream fretboard binding** checkbox.
 - Add **Blocks** and **Sharkfins** alongside Dots and Trapezoids in the
-  Fretboard inlays select. Sharkfins covers both the Jackson and the
-  Rickenbacker look; there is one option, one geometry.
+  Fretboard inlays select; each is a single option with a single geometry.
 - Retain the existing 3D-preview-only copy, so users understand that this is
   intentionally absent from their printable plan.
 
@@ -155,8 +154,7 @@ shape is a plain straight-edged triangle; the hypotenuse is not curved. The
 same orientation applies on bass and guitar necks, and is not mirrored for
 left-handed instruments in the preview.
 
-This one geometry serves both the Jackson style and the Rickenbacker bass; they
-are the same option, not two. The 3 mm values are nominal and need not be
+The 3 mm values are nominal and need not be
 precise.
 
 Implement blocks as the conventional centered rectangular fretboard inlay,

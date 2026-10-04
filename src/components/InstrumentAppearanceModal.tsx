@@ -84,7 +84,7 @@ export function InstrumentAppearanceModal({
               <option value="dots">Dots</option>
               <option value="trapezoids">Trapezoids</option>
               <option value="blocks">Blocks</option>
-              <option value="sharkfins">Sharkfins (Jackson / Rickenbacker)</option>
+              <option value="sharkfins">Sharkfins</option>
             </select>
           </label>
           <label className="form-group">
