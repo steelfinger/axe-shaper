@@ -38,14 +38,8 @@ project name could contain one.
 | 5 | Optional `bodyTop.construction`: a named 3D body-face construction. |
 | 6 | `instrumentAppearance`: persisted 3D neck, fingerboard, inlay, binding and headstock choices. |
 | 7 | Paired `neckJointGeometry` and `neckPlacement`: authored joint-plan parameters and the body-owned scale datum. |
-| 8 | `instrumentAppearance.fretboardInlay` may be `blocks` or `sharkfins`. Stamped only when chosen. |
 
 ## Instrument appearance (version 6)
-
-`fretboardInlay: 'blocks'` and `'sharkfins'` were added at **version 8**. They
-are the only values that raise the stamp: a document using `dots` or `trapezoids` keeps its
-ordinary lowest version, and a reader below 8 refuses a blocks or sharkfins file at its
-newer-schema gate rather than falling back to dots.
 
 `instrumentAppearance` is an optional project-root object. Its absence means
 the reader resolves the historical default for that template; loading an older
@@ -57,8 +51,13 @@ these keys:
 | `neckFinish` | `natural_maple`, `body_matched` |
 | `fingerboard` | `maple`, `rosewood` |
 | `fretboardBinding` | boolean; `true` is cream binding |
-| `fretboardInlay` | `dots`, `trapezoids`, `blocks`, `sharkfins` (blocks and sharkfins are version 8) |
+| `fretboardInlay` | `dots`, `trapezoids`, `blocks`, `sharkfins` |
 | `headstockShape` | `strat_style`, `t_style`, `gibson`, `explorer`, `firebird`, `thunderbird`, `flying_v`, `bass_f`, `bass_mm`, `bass_r`, `bass_sg` |
+
+`blocks` and `sharkfins` were added after version 6 shipped without a version
+of their own: the field is an open string, a reader that does not know a value
+keeps it verbatim and draws dots, and nothing about the document's meaning
+changes. A writer must therefore preserve an inlay value it does not recognise.
 
 This is deliberately separate from `binding`, which is body-edge binding.
 It contains no custom neck colour: a neck is either natural maple or uses the

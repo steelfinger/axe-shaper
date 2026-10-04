@@ -56,19 +56,12 @@ import type { StoredProject } from '../types/guitar';
  *       placement is the body-owned reference-fret datum. A version 7 file
  *       without either half is malformed and refused at the editable gate.
  *
- *   8 - Adds `'blocks'` and `'sharkfins'` as `instrumentAppearance.fretboardInlay`
- *       values. Nothing else changes, and a document stamps 8 only when it
- *       actually chooses one of them: every other appearance value keeps its existing
- *       lowest version. A reader below 8 refuses such a file at its newer-
- *       schema gate instead of quietly drawing dots. See
- *       docs/FRETBOARD_APPEARANCE_PLAN.md.
- *
  * This constant is the newest version this build *understands*, and it is the
  * upper bound of the read gate. It is deliberately not what a save stamps -
  * see `requiredSchemaVersion` below, which writes the lowest version that can
  * represent the document in hand.
  */
-export const PROJECT_SCHEMA_VERSION = 8;
+export const PROJECT_SCHEMA_VERSION = 7;
 
 /**
  * The oldest payload this build can read. Nothing has been dropped yet, so
@@ -115,7 +108,7 @@ export const BASE_SCHEMA_VERSION = 3;
  * The lowest version that can represent this document. This - not
  * `PROJECT_SCHEMA_VERSION` - is what a save stamps.
  *
- * Versions 4 through 8 are purely additive: each adds an optional field
+ * Versions 4 through 6 are purely additive: each adds an optional field
  * whose absence is the behaviour that already existed (no placed controls,
  * a flat top, or legacy 3D defaults). A document that uses none is therefore
  * exactly a version 3 document, and saying so is what lets a build that only
@@ -159,11 +152,6 @@ export function requiredSchemaVersion(
   if (typeof project.schemaVersion === 'number' && project.schemaVersion > PROJECT_SCHEMA_VERSION) {
     return project.schemaVersion;
   }
-  // Version 8 is two enum values, not a new field, so it is the only check
-  // that looks inside `instrumentAppearance`. It runs first: every new design
-  // also carries the v7 pair, which would otherwise win and under-stamp it.
-  const inlay = project.instrumentAppearance?.fretboardInlay;
-  if (inlay === 'blocks' || inlay === 'sharkfins') return 8;
   // The v7 objects are an atomic contract. `migrateProject()` rejects a
   // partial pair; this conditional simply ensures a fully represented v7
   // document is never stamped as an older format on save.

@@ -30,14 +30,11 @@ describe('requiredSchemaVersion', () => {
     expect(stamp({ neckPlacement: any({}) })).toBe(7);
   });
 
-  it('stamps 8 only for the blocks and sharkfins inlays, ahead of the v7 pair', () => {
-    const appearance = (fretboardInlay: string) => any({ fretboardInlay });
-    expect(stamp({ instrumentAppearance: appearance('blocks') })).toBe(8);
-    expect(stamp({ instrumentAppearance: appearance('sharkfins'), neckJointGeometry: any({}) })).toBe(8);
-    expect(stamp({ instrumentAppearance: appearance('blocks'), neckJointGeometry: any({}), neckPlacement: any({}) })).toBe(8);
-    expect(stamp({ instrumentAppearance: appearance('dots'), neckJointGeometry: any({}) })).toBe(7);
-    expect(stamp({ instrumentAppearance: appearance('trapezoids'), neckJointGeometry: any({}) })).toBe(7);
-    expect(stamp({ instrumentAppearance: appearance('trapezoids') })).toBe(6);
+  it('does not raise the stamp for the blocks or sharkfins inlay', () => {
+    for (const fretboardInlay of ['blocks', 'sharkfins']) {
+      expect(stamp({ instrumentAppearance: any({ fretboardInlay }) })).toBe(6);
+      expect(stamp({ instrumentAppearance: any({ fretboardInlay }), neckJointGeometry: any({}) })).toBe(7);
+    }
   });
 
   it('takes the highest version any field needs', () => {

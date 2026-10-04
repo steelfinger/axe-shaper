@@ -32,7 +32,10 @@ export interface InstrumentAppearance {
   neckFinish: 'natural_maple' | 'body_matched';
   fingerboard: 'maple' | 'rosewood';
   fretboardBinding: boolean;
-  /** `blocks` and `sharkfins` are schema v8; `requiredSchemaVersion` stamps 8 only for them. */
+  /**
+   * Newer values are ordinary strings to older readers: iOS keeps an unknown
+   * one verbatim and draws dots, so adding one needs no schema version.
+   */
   fretboardInlay: 'dots' | 'trapezoids' | 'blocks' | 'sharkfins';
   headstockShape: HeadstockShapeId;
 }

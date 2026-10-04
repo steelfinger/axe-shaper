@@ -83,6 +83,8 @@ export function InstrumentAppearanceModal({
             <select className="form-select" value={appearance.fretboardInlay} onChange={(event) => update({ fretboardInlay: event.target.value as InstrumentAppearance['fretboardInlay'] })}>
               <option value="dots">Dots</option>
               <option value="trapezoids">Trapezoids</option>
+              <option value="blocks">Blocks</option>
+              <option value="sharkfins">Sharkfins (Jackson / Rickenbacker)</option>
             </select>
           </label>
           <label className="form-group">
