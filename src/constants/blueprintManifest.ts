@@ -99,25 +99,25 @@ export const BLUEPRINT_MANIFEST: Record<
   // category vocabulary yet, so each picks the closest existing one plus a
   // parenthetical.
   p_bass_style: {
-    description: 'Bolt-on bass with a split-coil pickup, 34" scale. First-draft body - see the evidence packet before treating the contour as final.',
+    description: 'Bolt-on bass with a split-coil pickup, 34" scale, 20 frets.',
     category: 'S-Style',
     tier: 'reference',
     instrumentType: 'bass',
   },
   j_bass_style: {
-    description: 'Offset bolt-on bass with two single-coil pickups, 34" scale. First-draft body - see the evidence packet.',
+    description: 'Offset bolt-on bass with two single-coil pickups, 34" scale, 20 frets.',
     category: 'S-Style',
     tier: 'reference',
     instrumentType: 'bass',
   },
   mm_bass_style: {
-    description: 'Bolt-on bass with a single bridge-position humbucker, 34" scale. First-draft body - see the evidence packet.',
+    description: 'Bolt-on bass with a single bridge-position humbucker, 34" scale, 20 frets.',
     category: 'S-Style',
     tier: 'reference',
     instrumentType: 'bass',
   },
   r_bass_style: {
-    description: 'Offset bass with a glued neck joint in a narrow 40 mm pocket and two pickups, 33.25" scale. First-draft body that only loosely approximates the intended silhouette - see the evidence packet before relying on this contour.',
+    description: 'Offset bass with a glued neck joint in a narrow 40 mm pocket and two pickups, 33.25" scale, 20 frets.',
     category: 'Offset',
     tier: 'reference',
     instrumentType: 'bass',
@@ -125,25 +125,25 @@ export const BLUEPRINT_MANIFEST: Record<
 
   // --- Extra ------------------------------------------------------------
   thunderbird_bass_style: {
-    description: 'Reverse-body bass with a glued neck and two mini humbuckers, 34" scale. First-draft body - see the evidence packet.',
+    description: 'Reverse-body bass with a glued neck and two mini humbuckers, 34" scale, 20 frets.',
     category: 'Thunderbird',
     tier: 'extra',
     instrumentType: 'bass',
   },
   mustang_bass_style: {
-    description: 'Short-scale bolt-on bass with a single split-coil pickup, 30" scale, 19 frets. First-draft body - see the evidence packet.',
+    description: 'Short-scale bolt-on bass with a single split-coil pickup, 30" scale, 19 frets.',
     category: 'Offset',
     tier: 'extra',
     instrumentType: 'bass',
   },
   sg_bass_style: {
-    description: 'Short-scale bass with a glued neck and a single humbucker, 30.5" scale; the body shares the outline family of the double-cutaway guitar blueprint. First-draft body - see the evidence packet.',
+    description: 'Short-scale bass with a glued neck and a single humbucker, 30.5" scale, 20 frets; the body shares the outline family of the double-cutaway guitar blueprint.',
     category: 'Double-Cut',
     tier: 'extra',
     instrumentType: 'bass',
   },
   streamer_bass_style: {
-    description: 'Sculpted bolt-on bass with a split-coil and a single-coil pickup, 34" scale. First-draft body, least-sourced of the eight - see the evidence packet.',
+    description: 'Sculpted bolt-on bass with a split-coil and a single-coil pickup, 34" scale, 20 frets.',
     category: 'S-Style',
     tier: 'extra',
     instrumentType: 'bass',
