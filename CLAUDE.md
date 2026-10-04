@@ -267,7 +267,9 @@ a *new* design is at 7 from the first save, so the iPad build that shipped
 with the web has to read v7 or it cannot edit anything created here
 (`VersionPolicy.decide` opens a newer payload read-only). That is exactly the
 "web goes live only when a compatible App Store version is live" rule under
-*Deploying is a tag*, and v7 is why it is not optional. Adding an optional
+*Deploying is a tag*, and v7 is why it is not optional. That condition is met
+as of iPad v1.2.0, the first App Store release that reads v7 (October 2026);
+anything older cannot edit a file saved from a new design here. Adding an optional
 field to a new version is what keeps on-demand stamping possible; a version
 that changes what an existing field means raises the floor instead. See the
 format doc's "A save stamps the version it needs".
