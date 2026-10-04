@@ -30,9 +30,10 @@ describe('requiredSchemaVersion', () => {
     expect(stamp({ neckPlacement: any({}) })).toBe(7);
   });
 
-  it('stamps 8 only for the blocks inlay, ahead of the v7 pair', () => {
+  it('stamps 8 only for the blocks and sharkfins inlays, ahead of the v7 pair', () => {
     const appearance = (fretboardInlay: string) => any({ fretboardInlay });
     expect(stamp({ instrumentAppearance: appearance('blocks') })).toBe(8);
+    expect(stamp({ instrumentAppearance: appearance('sharkfins'), neckJointGeometry: any({}) })).toBe(8);
     expect(stamp({ instrumentAppearance: appearance('blocks'), neckJointGeometry: any({}), neckPlacement: any({}) })).toBe(8);
     expect(stamp({ instrumentAppearance: appearance('dots'), neckJointGeometry: any({}) })).toBe(7);
     expect(stamp({ instrumentAppearance: appearance('trapezoids'), neckJointGeometry: any({}) })).toBe(7);

@@ -56,9 +56,9 @@ import type { StoredProject } from '../types/guitar';
  *       placement is the body-owned reference-fret datum. A version 7 file
  *       without either half is malformed and refused at the editable gate.
  *
- *   8 - Adds `'blocks'` as a `instrumentAppearance.fretboardInlay` value.
- *       Nothing else changes, and a document stamps 8 only when it actually
- *       chooses blocks: every other appearance value keeps its existing
+ *   8 - Adds `'blocks'` and `'sharkfins'` as `instrumentAppearance.fretboardInlay`
+ *       values. Nothing else changes, and a document stamps 8 only when it
+ *       actually chooses one of them: every other appearance value keeps its existing
  *       lowest version. A reader below 8 refuses such a file at its newer-
  *       schema gate instead of quietly drawing dots. See
  *       docs/FRETBOARD_APPEARANCE_PLAN.md.
@@ -159,10 +159,11 @@ export function requiredSchemaVersion(
   if (typeof project.schemaVersion === 'number' && project.schemaVersion > PROJECT_SCHEMA_VERSION) {
     return project.schemaVersion;
   }
-  // Version 8 is one enum value, not a new field, so it is the only check
+  // Version 8 is two enum values, not a new field, so it is the only check
   // that looks inside `instrumentAppearance`. It runs first: every new design
   // also carries the v7 pair, which would otherwise win and under-stamp it.
-  if (project.instrumentAppearance?.fretboardInlay === 'blocks') return 8;
+  const inlay = project.instrumentAppearance?.fretboardInlay;
+  if (inlay === 'blocks' || inlay === 'sharkfins') return 8;
   // The v7 objects are an atomic contract. `migrateProject()` rejects a
   // partial pair; this conditional simply ensures a fully represented v7
   // document is never stamped as an older format on save.
