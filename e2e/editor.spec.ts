@@ -27,6 +27,16 @@ test.describe('opening a design', () => {
     await expectCanvasDrawn(page);
     expect(errors).toEqual([]);
   });
+
+  test('clicking a blueprint card selects it and shows its description; Open editor opens it', async ({ page }) => {
+    await page.goto('/app');
+    await expect(chooserHeading(page)).toBeVisible();
+    await page.locator('label.design-card').nth(1).click();
+    await expect(chooserHeading(page)).toBeVisible();
+    await expect(page.locator('.design-summary-text')).toContainText('scale');
+    await page.getByRole('button', { name: /Open editor/ }).click();
+    await expect(projectNameField(page)).toBeVisible();
+  });
 });
 
 test.describe('?plan= deep link', () => {

@@ -18,7 +18,7 @@ import { formatLength } from '../utils/units';
  *
  * Two things here are structural rather than cosmetic:
  *
- * - **No project exists until a card is activated or Open editor is
+ * - **No project exists until a card is double-clicked or Open editor is
  *   pressed.** The screen holds a template *id*, and `createProject` runs
  *   once, at that point. Choosing Bass therefore cannot briefly render or
  *   initialise a guitar project - there is nothing to initialise until the
@@ -29,25 +29,11 @@ import { formatLength } from '../utils/units';
  *   and would get the roving tab stop wrong. The cards are `<label>`s for
  *   their own input, so the whole card stays clickable.
  *
- * A real pointer click (mouse, touch, pen) on a card opens the editor
- * immediately, rather than only selecting it and leaving "Open editor" as a
- * second, separate click - a card was selectable but that wasn't obvious as
- * a two-step flow, and clicking a card was the natural expectation of
- * "choose this one." Arrow-key browsing within the radio group deliberately
- * still only *selects* (updates the preview) without submitting, because a
- * keyboard-only user has no other way to move between cards, and needs to be
- * able to pass a card by without committing to it.
- *
- * That distinction is harder than "click vs. change": a native radio group's
- * arrow-key navigation is specified to run the newly-focused radio's own
- * activation behaviour, which fires a real `click` event - not just
- * `change`. `onClick` alone can't tell that apart from an actual pointer
- * click; `event.detail` can't either (both are `0`, same as a keyboard Space
- * activation). The one reliable signal is `pointerType`: empty for anything
- * keyboard-originated, `"mouse"`/`"touch"`/`"pen"` for a real pointing
- * device. Confirmed empirically, not assumed - see `BlueprintCard`'s own
- * comment. "Open editor" stays as the explicit, always-present action for
- * arrow-key/Tab-only navigation.
+ * A click on a card only *selects* it, so the summary line below shows what the
+ * blueprint is before anything opens. "Open editor" (or Enter, or a double
+ * click on the card) commits. Arrow-key browsing within the radio group also
+ * just selects, because a keyboard-only user has no other way to move between
+ * cards and needs to pass one by without committing to it.
  */
 
 interface NewDesignScreenProps {
@@ -363,29 +349,14 @@ function BlueprintCard({
   checked: boolean;
   /** Arrow-key browsing within the radio group: preview only, no commit. */
   onSelect: (id: string) => void;
-  /** A real pointer click (mouse, touch, pen) on the card: select and open the editor in one step. */
+  /** Double-click on the card: select and open the editor in one step. */
   onActivate: (id: string) => void;
 }): React.JSX.Element {
   const facts = templateFacts(template);
   return (
     <label
       className={`design-card${checked ? ' is-selected' : ''}`}
-      onClick={(event) => {
-        // Wrapping the input in a <label> is what makes the whole card
-        // clickable, but that means EVERY activation of the input - a real
-        // pointer click, *and* the click a browser synthesises when arrow
-        // keys move focus within a native radio group - bubbles through this
-        // handler as a 'click'. Those two are indistinguishable by event type
-        // (both are `detail: 0` for a plain keyboard Space too); the one
-        // reliable signal is `pointerType`, empty for anything keyboard-
-        // originated and "mouse"/"touch"/"pen" for a real pointer device.
-        // Gating on it is what keeps arrow-key browsing (still just a
-        // preview via onChange below) from instantly opening the editor on
-        // whichever card the second arrow press happens to land on - which a
-        // first version of this fix did, and it made browsing past the
-        // second card impossible for a keyboard-only user.
-        if ((event.nativeEvent as PointerEvent).pointerType) onActivate(template.id);
-      }}
+      onDoubleClick={() => onActivate(template.id)}
     >
       <input
         type="radio"

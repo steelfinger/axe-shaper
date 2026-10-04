@@ -18,79 +18,73 @@ export const BLUEPRINT_MANIFEST: Record<
   Pick<ReferenceTemplate, 'description' | 'category' | 'tier' | 'instrumentType'>
 > = {
   single_cut: {
-    description: 'Classic single-cut Mahogany body with dual humbuckers and Tune-O-Matic bridge.',
+    description: 'Single-cutaway body with a carved-cap top, glued neck, two humbuckers and an adjustable bridge. 24.75" scale.',
     category: 'Single-Cut',
     tier: 'reference',
     instrumentType: 'guitar',
   },
   sg_style: {
-    description: 'Symmetric double-cutaway Vintage SG body (Gibson/Yamaha style) with bevel contours.',
+    description: 'Symmetric double-cutaway body with bevelled contours, glued neck, two humbuckers and an adjustable bridge. 24.75" scale.',
     category: 'Double-Cut',
     tier: 'reference',
     instrumentType: 'guitar',
   },
   s_style: {
-    description: 'Double cutaway body with contoured waist and upper horns.',
+    description: 'Double-cutaway body with a contoured waist and upper horns, bolt-on neck, three single-coils and a tremolo bridge. 25.5" scale.',
     category: 'S-Style',
     tier: 'reference',
     instrumentType: 'guitar',
   },
   t_style: {
-    description: 'Single cutaway solid body with flat edge profile and classic bridge plate.',
+    description: 'Single-cutaway slab body with a flat edge profile, bolt-on neck, two single-coils and a flat bridge plate. 25.5" scale.',
     category: 'T-Style',
     tier: 'reference',
     instrumentType: 'guitar',
   },
   gibson_firebird: {
-    description:
-      'Firebird-style body with a fret-19 pocket joint, Tune-O-Matic bridge, and standard humbuckers, positioned from a real routing template.',
+    description: 'Body with a fret-19 pocket joint, glued neck, two mini humbuckers and an adjustable bridge, positioned from a real routing template. 24.75" scale.',
     category: 'Firebird',
     tier: 'extra',
     instrumentType: 'guitar',
   },
   gretsch_thunderbird: {
-    description:
-      'Single-cutaway body inspired by the Gretsch Billy-Bo Jupiter Thunderbird, with a Tune-O-Matic bridge and standard humbuckers.',
+    description: 'Single-cutaway body with a glued neck, two humbuckers and an adjustable bridge. 24.75" scale.',
     category: 'Thunderbird',
     tier: 'extra',
     instrumentType: 'guitar',
   },
   gibson_flying_v: {
-    description: 'Body inspired by the Gibson Flying V, with a deep-set neck joint, Tune-O-Matic bridge, and standard humbuckers.',
+    description: 'V-shaped body with a deep-set neck joint, glued neck, two humbuckers and an adjustable bridge. 24.75" scale.',
     category: 'V-Style',
     tier: 'extra',
     instrumentType: 'guitar',
   },
   gibson_explorer: {
-    description:
-      'Explorer-style body traced from a 1958 plan, with a Tune-O-Matic bridge, standard humbuckers, a treble-wing pickguard and toggle, and a deep neck pocket.',
+    description: 'Angular body traced from a 1958 plan, with a deep neck pocket, two humbuckers, an adjustable bridge, and a treble-wing pickguard and toggle. 24.75" scale.',
     category: 'Explorer',
     tier: 'extra',
     instrumentType: 'guitar',
   },
   prs_style: {
-    description:
-      'Double-cutaway body traced from a PRS plan, with an arched carved-cap top, a thin mahogany core, a wraparound stoptail, two humbuckers, and a deep-set neck.',
+    description: 'Double-cutaway body traced from a plan, with an arched carved-cap top, a thin mahogany core, a wraparound stoptail, two humbuckers and a deep-set glued neck. 25" scale.',
     category: 'PRS',
     tier: 'extra',
     instrumentType: 'guitar',
   },
   semi_hollow_double_cut: {
-    description:
-      'ES-335-style double cutaway with F-holes as 2 cm front cavities, an arched carved-cap top, Tune-O-Matic and stopbar, two humbuckers, and a fret-19 neck joint. Built as a solid carved body, not a hollow one.',
+    description: 'Double-cutaway body with F-holes as 2 cm front cavities, an arched carved-cap top, two humbuckers, an adjustable bridge with stopbar tailpiece, and a fret-19 neck joint. Built as a solid carved body, not a hollow one. 24.75" scale.',
     category: 'Semi-Hollow',
     tier: 'extra',
     instrumentType: 'guitar',
   },
   semi_hollow_single_cut: {
-    description:
-      'ES-225T / ES-295-style single cutaway with F-holes as 2 cm front cavities, an arched carved-cap top, a P-90, a black pickguard, and a fret-14 neck joint. Built as a solid carved body, not a hollow one.',
+    description: 'Single-cutaway body with F-holes as 2 cm front cavities, an arched carved-cap top, a soapbar single-coil pickup, a black pickguard, and a fret-14 neck joint. Built as a solid carved body, not a hollow one. 24.75" scale.',
     category: 'Semi-Hollow',
     tier: 'extra',
     instrumentType: 'guitar',
   },
   jag_style: {
-    description: 'Jaguar-style offset body with its pickguard and front control routes, a 610 mm scale neck, and Tune-O-Matic bridge.',
+    description: 'Offset body with a pickguard and front control routes, bolt-on neck, two single-coils and an adjustable bridge. 24" scale.',
     category: 'Offset',
     tier: 'extra',
     instrumentType: 'guitar',
@@ -105,25 +99,25 @@ export const BLUEPRINT_MANIFEST: Record<
   // category vocabulary yet, so each picks the closest existing one plus a
   // parenthetical.
   p_bass_style: {
-    description: 'Precision-style split-coil bolt-on bass, 34" scale. First-draft body - see the evidence packet before treating the contour as final.',
+    description: 'Bolt-on bass with a split-coil pickup, 34" scale. First-draft body - see the evidence packet before treating the contour as final.',
     category: 'S-Style',
     tier: 'reference',
     instrumentType: 'bass',
   },
   j_bass_style: {
-    description: 'Jazz-style offset bolt-on bass with dual single-coil J pickups, 34" scale. First-draft body - see the evidence packet.',
+    description: 'Offset bolt-on bass with two single-coil pickups, 34" scale. First-draft body - see the evidence packet.',
     category: 'S-Style',
     tier: 'reference',
     instrumentType: 'bass',
   },
   mm_bass_style: {
-    description: 'Music Man-style bolt-on bass with a single bridge humbucker, 34" scale. First-draft body - see the evidence packet.',
+    description: 'Bolt-on bass with a single bridge-position humbucker, 34" scale. First-draft body - see the evidence packet.',
     category: 'S-Style',
     tier: 'reference',
     instrumentType: 'bass',
   },
   r_bass_style: {
-    description: 'Rickenbacker-style neck-through bass, 33.25" scale. First-draft body only loosely approximates the real cresting-wave silhouette - see the evidence packet before relying on this contour.',
+    description: 'Offset bass with a glued neck joint in a narrow 40 mm pocket and two pickups, 33.25" scale. First-draft body that only loosely approximates the intended silhouette - see the evidence packet before relying on this contour.',
     category: 'Offset',
     tier: 'reference',
     instrumentType: 'bass',
@@ -131,25 +125,25 @@ export const BLUEPRINT_MANIFEST: Record<
 
   // --- Extra ------------------------------------------------------------
   thunderbird_bass_style: {
-    description: 'Reverse-body Thunderbird-style bass with dual humbuckers, 34" scale. First-draft body - see the evidence packet.',
+    description: 'Reverse-body bass with a glued neck and two mini humbuckers, 34" scale. First-draft body - see the evidence packet.',
     category: 'Thunderbird',
     tier: 'extra',
     instrumentType: 'bass',
   },
   mustang_bass_style: {
-    description: 'Mustang-style short-scale bolt-on bass with a single split-coil pickup, 30" scale, 19 frets. First-draft body - see the evidence packet.',
+    description: 'Short-scale bolt-on bass with a single split-coil pickup, 30" scale, 19 frets. First-draft body - see the evidence packet.',
     category: 'Offset',
     tier: 'extra',
     instrumentType: 'bass',
   },
   sg_bass_style: {
-    description: 'SG-style short-scale glued-neck bass with dual humbuckers, 30.5" scale - body shares the existing sg_style guitar\'s own outline family. First-draft body - see the evidence packet.',
+    description: 'Short-scale bass with a glued neck and a single humbucker, 30.5" scale; the body shares the outline family of the double-cutaway guitar blueprint. First-draft body - see the evidence packet.',
     category: 'Double-Cut',
     tier: 'extra',
     instrumentType: 'bass',
   },
   streamer_bass_style: {
-    description: 'Streamer-style sculpted bolt-on bass with dual soapbar pickups, 34" scale. First-draft body, least-sourced of the eight - see the evidence packet.',
+    description: 'Sculpted bolt-on bass with a split-coil and a single-coil pickup, 34" scale. First-draft body, least-sourced of the eight - see the evidence packet.',
     category: 'S-Style',
     tier: 'extra',
     instrumentType: 'bass',
