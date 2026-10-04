@@ -32,7 +32,8 @@ export interface InstrumentAppearance {
   neckFinish: 'natural_maple' | 'body_matched';
   fingerboard: 'maple' | 'rosewood';
   fretboardBinding: boolean;
-  fretboardInlay: 'dots' | 'trapezoids';
+  /** `blocks` is schema v8; `requiredSchemaVersion` stamps 8 only for it. */
+  fretboardInlay: 'dots' | 'trapezoids' | 'blocks';
   headstockShape: HeadstockShapeId;
 }
 

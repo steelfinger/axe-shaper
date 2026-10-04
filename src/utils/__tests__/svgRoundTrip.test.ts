@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { REFERENCE_TEMPLATES } from '../../constants/templates';
-import { PROJECT_SCHEMA_VERSION } from '../../constants/schema';
 import { createProject } from '../projectFactory';
 import { loadProject } from '../presets';
 import { buildProjectFilename, exportProjectToSVG, extractProjectFromSVG } from '../svgExporter';
@@ -37,10 +36,10 @@ describe('save and reopen', () => {
     expect(reopened.bridgePreset).toEqual(project.bridgePreset);
   });
 
-  it('stamps new designs at the current version, since every blueprint carries the v7 joint pair', () => {
+  it('stamps new designs at 7, since every blueprint carries the v7 joint pair and none uses blocks', () => {
     for (const templateId of Object.keys(REFERENCE_TEMPLATES)) {
       const saved = extractProjectFromSVG(exportProjectToSVG(createProject({ templateId })))!;
-      expect(saved.schemaVersion, templateId).toBe(PROJECT_SCHEMA_VERSION);
+      expect(saved.schemaVersion, templateId).toBe(7);
     }
   });
 
@@ -62,6 +61,21 @@ describe('save and reopen', () => {
     expect(extractProjectFromSVG('<svg xmlns="http://www.w3.org/2000/svg"></svg>')).toBeNull();
     expect(extractProjectFromSVG('not even xml')).toBeNull();
     expect(extractProjectFromSVG('')).toBeNull();
+  });
+});
+
+describe('blueprint fretboard appearance defaults', () => {
+  const trapezoid = ['single_cut', 'gibson_firebird', 'sg_style'];
+  // r_bass_style is bound with dots until the v8 (blocks) phase is enabled.
+  const dotsBound = ['semi_hollow_single_cut', 'semi_hollow_double_cut', 'gibson_explorer', 'r_bass_style'];
+
+  it('gives each bundled blueprint its authored binding and inlay', () => {
+    for (const templateId of Object.keys(REFERENCE_TEMPLATES)) {
+      const { fretboardBinding, fretboardInlay } = createProject({ templateId }).instrumentAppearance!;
+      const bound = trapezoid.includes(templateId) || dotsBound.includes(templateId);
+      expect(fretboardBinding, templateId).toBe(bound);
+      expect(fretboardInlay, templateId).toBe(trapezoid.includes(templateId) ? 'trapezoids' : 'dots');
+    }
   });
 });
 

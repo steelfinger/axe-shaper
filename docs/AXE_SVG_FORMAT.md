@@ -38,8 +38,14 @@ project name could contain one.
 | 5 | Optional `bodyTop.construction`: a named 3D body-face construction. |
 | 6 | `instrumentAppearance`: persisted 3D neck, fingerboard, inlay, binding and headstock choices. |
 | 7 | Paired `neckJointGeometry` and `neckPlacement`: authored joint-plan parameters and the body-owned scale datum. |
+| 8 | `instrumentAppearance.fretboardInlay` may be `blocks`. Stamped only when chosen. |
 
 ## Instrument appearance (version 6)
+
+`fretboardInlay: 'blocks'` was added at **version 8**. It is the only value
+that raises the stamp: a document using `dots` or `trapezoids` keeps its
+ordinary lowest version, and a reader below 8 refuses a blocks file at its
+newer-schema gate rather than falling back to dots.
 
 `instrumentAppearance` is an optional project-root object. Its absence means
 the reader resolves the historical default for that template; loading an older
@@ -51,7 +57,7 @@ these keys:
 | `neckFinish` | `natural_maple`, `body_matched` |
 | `fingerboard` | `maple`, `rosewood` |
 | `fretboardBinding` | boolean; `true` is cream binding |
-| `fretboardInlay` | `dots`, `trapezoids` |
+| `fretboardInlay` | `dots`, `trapezoids`, `blocks` (version 8) |
 | `headstockShape` | `strat_style`, `t_style`, `gibson`, `explorer`, `firebird`, `thunderbird`, `flying_v`, `bass_f`, `bass_mm`, `bass_r`, `bass_sg` |
 
 This is deliberately separate from `binding`, which is body-edge binding.
