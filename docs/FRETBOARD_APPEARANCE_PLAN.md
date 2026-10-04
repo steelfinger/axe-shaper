@@ -141,12 +141,11 @@ Adding `blocks` expands a persisted enum. It takes **schema version 8**.
 **Version ownership.** A schema version is one number, not a feature set: a
 reader that claims "reads v8" must understand *everything* v8 can carry, or it
 will pass the gate and then drop what it did not understand on resave. The
-deferred output-jacks plan (`OUTPUT_JACKS_SCHEMA_8_PLAN.md`) also names Schema
-8. Two features cannot share it, so the rule is: **whichever ships first owns
-v8, and the other takes the next number.** Blocks is the active work, so it
-owns v8; output jacks becomes **v9** and its plan must be renumbered before it
-is started. Until that edit lands, treat the jacks plan's "Schema 8" as
-provisional.
+deferred output-jacks plan (`OUTPUT_JACKS_SCHEMA_9_PLAN.md`) originally named
+Schema 8 as well. Two features cannot share one version, so the rule is:
+**whichever ships first owns v8, and the other takes the next number.** Blocks
+is the active work, so it owns v8; output jacks has been renumbered to **v9**,
+and its stamp check runs before the blocks check.
 
 1. Raise the project-schema ceiling to 8 in web, viewer, and iOS. At this
    version v8 means exactly one thing: `fretboardInlay` may be `'blocks'`.
@@ -204,7 +203,7 @@ Phase 1 (steps 1-4) first; phase 2 (steps 5-7) only after the iOS gate above.
 1. **Agree the contract.** Add `blocks` to the web, viewer, and iOS appearance
    models; document schema v8 and version-on-demand stamping in
    `AXE_SVG_FORMAT.md` and `constants/schema.ts`; raise viewer/iOS read
-   ceilings. Renumber the output-jacks plan to v9.
+   ceilings.
 2. **Author phase-1 blueprint defaults.** Update only the affected bundled
    `.axe.svg` payloads (R-style bass as binding + dots), preserving all
    pre-existing document data; validate that other blueprints remain dots/no

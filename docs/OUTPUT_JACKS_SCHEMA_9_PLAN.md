@@ -1,32 +1,33 @@
-# Output jacks: Schema 8 implementation plan
+# Output jacks: Schema 9 implementation plan
 
 Deferred implementation note, prepared 2026-10-04.
 
 ## Status and release gate
 
-**Deferred. Do not begin the persisted Schema 8 implementation until Schema 7
-has shipped as the shared web/iOS baseline.** This document is the source of
+**Deferred. Do not begin the persisted Schema 9 implementation until Schema 8
+(fretboard `blocks`, see `FRETBOARD_APPEARANCE_PLAN.md`) has shipped as the
+shared web/iOS baseline.** This document is the source of
 truth for the subsequent work; it does not author an output jack in any
 project, blueprint, fixture, or runtime type.
 
-Schema 8 support must ship in the web app and iOS together, or the web UI must
+Schema 9 support must ship in the web app and iOS together, or the web UI must
 keep output-jack authoring unavailable until the iOS release can read and
-preserve Schema 8 documents.
+preserve Schema 9 documents.
 
 This is the same rule as "the web goes live only when an App Store version that
 reads the same format is live too" (CLAUDE.md, *Deploying is a tag*), applied
-to v8. Concretely:
+to v9. Concretely:
 
-- Raising `PROJECT_SCHEMA_VERSION` to 8 only widens what the web *reads*. It is
-  safe to deploy before iOS ships, because a save stamps 8 only when a jack is
-  placed (see *Schema 8 contract*, item 3), so no existing or jack-free
+- Raising `PROJECT_SCHEMA_VERSION` to 9 only widens what the web *reads*. It is
+  safe to deploy before iOS ships, because a save stamps 9 only when a jack is
+  placed (see *Schema 9 contract*, item 3), so no existing or jack-free
   document changes version.
 - Anything that lets a user *place* a jack (the Output Jack action, blueprints
   or templates carrying one) must be hidden behind a build-time flag until an
-  iOS release that reads v8 is live. No `v*` tag may enable that flag before
+  iOS release that reads v9 is live. No `v*` tag may enable that flag before
   then.
 - iOS reader support lands first, so there is never a window where the web
-  writes v8 and the shipping iPad build refuses it.
+  writes v9 and the shipping iPad build refuses it.
 
 ## Decision
 
@@ -67,7 +68,7 @@ same compact jack assembly centred on the plate. Plate rotation controls the
 whole symbol. A direct jack is rotationally symmetric, so it has no meaningful
 user-facing rotation control.
 
-## Schema 8 contract
+## Schema 9 contract
 
 Add an optional root `jacks` list at the tolerant stored-project boundary.
 An in-memory project that contains a jack uses the following concept:
@@ -85,7 +86,7 @@ interface OutputJackPlacement {
 ```
 
 The exact type and field names must be agreed with `axe-shaper-ios` before
-either implementation writes Schema 8.
+either implementation writes Schema 9.
 
 **`angleDegrees` on `direct` jacks.** It is ignored for rendering and must be
 preserved verbatim on save. A new `direct` jack is created with `0`. Switching
@@ -100,9 +101,9 @@ ones) and written back unchanged. The editor treats it as follows:
   outline and no nut or hole detail.
 - Selectable and deletable, but not restylable or rotatable, since the editor
   cannot know what the style means.
-- It does not raise the stamp beyond 8. A document claiming a version above
+- It does not raise the stamp beyond 9. A document claiming a version above
   this build's is already preserved by the existing "keeps its own claim" rule
-  in `requiredSchemaVersion()`, so a v9 file with a new style stays v9.
+  in `requiredSchemaVersion()`, so a v10 file with a new style stays v10.
 
 In iOS the style must decode through a raw-value-preserving type, not a closed
 `enum`, so an unknown string survives a round-trip. Decide this in the contract
@@ -110,36 +111,36 @@ step; it is hard to retrofit once fixtures exist.
 
 Update the version contract in all implementations:
 
-1. Record `jacks` as the Version 8 addition in `src/constants/schema.ts` and
+1. Record `jacks` as the Version 9 addition in `src/constants/schema.ts` and
    `docs/AXE_SVG_FORMAT.md`.
-2. Raise `PROJECT_SCHEMA_VERSION` to 8.
-3. Make `requiredSchemaVersion()` return 8 only when `jacks` is non-empty.
+2. Raise `PROJECT_SCHEMA_VERSION` to 9.
+3. Make `requiredSchemaVersion()` return 9 only when `jacks` is non-empty.
    A project containing no jacks retains the lowest version required by its
    other content, including Version 7's required neck-joint pair.
    - The checks in `src/constants/schema.ts` run highest version first, so the
-     `jacks` check goes **before** the v7 `neckJointGeometry` / `neckPlacement`
-     check. Placed after it, every new design (which always carries the v7
-     pair) would stamp 7 even with a jack.
+     `jacks` check goes **before** the v8 `blocks` check and the v7
+     `neckJointGeometry` / `neckPlacement` check. Placed after them, every new
+     design (which always carries the v7 pair) would stamp 7 even with a jack.
    - Add `'jacks'` to the function's `Pick<StoredProject, ...>` parameter type.
    - The stamp is applied in `withEmbeddedPresets` (`src/utils/presets.ts`), so
      it happens on the way out as well as on the way in; a save with a
-     non-empty `jacks` must come out at 8 through that path.
+     non-empty `jacks` must come out at 9 through that path.
    - An empty `jacks: []` counts as absent: it does not raise the stamp, and
      the empty list is dropped on save rather than written.
    - Tests in `schemaStamp.test.ts`: no jacks -> 7 for a new design; one jack
-     -> 8; `jacks: []` -> unchanged; v3/v4/v5 files stay at their own version
+     -> 9 (also with `blocks` set); `jacks: []` -> unchanged; v3/v4/v5 files stay at their own version
      on open and re-save.
 4. Implement matching version computation, migration, Codable preservation,
-   and fixture coverage in iOS before declaring Schema 8 cross-platform.
+   and fixture coverage in iOS before declaring Schema 9 cross-platform.
 
 The version bump is intentional. A saved document with placed output jacks
 must claim a version understood by every editor allowed to modify it; it must
-not be described as Schema 7 merely because `jacks` is additive.
+not be described as Schema 7 or 8 merely because `jacks` is additive.
 
 ## Implementation sequence after the gate opens
 
 1. **Agree and test the contract.** Finalise the shared field spellings,
-   dimensions, fallback behaviour, Schema 8 policy, and a web/iOS fixture
+   dimensions, fallback behaviour, Schema 9 policy, and a web/iOS fixture
    before UI work.
 2. **Web model and persistence.** Add the placement model, factory/template
    copying, migration/version computation, SVG metadata encode/decode, viewer
@@ -155,11 +156,11 @@ not be described as Schema 7 merely because `jacks` is additive.
    evidenced. Leave side-jack instruments without a v1 jack marker.
 6. **iOS parity.** Implement equivalent model, persistence, editing and plan
    rendering, then add cross-writer round-trip fixtures.
-7. **Release verification.** Test Schema 3--7 loading unchanged, Schema 8
+7. **Release verification.** Test Schema 3--8 loading unchanged, Schema 9
    round-trips in both directions, selection/rotation behaviour, print scale,
    and old-client version refusal/preservation policy before release.
 
-## Explicit non-goals for Schema 8
+## Explicit non-goals for Schema 9
 
 - Telecaster, Les Paul, acoustic endpin, or any other side/end-mounted jack.
 - Actual control-cavity or jack drilling/routing output in DXF.
@@ -183,7 +184,7 @@ than promoting these presentation symbols directly into machining geometry.
   71.0 mm apart and a central jack assembly, without a simulated recessed cup.
 - Output-jack placement survives Save, Open, templates, undo/redo, SVG
   metadata round-trip, and web/iOS cross-writer fixtures.
-- Documents without a jack do not become Schema 8 merely because they were
-  opened or saved by a Schema 8-capable editor.
+- Documents without a jack do not become Schema 9 merely because they were
+  opened or saved by a Schema 9-capable editor.
 - Side-mounted jacks and machining geometry remain absent from the editor and
   DXF export until their separate designs are approved.
