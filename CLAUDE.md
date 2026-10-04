@@ -240,25 +240,37 @@ v1/v2 files decode as Guitar/6. That is a default-when-absent read, not a
 guess: nothing else was drawable.
 
 **`PROJECT_SCHEMA_VERSION` is not what a save stamps.** It is the newest
-version this build *understands* - the upper bound of the read gate. A save
-carries `requiredSchemaVersion(project)`: the lowest version that can
-represent that document, which is 3 for a plain project, 4 once a
-potentiometer or switch is placed, 5 once a `bodyTop` is chosen, and 6 once a
-persisted `instrumentAppearance` is present. New designs and bundled
-blueprints author that appearance and therefore write 6; legacy documents
-without it retain their lower stamp. It is computed in `withEmbeddedPresets`,
-so it happens on the way out as well as on the way in. `Migration.requiredPayloadVersion(for:)`
-in axe-shaper-ios is the same function and must agree.
+version this build *understands* - the upper bound of the read gate (7 today).
+A save carries `requiredSchemaVersion(project)`: the lowest version that can
+represent that document. It is 3 for a plain project, 4 once a potentiometer
+or switch is placed, 5 once a `bodyTop` is chosen, 6 once a persisted
+`instrumentAppearance` is present, and 7 once the `neckJointGeometry` /
+`neckPlacement` pair is present. It is computed in `withEmbeddedPresets`, so
+it happens on the way out as well as on the way in.
+`Migration.requiredPayloadVersion(for:)` in axe-shaper-ios is the same
+function and must agree.
 
-The reason is release timing, not tidiness. The web deploys in minutes and the
-iPad app waits on App Store review, so stamping the newest version
-unconditionally means the day either side ships a new version, every file it
-saves stops being editable on the other - including a plain six-string that
-uses none of the new fields. Fifteen of the sixteen bundled blueprints sit at
-4 for exactly this reason; only `single_cut` has a `bodyTop`. Adding an
-optional field to a new version is what keeps this possible; a version that
-changes what an existing field means raises the floor instead. See the format
-doc's "A save stamps the version it needs".
+**What that means in practice: new designs write 7, opened files keep theirs.**
+`createProject` always carries the v7 pair, so every new design and every one
+of the 20 bundled blueprints saves at 7 (`svgRoundTrip.test.ts` pins this).
+Nothing upgrades a file on open: a v2/v3 file saves at 3, a v5 file at 5,
+because the stamp follows the fields the document actually has. The v7 pair is
+atomic - a project with only half of it is refused at save, and a payload with
+only half of it is refused at load.
+
+The reason for stamping on demand is release timing, not tidiness. The web
+deploys in minutes and the iPad app waits on App Store review, so stamping the
+newest version unconditionally means the day either side ships a new version,
+every file it saves stops being editable on the other - including documents
+that use none of the new fields. It is now a narrower protection than it was:
+a *new* design is at 7 from the first save, so the iPad build that shipped
+with the web has to read v7 or it cannot edit anything created here
+(`VersionPolicy.decide` opens a newer payload read-only). That is exactly the
+"web goes live only when a compatible App Store version is live" rule under
+*Deploying is a tag*, and v7 is why it is not optional. Adding an optional
+field to a new version is what keeps on-demand stamping possible; a version
+that changes what an existing field means raises the floor instead. See the
+format doc's "A save stamps the version it needs".
 
 Catalogue compatibility (`NECK_PRESET_INSTRUMENT` and friends in
 `constants/hardware.ts`) is a **side-table keyed by id**, never a field on the
