@@ -177,8 +177,8 @@ function IpadPage(): React.JSX.Element {
         </section>
 
         <section className="ipad-intro" id="workflow">
-          <h2>Sixteen starting points. Every curve yours.</h2>
-          <p>Begin with one of 16 built-in solid-body templates—eight guitar and eight bass—or bring in a photo or camera scan for reference. You can also start from a blank outline. Axe Shaper keeps the work grounded in measurements from the first anchor to the printed template.</p>
+          <h2>Twenty starting points. Every curve yours.</h2>
+          <p>Begin with one of 20 built-in solid-body templates—guitar and bass—or bring in a photo or camera scan for reference. You can also start from a blank outline. Axe Shaper keeps the work grounded in measurements from the first anchor to the printed template.</p>
         </section>
 
         <section className="ipad-features" id="features">
@@ -314,7 +314,7 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
         <section className="proof-strip" aria-label="What the export guarantees">
           <div><span className="proof-value">1:1</span><span>prints true to scale, with a calibration square to prove it</span></div>
           <div><span className="proof-value">mm</span><span>every anchor stored in physical millimetres, never inches</span></div>
-          <div><span className="proof-value">16</span><span>built-in body blueprints: eight guitar and eight bass</span></div>
+          <div><span className="proof-value">20</span><span>built-in body blueprints, guitar and bass</span></div>
           <div><span className="proof-value">MIT</span><span>open source, free, and yours to fork</span></div>
         </section>
 
@@ -336,7 +336,7 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
           <h2 className="section-heading">Plan, print, cut.</h2>
           <div className="workflow-grid">
             <div className="workflow-rail" aria-hidden="true"><span /><span /><span /></div>
-            <article><Ruler size={24} /><h3>Start from measured geometry</h3><p>Choose from eight guitar and eight bass blueprints, or trace a calibrated photo of your own. Every anchor you drag stays in physical millimetres.</p></article>
+            <article><Ruler size={24} /><h3>Start from measured geometry</h3><p>Choose from 20 guitar and bass blueprints, or trace a calibrated photo of your own. Every anchor you drag stays in physical millimetres.</p></article>
             <article><Printer size={24} /><h3>Export the thing you build from</h3><p>The project and the printable drawing live in one standard SVG, with a calibration square that catches printer scaling before you cut.</p></article>
             <article><Link2 size={24} /><h3>Carry the work forward</h3><p>Reopen the same <code>.axe.svg</code> months later with every curve, preset and pickup still editable — the project data rides inside the drawing.</p></article>
           </div>
@@ -369,7 +369,7 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
           </div>
           <div className="ipad-copy">
             <h2>A solid-body workbench, built for iPad.</h2>
-            <p>Design solid-body electric guitar and bass bodies with the same measured approach: start from 16 templates, trace a real-world reference, shape every curve, and export a full-size pattern for the shop.</p>
+            <p>Design solid-body electric guitar and bass bodies with the same measured approach: start from 20 templates, trace a real-world reference, shape every curve, and export a full-size pattern for the shop.</p>
             <div className="ipad-copy-actions">
               <AppStoreBadge />
               <a className="marketing-button secondary" href="/ipad">Explore Axe Shaper for iPad <ArrowRight size={17} /></a>
