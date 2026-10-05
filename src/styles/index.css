@@ -3304,12 +3304,22 @@ html.marketing-document {
 
 .new-design-body {
   width: 100%;
-  max-width: 1040px;
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 40px 24px 64px;
+  padding: 48px 24px 72px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 40px;
+}
+
+/* Tighter inside a decision, looser between them: intro and instrument belong
+   together, the two blueprint sections are one browse, the rest is aftermath. */
+.new-design-intro + .design-instrument-group {
+  margin-top: -16px;
+}
+
+.design-template-group + .design-template-group {
+  margin-top: -8px;
 }
 
 .new-design-intro h1 {
@@ -3332,7 +3342,7 @@ html.marketing-document {
 }
 
 .design-instrument-group legend,
-.design-template-group legend {
+.design-template-group h2 {
   padding: 0 0 12px;
   font-size: 0.78rem;
   font-weight: 600;
@@ -3341,14 +3351,17 @@ html.marketing-document {
   color: var(--text-muted);
 }
 
+.design-template-group h2 {
+  margin: 0;
+}
+
 .design-instrument-options {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
 
-.design-instrument-option input,
-.design-card input {
+.design-instrument-option input {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -3390,69 +3403,96 @@ html.marketing-document {
 }
 
 .design-instrument-option input:focus-visible + .design-instrument-face,
-.design-card input:focus-visible + .design-card-preview {
+.design-card:focus-visible {
   outline: 2px solid var(--accent-blue);
   outline-offset: 3px;
 }
 
-/* `display: grid` outranks the `hidden` attribute's own `display: none`, so
-   the collapsed Extra group would render anyway. Kept as an attribute
-   selector rather than a class because `hidden` is also what tells assistive
-   technology the group is collapsed. */
-.design-card-grid[hidden] {
-  display: none;
-}
-
 .design-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.design-card-grid.is-compact {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .design-card {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 14px;
+  gap: 12px;
+  padding: 10px 10px 16px;
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-md);
   background: var(--bg-secondary);
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .design-card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--accent-gold);
 }
 
-.design-card.is-selected {
+/* Gold marks the design that was open, and nothing else. */
+.design-card.is-current {
   border-color: var(--accent-gold);
   background: rgba(209, 165, 61, 0.12);
 }
 
+.design-card.is-compact {
+  gap: 8px;
+  padding: 6px 6px 12px;
+}
+
+.design-card.is-compact .design-card-preview {
+  height: 132px;
+  padding: 8px;
+}
+
+.design-card.is-compact .design-card-preview path {
+  stroke-width: 1.25;
+}
+
+.design-card.is-compact .design-card-body {
+  padding: 0 6px;
+}
+
+/* The drawing sits in its own inset tile, so the text below reads as a caption
+   and every card's outline is framed the same way. */
 .design-card-preview {
   width: 100%;
-  height: 132px;
+  height: 208px;
   display: block;
+  box-sizing: border-box;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
 }
 
 .design-card-preview path {
   fill: rgba(255, 255, 255, 0.04);
   stroke: var(--text-primary);
-  stroke-width: 3;
+  stroke-width: 2;
   vector-effect: non-scaling-stroke;
   stroke-linejoin: round;
 }
 
-.design-card.is-selected .design-card-preview path {
+.design-card:hover .design-card-preview path,
+.design-card.is-current .design-card-preview path {
   stroke: var(--accent-gold);
 }
 
 .design-card-body {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
+  padding: 0 6px;
 }
 
 .design-card-name {
@@ -3469,7 +3509,8 @@ html.marketing-document {
 .design-card-facts {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 10px;
+  gap: 0 10px;
+  margin-top: 2px;
 }
 
 /* Mono-Means-Measured: the scale length is a physical readout. */
@@ -3477,43 +3518,15 @@ html.marketing-document {
   font-family: var(--font-mono);
 }
 
-.design-extra {
-  margin-top: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.design-extra-toggle {
-  align-self: flex-start;
-}
-
-.design-summary {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 16px 18px;
-  border: 1px solid var(--panel-border);
-  border-radius: var(--radius-md);
-  background: var(--bg-secondary);
-}
-
-.design-summary-text {
-  margin: 0;
-  font-size: 0.85rem;
+.design-card-description {
+  margin-top: 8px;
+  font-size: 0.78rem;
+  line-height: 1.5;
   color: var(--text-muted);
-  flex: 1 1 320px;
-  min-width: 0;
-}
-
-.design-summary-text strong {
-  color: var(--text-primary);
-}
-
-.design-submit {
-  flex: 0 0 auto;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .design-empty,
@@ -3531,13 +3544,21 @@ html.marketing-document {
   margin: 40px auto;
 }
 
+/* Sits in the instrument row, after the two choices: same height as they are,
+   but outlined only - it is a different kind of control (opens a file rather
+   than choosing what to design), so it must not read as a third instrument. */
 .design-open-existing {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  font-size: 0.8rem;
+  align-self: stretch;
+  padding: 0 18px;
+  margin-left: 4px;
+  background: transparent;
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.28);
   color: var(--text-muted);
+}
+
+.design-open-existing:hover {
+  color: var(--text-primary);
 }
 
 .design-primer {
@@ -3554,23 +3575,45 @@ html.marketing-document {
   margin: 0 0 16px;
 }
 
+@media (max-width: 1000px) {
+  .design-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .design-card-grid.is-compact {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 640px) {
   .new-design-body {
-    padding: 26px 16px 48px;
-    gap: 26px;
+    padding: 28px 16px 48px;
+    gap: 32px;
   }
 
   .design-card-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+
+  .design-open-existing {
+    margin-left: 0;
+    min-height: 40px;
+  }
+
+  .design-card-description {
+    -webkit-line-clamp: 7;
   }
 
   .design-card-preview {
-    height: 108px;
+    height: 156px;
   }
 
-  .design-submit {
-    width: 100%;
-    justify-content: center;
+  .design-card-grid.is-compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .design-card.is-compact .design-card-preview {
+    height: 108px;
   }
 }
 

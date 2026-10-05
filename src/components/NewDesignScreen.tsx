@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, FileUp, MousePointer2, Printer, Ruler } from 'lucide-react';
+import { FileUp, MousePointer2, Printer, Ruler } from 'lucide-react';
 import { REFERENCE_TEMPLATES } from '../constants/templates';
 import { BLUEPRINT_ORDER } from '../constants/blueprintManifest';
 import { DEFAULT_NECK_JOINT_MECHANISM } from '../constants/hardware';
@@ -18,22 +18,19 @@ import { formatLength } from '../utils/units';
  *
  * Two things here are structural rather than cosmetic:
  *
- * - **No project exists until a card is double-clicked or Open editor is
- *   pressed.** The screen holds a template *id*, and `createProject` runs
- *   once, at that point. Choosing Bass therefore cannot briefly render or
- *   initialise a guitar project - there is nothing to initialise until the
- *   choice is made.
- * - **Every control is a real radio input.** Arrow-key navigation within a
- *   group, Space to select, and the roving tab stop all come from the
- *   platform; a div with an onClick would have to reimplement each of them,
- *   and would get the roving tab stop wrong. The cards are `<label>`s for
- *   their own input, so the whole card stays clickable.
+ * - **No project exists until a card is clicked.** The screen holds an
+ *   instrument and nothing else, and `createProject` runs once, on the card's
+ *   click. Choosing Bass therefore cannot briefly render or initialise a guitar
+ *   project - there is nothing to initialise until the choice is made.
+ * - **The instrument choice is a real radio group** (arrow keys, Space and the
+ *   roving tab stop come from the platform). The blueprint cards are buttons:
+ *   one click opens the editor, so there is no "selected, not yet opened"
+ *   state to model. Each card carries its own description instead of a
+ *   summary bar below the grid, and browser Back returns here seeded with the
+ *   same instrument and blueprint, so a mis-click costs one step.
  *
- * A click on a card only *selects* it, so the summary line below shows what the
- * blueprint is before anything opens. "Open editor" (or Enter, or a double
- * click on the card) commits. Arrow-key browsing within the radio group also
- * just selects, because a keyboard-only user has no other way to move between
- * cards and needs to pass one by without committing to it.
+ * Reference blueprints get full cards; extras sit in a second, always visible
+ * section with compact cards, not behind a toggle.
  */
 
 interface NewDesignScreenProps {
@@ -43,9 +40,9 @@ interface NewDesignScreenProps {
    * When the chooser is reopened from the editor (via the header's instrument
    * control or a browser Back), the design that was open - so the screen lands
    * on that instrument and blueprint rather than the guitar default, and
-   * switching guitar <-> bass is a single click. `templateId` is only honoured
-   * when it names a bundled reference blueprint for that instrument; a user
-   * template or a stale id falls back to the instrument's first reference.
+   * switching guitar <-> bass is a single click. `templateId` marks that
+   * blueprint's card as the one that was open, when it names a bundled
+   * blueprint for that instrument; a user template or a stale id marks none.
    */
   initialSelection?: { instrumentType: InstrumentType; templateId: string };
 }
@@ -62,25 +59,25 @@ function templateFacts(template: ReferenceTemplate): { scaleLengthMm: number | n
 
 /**
  * The blueprint's own outline, drawn from the same anchors the editor will
- * open with - not an illustration of it. Scaled to fit the card by viewBox
- * rather than by touching the geometry.
+ * open with - not an illustration of it. Each is fitted to its own bounds by
+ * viewBox, so every card fills its tile; sizes are therefore not comparable
+ * between cards, and the scale length in the facts line is the real measure.
  */
 function BlueprintPreview({ template }: { template: ReferenceTemplate }): React.JSX.Element {
   const path = useMemo(() => anchorsToSVGPath(template.defaultAnchors, true), [template]);
   const bounds = useMemo(() => {
     const xs = template.defaultAnchors.map((a) => a.position.x);
     const ys = template.defaultAnchors.map((a) => a.position.y);
-    const pad = 12;
+    const pad = 6;
     const minX = Math.min(...xs) - pad;
     const minY = Math.min(...ys) - pad;
     return {
       minX,
       minY,
-      width: Math.max(...xs) - minX + pad,
-      height: Math.max(...ys) - minY + pad,
+      width: Math.max(...xs) + pad - minX,
+      height: Math.max(...ys) + pad - minY,
     };
   }, [template]);
-
   return (
     <svg
       className="design-card-preview"
@@ -126,52 +123,23 @@ export function NewDesignScreen({
     return groups;
   }, []);
 
-  const firstTemplateFor = (type: InstrumentType): string | null => {
-    const templates = byInstrument.get(type) ?? [];
-    return (templates.find((t) => t.tier === 'reference') ?? templates[0])?.id ?? null;
-  };
-
-  // A chooser reopened from the editor lands on the design that was open, when
-  // its id names a bundled reference blueprint for that instrument; otherwise
-  // on that instrument's first reference. A cold start is Guitar, for
-  // continuity with every build before this screen existed.
-  const seededInstrument = initialSelection?.instrumentType ?? 'guitar';
-  const seededTemplate =
-    initialSelection &&
-    REFERENCE_TEMPLATES[initialSelection.templateId]?.instrumentType === seededInstrument
-      ? initialSelection.templateId
-      : firstTemplateFor(seededInstrument);
-
-  const [instrumentType, setInstrumentType] = useState<InstrumentType>(() => seededInstrument);
-  const [templateId, setTemplateId] = useState<string | null>(() => seededTemplate);
-  const [extraOpen, setExtraOpen] = useState(
-    () => !!seededTemplate && REFERENCE_TEMPLATES[seededTemplate]?.tier === 'extra'
+  // A chooser reopened from the editor lands on the instrument that was open;
+  // a cold start is Guitar, for continuity with every build before this screen.
+  const [instrumentType, setInstrumentType] = useState<InstrumentType>(
+    () => initialSelection?.instrumentType ?? 'guitar'
   );
+  const currentId =
+    initialSelection &&
+    REFERENCE_TEMPLATES[initialSelection.templateId]?.instrumentType === instrumentType
+      ? initialSelection.templateId
+      : null;
 
   const templates = byInstrument.get(instrumentType) ?? [];
   const reference = templates.filter((t) => t.tier === 'reference');
   const extra = templates.filter((t) => t.tier === 'extra');
-  const selected = templateId ? REFERENCE_TEMPLATES[templateId] : undefined;
-
-  const handleInstrumentChange = (type: InstrumentType) => {
-    setInstrumentType(type);
-    // Selecting an instrument re-selects its own first reference blueprint;
-    // carrying the previous one over would leave a guitar selected under a
-    // Bass heading, and it is the *template* that decides the instrument the
-    // project is created with.
-    setTemplateId(firstTemplateFor(type));
-    setExtraOpen(false);
-  };
 
   const openWithTemplate = (id: string) => {
-    setTemplateId(id);
     onOpenProject(createProject({ templateId: id }));
-  };
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!templateId) return;
-    openWithTemplate(templateId);
   };
 
   return (
@@ -184,7 +152,7 @@ export function NewDesignScreen({
         </a>
       </header>
 
-      <form className="new-design-body" onSubmit={handleSubmit}>
+      <div className="new-design-body">
         <div className="new-design-intro">
           <h1>New design</h1>
           <p>
@@ -206,7 +174,7 @@ export function NewDesignScreen({
                     name="instrument"
                     value={type}
                     checked={instrumentType === type}
-                    onChange={() => handleInstrumentChange(type)}
+                    onChange={() => setInstrumentType(type)}
                   />
                   <span className="design-instrument-face">
                     <span className="design-instrument-name">{instrumentLabel(type)}</span>
@@ -217,6 +185,25 @@ export function NewDesignScreen({
                 </label>
               );
             })}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".svg,image/svg+xml"
+              hidden
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) onOpenFile(file);
+                event.target.value = '';
+              }}
+            />
+            <button
+              type="button"
+              className="btn design-open-existing"
+              title="Any .axe.svg saved by Axe Shaper, on this device or the iPad app"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <FileUp size={15} /> Open existing project
+            </button>
           </div>
         </fieldset>
 
@@ -230,84 +217,38 @@ export function NewDesignScreen({
           </p>
         ) : (
           <>
-            <fieldset className="design-template-group">
-              <legend>Blueprint</legend>
+            <section className="design-template-group" aria-labelledby="design-reference-title">
+              <h2 id="design-reference-title">Blueprint</h2>
               <div className="design-card-grid">
                 {reference.map((template) => (
                   <BlueprintCard
                     key={template.id}
                     template={template}
-                    checked={templateId === template.id}
-                    onSelect={setTemplateId}
-                    onActivate={openWithTemplate}
+                    current={currentId === template.id}
+                    onOpen={openWithTemplate}
                   />
                 ))}
               </div>
+            </section>
 
-              {extra.length > 0 && (
-                <div className="design-extra">
-                  <button
-                    type="button"
-                    className="btn btn-sm design-extra-toggle"
-                    aria-expanded={extraOpen}
-                    aria-controls="design-extra-grid"
-                    onClick={() => setExtraOpen((open) => !open)}
-                  >
-                    {extraOpen ? 'Hide' : 'Show'} extra blueprints ({extra.length})
-                  </button>
-                  {/* Kept mounted but hidden, so a card selected here stays
-                      selected if the group is collapsed again. */}
-                  <div id="design-extra-grid" className="design-card-grid" hidden={!extraOpen}>
-                    {extra.map((template) => (
-                      <BlueprintCard
-                        key={template.id}
-                        template={template}
-                        checked={templateId === template.id}
-                        onSelect={setTemplateId}
-                        onActivate={openWithTemplate}
-                      />
-                    ))}
-                  </div>
+            {extra.length > 0 && (
+              <section className="design-template-group" aria-labelledby="design-extra-title">
+                <h2 id="design-extra-title">More shapes</h2>
+                <div className="design-card-grid is-compact">
+                  {extra.map((template) => (
+                    <BlueprintCard
+                      key={template.id}
+                      template={template}
+                        current={currentId === template.id}
+                      compact
+                      onOpen={openWithTemplate}
+                    />
+                  ))}
                 </div>
-              )}
-            </fieldset>
-
-            <div className="design-summary">
-              <p className="design-summary-text" role="status">
-                {selected ? (
-                  <>
-                    <strong>{selected.name}</strong> — {selected.description}
-                  </>
-                ) : (
-                  'Select a blueprint to continue.'
-                )}
-              </p>
-              <button type="submit" className="btn btn-accent design-submit" disabled={!selected}>
-                Open editor <ArrowRight size={16} />
-              </button>
-            </div>
+              </section>
+            )}
           </>
         )}
-
-        <div className="design-open-existing">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".svg,image/svg+xml"
-            hidden
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) onOpenFile(file);
-              event.target.value = '';
-            }}
-          />
-          <button type="button" className="btn" onClick={() => fileInputRef.current?.click()}>
-            <FileUp size={15} /> Open existing project
-          </button>
-          <span>
-            Any <code>.axe.svg</code> saved by Axe Shaper, on this device or the iPad app.
-          </span>
-        </div>
 
         {/* Below the decision, deliberately: this used to be a modal in front
             of it, which meant the first thing a new user did was dismiss
@@ -334,37 +275,32 @@ export function NewDesignScreen({
             </div>
           </div>
         </section>
-      </form>
+      </div>
     </div>
   );
 }
 
 function BlueprintCard({
   template,
-  checked,
-  onSelect,
-  onActivate,
+  current,
+  compact = false,
+  onOpen,
 }: {
   template: ReferenceTemplate;
-  checked: boolean;
-  /** Arrow-key browsing within the radio group: preview only, no commit. */
-  onSelect: (id: string) => void;
-  /** Double-click on the card: select and open the editor in one step. */
-  onActivate: (id: string) => void;
+  /** The blueprint the reopened chooser's previous design was built from. */
+  current: boolean;
+  /** Extras: outline, name and facts only - no description. */
+  compact?: boolean;
+  onOpen: (id: string) => void;
 }): React.JSX.Element {
   const facts = templateFacts(template);
   return (
-    <label
-      className={`design-card${checked ? ' is-selected' : ''}`}
-      onDoubleClick={() => onActivate(template.id)}
+    <button
+      type="button"
+      className={`design-card${compact ? ' is-compact' : ''}${current ? ' is-current' : ''}`}
+      aria-current={current || undefined}
+      onClick={() => onOpen(template.id)}
     >
-      <input
-        type="radio"
-        name="blueprint"
-        value={template.id}
-        checked={checked}
-        onChange={() => onSelect(template.id)}
-      />
       <BlueprintPreview template={template} />
       <span className="design-card-body">
         <span className="design-card-name">{template.name}</span>
@@ -375,12 +311,14 @@ function BlueprintCard({
               {/* formatLength returns the bare number - the unit is the
                   caller's, everywhere in this app. Only the number is set in
                   mono, per the Mono-Means-Measured rule. */}
-              <span className="design-card-measure">{formatLength(facts.scaleLengthMm, 'mm')}</span> mm scale
+              <span className="design-card-measure">{formatLength(facts.scaleLengthMm, 'mm')}</span>
+              {compact ? ' mm' : ' mm scale'}
             </span>
           )}
-          <span>{facts.construction}</span>
+          <span>{compact ? facts.construction.replace(' neck', '') : facts.construction}</span>
         </span>
+        {!compact && <span className="design-card-description">{template.description}</span>}
       </span>
-    </label>
+    </button>
   );
 }

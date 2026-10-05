@@ -28,13 +28,12 @@ test.describe('opening a design', () => {
     expect(errors).toEqual([]);
   });
 
-  test('clicking a blueprint card selects it and shows its description; Open editor opens it', async ({ page }) => {
+  test('a blueprint card shows its description and opens the editor in one click', async ({ page }) => {
     await page.goto('/app');
     await expect(chooserHeading(page)).toBeVisible();
-    await page.locator('label.design-card').nth(1).click();
-    await expect(chooserHeading(page)).toBeVisible();
-    await expect(page.locator('.design-summary-text')).toContainText('scale');
-    await page.getByRole('button', { name: /Open editor/ }).click();
+    const card = page.locator('button.design-card').nth(1);
+    await expect(card.locator('.design-card-description')).not.toBeEmpty();
+    await card.click();
     await expect(projectNameField(page)).toBeVisible();
   });
 });

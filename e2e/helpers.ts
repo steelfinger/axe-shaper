@@ -17,7 +17,7 @@ export async function openEditor(page: Page, instrument: 'Guitar' | 'Bass' = 'Gu
   await expect(chooserHeading(page)).toBeVisible();
   // The radio itself is visually hidden behind its label face, as a user sees it.
   await page.locator('label.design-instrument-option', { hasText: instrument }).click();
-  await page.getByRole('button', { name: /Open editor/ }).click();
+  await page.locator('button.design-card').first().click();
   await expect(projectNameField(page)).toBeVisible();
 }
 
