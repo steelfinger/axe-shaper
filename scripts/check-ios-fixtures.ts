@@ -577,6 +577,24 @@ async function main() {
         );
       });
 
+      const jackFixtures = v5Files.filter((file) => (
+        scan(readFileSync(join(V5_FIXTURE_DIR, file), 'utf8')).project.jacks?.length
+      ));
+      if (jackFixtures.length === 0) {
+        console.log('  pending  no iOS-written schema-v8 output-jack fixture yet');
+      } else {
+        check('the native writer stamps output jacks at 8 and the web preserves them', () => {
+          for (const file of jackFixtures) {
+            const project = scan(readFileSync(join(V5_FIXTURE_DIR, file), 'utf8')).project;
+            deepStrictEqual(project.schemaVersion, 8, file);
+            deepStrictEqual(project.schemaVersion, schema.requiredSchemaVersion(project), file);
+            const resaved = scan(exporter.exportProjectToSVG(presets.migrateProject(project))).project;
+            deepStrictEqual(resaved.schemaVersion, 8, file);
+            deepStrictEqual(resaved.jacks, project.jacks, `${file}: jacks changed across a web load/save`);
+          }
+        });
+      }
+
       const appearanceFixtures = v5Files.filter((file) => (
         scan(readFileSync(join(V5_FIXTURE_DIR, file), 'utf8')).project.instrumentAppearance
       ));
