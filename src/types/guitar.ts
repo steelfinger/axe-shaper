@@ -394,7 +394,8 @@ export interface OutputJackPlacement {
 export type SelectedHardwarePlacement =
   | { kind: 'pickup'; id: string }
   | { kind: 'potentiometer'; id: string }
-  | { kind: 'switch'; id: string };
+  | { kind: 'switch'; id: string }
+  | { kind: 'jack'; id: string };
 
 export interface PickguardPlacement {
   id: string;

@@ -55,6 +55,26 @@ describe('save and reopen', () => {
     expect(reload(exportProjectToSVG({ ...createProject(), jacks })).jacks).toEqual(jacks);
   });
 
+  it('draws each jack style, and adds nothing to a document without jacks', () => {
+    const plain = exportProjectToSVG(createProject());
+    expect(plain).not.toContain('control-jacks');
+    const svg = exportProjectToSVG({
+      ...createProject(),
+      jacks: [
+        { id: 'a', position: { x: 0, y: 200 }, mountingStyle: 'strat_plate', angleDegrees: 20 },
+        { id: 'b', position: { x: 30, y: 220 }, mountingStyle: 'direct', angleDegrees: 33 },
+        { id: 'c', position: { x: 60, y: 240 }, mountingStyle: 'side_mounted', angleDegrees: 0 },
+      ],
+    });
+    expect(svg).toContain('id="control-jacks"');
+    expect(svg).toContain('data-jack-style="strat_plate"');
+    expect(svg).toMatch(/rotate\(20\.00\) ?"? data-jack-style="strat_plate"|rotate\(20\.00\)" data-jack-style="strat_plate"/);
+    // A direct jack is symmetric: its stored angle is not drawn.
+    expect(svg).not.toMatch(/data-jack-style="direct"[^>]*rotate/);
+    expect(svg).not.toMatch(/translate\(30\.00, 220\.00\) rotate/);
+    expect(svg).toContain('data-jack-style="side_mounted"');
+  });
+
   it('drops an empty jacks list and stays at 7', () => {
     const saved = extractProjectFromSVG(exportProjectToSVG({ ...createProject(), jacks: [] }))!;
     expect(saved.schemaVersion).toBe(7);

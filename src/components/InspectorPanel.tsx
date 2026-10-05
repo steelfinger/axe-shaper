@@ -1,5 +1,5 @@
 import React from 'react';
-import { MousePointer, Trash2, PlusCircle, Ruler, Spline, Slash, Zap, Crosshair, CircleDot, ToggleLeft } from 'lucide-react';
+import { MousePointer, Trash2, PlusCircle, Ruler, Spline, Slash, Zap, Crosshair, CircleDot, ToggleLeft, Plug } from 'lucide-react';
 import { MIN_ANCHOR_COUNT } from '../App';
 import { PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import type { GuitarProject, HandleMode, PathAnchor, PickupType, SelectedHardwarePlacement, SwitchType, Vector2D } from '../types/guitar';
@@ -33,6 +33,15 @@ import {
   settingSwitchType,
   SWITCH_TYPE_LABELS,
 } from '../utils/controlEditing';
+import {
+  JACK_STYLE_LABELS,
+  isJackRotatable,
+  isKnownJackStyle,
+  movingJack,
+  settingJackAngle,
+  settingJackStyle,
+  type KnownJackStyle,
+} from '../utils/jackEditing';
 import { CONTROL_DRAWING_GEOMETRY } from '../constants/planDrawingStyle';
 
 interface InspectorPanelProps {
@@ -99,6 +108,9 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
     : null;
   const selectedSwitch = selectedHardware?.kind === 'switch'
     ? (project.switches ?? []).find((item) => item.id === selectedHardware.id) ?? null
+    : null;
+  const selectedJack = selectedHardware?.kind === 'jack'
+    ? (project.jacks ?? []).find((item) => item.id === selectedHardware.id) ?? null
     : null;
 
   const mmFromInput = (val: number) => (isMm ? val : val * 25.4);
@@ -763,6 +775,105 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               title="Delete this selector switch"
             >
               <Trash2 size={14} /> Delete Switch
+            </button>
+          </div>
+        ) : selectedJack ? (
+          <div>
+            <div className="section-title control-inspector-title">
+              <Plug size={15} /> Output Jack
+            </div>
+            <div className="form-group">
+              <label className="form-label">Mounting</label>
+              {isKnownJackStyle(selectedJack.mountingStyle) ? (
+                <select
+                  className="form-select"
+                  value={selectedJack.mountingStyle}
+                  onChange={(event) =>
+                    onUpdateProject((prev) => settingJackStyle(
+                      prev,
+                      selectedJack.id,
+                      event.target.value as KnownJackStyle
+                    ))
+                  }
+                >
+                  {(Object.entries(JACK_STYLE_LABELS) as [KnownJackStyle, string][]).map(([style, label]) => (
+                    <option key={style} value={style}>{label}</option>
+                  ))}
+                </select>
+              ) : (
+                <p className="panel-help">
+                  Unknown mounting style &ldquo;{selectedJack.mountingStyle}&rdquo;. It is kept as saved and
+                  drawn as a placeholder; it can be moved or deleted but not restyled or rotated.
+                </p>
+              )}
+            </div>
+
+            <div className="coordinate-input-grid">
+              <div className="form-group">
+                <label className="form-label">X ({unitLabel})</label>
+                <DecimalInput
+                  step={isMm ? 0.5 : 0.05}
+                  className="form-input"
+                  value={selectedJack.position.x * factor}
+                  digits={2}
+                  onValueChange={(v) =>
+                    onUpdateProject(
+                      (prev) => movingJack(prev, selectedJack.id, {
+                        ...selectedJack.position,
+                        x: mmFromInput(v),
+                      }),
+                      `jack.x:${selectedJack.id}`
+                    )
+                  }
+                  onBlur={onEndEdit}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Y ({unitLabel})</label>
+                <DecimalInput
+                  step={isMm ? 0.5 : 0.05}
+                  className="form-input"
+                  value={selectedJack.position.y * factor}
+                  digits={2}
+                  onValueChange={(v) =>
+                    onUpdateProject(
+                      (prev) => movingJack(prev, selectedJack.id, {
+                        ...selectedJack.position,
+                        y: mmFromInput(v),
+                      }),
+                      `jack.y:${selectedJack.id}`
+                    )
+                  }
+                  onBlur={onEndEdit}
+                />
+              </div>
+            </div>
+
+            {isJackRotatable(selectedJack) && (
+              <div className="form-group">
+                <label className="form-label">Angle (deg)</label>
+                <DecimalInput
+                  step={0.5}
+                  className="form-input"
+                  value={selectedJack.angleDegrees}
+                  digits={1}
+                  onValueChange={(v) =>
+                    onUpdateProject(
+                      (prev) => settingJackAngle(prev, selectedJack.id, v),
+                      `jack.angle:${selectedJack.id}`
+                    )
+                  }
+                  onBlur={onEndEdit}
+                />
+              </div>
+            )}
+
+            <button
+              className="btn btn-sm destructive-outline-button"
+              onClick={onDeleteSelectedHardware}
+              title="Delete this output jack"
+            >
+              <Trash2 size={14} /> Delete Jack
             </button>
           </div>
         ) : (

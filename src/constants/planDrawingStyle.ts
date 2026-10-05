@@ -53,6 +53,22 @@ export const CONTROL_DRAWING_GEOMETRY = {
   potentiometerShaftHoleDiameterMm: 9,
 } as const;
 
+/**
+ * Output-jack drawing dimensions (docs/OUTPUT_JACKS_SCHEMA_8_PLAN.md, "Agreed
+ * dimensions"). Shared drawing constants, not stored in a document. At
+ * `angleDegrees` 0 a Strat plate's long axis lies along X.
+ */
+export const JACK_DRAWING_GEOMETRY = {
+  holeDiameterMm: 9.8,
+  nutAcrossFlatsMm: 13,
+  washerDiameterMm: 15,
+  plateLengthMm: 80.5,
+  plateWidthMm: 31.3,
+  plateScrewSpacingMm: 71,
+  /** Visual only until a manufacturing definition exists. */
+  plateScrewDiameterMm: 3.5,
+} as const;
+
 /** Apply fill alpha without dimming the shape's outline. */
 export function colorWithAlpha(value: string, alpha: number, fallback = '#ffffff'): string {
   const parse = (candidate: string): [number, number, number] | null => {

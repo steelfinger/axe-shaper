@@ -34,9 +34,9 @@ function bodyCentroid(project: GuitarProject): Vector2D {
 }
 
 /** Offset successive controls so adding several never produces an invisible stack. */
-function nextControlPosition(project: GuitarProject): Vector2D {
+export function nextControlPosition(project: GuitarProject): Vector2D {
   const center = bodyCentroid(project);
-  const count = (project.potentiometers ?? []).length + (project.switches ?? []).length;
+  const count = (project.potentiometers ?? []).length + (project.switches ?? []).length + (project.jacks ?? []).length;
   return {
     x: center.x + 38 + (count % 3) * 18,
     y: center.y + 35 + Math.floor(count / 3) * 24,
@@ -163,6 +163,10 @@ export function removingHardwarePlacement(
       };
     case 'switch':
       return { ...project, switches: (project.switches ?? []).filter((item) => item.id !== selection.id) };
+    case 'jack':
+      // Removing the last jack leaves an empty list, which a save drops and
+      // which stops stamping 8 (`withEmbeddedPresets`).
+      return { ...project, jacks: (project.jacks ?? []).filter((item) => item.id !== selection.id) };
   }
 }
 
@@ -178,5 +182,7 @@ export function hardwarePlacementExists(
       return (project.potentiometers ?? []).some((item) => item.id === selection.id);
     case 'switch':
       return (project.switches ?? []).some((item) => item.id === selection.id);
+    case 'jack':
+      return (project.jacks ?? []).some((item) => item.id === selection.id);
   }
 }

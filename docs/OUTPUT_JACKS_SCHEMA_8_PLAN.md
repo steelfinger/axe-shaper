@@ -2,6 +2,19 @@
 
 Deferred implementation note, prepared 2026-10-04.
 
+## Progress
+
+- **Steps 1-2 (contract, web model and persistence): done.** Schema 8, the
+  stamp rule, empty-list drop and format doc are in; iOS reads and preserves
+  `jacks` and has a cross-writer fixture (`output_jacks.axe.svg`).
+- **Steps 3-4 (web editor, plan rendering): done behind
+  `OUTPUT_JACKS_ENABLED`.** Canvas, printable SVG, sidebar, inspector.
+  At `angleDegrees` 0 a Strat plate's long axis lies along X; iOS must draw
+  the same.
+- **Not done:** step 5 (blueprints/templates carrying a jack; user templates
+  do not yet copy `jacks`), step 6 (iOS editing and rendering), step 7
+  (release verification), and turning the flag on.
+
 ## Status and release gate
 
 **Deferred. Do not begin the persisted Schema 8 implementation until Schema 7

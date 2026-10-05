@@ -64,6 +64,18 @@ anything that touches the file format, the hardware tables or the geometry
 utils - they are seconds locally, and the point of them is to stop a bad
 contract change being written down, not to find out after it is pushed.
 
+## Output jacks are built but gated
+
+Schema 8 `jacks` (`docs/OUTPUT_JACKS_SCHEMA_8_PLAN.md`) can be read, drawn,
+selected, moved and deleted in every build, but the **Output Jack action that
+places one is behind `OUTPUT_JACKS_ENABLED`** (`src/constants/features.ts`,
+set by `VITE_OUTPUT_JACKS=1 npm run dev`). Placing
+a jack stamps the file 8, which an iPad build older than the one that reads v8
+opens read-only, so **no `v*` tag may enable the flag before that iPad release
+is live**. `e2e/editor.spec.ts` pins the default-off state. The 3D viewer
+reads up to 7 and ignores jacks, so `projectForViewerLink` hands it a version
+stamped from the fields it actually carries, not the document's 8.
+
 ## Deploying is a tag, not a push
 
 Three lanes, and only one of them publishes:
@@ -240,12 +252,13 @@ v1/v2 files decode as Guitar/6. That is a default-when-absent read, not a
 guess: nothing else was drawable.
 
 **`PROJECT_SCHEMA_VERSION` is not what a save stamps.** It is the newest
-version this build *understands* - the upper bound of the read gate (7 today).
+version this build *understands* - the upper bound of the read gate (8 today).
 A save carries `requiredSchemaVersion(project)`: the lowest version that can
 represent that document. It is 3 for a plain project, 4 once a potentiometer
 or switch is placed, 5 once a `bodyTop` is chosen, 6 once a persisted
-`instrumentAppearance` is present, and 7 once the `neckJointGeometry` /
-`neckPlacement` pair is present. It is computed in `withEmbeddedPresets`, so
+`instrumentAppearance` is present, 7 once the `neckJointGeometry` /
+`neckPlacement` pair is present, and 8 once a `jacks` entry is placed (checked
+*before* the v7 pair, which every new design carries). It is computed in `withEmbeddedPresets`, so
 it happens on the way out as well as on the way in.
 `Migration.requiredPayloadVersion(for:)` in axe-shaper-ios is the same
 function and must agree.

@@ -1,3 +1,4 @@
+import { readFileSync, writeFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import {
   chooserHeading,
@@ -151,5 +152,49 @@ test.describe('saving', () => {
     await page.locator('input[type="file"]').setInputFiles(path);
     await expect(projectNameField(page)).toHaveValue('Round trip');
     await expectCanvasDrawn(page);
+  });
+});
+
+test.describe('output jacks (schema 8) behind the release gate', () => {
+  // OUTPUT_JACKS_ENABLED is off in this build, and no `v*` tag may turn it on
+  // before an iPad release that reads schema 8 is live. Authoring is hidden,
+  // but a file that already carries jacks must still open, list and draw them.
+  test('the default build offers no Output Jack action, yet opens a file that has jacks', async ({ page }, testInfo) => {
+    const errors = trackPageErrors(page);
+    await openEditor(page);
+    await page.getByRole('tab', { name: 'Hardware', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Potentiometer', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Output Jack', exact: true })).toHaveCount(0);
+
+    // A web-saved file is the realistic base; add jacks to its payload the way
+    // a build with the flag on would have written them.
+    await page.getByRole('button', { name: /^Save/ }).click();
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: /Continue|Save/i }).last().click();
+    const saved = readFileSync((await (await downloadPromise).path())!, 'utf8');
+    const payload = /<project:data>([^<]*)<\/project:data>/.exec(saved)!;
+    const project = JSON.parse(Buffer.from(payload[1], 'base64').toString('utf8'));
+    project.schemaVersion = 8;
+    project.jacks = [
+      { id: 'plate', position: { x: 40, y: 200 }, mountingStyle: 'strat_plate', angleDegrees: 25 },
+      { id: 'direct', position: { x: -30, y: 230 }, mountingStyle: 'direct', angleDegrees: 33 },
+      { id: 'odd', position: { x: 0, y: 260 }, mountingStyle: 'side_mounted', angleDegrees: 0 },
+    ];
+    const withJacks = saved
+      .replace(payload[1], Buffer.from(JSON.stringify(project)).toString('base64'))
+      .replace(/<project:schemaVersion>\d+</, '<project:schemaVersion>8<');
+    const file = testInfo.outputPath('with-jacks.axe.svg');
+    writeFileSync(file, withJacks);
+
+    await instrumentBadge(page).click();
+    await expect(chooserHeading(page)).toBeVisible();
+    await page.locator('input[type="file"]').setInputFiles(file);
+    await expectCanvasDrawn(page);
+    await page.getByRole('tab', { name: 'Hardware', exact: true }).click();
+    await expect(page.getByRole('button', { name: /^Output Jack · Strat plate 1/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Output Jack · Direct/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Output Jack · unknown style/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Output Jack', exact: true })).toHaveCount(0);
+    expect(errors).toEqual([]);
   });
 });

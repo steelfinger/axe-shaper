@@ -63,6 +63,8 @@ import {
   addingSwitch,
   removingHardwarePlacement,
 } from './utils/controlEditing';
+import { addingJack } from './utils/jackEditing';
+import { OUTPUT_JACKS_ENABLED } from './constants/features';
 import { SaveInfoModal } from './components/SaveInfoModal';
 import { WelcomeModal } from './components/WelcomeModal';
 import { AboutModal } from './components/AboutModal';
@@ -592,6 +594,12 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
     handleSelectHardware(selection);
   };
 
+  const handleAddJack = () => {
+    const { project: next, selection } = addingJack(project);
+    handleUpdateProject(() => next);
+    handleSelectHardware(selection);
+  };
+
   const handleDeleteHardware = (selection: SelectedHardwarePlacement) => {
     handleUpdateProject((prev) => removingHardwarePlacement(prev, selection));
     if (selectedHardware?.kind === selection.kind && selectedHardware.id === selection.id) {
@@ -870,6 +878,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         onDeletePickup={handleDeletePickup}
         onAddPotentiometer={handleAddPotentiometer}
         onAddSwitch={handleAddSwitch}
+        onAddJack={OUTPUT_JACKS_ENABLED ? handleAddJack : undefined}
         onDeleteHardware={handleDeleteHardware}
         handleAngleSnap={handleAngleSnap}
         onHandleAngleSnapChange={(preference) => {

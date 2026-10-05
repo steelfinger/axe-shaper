@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layers, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, Plus, Zap, Scissors, Info, CircleDot } from 'lucide-react';
+import { Layers, Palette, Shield, Image as ImageIcon, Trash2, Upload, Lock, Unlock, Eye, EyeOff, Ruler, Plus, Zap, Scissors, Info, CircleDot, Plug } from 'lucide-react';
 import { NECK_PRESETS, PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import {
   DEFAULT_EDGE_PROFILES,
@@ -64,6 +64,7 @@ import {
   resolvedBodyThickness,
 } from '../utils/bodyThickness';
 import { SWITCH_TYPE_LABELS } from '../utils/controlEditing';
+import { JACK_STYLE_LABELS, isJackRotatable, isKnownJackStyle } from '../utils/jackEditing';
 import { CONTROL_DRAWING_GEOMETRY } from '../constants/planDrawingStyle';
 import { archedTopConstructionForTemplate, isArchedTop } from '../utils/bodyTop';
 
@@ -94,6 +95,8 @@ interface SidebarProps {
   onDeletePickup: (id: string) => void;
   onAddPotentiometer: () => void;
   onAddSwitch: (type: SwitchType) => void;
+  /** Absent while output-jack authoring is behind its build flag. */
+  onAddJack?: () => void;
   onDeleteHardware: (selection: SelectedHardwarePlacement) => void;
   handleAngleSnap: HandleAngleSnapPreference;
   onHandleAngleSnapChange: (preference: HandleAngleSnapPreference) => void;
@@ -122,6 +125,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onDeletePickup,
   onAddPotentiometer,
   onAddSwitch,
+  onAddJack,
   onDeleteHardware,
   handleAngleSnap,
   onHandleAngleSnapChange,
@@ -1675,9 +1679,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <option key={type} value={type}>{label}</option>
                   ))}
                 </select>
+                {onAddJack && (
+                  <button type="button" className="btn btn-sm" onClick={onAddJack}>
+                    <Plug size={13} /> Output Jack
+                  </button>
+                )}
               </div>
 
-              {(project.potentiometers ?? []).length === 0 && (project.switches ?? []).length === 0 ? (
+              {(project.potentiometers ?? []).length === 0
+                && (project.switches ?? []).length === 0
+                && (project.jacks ?? []).length === 0 ? (
                 <p className="hardware-placement-empty">No controls yet.</p>
               ) : (
                 <div className="hardware-placement-list">
@@ -1725,6 +1736,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           className="hardware-placement-delete"
                           onClick={() => onDeleteHardware({ kind: 'switch', id: selector.id })}
                           aria-label={`Delete ${SWITCH_TYPE_LABELS[selector.type] ?? 'selector switch'} ${index + 1}`}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    );
+                  })}
+                  {(project.jacks ?? []).map((jack, index) => {
+                    const isSelected = selectedHardware?.kind === 'jack' && jack.id === selectedHardware.id;
+                    const label = isKnownJackStyle(jack.mountingStyle)
+                      ? `Output Jack · ${JACK_STYLE_LABELS[jack.mountingStyle]}`
+                      : 'Output Jack · unknown style';
+                    return (
+                      <div key={jack.id} className={`hardware-placement-row${isSelected ? ' is-selected' : ''}`}>
+                        <button
+                          type="button"
+                          className="hardware-placement-select"
+                          onClick={() => onSelectHardware(isSelected ? null : { kind: 'jack', id: jack.id })}
+                        >
+                          <span className="hardware-placement-name">{label} {index + 1}</span>
+                          {isJackRotatable(jack) && (
+                            <span className="hardware-placement-detail">{jack.angleDegrees.toFixed(1)}&deg;</span>
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          className="hardware-placement-delete"
+                          onClick={() => onDeleteHardware({ kind: 'jack', id: jack.id })}
+                          aria-label={`Delete output jack ${index + 1}`}
                         >
                           <Trash2 size={14} />
                         </button>

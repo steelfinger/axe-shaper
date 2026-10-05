@@ -1,4 +1,5 @@
 import type { GuitarProject } from '../types/guitar';
+import { requiredSchemaVersion } from '../constants/schema';
 
 // Fragment contract shared with the standalone 3D viewer
 // (steelfinger/axe-shape-3D-viewer, deployed at /viewer3d). Never sent over
@@ -57,7 +58,7 @@ export type ViewerLinkProject = Pick<
 
 export function projectForViewerLink(project: GuitarProject): ViewerLinkProject {
   const { name, finishStyle, bodyColor, pickguardColor, showPickguard, showControls } = project.settings;
-  return {
+  const handoff: ViewerLinkProject = {
     schemaVersion: project.schemaVersion,
     instrumentType: project.instrumentType,
     stringCount: project.stringCount,
@@ -80,6 +81,11 @@ export function projectForViewerLink(project: GuitarProject): ViewerLinkProject 
     switches: project.switches,
     instrumentAppearance: project.instrumentAppearance,
   };
+  // The viewer's schema ceiling is 7 and it does not read `jacks`, so a
+  // project with a jack (stamped 8) would be refused outright. This payload
+  // carries no jacks, so describe it as what it holds: the lowest version
+  // that represents *these* fields.
+  return { ...handoff, schemaVersion: requiredSchemaVersion(handoff) };
 }
 
 /**

@@ -42,6 +42,7 @@ import {
 } from '../utils/units';
 import {
   CONTROL_DRAWING_GEOMETRY,
+  JACK_DRAWING_GEOMETRY,
   PLAN_DRAWING_STYLE,
   colorWithAlpha,
 } from '../constants/planDrawingStyle';
@@ -52,6 +53,14 @@ import {
   rotatingSwitchToward,
   switchRotationHandlePosition,
 } from '../utils/controlEditing';
+import {
+  isJackRotatable,
+  jackNutVertices,
+  jackPlateScrewCentres,
+  jackRotationHandlePosition,
+  movingJack,
+  rotatingJackToward,
+} from '../utils/jackEditing';
 
 /**
  * The body Path's hit area is its fill, so a click a few pixels *outside* the
@@ -76,6 +85,8 @@ const pickupRotateKey = (id: string) => `pickup:rotate:${id}`;
 const potentiometerMoveKey = (id: string) => `potentiometer:move:${id}`;
 const switchMoveKey = (id: string) => `switch:move:${id}`;
 const switchRotateKey = (id: string) => `switch:rotate:${id}`;
+const jackMoveKey = (id: string) => `jack:move:${id}`;
+const jackRotateKey = (id: string) => `jack:rotate:${id}`;
 // Konva only ever has one drag gesture in flight, so a single fixed key -
 // rather than one derived from the selected id set - is enough to coalesce
 // a whole multi-anchor drag into one undo step.
@@ -165,6 +176,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
     pickups,
     potentiometers = [],
     switches = [],
+    jacks = [],
     pickguards = [],
     frontRoutes = [],
     backRoutes = [],
@@ -1382,6 +1394,150 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                             onUpdateProject(
                               (prev) => rotatingSwitchToward(prev, selector.id, toModel(pointer)),
                               switchRotateKey(selector.id)
+                            );
+                          }}
+                          onDragEnd={onEndEdit}
+                        />
+                      </>
+                    )}
+                  </Group>
+                );
+              })}
+
+              {jacks.map((jack) => {
+                const isSelected = selectedHardware?.kind === 'jack' && selectedHardware.id === jack.id;
+                const jackStroke = isSelected
+                  ? PLAN_DRAWING_STYLE.screen.controlSelectedStroke
+                  : PLAN_DRAWING_STYLE.screen.controlStroke;
+                const strokeWidth = (isSelected ? 2 : 1.2) / zoom;
+                const g = JACK_DRAWING_GEOMETRY;
+                const rotatable = isJackRotatable(jack);
+                const isPlate = jack.mountingStyle === 'strat_plate';
+                const isDirect = jack.mountingStyle === 'direct';
+                const handlePosition = jackRotationHandlePosition(jack);
+                const nutPoints = jackNutVertices().flatMap((vertex) => [vertex.x, vertex.y]);
+                return (
+                  <Group key={jack.id}>
+                    <Group
+                      x={jack.position.x}
+                      y={jack.position.y}
+                      // A direct jack is symmetric and an unknown style has no
+                      // known meaning for its angle: neither is drawn rotated.
+                      rotation={isPlate ? jack.angleDegrees : 0}
+                      draggable={!isPanMode && isBodyActive}
+                      dragBoundFunc={(position) => {
+                        const model = toModel(position);
+                        const snapped = settings.snapToGridEnabled
+                          ? {
+                              x: snapToGridMm(model.x, settings.gridSizeMm, settings.unitDisplay),
+                              y: snapToGridMm(model.y, settings.gridSizeMm, settings.unitDisplay),
+                            }
+                          : model;
+                        return toScreen(snapped);
+                      }}
+                      onClick={() => {
+                        if (!isPanMode) onSelectHardware({ kind: 'jack', id: jack.id });
+                      }}
+                      onDragStart={() => {
+                        onSelectHardware({ kind: 'jack', id: jack.id });
+                        onBeginEdit(jackMoveKey(jack.id));
+                      }}
+                      onDragMove={(event) =>
+                        onUpdateProject(
+                          (prev) => movingJack(prev, jack.id, { x: event.target.x(), y: event.target.y() }),
+                          jackMoveKey(jack.id)
+                        )
+                      }
+                      onDragEnd={onEndEdit}
+                    >
+                      {isPlate ? (
+                        <>
+                          <Rect
+                            x={-g.plateLengthMm / 2}
+                            y={-g.plateWidthMm / 2}
+                            width={g.plateLengthMm}
+                            height={g.plateWidthMm}
+                            cornerRadius={g.plateWidthMm / 2}
+                            fill="rgba(255, 255, 255, 0.001)"
+                            stroke={jackStroke}
+                            strokeWidth={strokeWidth}
+                          />
+                          {jackPlateScrewCentres().map((centre, index) => (
+                            <Circle
+                              key={index}
+                              x={centre.x}
+                              y={centre.y}
+                              radius={g.plateScrewDiameterMm / 2}
+                              fillEnabled={false}
+                              stroke={jackStroke}
+                              strokeWidth={strokeWidth}
+                              listening={false}
+                            />
+                          ))}
+                        </>
+                      ) : (
+                        <Circle radius={g.washerDiameterMm / 2 + 2} fill="rgba(255, 255, 255, 0.001)" />
+                      )}
+                      <Circle
+                        radius={g.washerDiameterMm / 2}
+                        fillEnabled={false}
+                        stroke={jackStroke}
+                        strokeWidth={strokeWidth}
+                        dash={isPlate || isDirect ? undefined : PLAN_DRAWING_STYLE.screen.controlBodyDashPx.map((length) => length / zoom)}
+                        lineCap={isPlate || isDirect ? undefined : 'round'}
+                        listening={false}
+                      />
+                      {(isPlate || isDirect) && (
+                        <>
+                          <Line
+                            points={nutPoints}
+                            closed
+                            stroke={jackStroke}
+                            strokeWidth={strokeWidth}
+                            listening={false}
+                          />
+                          <Circle
+                            radius={g.holeDiameterMm / 2}
+                            fillEnabled={false}
+                            stroke={jackStroke}
+                            strokeWidth={strokeWidth}
+                            listening={false}
+                          />
+                        </>
+                      )}
+                    </Group>
+
+                    {isSelected && rotatable && (
+                      <>
+                        <Line
+                          points={[jack.position.x, jack.position.y, handlePosition.x, handlePosition.y]}
+                          stroke={ROTATION_GUIDE_COLOR}
+                          strokeWidth={1.5 / zoom}
+                          lineCap="round"
+                          listening={false}
+                        />
+                        <Circle
+                          x={handlePosition.x}
+                          y={handlePosition.y}
+                          radius={ROTATION_GRIP_RADIUS_PX / zoom}
+                          fill={ROTATION_GUIDE_COLOR}
+                          stroke="#ecfdf5"
+                          strokeWidth={1.25 / zoom}
+                          listening={false}
+                        />
+                        <Circle
+                          x={handlePosition.x}
+                          y={handlePosition.y}
+                          radius={ROTATION_GRIP_HIT_RADIUS_PX / zoom}
+                          fill="rgba(16, 185, 129, 0.001)"
+                          draggable={!isPanMode && isBodyActive}
+                          onDragStart={() => onBeginEdit(jackRotateKey(jack.id))}
+                          onDragMove={(event) => {
+                            const pointer = event.target.getStage()?.getPointerPosition();
+                            if (!pointer) return;
+                            onUpdateProject(
+                              (prev) => rotatingJackToward(prev, jack.id, toModel(pointer)),
+                              jackRotateKey(jack.id)
                             );
                           }}
                           onDragEnd={onEndEdit}

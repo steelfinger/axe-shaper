@@ -22,7 +22,8 @@ import {
   type BridgeDrawingGeometry,
   type BridgeDrawingRect,
 } from './bridgeDrawing';
-import { CONTROL_DRAWING_GEOMETRY, PLAN_DRAWING_STYLE } from '../constants/planDrawingStyle';
+import { CONTROL_DRAWING_GEOMETRY, JACK_DRAWING_GEOMETRY, PLAN_DRAWING_STYLE } from '../constants/planDrawingStyle';
+import { jackExtentRadiusMm, jackNutVertices, jackPlateScrewCentres } from './jackEditing';
 import { generateNeckJointOutline, neckJointOutlineToSVGPath } from './neckJointGeometry';
 import { neckJointFabricationDisclosure } from './neckJointDisclosure';
 
@@ -114,6 +115,45 @@ function potentiometerSVG(project: GuitarProject): string {
         <circle cx="0" cy="0" r="${(CONTROL_DRAWING_GEOMETRY.potentiometerKnobDiameterMm / 2).toFixed(2)}" class="control-outline" />
         <circle cx="0" cy="0" r="${(CONTROL_DRAWING_GEOMETRY.potentiometerShaftHoleDiameterMm / 2).toFixed(2)}" class="control-outline" />
       </g>`)
+    .join('');
+}
+
+/**
+ * Output jacks are drawn in the hardware presentation layer, never as body
+ * routes, and DXF omits them. A known style draws the 15 mm washer, 13 mm hex
+ * nut and 9.8 mm opening; a plate adds the 80.5 x 31.3 mm oval and two screws,
+ * rotated as a whole. An unknown style falls back to a dashed washer circle.
+ */
+function outputJackSVG(project: GuitarProject): string {
+  const g = JACK_DRAWING_GEOMETRY;
+  const assembly = `
+        <circle cx="0" cy="0" r="${(g.washerDiameterMm / 2).toFixed(2)}" class="control-outline" />
+        <polygon points="${jackNutVertices().map((v) => `${v.x.toFixed(2)},${v.y.toFixed(2)}`).join(' ')}" class="control-outline" />
+        <circle cx="0" cy="0" r="${(g.holeDiameterMm / 2).toFixed(2)}" class="control-outline" />`;
+  return (project.jacks ?? [])
+    .map((jack) => {
+      const at = `${jack.position.x.toFixed(2)}, ${jack.position.y.toFixed(2)}`;
+      const style = escapeXml(jack.mountingStyle);
+      if (jack.mountingStyle === 'strat_plate') {
+        const screws = jackPlateScrewCentres()
+          .map((c) => `<circle cx="${c.x.toFixed(2)}" cy="${c.y.toFixed(2)}" r="${(g.plateScrewDiameterMm / 2).toFixed(2)}" class="control-outline" />`)
+          .join('\n        ');
+        return `
+      <g transform="translate(${at}) rotate(${jack.angleDegrees.toFixed(2)})" data-jack-style="${style}">
+        <rect x="${(-g.plateLengthMm / 2).toFixed(2)}" y="${(-g.plateWidthMm / 2).toFixed(2)}" width="${g.plateLengthMm.toFixed(2)}" height="${g.plateWidthMm.toFixed(2)}" rx="${(g.plateWidthMm / 2).toFixed(2)}" class="control-outline" />
+        ${screws}${assembly}
+      </g>`;
+      }
+      if (jack.mountingStyle === 'direct') {
+        return `
+      <g transform="translate(${at})" data-jack-style="${style}">${assembly}
+      </g>`;
+      }
+      return `
+      <g transform="translate(${at})" data-jack-style="${style}">
+        <circle cx="0" cy="0" r="${(g.washerDiameterMm / 2).toFixed(2)}" class="control-body" />
+      </g>`;
+    })
     .join('');
 }
 
@@ -278,6 +318,11 @@ function getContentBoundsMm(project: GuitarProject): BoundsMm {
   for (const selector of switches ?? []) {
     add(selector.position.x - 18, selector.position.y - 18);
     add(selector.position.x + 18, selector.position.y + 18);
+  }
+  for (const jack of project.jacks ?? []) {
+    const radius = jackExtentRadiusMm(jack);
+    add(jack.position.x - radius, jack.position.y - radius);
+    add(jack.position.x + radius, jack.position.y + radius);
   }
 
   // Degenerate project (no geometry at all): fall back to a sane sheet
@@ -476,7 +521,12 @@ export function exportProjectToSVG(rawProject: StoredProject): string {
       ${selectorSwitchSVG(project)}
     </g>
 
-    <!-- Family-specific bridge hardware and scale-length reference line -->
+${(project.jacks ?? []).length > 0 ? `    <!-- Output jacks (schema 8). Presentation symbols only: DXF omits them. -->
+    <g id="control-jacks">
+      ${outputJackSVG(project)}
+    </g>
+
+` : ''}    <!-- Family-specific bridge hardware and scale-length reference line -->
     <g id="bridge-hardware">
       ${bridgeHardware}
     </g>

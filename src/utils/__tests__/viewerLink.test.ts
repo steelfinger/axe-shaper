@@ -32,6 +32,20 @@ describe('projectForViewerLink', () => {
   });
 });
 
+describe('projectForViewerLink and jacks', () => {
+  const withJack = {
+    ...createProject(),
+    jacks: [{ id: 'j', position: { x: 0, y: 0 }, mountingStyle: 'strat_plate', angleDegrees: 0 }],
+    schemaVersion: 8,
+  };
+
+  it('omits jacks and hands the viewer a version it reads, not the 8 the document carries', () => {
+    const link = projectForViewerLink(withJack);
+    expect(link).not.toHaveProperty('jacks');
+    expect(link.schemaVersion).toBe(7);
+  });
+});
+
 describe('buildViewer3DPath', () => {
   it('builds a self-contained #v=2&d= fragment that decodes back to the viewer projection', async () => {
     const project = createProject({ templateId: 'p_bass_style' });
