@@ -190,16 +190,22 @@ Two obligations follow, and replace the version gate:
 2. The iOS inlay picker must not discard an unknown value when it is merely
    displayed (it currently has `dots` and `trapezoids` tags only).
 
-**Assumption to verify before release:** that the *shipping* App Store iPad
-build decodes the field as a `String` like the current source. If it used a
-closed enum, an unknown value would fail to open and this plan would need the
-version gate back.
+**Verified (2026-10-05):** `fretboardInlay` is a plain `String` in both the
+released App Store iPad build and the current iOS source, so the policy above
+holds. Had it been a closed enum, an unknown value would fail to open and the
+version gate would have been needed.
 
 Versions 1-7 documents continue to resolve and preserve their existing
 appearance without migration. Absence of `instrumentAppearance` continues to
 use the legacy resolver.
 
 ## Implementation sequence
+
+Status (2026-10-05): steps 1-5 are done except the final tag. Web, viewer
+(`v0.1.21`) and iOS ship the same geometry, the contract is synced across all
+three repos and `npm run check:all` passes. Remaining: cut the editor `v*` tag
+once an iPad release containing step 4 is live, and add the viewer material
+tests listed under *Verification*.
 
 1. **Web: model and selector.** Add `blocks` and `sharkfins` to the web
    appearance type and the Fretboard inlays select; document the open-string
@@ -216,6 +222,12 @@ use the legacy resolver.
    `viewer3d.version`, then tag.
 
 ## Verification
+
+Open items: the viewer material tests (black on maple, shell on rosewood) are
+not written, and the rosewood marker colour `#e8e3d5` has not been checked
+against "bright natural-white shell". The mesh corpus has no inlay-variant or
+binding parts, so web/viewer/iOS parity for those shapes rests on each
+repository's own unit tests.
 
 - Web schema tests assert that `blocks` and `sharkfins` do **not** raise the
   stamp (6 alone, 7 with the joint pair); dots/trapezoids preserve
