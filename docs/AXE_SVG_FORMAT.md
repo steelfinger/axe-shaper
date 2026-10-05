@@ -38,6 +38,7 @@ project name could contain one.
 | 5 | Optional `bodyTop.construction`: a named 3D body-face construction. |
 | 6 | `instrumentAppearance`: persisted 3D neck, fingerboard, inlay, binding and headstock choices. |
 | 7 | Paired `neckJointGeometry` and `neckPlacement`: authored joint-plan parameters and the body-owned scale datum. |
+| 8 | Optional `jacks`: independently placed front-face output jacks. |
 
 ## Instrument appearance (version 6)
 
@@ -113,6 +114,7 @@ acts on. Above that floor, each version so far is purely additive:
 
 | If the document has | It is written at |
 | --- | --- |
+| a non-empty `jacks` list | 8 |
 | a `neckJointGeometry` / `neckPlacement` pair | 7 |
 | an `instrumentAppearance` | 6 |
 | a `bodyTop` | 5 |
@@ -331,6 +333,34 @@ placed controls.
 - Unknown knob style ids are preserved and may render with the generic knob
   fallback. Placement geometry remains authoritative.
 
+## Version 8: output jacks
+
+`jacks` is an optional project-root list. Absence and an empty list mean the
+same thing, so a writer drops an empty list rather than writing it, and an
+empty list never raises the stamp. A file carrying a non-empty `jacks` is
+written at 8; every other document keeps the version it already needed.
+
+```json
+{ "id": "j1", "position": { "x": 0, "y": 0 }, "mountingStyle": "strat_plate", "angleDegrees": 0 }
+```
+
+- `mountingStyle` is an open string. Version 8 defines `strat_plate` and
+  `direct`. A reader must decode it as a raw-preserving value, never a closed
+  enum, so an unknown style survives a round-trip.
+- An entry with an unknown style is kept verbatim, including unknown fields.
+  It is drawn as a dashed 15 mm washer circle, may be selected and deleted, and
+  is not restyled or rotated. It does not raise the stamp.
+- `angleDegrees` rotates a `strat_plate`. It is ignored when drawing a `direct`
+  jack but written back verbatim, so restyling plate -> direct -> plate
+  restores the rotation. New `direct` jacks start at 0.
+- Dimensions are shared drawing constants, not stored: through-hole 9.8 mm,
+  `SW13` hex nut, 15 mm washer, plate 80.5 x 31.3 mm with screws 71.0 mm apart.
+- Side-mounted jacks are out of scope for version 8. DXF omits jacks.
+
+Reading 8 is safe to deploy before iOS ships; *placing* a jack is not, and
+stays behind a build flag until an iOS release that reads 8 is live. See
+`docs/OUTPUT_JACKS_SCHEMA_8_PLAN.md`.
+
 ## Version 5: body-top construction
 
 `bodyTop` is optional. Its absence means the established flat body, so a
@@ -455,7 +485,7 @@ it means recomputing every one of them on both platforms.
 ## 3D viewer compatibility
 
 `steelfinger/axe-shape-3D-viewer` (the pinned bundle in `public/viewer3d`)
-accepts numeric schema versions through version 7 and renders the supported
+accepts numeric schema versions through version 7 (it does not yet read `jacks`/version 8) and renders the supported
 Guitar/6 and Bass/4 document matrix, placed controls, the version-5
 `bodyTop.construction` choice, and persisted version-6 neck and fingerboard
 appearance. It reads those saved choices for the normal preview, which is the

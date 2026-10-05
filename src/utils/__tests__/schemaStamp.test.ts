@@ -30,6 +30,17 @@ describe('requiredSchemaVersion', () => {
     expect(stamp({ neckPlacement: any({}) })).toBe(7);
   });
 
+  it('stamps 8 once a jack is placed, ahead of the v7 pair', () => {
+    expect(stamp({ jacks: any([{}]) })).toBe(8);
+    expect(stamp({ jacks: any([{}]), neckJointGeometry: any({}), neckPlacement: any({}) })).toBe(8);
+  });
+
+  it('does not raise the stamp for an empty or absent jacks list', () => {
+    expect(stamp({ jacks: [] })).toBe(BASE_SCHEMA_VERSION);
+    expect(stamp({ jacks: [], neckJointGeometry: any({}) })).toBe(7);
+    expect(stamp({ jacks: [], bodyTop: any({}) })).toBe(5);
+  });
+
   it('does not raise the stamp for the blocks or sharkfins inlay', () => {
     for (const fretboardInlay of ['blocks', 'sharkfins']) {
       expect(stamp({ instrumentAppearance: any({ fretboardInlay }) })).toBe(6);

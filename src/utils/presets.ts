@@ -702,6 +702,11 @@ function decoupleNeckJointAttachment(project: StoredProject): StoredProject {
  */
 export function withEmbeddedPresets(project: StoredProject): GuitarProject {
   project = decoupleNeckJointAttachment(project);
+  if (project.jacks && project.jacks.length === 0) {
+    // An empty list is the same document as none: drop it rather than write it.
+    const { jacks: _emptyJacks, ...withoutJacks } = project;
+    project = withoutJacks;
+  }
   const instrumentDefaults = resolveInstrument(project);
   const instrumentType = project.instrumentType ?? instrumentDefaults.instrumentType;
   // A v7 joint is atomic. Validate it before resolving the output mirrors so

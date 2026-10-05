@@ -55,13 +55,17 @@ import type { StoredProject } from '../types/guitar';
  *       `neckPreset`: geometry is an authored numeric plan shape and
  *       placement is the body-owned reference-fret datum. A version 7 file
  *       without either half is malformed and refused at the editable gate.
+ *   8 - Adds the optional `jacks` list of independently placed front-face
+ *       output jacks (`strat_plate`, `direct`). An empty list is the same as
+ *       none and is dropped on save. Reading 8 is safe to ship early: a save
+ *       stamps 8 only once a jack is placed.
  *
  * This constant is the newest version this build *understands*, and it is the
  * upper bound of the read gate. It is deliberately not what a save stamps -
  * see `requiredSchemaVersion` below, which writes the lowest version that can
  * represent the document in hand.
  */
-export const PROJECT_SCHEMA_VERSION = 7;
+export const PROJECT_SCHEMA_VERSION = 8;
 
 /**
  * The oldest payload this build can read. Nothing has been dropped yet, so
@@ -143,7 +147,7 @@ export const BASE_SCHEMA_VERSION = 3;
 export function requiredSchemaVersion(
   project: Pick<
     StoredProject,
-    'schemaVersion' | 'bodyTop' | 'potentiometers' | 'switches' | 'instrumentAppearance' | 'neckJointGeometry' | 'neckPlacement'
+    'schemaVersion' | 'bodyTop' | 'potentiometers' | 'switches' | 'instrumentAppearance' | 'neckJointGeometry' | 'neckPlacement' | 'jacks'
   >
 ): number {
   // Only a version *above* this build's - a claim it cannot assess. A
@@ -152,6 +156,9 @@ export function requiredSchemaVersion(
   if (typeof project.schemaVersion === 'number' && project.schemaVersion > PROJECT_SCHEMA_VERSION) {
     return project.schemaVersion;
   }
+  // Highest first: every new design carries the v7 pair, so checking jacks
+  // after it would stamp 7 on a document that has one.
+  if (project.jacks?.length) return 8;
   // The v7 objects are an atomic contract. `migrateProject()` rejects a
   // partial pair; this conditional simply ensures a fully represented v7
   // document is never stamped as an older format on save.

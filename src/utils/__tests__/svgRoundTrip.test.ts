@@ -43,6 +43,24 @@ describe('save and reopen', () => {
     }
   });
 
+  it('writes jacks at 8, preserving unknown styles, fields and a direct jack\'s angle', () => {
+    const jacks = [
+      { id: 'j1', position: { x: 10, y: 20 }, mountingStyle: 'strat_plate', angleDegrees: 12 },
+      { id: 'j2', position: { x: -5, y: 30 }, mountingStyle: 'direct', angleDegrees: 33 },
+      { id: 'j3', position: { x: 0, y: 40 }, mountingStyle: 'side_mounted', angleDegrees: 0, futureField: { a: 1 } },
+    ];
+    const saved = extractProjectFromSVG(exportProjectToSVG({ ...createProject(), jacks }))!;
+    expect(saved.schemaVersion).toBe(8);
+    expect(saved.jacks).toEqual(jacks);
+    expect(reload(exportProjectToSVG({ ...createProject(), jacks })).jacks).toEqual(jacks);
+  });
+
+  it('drops an empty jacks list and stays at 7', () => {
+    const saved = extractProjectFromSVG(exportProjectToSVG({ ...createProject(), jacks: [] }))!;
+    expect(saved.schemaVersion).toBe(7);
+    expect('jacks' in saved).toBe(false);
+  });
+
   it('refuses to save a project that has only half of the v7 joint pair', () => {
     const project = createProject();
     expect(() => exportProjectToSVG({ ...project, neckPlacement: undefined })).toThrow(/neckJointGeometry and neckPlacement/);

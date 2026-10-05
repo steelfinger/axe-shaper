@@ -371,6 +371,25 @@ export interface SwitchPlacement {
   angleDegrees: number;
 }
 
+/**
+ * Schema v8. `strat_plate` and `direct` are the two styles this build draws;
+ * the open `(string & {})` arm is how an unknown style survives a read and a
+ * save, as with `KnobStyleId`.
+ */
+export type JackMountingStyleId = 'strat_plate' | 'direct' | (string & {});
+
+/** Independently placed, front-face output jack (docs/OUTPUT_JACKS_SCHEMA_8_PLAN.md). */
+export interface OutputJackPlacement {
+  id: string;
+  position: Vector2D;
+  mountingStyle: JackMountingStyleId;
+  /**
+   * Rotates a `strat_plate`. Ignored for rendering on `direct` but written back
+   * verbatim, so restyling plate -> direct -> plate restores the rotation.
+   */
+  angleDegrees: number;
+}
+
 /** A movable, directly-selectable hardware item on the body canvas. */
 export type SelectedHardwarePlacement =
   | { kind: 'pickup'; id: string }
@@ -612,6 +631,11 @@ export interface GuitarProject {
   potentiometers?: PotentiometerPlacement[];
   /** Optional for schema 1-3 files. New projects write an empty collection. */
   switches?: SwitchPlacement[];
+  /**
+   * Schema v8. Absent and empty are the same document: an empty list is
+   * dropped on save and never raises the stamp.
+   */
+  jacks?: OutputJackPlacement[];
   /**
    * Optional, unlike `pickups` - a file from before this feature existed
    * genuinely lacks the key, and `migrateProject()` deliberately does not
