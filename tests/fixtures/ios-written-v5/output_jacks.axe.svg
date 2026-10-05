@@ -52,6 +52,24 @@
 <circle cx="0.00" cy="180.00" r="1.5" fill="#28a745"/>
 </g>
 </g>
+<g id="control-jacks">
+<g transform="translate(38.00 215.00) rotate(25.00)" data-jack-style="strat_plate">
+<rect class="control-outline" x="-40.25" y="-15.65" width="80.50" height="31.30" rx="15.65"/>
+<circle class="control-outline" cx="-35.50" cy="0.00" r="1.75"/>
+<circle class="control-outline" cx="35.50" cy="0.00" r="1.75"/>
+<circle class="control-outline" cx="0" cy="0" r="7.50"/>
+<polygon class="control-outline" points="7.51,0.00 3.75,6.50 -3.75,6.50 -7.51,0.00 -3.75,-6.50 3.75,-6.50"/>
+<circle class="control-outline" cx="0" cy="0" r="4.90"/>
+</g>
+<g transform="translate(-30.00 240.00)" data-jack-style="direct">
+<circle class="control-outline" cx="0" cy="0" r="7.50"/>
+<polygon class="control-outline" points="7.51,0.00 3.75,6.50 -3.75,6.50 -7.51,0.00 -3.75,-6.50 3.75,-6.50"/>
+<circle class="control-outline" cx="0" cy="0" r="4.90"/>
+</g>
+<g transform="translate(0.00 260.00)" data-jack-style="side_mounted">
+<circle class="control-body" cx="0" cy="0" r="7.50"/>
+</g>
+</g>
 <g id="bridge">
 <path class="bridge-rout" d="M -35.00 242.00 L 35.00 242.00 L 35.00 282.00 L -35.00 282.00 Z"/>
 <path class="bridge-rout" d="M -35.00 244.00 L 35.00 244.00 L 35.00 284.00 L -35.00 284.00 Z"/>
