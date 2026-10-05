@@ -19,9 +19,20 @@ Deferred implementation note, prepared 2026-10-04.
   jack stamps 8, and the *live web* refuses a payload newer than the schema it
   ships, so iPad authoring stays off until a web build that reads schema 8 is
   live (web goes live by tag).
-- **Not done:** step 5 (blueprints/templates carrying a jack; user templates
-  do not yet copy `jacks`), the 3D preview of a jack (preview-only, not part of
-  the contract), step 7 (release verification), and turning either flag on.
+- **Step 5 (blueprints and templates): done behind the same flags.** User
+  templates carry `jacks`. Ten bundled blueprints get their jack from
+  `src/constants/blueprints/blueprint-jacks.json` (S-style: Strat plate on its
+  Front Cavity #2; Semi-Hollow Double-Cut, SG, V, Firebird, Jag and the P, J,
+  MM and Mustang basses: direct). The Jaguar's jack replaces its third
+  potentiometer; the V also gets a 44 mm round guard centred on the jack. The
+  data is **not** in the blueprint files: a blueprint carrying a jack would stamp
+  every new design from it 8, so each app applies the JSON only while its
+  authoring flag is on and the blueprint files stay at schema 7. The JSON is
+  synced to the iPad by `Scripts/sync-contract.sh` (manifest-checked), so both
+  apps place the same coordinates. When the flags are turned on, bake it into
+  the files if a single source is preferred.
+- **Not done:** the 3D preview of a jack (preview-only, not part of the
+  contract), step 7 (release verification), and turning either flag on.
 
 ## Status and release gate
 

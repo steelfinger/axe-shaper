@@ -3,6 +3,8 @@ import { defaultStringCount } from '../utils/instrument';
 import { PICKUP_SPECIFICATIONS } from './hardware';
 import { extractProjectFromSVG } from '../utils/svgExporter';
 import { BLUEPRINT_MANIFEST, BLUEPRINT_ORDER } from './blueprintManifest';
+import { OUTPUT_JACKS_ENABLED } from './features';
+import { applyBlueprintJacks } from '../utils/blueprintJacks';
 
 // Each built-in blueprint is a real .axe.svg file - the same format Save
 // produces - so it can be authored in the app itself instead of hand-edited
@@ -40,6 +42,18 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
       console.error(`Blueprint "${id}" could not be decoded from blueprints/${id}.axe.svg - skipping.`);
       continue;
     }
+
+    // Output jacks are applied only while authoring them is enabled, so the
+    // bundled blueprints keep producing schema 7 designs until then.
+    const hardware = applyBlueprintJacks(
+      id,
+      {
+        potentiometers: project.potentiometers ?? [],
+        pickguards: project.pickguards ?? [],
+        jacks: project.jacks ?? [],
+      },
+      OUTPUT_JACKS_ENABLED
+    );
 
     templates[id] = {
       id,
@@ -88,12 +102,12 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
         const spec = PICKUP_SPECIFICATIONS[pickup.type];
         return spec ? { ...pickup, ...structuredClone(spec) } : pickup;
       }),
-      defaultPotentiometers: project.potentiometers ?? [],
+      defaultPotentiometers: hardware.potentiometers,
       defaultSwitches: project.switches ?? [],
-      defaultJacks: project.jacks ?? [],
+      defaultJacks: hardware.jacks,
       // `?? []` - no bundled blueprint carries these yet, and
       // extractProjectFromSVG does a raw JSON.parse with no field defaulting.
-      defaultPickguards: project.pickguards ?? [],
+      defaultPickguards: hardware.pickguards,
       defaultFrontRoutes: project.frontRoutes ?? [],
       defaultBackRoutes: project.backRoutes ?? [],
     };

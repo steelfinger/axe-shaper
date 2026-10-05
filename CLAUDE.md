@@ -72,7 +72,11 @@ places one is behind `OUTPUT_JACKS_ENABLED`** (`src/constants/features.ts`,
 set by `VITE_OUTPUT_JACKS=1 npm run dev`). Placing
 a jack stamps the file 8, which an iPad build older than the one that reads v8
 opens read-only, so **no `v*` tag may enable the flag before that iPad release
-is live**. `e2e/editor.spec.ts` pins the default-off state. The 3D viewer
+is live**. `e2e/editor.spec.ts` pins the default-off state. The ten bundled
+blueprints' jacks (and the Jaguar's pot swap, the V's round guard) live in
+`src/constants/blueprints/blueprint-jacks.json`, not in the blueprint files, so
+the blueprints stay schema 7 while the flag is off; the iPad gets the same
+JSON from `Scripts/sync-contract.sh`. The 3D viewer
 reads up to 7 and ignores jacks, so `projectForViewerLink` hands it a version
 stamped from the fields it actually carries, not the document's 8.
 

@@ -1,0 +1,217 @@
+{
+  "version": 1,
+  "note": "Output jacks for bundled blueprints (schema 8). Applied by both apps only while output-jack authoring is enabled, so blueprints stay at schema 7 until then. Source of truth for web and iPad; synced to axe-shaper-ios by Scripts/sync-contract.sh. jacks replace the blueprint's jacks, removePotentiometerIds drops those pots, addPickguards appends pickguards.",
+  "blueprints": {
+    "s_style": {
+      "jacks": [
+        {
+          "id": "output_jack",
+          "position": {
+            "x": 93.2,
+            "y": 317.7
+          },
+          "mountingStyle": "strat_plate",
+          "angleDegrees": 40
+        }
+      ]
+    },
+    "semi_hollow_double_cut": {
+      "jacks": [
+        {
+          "id": "output_jack",
+          "position": {
+            "x": 76,
+            "y": 405
+          },
+          "mountingStyle": "direct",
+          "angleDegrees": 0
+        }
+      ]
+    },
+    "sg_style": {
+      "jacks": [
+        {
+          "id": "output_jack",
+          "position": {
+            "x": 72,
+            "y": 403
+          },
+          "mountingStyle": "direct",
+          "angleDegrees": 0
+        }
+      ]
+    },
+    "gibson_flying_v": {
+      "jacks": [
+        {
+          "id": "output_jack",
+          "position": {
+            "x": 186,
+            "y": 503
+          },
+          "mountingStyle": "direct",
+          "angleDegrees": 0
+        }
+      ],
+      "addPickguards": [
+        {
+          "id": "output_jack_guard",
+          "name": "Output Jack Guard",
+          "colorHex": "#ffffff",
+          "visible": true,
+          "locked": false,
+          "contour": {
+            "closed": true,
+            "anchors": [
+              {
+                "id": "output_jack_guard_n",
+                "position": {
+                  "x": 186,
+                  "y": 481.0
+                },
+                "handleMode": "symmetric",
+                "handleIn": {
+                  "x": -12.1503,
+                  "y": 0
+                },
+                "handleOut": {
+                  "x": 12.1503,
+                  "y": 0
+                }
+              },
+              {
+                "id": "output_jack_guard_e",
+                "position": {
+                  "x": 208.0,
+                  "y": 503
+                },
+                "handleMode": "symmetric",
+                "handleIn": {
+                  "x": 0,
+                  "y": -12.1503
+                },
+                "handleOut": {
+                  "x": 0,
+                  "y": 12.1503
+                }
+              },
+              {
+                "id": "output_jack_guard_s",
+                "position": {
+                  "x": 186,
+                  "y": 525.0
+                },
+                "handleMode": "symmetric",
+                "handleIn": {
+                  "x": 12.1503,
+                  "y": 0
+                },
+                "handleOut": {
+                  "x": -12.1503,
+                  "y": 0
+                }
+              },
+              {
+                "id": "output_jack_guard_w",
+                "position": {
+                  "x": 164.0,
+                  "y": 503
+                },
+                "handleMode": "symmetric",
+                "handleIn": {
+                  "x": 0,
+                  "y": 12.1503
+                },
+                "handleOut": {
+                  "x": 0,
+                  "y": -12.1503
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "gibson_firebird": {
+      "jacks": [
+        {
+          "id": "output_jack",
+          "position": {
+            "x": 78,
+            "y": 421
+          },
+          "mountingStyle": "direct",
+          "angleDegrees": 0
+        }
+      ]
+    },
+    "jag_style": {
+      "jacks": [
+        {
+          "id": "output_jack",
+          "position": {
+            "x": 120,
+            "y": 312
+          },
+          "mountingStyle": "direct",
+          "angleDegrees": 0
+        }
+      ],
+      "removePotentiometerIds": [
+        "pot_1789449571410_kwti0"
+      ]
+    },
+    "p_bass_style": {
+      "jacks": [
+        {
+          "id": "output_jack",
+          "position": {
+            "x": 99,
+            "y": 371
+          },
+          "mountingStyle": "direct",
+          "angleDegrees": 0
+        }
+      ]
+    },
+    "j_bass_style": {
+      "jacks": [
+        {
+          "id": "output_jack",
+          "position": {
+            "x": 137,
+            "y": 328
+          },
+          "mountingStyle": "direct",
+          "angleDegrees": 0
+        }
+      ]
+    },
+    "mm_bass_style": {
+      "jacks": [
+        {
+          "id": "output_jack",
+          "position": {
+            "x": 96,
+            "y": 351
+          },
+          "mountingStyle": "direct",
+          "angleDegrees": 0
+        }
+      ]
+    },
+    "mustang_bass_style": {
+      "jacks": [
+        {
+          "id": "output_jack",
+          "position": {
+            "x": 125,
+            "y": 303
+          },
+          "mountingStyle": "direct",
+          "angleDegrees": 0
+        }
+      ]
+    }
+  }
+}
