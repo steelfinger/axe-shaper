@@ -7,6 +7,8 @@ import {
   userTemplateInstrument,
   type UserTemplate,
 } from '../userTemplates';
+import { createProject } from '../projectFactory';
+import { requiredSchemaVersion } from '../../constants/schema';
 
 class MemoryStorage {
   private data = new Map<string, string>();
@@ -90,5 +92,22 @@ describe('userTemplateInstrument', () => {
 
   it('defaults the count to the instrument\'s own when only the count is missing', () => {
     expect(userTemplateInstrument({ instrumentType: 'bass' })).toEqual({ instrumentType: 'bass', stringCount: 4 });
+  });
+});
+
+describe('user templates and output jacks', () => {
+  const jack = { id: 'j', position: { x: 10, y: 20 }, mountingStyle: 'strat_plate', angleDegrees: 15 } as const;
+
+  it('carries a saved jack into a new design, which then needs schema 8', () => {
+    saveUserTemplate(template('with-jack', { defaultJacks: [jack] }));
+    const project = createProject({ templateId: 'with-jack' });
+    expect(project.jacks).toEqual([jack]);
+    expect(requiredSchemaVersion(project)).toBe(8);
+  });
+
+  it('leaves a jack-free design without the key', () => {
+    saveUserTemplate(template('plain'));
+    expect('jacks' in createProject({ templateId: 'plain' })).toBe(false);
+    expect('jacks' in createProject()).toBe(false);
   });
 });

@@ -62,6 +62,7 @@ type TemplateSource = Pick<
   | 'defaultPickups'
   | 'defaultPotentiometers'
   | 'defaultSwitches'
+  | 'defaultJacks'
   | 'defaultPickguards'
   | 'defaultFrontRoutes'
   | 'defaultBackRoutes'
@@ -153,6 +154,9 @@ export function createProject(options: CreateProjectOptions = {}): GuitarProject
     pickups: structuredClone(template.defaultPickups),
     potentiometers: structuredClone(template.defaultPotentiometers ?? []),
     switches: structuredClone(template.defaultSwitches ?? []),
+    // Only when the template has jacks, so a jack-free design stays free of
+    // the key (an empty list is dropped on save anyway).
+    ...(template.defaultJacks?.length ? { jacks: structuredClone(template.defaultJacks) } : {}),
     pickguards: structuredClone(template.defaultPickguards ?? []),
     frontRoutes: structuredClone(template.defaultFrontRoutes ?? []),
     backRoutes: structuredClone(template.defaultBackRoutes ?? []),

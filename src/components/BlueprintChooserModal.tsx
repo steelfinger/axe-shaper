@@ -82,6 +82,7 @@ export function BlueprintChooserModal({
       defaultPickups: structuredClone(project.pickups),
       defaultPotentiometers: structuredClone(project.potentiometers ?? []),
       defaultSwitches: structuredClone(project.switches ?? []),
+      defaultJacks: structuredClone(project.jacks ?? []),
       defaultPickguards: structuredClone(project.pickguards ?? []),
       defaultFrontRoutes: structuredClone(project.frontRoutes ?? []),
       defaultBackRoutes: structuredClone(project.backRoutes ?? []),

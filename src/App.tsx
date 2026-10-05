@@ -363,6 +363,8 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       pickups: JSON.parse(JSON.stringify(template.defaultPickups)),
       potentiometers: JSON.parse(JSON.stringify(template.defaultPotentiometers ?? [])),
       switches: JSON.parse(JSON.stringify(template.defaultSwitches ?? [])),
+      // An empty list: applying a jack-free template clears a previous body's jacks.
+      jacks: JSON.parse(JSON.stringify(template.defaultJacks ?? [])),
       pickguards: JSON.parse(JSON.stringify(template.defaultPickguards ?? [])),
       frontRoutes: JSON.parse(JSON.stringify(template.defaultFrontRoutes ?? [])),
       backRoutes: JSON.parse(JSON.stringify(template.defaultBackRoutes ?? [])),

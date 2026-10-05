@@ -11,9 +11,17 @@ Deferred implementation note, prepared 2026-10-04.
   `OUTPUT_JACKS_ENABLED`.** Canvas, printable SVG, sidebar, inspector.
   At `angleDegrees` 0 a Strat plate's long axis lies along X; iOS must draw
   the same.
+- **Step 6 (iOS): done behind `OutputJackFeature.isAuthoringEnabled`.** iOS
+  reads, preserves, draws (canvas, printable SVG, PDF), hit-tests, selects,
+  moves, rotates (plates only) and deletes jacks, with a selection card and an
+  inspector list. `jackCrossWriter.test.ts` pins that both writers draw the
+  same primitives. **The iPad gate is the mirror of the web one:** placing a
+  jack stamps 8, and the *live web* refuses a payload newer than the schema it
+  ships, so iPad authoring stays off until a web build that reads schema 8 is
+  live (web goes live by tag).
 - **Not done:** step 5 (blueprints/templates carrying a jack; user templates
-  do not yet copy `jacks`), step 6 (iOS editing and rendering), step 7
-  (release verification), and turning the flag on.
+  do not yet copy `jacks`), the 3D preview of a jack (preview-only, not part of
+  the contract), step 7 (release verification), and turning either flag on.
 
 ## Status and release gate
 

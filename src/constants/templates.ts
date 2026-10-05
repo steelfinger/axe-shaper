@@ -90,6 +90,7 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
       }),
       defaultPotentiometers: project.potentiometers ?? [],
       defaultSwitches: project.switches ?? [],
+      defaultJacks: project.jacks ?? [],
       // `?? []` - no bundled blueprint carries these yet, and
       // extractProjectFromSVG does a raw JSON.parse with no field defaulting.
       defaultPickguards: project.pickguards ?? [],

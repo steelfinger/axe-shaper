@@ -9,6 +9,7 @@ import type {
   PotentiometerPlacement,
   PickguardPlacement,
   RoutedCavity,
+  OutputJackPlacement,
   SwitchPlacement,
 } from '../types/guitar';
 import { LEGACY_INSTRUMENT_TYPE, defaultStringCount, isInstrumentType } from './instrument';
@@ -47,6 +48,7 @@ export interface UserTemplate {
   defaultPickups: PickupPlacement[];
   defaultPotentiometers?: PotentiometerPlacement[];
   defaultSwitches?: SwitchPlacement[];
+  defaultJacks?: OutputJackPlacement[];
   defaultPickguards?: PickguardPlacement[];
   defaultFrontRoutes?: RoutedCavity[];
   defaultBackRoutes?: RoutedCavity[];

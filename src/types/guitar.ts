@@ -513,6 +513,8 @@ export interface ReferenceTemplate {
   defaultPickups: PickupPlacement[];
   defaultPotentiometers?: PotentiometerPlacement[];
   defaultSwitches?: SwitchPlacement[];
+  /** Schema v8. Absent means no jack; no bundled blueprint carries one yet. */
+  defaultJacks?: OutputJackPlacement[];
   defaultPickguards?: PickguardPlacement[];
   defaultFrontRoutes?: RoutedCavity[];
   defaultBackRoutes?: RoutedCavity[];
