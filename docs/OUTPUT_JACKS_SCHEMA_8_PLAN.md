@@ -52,8 +52,13 @@ Deferred implementation note, prepared 2026-10-04.
     hole), asserted in `jackCrossWriter.test.ts`.
   - *Still manual:* print a plate and a direct jack at 100% and measure them
     against a ruler or the 100 mm calibration square before relying on a print.
-- **Not done:** the 3D preview of a jack (preview-only, not part of the
-  contract), the physical printout above, and turning either flag on.
+- **3D viewer: done.** `axe-shape-3D-viewer` `v0.1.23` reads schema 8 and
+  draws jacks (washer, hex nut, sleeve and socket; a plate with two screws);
+  the editor passes them through "View in 3D" (`viewer3d.version` is pinned to
+  it). The iPad's own 3D preview does not draw jacks yet
+  (`geometry.output-jacks` in the capability contract records iOS as partial).
+- **Not done:** the iPad 3D preview of a jack (a port of the viewer's
+  `buildJackParts`), the physical printout above, and turning either flag on.
 
 ## Status and release gate
 

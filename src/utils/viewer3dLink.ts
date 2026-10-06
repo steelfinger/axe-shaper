@@ -51,6 +51,7 @@ export type ViewerLinkProject = Pick<
   | 'frontRoutes'
   | 'potentiometers'
   | 'switches'
+  | 'jacks'
   | 'instrumentAppearance'
 > & {
   settings: Pick<GuitarProject['settings'], 'name' | 'finishStyle' | 'bodyColor' | 'pickguardColor' | 'showPickguard' | 'showControls'>;
@@ -79,12 +80,14 @@ export function projectForViewerLink(project: GuitarProject): ViewerLinkProject 
     frontRoutes: project.frontRoutes,
     potentiometers: project.potentiometers,
     switches: project.switches,
+    // An empty list is the same document as none; leave it out.
+    jacks: project.jacks?.length ? project.jacks : undefined,
     instrumentAppearance: project.instrumentAppearance,
   };
-  // The viewer's schema ceiling is 7 and it does not read `jacks`, so a
-  // project with a jack (stamped 8) would be refused outright. This payload
-  // carries no jacks, so describe it as what it holds: the lowest version
-  // that represents *these* fields.
+  // Describe the payload as what it holds: the lowest version that represents
+  // *these* fields. The pinned viewer (v0.1.23 and later) reads schema 8 and
+  // draws jacks; an older one would refuse the 8, so this must not ship ahead
+  // of the `viewer3d.version` pin that carries it.
   return { ...handoff, schemaVersion: requiredSchemaVersion(handoff) };
 }
 

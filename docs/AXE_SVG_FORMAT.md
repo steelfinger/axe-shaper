@@ -485,8 +485,8 @@ it means recomputing every one of them on both platforms.
 ## 3D viewer compatibility
 
 `steelfinger/axe-shape-3D-viewer` (the pinned bundle in `public/viewer3d`)
-accepts numeric schema versions through version 7 (it does not yet read `jacks`/version 8) and renders the supported
-Guitar/6 and Bass/4 document matrix, placed controls, the version-5
+accepts numeric schema versions through version 8 (from `v0.1.23`) and renders the supported
+Guitar/6 and Bass/4 document matrix, placed controls, version-8 output jacks, the version-5
 `bodyTop.construction` choice, and persisted version-6 neck and fingerboard
 appearance. It reads those saved choices for the normal preview, which is the
 only 3D entry point the editor links to. The viewer also keeps an opt-in

@@ -33,16 +33,26 @@ describe('projectForViewerLink', () => {
 });
 
 describe('projectForViewerLink and jacks', () => {
-  const withJack = {
-    ...createProject(),
-    jacks: [{ id: 'j', position: { x: 0, y: 0 }, mountingStyle: 'strat_plate', angleDegrees: 0 }],
-    schemaVersion: 8,
-  };
+  const jack = { id: 'j', position: { x: 0, y: 0 }, mountingStyle: 'strat_plate', angleDegrees: 0 } as const;
+  const withJack = { ...createProject(), jacks: [jack], schemaVersion: 8 };
 
-  it('omits jacks and hands the viewer a version it reads, not the 8 the document carries', () => {
+  it('hands the viewer the jacks and the 8 they need', () => {
     const link = projectForViewerLink(withJack);
-    expect(link).not.toHaveProperty('jacks');
-    expect(link.schemaVersion).toBe(7);
+    expect(link.jacks).toEqual([jack]);
+    expect(link.schemaVersion).toBe(8);
+  });
+
+  it('leaves jacks out, and stays at the version its other fields need, when there are none', () => {
+    expect(projectForViewerLink(createProject())).not.toHaveProperty('jacks', expect.anything());
+    const empty = projectForViewerLink({ ...createProject(), jacks: [] });
+    expect(empty.jacks).toBeUndefined();
+    expect(empty.schemaVersion).toBe(7);
+  });
+
+  it('survives the compressed link round trip', async () => {
+    const decoded = await decodePath(await buildViewer3DPath(withJack)) as { jacks: unknown[]; schemaVersion: number };
+    expect(decoded.jacks).toEqual([jack]);
+    expect(decoded.schemaVersion).toBe(8);
   });
 });
 

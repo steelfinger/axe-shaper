@@ -77,9 +77,10 @@ is live**. `e2e/editor.spec.ts` pins the default-off state. The ten bundled
 blueprints' jacks (and the Jaguar's pot swap, the V's round guard) live in
 `src/constants/blueprints/blueprint-jacks.json`, not in the blueprint files, so
 the blueprints stay schema 7 while the flag is off; the iPad gets the same
-JSON from `Scripts/sync-contract.sh`. The 3D viewer
-reads up to 7 and ignores jacks, so `projectForViewerLink` hands it a version
-stamped from the fields it actually carries, not the document's 8.
+JSON from `Scripts/sync-contract.sh`. The 3D viewer reads schema 8 and
+draws jacks from `v0.1.23`, so `projectForViewerLink` passes them and stamps
+the version from the fields it carries. That handoff must never ship ahead of
+the `viewer3d.version` pin: a viewer older than v0.1.23 refuses the 8.
 
 ## Deploying is a tag, not a push
 
