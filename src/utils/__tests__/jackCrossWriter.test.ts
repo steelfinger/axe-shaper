@@ -29,4 +29,41 @@ describe('output jacks across writers', () => {
     expect(web.length).toBeGreaterThan(10);
     expect(ios).toEqual(web);
   });
+
+  // 1:1 print: both writers must give one SVG user unit per millimetre, and the
+  // agreed jack dimensions in those units. A physical printout is still checked
+  // against a ruler by hand; this pins everything that can be pinned in code.
+  describe.each([
+    ['web', () => exportProjectToSVG(extractProjectFromSVG(fixture)!)],
+    ['iPad', () => fixture],
+  ])('print scale (%s writer)', (_name, svgOf) => {
+    const svg = svgOf();
+    const number = (value: string | undefined) => Number(value);
+
+    it('is one user unit per millimetre', () => {
+      const width = number(/<svg[^>]*\swidth="([\d.]+)mm"/.exec(svg)?.[1]);
+      const height = number(/<svg[^>]*\sheight="([\d.]+)mm"/.exec(svg)?.[1]);
+      const box = /viewBox="([-\d.]+) ([-\d.]+) ([\d.]+) ([\d.]+)"/.exec(svg)!;
+      expect(width).toBeGreaterThan(100);
+      expect(number(box[3])).toBeCloseTo(width, 1);
+      expect(number(box[4])).toBeCloseTo(height, 1);
+    });
+
+    it('draws the agreed jack dimensions', () => {
+      const jacks = svg.slice(svg.indexOf('id="control-jacks"'));
+      const attr = (tag: string, name: string) => [...jacks.matchAll(new RegExp(`<${tag}\\b[^>]*\\s${name}="(-?[\\d.]+)"`, 'g'))].map((m) => Number(m[1]));
+      expect(attr('rect', 'width')[0]).toBeCloseTo(80.5, 2);
+      expect(attr('rect', 'height')[0]).toBeCloseTo(31.3, 2);
+      expect(attr('rect', 'rx')[0]).toBeCloseTo(15.65, 2);
+      const radii = attr('circle', 'r');
+      expect(radii).toContain(7.5); // 15 mm washer
+      expect(radii).toContain(4.9); // 9.8 mm through-hole
+      const screwX = attr('circle', 'cx').filter((x) => Math.abs(x) > 30);
+      expect(Math.max(...screwX) - Math.min(...screwX)).toBeCloseTo(71, 2); // screw spacing
+      // 13 mm across flats: opposite vertices of the hexagon are 2R = 15.01 apart.
+      const nut = /<polygon[^>]*points="([^"]+)"/.exec(jacks)![1].split(' ').map((p) => p.split(',').map(Number));
+      const across = Math.hypot(nut[0][0] - nut[3][0], nut[0][1] - nut[3][1]) * (Math.sqrt(3) / 2);
+      expect(across).toBeCloseTo(13, 1);
+    });
+  });
 });

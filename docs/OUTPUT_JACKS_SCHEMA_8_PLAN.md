@@ -31,8 +31,29 @@ Deferred implementation note, prepared 2026-10-04.
   synced to the iPad by `Scripts/sync-contract.sh` (manifest-checked), so both
   apps place the same coordinates. When the flags are turned on, bake it into
   the files if a single source is preferred.
+- **Step 7 (release verification): done except a physical printout.** Evidence,
+  on 5 Oct 2026:
+  - *Schema 3-7 load unchanged:* `schema:check`, `fixtures:check` (loading is a
+    no-op; the frozen v2 and v3 iPad sets) and the iPad's
+    `testFixturesWriteTheSchemaVersionTheyNeed` all pass; a jack-free document
+    never becomes 8.
+  - *Old clients, run for real:* the last pre-v8 web build (`32795ed`) refuses a
+    web-written v8 file ("saved by a newer version of Axe Shaper (file format
+    8)"); the shipped iPad v1.2.0 (`v1.2.0`) opens it **read-only**
+    (`.readOnly(payloadVersion: 8)`). Neither edits or downgrades it.
+  - *Round trip both directions:* `tests/fixtures/web-written-v8/output_jacks.axe.svg`
+    (web writer; regenerate with `scripts/write-web-v8-fixture.ts`) is synced to
+    the iPad, decoded editable, re-saved, and the re-save
+    (`web_roundtrip_output_jacks.axe.svg`) is read back by the web with every
+    jack, the unknown style and its unknown field intact. `fixtures:check`
+    guards it in CI.
+  - *Print scale:* both writers give one SVG unit per millimetre and the agreed
+    dimensions (80.5 x 31.3 plate, screws 71 apart, 15 washer, 13 AF nut, 9.8
+    hole), asserted in `jackCrossWriter.test.ts`.
+  - *Still manual:* print a plate and a direct jack at 100% and measure them
+    against a ruler or the 100 mm calibration square before relying on a print.
 - **Not done:** the 3D preview of a jack (preview-only, not part of the
-  contract), step 7 (release verification), and turning either flag on.
+  contract), the physical printout above, and turning either flag on.
 
 ## Status and release gate
 

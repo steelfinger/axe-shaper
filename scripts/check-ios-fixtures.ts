@@ -595,6 +595,26 @@ async function main() {
         });
       }
 
+      // The return leg of the round trip: this repo wrote
+      // tests/fixtures/web-written-v8/output_jacks.axe.svg, the iPad decoded and
+      // re-saved it, and every jack must come back exactly as written - an
+      // unknown style and the unknown field on its entry included.
+      const WEB_V8 = join(ROOT, 'tests', 'fixtures', 'web-written-v8', 'output_jacks.axe.svg');
+      const ROUND_TRIP = 'web_roundtrip_output_jacks.axe.svg';
+      if (!existsSync(WEB_V8) || !v5Files.includes(ROUND_TRIP)) {
+        console.log('  pending  no web -> iPad -> web round-trip fixture yet');
+      } else {
+        check('a schema 8 file written by the web survives the iPad unchanged', () => {
+          const original = scan(readFileSync(WEB_V8, 'utf8')).project;
+          const back = scan(readFileSync(join(V5_FIXTURE_DIR, ROUND_TRIP), 'utf8')).project;
+          deepStrictEqual(original.schemaVersion, 8);
+          deepStrictEqual(back.schemaVersion, 8, 'the iPad re-saved it at a different version');
+          deepStrictEqual(back.jacks, original.jacks, 'jacks changed across web -> iPad -> web');
+          const resaved = scan(exporter.exportProjectToSVG(presets.migrateProject(back))).project;
+          deepStrictEqual(resaved.jacks, original.jacks, 'jacks changed across a further web load/save');
+        });
+      }
+
       const appearanceFixtures = v5Files.filter((file) => (
         scan(readFileSync(join(V5_FIXTURE_DIR, file), 'utf8')).project.instrumentAppearance
       ));
