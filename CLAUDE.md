@@ -69,7 +69,8 @@ contract change being written down, not to find out after it is pushed.
 Schema 8 `jacks` (`docs/OUTPUT_JACKS_SCHEMA_8_PLAN.md`) can be read, drawn,
 selected, moved and deleted in every build, but the **Output Jack action that
 places one is behind `OUTPUT_JACKS_ENABLED`** (`src/constants/features.ts`,
-set by `VITE_OUTPUT_JACKS=1 npm run dev`). Placing
+set by `VITE_OUTPUT_JACKS=1 npm run dev`, or `VITE_OUTPUT_JACKS=1 npm run dev:with-viewer`; the
+**staging** lane builds with it on, the release lane must not). Placing
 a jack stamps the file 8, which an iPad build older than the one that reads v8
 opens read-only, so **no `v*` tag may enable the flag before that iPad release
 is live**. `e2e/editor.spec.ts` pins the default-off state. The ten bundled

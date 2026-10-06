@@ -34,9 +34,16 @@ jobs:
       # Builds this site and composes the pinned viewer3d bundle into
       # dist/viewer3d. firebase.json has no predeploy hook, so this is the
       # only build; a bare `firebase deploy` would ship whatever is in dist/.
+      #
+      # VITE_OUTPUT_JACKS turns on output-jack authoring (schema 8) for this
+      # lane only, so staging shows what is on main. It must NOT be set in
+      # firebase-hosting-release.yml: placing a jack stamps a file 8, which the
+      # iPad build that is live today opens read-only. See CLAUDE.md,
+      # "Output jacks are built but gated".
       - run: npm run build:site
         env:
           GH_TOKEN: ${{ secrets.VIEWER3D_RELEASE_TOKEN }}
+          VITE_OUTPUT_JACKS: '1'
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
