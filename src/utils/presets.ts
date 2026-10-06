@@ -696,6 +696,49 @@ function decoupleNeckJointAttachment(project: StoredProject): StoredProject {
 }
 
 /**
+ * What a settings object must carry for the editor to dereference it. Mirrors
+ * the literal in `createProject` (projectFactory.ts, which imports this module
+ * and so cannot be imported here); `settingsDefaults.test.ts` pins the two
+ * together. Only the required `ProjectSettings` fields: the optional
+ * `show*` flags stay absent, because absent already means on.
+ */
+const SETTINGS_READ_DEFAULTS = {
+  unitDisplay: 'mm',
+  canvasOrientation: 'vertical',
+  symmetry: { mode: 'none', sourceSide: 'left' },
+  showCenterAxis: true,
+  showGhostGuide: true,
+  showHardwareCavities: true,
+  showDimensions: true,
+  showGrid: true,
+  gridSizeMm: 50,
+  snapToGridEnabled: false,
+  finishStyle: 'sunburst',
+  bodyColor: '#3b82f6',
+  secondaryColor: '#f59e0b',
+  bodyFillOpacity: 0.35,
+  pickguardEnabled: true,
+  pickguardColor: '#ffffff',
+} as const;
+
+/**
+ * Fill in the `ProjectSettings` fields a file left out, and nothing else: a
+ * value the file carries is kept verbatim, so a complete settings object comes
+ * back as the same reference and a save does not change its bytes. iOS's
+ * synthetic fixtures carry only name, unitDisplay, gridSizeMm and
+ * snapToGrid; without this the editor dereferences `settings.symmetry.mode`
+ * and the page goes blank.
+ */
+export function withSettingsDefaults(settings: GuitarProject['settings']): GuitarProject['settings'] {
+  const missing = (Object.keys(SETTINGS_READ_DEFAULTS) as Array<keyof typeof SETTINGS_READ_DEFAULTS>)
+    .filter((key) => settings[key] === undefined);
+  if (missing.length === 0) return settings;
+  const filled: Record<string, unknown> = { ...settings };
+  for (const key of missing) filled[key] = structuredClone(SETTINGS_READ_DEFAULTS[key]);
+  return filled as unknown as GuitarProject['settings'];
+}
+
+/**
  * Backfill the embedded presets and the instrument axis without disturbing
  * anything already there. Safe to call on a project of any schema version -
  * this is what turns a decoded `StoredProject` into a `GuitarProject`.
@@ -770,6 +813,7 @@ export function withEmbeddedPresets(project: StoredProject): GuitarProject {
     // ?? [] rather than trusting the type: a hand-edited or foreign file can
     // omit this, and every consumer maps over it.
     pickups: withEmbeddedPickupSpecs(project.pickups ?? []),
+    settings: withSettingsDefaults(project.settings),
     // pickguards/frontRoutes/backRoutes are deliberately NOT backfilled here,
     // unlike pickups: they're optional on GuitarProject precisely so a file
     // that predates them decodes with the key genuinely absent, and loading

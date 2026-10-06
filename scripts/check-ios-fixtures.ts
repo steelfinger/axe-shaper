@@ -343,6 +343,10 @@ async function main() {
         //   than round-tripping its stale numbers - exactly what these
         //   iOS-written fixtures still have. Comparing against that same
         //   production helper keeps this a no-op check for every other field.
+        // - Settings: a payload that omits required `ProjectSettings` fields
+        //   (iOS's synthetic fixtures carry four) gets the createProject
+        //   defaults on load, via the same helper; a payload that carries
+        //   them is untouched.
         // - The version stamp and the instrument axis version 3 introduces.
         //   These fixtures predate it, so they migrate to Guitar/6; that is
         //   the migration itself, asserted here rather than assumed. The
@@ -353,6 +357,7 @@ async function main() {
         const expected = {
           ...project,
           pickups: presets.withEmbeddedPickupSpecs(project.pickups ?? []),
+          settings: presets.withSettingsDefaults(project.settings),
           schemaVersion: schema.requiredSchemaVersion(project),
           ...instrument.resolveInstrument(project),
         };
@@ -495,6 +500,7 @@ async function main() {
           deepStrictEqual(presets.migrateProject(project), {
             ...project,
             pickups: presets.withEmbeddedPickupSpecs(project.pickups ?? []),
+            settings: presets.withSettingsDefaults(project.settings),
             schemaVersion: schema.requiredSchemaVersion(project),
           });
         });
@@ -544,7 +550,13 @@ async function main() {
             `${project.stringCount}-string ${project.instrumentType} is outside the supported matrix`
           );
           const migrated = presets.migrateProject(project);
-          deepStrictEqual(migrated, expectedWithV7CompatibilityMirrors(project, migrated));
+          deepStrictEqual(
+            migrated,
+            expectedWithV7CompatibilityMirrors(
+              { ...project, settings: presets.withSettingsDefaults(project.settings) },
+              migrated
+            )
+          );
         });
         check(`${fileName}: body-top choice survives web load/save/reload`, () => {
           const loaded = presets.loadProject(project);

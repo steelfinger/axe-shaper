@@ -190,6 +190,9 @@ async function main() {
         // version 3: a placement saved before `anchors` existed is backfilled
         // with its type's real catalogue rout (see resolvePickupSpec).
         pickups: presets.withEmbeddedPickupSpecs(v2.pickups ?? []),
+        // The other: required settings a file omits are filled in on load
+        // (withSettingsDefaults); one that carries them is untouched.
+        settings: presets.withSettingsDefaults(v2.settings),
       });
     });
 
@@ -248,7 +251,7 @@ async function main() {
       ...presets.migrateProject(v2),
       instrumentType: 'bass',
       stringCount: 4,
-      settings: { ...v2.settings, name: 'Synthetic Bass/4' },
+      settings: presets.withSettingsDefaults({ ...v2.settings, name: 'Synthetic Bass/4' }),
     };
 
     check('round-trips through a save without changing type, count or geometry', () => {

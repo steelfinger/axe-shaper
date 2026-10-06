@@ -155,6 +155,22 @@ test.describe('saving', () => {
   });
 });
 
+test.describe('files written by the iPad app', () => {
+  // Their synthetic fixtures carry only four settings keys. Opening one used
+  // to throw on `settings.symmetry.mode` and leave a blank page.
+  for (const name of ['controls', 'solid_body_carve']) {
+    test(`${name}.axe.svg opens to a drawn canvas`, async ({ page }) => {
+      const errors = trackPageErrors(page);
+      await page.goto('/app');
+      await expect(chooserHeading(page)).toBeVisible();
+      await page.locator('input[type="file"]').setInputFiles(`tests/fixtures/ios-written-v5/${name}.axe.svg`);
+      await expect(projectNameField(page)).toBeVisible();
+      await expectCanvasDrawn(page);
+      expect(errors).toEqual([]);
+    });
+  }
+});
+
 test.describe('output jacks (schema 8) behind the release gate', () => {
   // OUTPUT_JACKS_ENABLED is off in this build, and no `v*` tag may turn it on
   // before an iPad release that reads schema 8 is live. Authoring is hidden,
