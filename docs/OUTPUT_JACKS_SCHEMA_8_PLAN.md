@@ -52,13 +52,16 @@ Deferred implementation note, prepared 2026-10-04.
     hole), asserted in `jackCrossWriter.test.ts`.
   - *Still manual:* print a plate and a direct jack at 100% and measure them
     against a ruler or the 100 mm calibration square before relying on a print.
-- **3D viewer: done.** `axe-shape-3D-viewer` `v0.1.23` reads schema 8 and
-  draws jacks (washer, hex nut, sleeve and socket; a plate with two screws);
-  the editor passes them through "View in 3D" (`viewer3d.version` is pinned to
-  it). The iPad's own 3D preview does not draw jacks yet
-  (`geometry.output-jacks` in the capability contract records iOS as partial).
-- **Not done:** the iPad 3D preview of a jack (a port of the viewer's
-  `buildJackParts`), the physical printout above, and turning either flag on.
+- **3D previews: done.** `axe-shape-3D-viewer` (pinned `v0.1.24`) and the
+  iPad's own 3D preview both draw jacks: a washer, hex nut, sleeve and socket
+  for a direct jack; for a Strat plate, the real teardrop plate (traced from a
+  manufacturer drawing, scaled onto the agreed 80.5 x 31.3 mm, point toward +X
+  at 0) with two screws and its teardrop cutout over a dark floor. The iPad
+  meshes are a port of the viewer's, and both suites assert the same vertex
+  counts and bounds for the same inputs. The editor passes jacks through "View
+  in 3D" (`viewer3d.version` is pinned). The 2D plan still draws the plainer
+  rounded-end plate symbol, by choice.
+- **Not done:** the physical printout above, and turning either flag on.
 
 ## Status and release gate
 
