@@ -52,18 +52,19 @@ describe('output jacks across writers', () => {
     it('draws the agreed jack dimensions', () => {
       const jacks = svg.slice(svg.indexOf('id="control-jacks"'));
       const attr = (tag: string, name: string) => [...jacks.matchAll(new RegExp(`<${tag}\\b[^>]*\\s${name}="(-?[\\d.]+)"`, 'g'))].map((m) => Number(m[1]));
-      expect(attr('rect', 'width')[0]).toBeCloseTo(80.5, 2);
-      expect(attr('rect', 'height')[0]).toBeCloseTo(31.3, 2);
-      expect(attr('rect', 'rx')[0]).toBeCloseTo(15.65, 2);
+      // The plate is the first polygon of the first group: 80.5 x 31.3 mm.
+      const polygons = [...jacks.matchAll(/<polygon[^>]*points="([^"]+)"/g)].map((m) => m[1].split(' ').map((p) => p.split(',').map(Number)));
+      const plateOutline = polygons[0];
+      const xs = plateOutline.map((p) => p[0]);
+      const ys = plateOutline.map((p) => p[1]);
+      expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(80.5, 1);
+      expect(Math.max(...ys) - Math.min(...ys)).toBeCloseTo(31.3, 1);
       const radii = attr('circle', 'r');
-      expect(radii).toContain(7.5); // 15 mm washer
-      expect(radii).toContain(4.9); // 9.8 mm through-hole
-      const screwX = attr('circle', 'cx').filter((x) => Math.abs(x) > 30);
-      expect(Math.max(...screwX) - Math.min(...screwX)).toBeCloseTo(71, 2); // screw spacing
-      // 13 mm across flats: opposite vertices of the hexagon are 2R = 15.01 apart.
-      const nut = /<polygon[^>]*points="([^"]+)"/.exec(jacks)![1].split(' ').map((p) => p.split(',').map(Number));
-      const across = Math.hypot(nut[0][0] - nut[3][0], nut[0][1] - nut[3][1]) * (Math.sqrt(3) / 2);
-      expect(across).toBeCloseTo(13, 1);
+      expect(radii).toContain(4.9); // 9.8 mm jack hole
+      expect(radii).toContain(1.75); // plate screws
+      // Two screws 71 mm apart, on the plate's axis.
+      const screws = [...jacks.matchAll(/<circle[^>]*cx="(-?[\d.]+)"[^>]*cy="(-?[\d.]+)"[^>]*r="1\.75"/g)].map((m) => Number(m[1]));
+      expect(Math.abs(screws[1] - screws[0])).toBeCloseTo(71, 1);
     });
   });
 });

@@ -23,7 +23,8 @@ import {
   type BridgeDrawingRect,
 } from './bridgeDrawing';
 import { CONTROL_DRAWING_GEOMETRY, JACK_DRAWING_GEOMETRY, PLAN_DRAWING_STYLE } from '../constants/planDrawingStyle';
-import { jackExtentRadiusMm, jackNutVertices, jackPlateScrewCentres } from './jackEditing';
+import { jackExtentRadiusMm, jackNutVertices } from './jackEditing';
+import { jackPlateCutout, jackPlateHole, jackPlateOutline, jackPlateScrews } from './jackPlateShape';
 import { generateNeckJointOutline, neckJointOutlineToSVGPath } from './neckJointGeometry';
 import { neckJointFabricationDisclosure } from './neckJointDisclosure';
 
@@ -120,9 +121,11 @@ function potentiometerSVG(project: GuitarProject): string {
 
 /**
  * Output jacks are drawn in the hardware presentation layer, never as body
- * routes, and DXF omits them. A known style draws the 15 mm washer, 13 mm hex
- * nut and 9.8 mm opening; a plate adds the 80.5 x 31.3 mm oval and two screws,
- * rotated as a whole. An unknown style falls back to a dashed washer circle.
+ * routes, and DXF omits them. A direct jack draws the 15 mm washer, 13 mm hex
+ * nut and 9.8 mm opening. A Strat plate draws the real teardrop plate (80.5 x
+ * 31.3 mm, see `jackPlateShape.ts`), its teardrop cutout, two screws and the
+ * 9.8 mm jack hole, rotated as a whole. An unknown style falls back to a dashed
+ * washer circle.
  */
 function outputJackSVG(project: GuitarProject): string {
   const g = JACK_DRAWING_GEOMETRY;
@@ -135,13 +138,18 @@ function outputJackSVG(project: GuitarProject): string {
       const at = `${jack.position.x.toFixed(2)}, ${jack.position.y.toFixed(2)}`;
       const style = escapeXml(jack.mountingStyle);
       if (jack.mountingStyle === 'strat_plate') {
-        const screws = jackPlateScrewCentres()
+        const polygon = (points: Array<{ x: number; y: number }>) =>
+          `<polygon points="${points.map((v) => `${v.x.toFixed(2)},${v.y.toFixed(2)}`).join(' ')}" class="control-outline" />`;
+        const screws = jackPlateScrews()
           .map((c) => `<circle cx="${c.x.toFixed(2)}" cy="${c.y.toFixed(2)}" r="${(g.plateScrewDiameterMm / 2).toFixed(2)}" class="control-outline" />`)
           .join('\n        ');
+        const hole = jackPlateHole();
         return `
       <g transform="translate(${at}) rotate(${jack.angleDegrees.toFixed(2)})" data-jack-style="${style}">
-        <rect x="${(-g.plateLengthMm / 2).toFixed(2)}" y="${(-g.plateWidthMm / 2).toFixed(2)}" width="${g.plateLengthMm.toFixed(2)}" height="${g.plateWidthMm.toFixed(2)}" rx="${(g.plateWidthMm / 2).toFixed(2)}" class="control-outline" />
-        ${screws}${assembly}
+        ${polygon(jackPlateOutline())}
+        ${polygon(jackPlateCutout())}
+        ${screws}
+        <circle cx="${hole.x.toFixed(2)}" cy="${hole.y.toFixed(2)}" r="${(g.holeDiameterMm / 2).toFixed(2)}" class="control-outline" />
       </g>`;
       }
       if (jack.mountingStyle === 'direct') {

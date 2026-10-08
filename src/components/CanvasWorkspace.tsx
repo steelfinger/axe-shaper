@@ -56,11 +56,11 @@ import {
 import {
   isJackRotatable,
   jackNutVertices,
-  jackPlateScrewCentres,
   jackRotationHandlePosition,
   movingJack,
   rotatingJackToward,
 } from '../utils/jackEditing';
+import { jackPlateCutout, jackPlateHole, jackPlateOutline, jackPlateScrews } from '../utils/jackPlateShape';
 
 /**
  * The body Path's hit area is its fill, so a click a few pixels *outside* the
@@ -85,6 +85,12 @@ const pickupRotateKey = (id: string) => `pickup:rotate:${id}`;
 const potentiometerMoveKey = (id: string) => `potentiometer:move:${id}`;
 const switchMoveKey = (id: string) => `switch:move:${id}`;
 const switchRotateKey = (id: string) => `switch:rotate:${id}`;
+// The teardrop plate is the same for every plate jack: flatten it once.
+const flattenPoints = (points: Array<{ x: number; y: number }>) => points.flatMap((point) => [point.x, point.y]);
+const plateOutlinePoints = flattenPoints(jackPlateOutline());
+const plateCutoutPoints = flattenPoints(jackPlateCutout());
+const plateScrews = jackPlateScrews();
+const plateHole = jackPlateHole();
 const jackMoveKey = (id: string) => `jack:move:${id}`;
 const jackRotateKey = (id: string) => `jack:rotate:${id}`;
 // Konva only ever has one drag gesture in flight, so a single fixed key -
@@ -1452,17 +1458,23 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                     >
                       {isPlate ? (
                         <>
-                          <Rect
-                            x={-g.plateLengthMm / 2}
-                            y={-g.plateWidthMm / 2}
-                            width={g.plateLengthMm}
-                            height={g.plateWidthMm}
-                            cornerRadius={g.plateWidthMm / 2}
+                          {/* The real teardrop plate, its cutout, two screws and the jack hole.
+                              The outline carries a near-transparent fill so the whole plate is the hit area. */}
+                          <Line
+                            points={plateOutlinePoints}
+                            closed
                             fill="rgba(255, 255, 255, 0.001)"
                             stroke={jackStroke}
                             strokeWidth={strokeWidth}
                           />
-                          {jackPlateScrewCentres().map((centre, index) => (
+                          <Line
+                            points={plateCutoutPoints}
+                            closed
+                            stroke={jackStroke}
+                            strokeWidth={strokeWidth}
+                            listening={false}
+                          />
+                          {plateScrews.map((centre, index) => (
                             <Circle
                               key={index}
                               x={centre.x}
@@ -1474,35 +1486,46 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                               listening={false}
                             />
                           ))}
-                        </>
-                      ) : (
-                        <Circle radius={g.washerDiameterMm / 2 + 2} fill="rgba(255, 255, 255, 0.001)" />
-                      )}
-                      <Circle
-                        radius={g.washerDiameterMm / 2}
-                        fillEnabled={false}
-                        stroke={jackStroke}
-                        strokeWidth={strokeWidth}
-                        dash={isPlate || isDirect ? undefined : PLAN_DRAWING_STYLE.screen.controlBodyDashPx.map((length) => length / zoom)}
-                        lineCap={isPlate || isDirect ? undefined : 'round'}
-                        listening={false}
-                      />
-                      {(isPlate || isDirect) && (
-                        <>
-                          <Line
-                            points={nutPoints}
-                            closed
-                            stroke={jackStroke}
-                            strokeWidth={strokeWidth}
-                            listening={false}
-                          />
                           <Circle
+                            x={plateHole.x}
+                            y={plateHole.y}
                             radius={g.holeDiameterMm / 2}
                             fillEnabled={false}
                             stroke={jackStroke}
                             strokeWidth={strokeWidth}
                             listening={false}
                           />
+                        </>
+                      ) : (
+                        <>
+                          <Circle radius={g.washerDiameterMm / 2 + 2} fill="rgba(255, 255, 255, 0.001)" />
+                          <Circle
+                            radius={g.washerDiameterMm / 2}
+                            fillEnabled={false}
+                            stroke={jackStroke}
+                            strokeWidth={strokeWidth}
+                            dash={isDirect ? undefined : PLAN_DRAWING_STYLE.screen.controlBodyDashPx.map((length) => length / zoom)}
+                            lineCap={isDirect ? undefined : 'round'}
+                            listening={false}
+                          />
+                          {isDirect && (
+                            <>
+                              <Line
+                                points={nutPoints}
+                                closed
+                                stroke={jackStroke}
+                                strokeWidth={strokeWidth}
+                                listening={false}
+                              />
+                              <Circle
+                                radius={g.holeDiameterMm / 2}
+                                fillEnabled={false}
+                                stroke={jackStroke}
+                                strokeWidth={strokeWidth}
+                                listening={false}
+                              />
+                            </>
+                          )}
                         </>
                       )}
                     </Group>

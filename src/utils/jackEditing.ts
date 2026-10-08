@@ -42,12 +42,6 @@ export function jackNutVertices(): Vector2D[] {
   });
 }
 
-/** The two screw centres of a plate, in the plate's own (unrotated) frame. */
-export function jackPlateScrewCentres(): [Vector2D, Vector2D] {
-  const half = JACK_DRAWING_GEOMETRY.plateScrewSpacingMm / 2;
-  return [{ x: -half, y: 0 }, { x: half, y: 0 }];
-}
-
 function placementId(): string {
   return `jack_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 }

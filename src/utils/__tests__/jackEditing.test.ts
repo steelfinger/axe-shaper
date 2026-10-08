@@ -6,7 +6,6 @@ import {
   isJackRotatable,
   jackExtentRadiusMm,
   jackNutVertices,
-  jackPlateScrewCentres,
   movingJack,
   rotatingJackToward,
   settingJackAngle,
@@ -91,11 +90,6 @@ describe('jack drawing geometry', () => {
     // Opposite vertices are 2R apart; across flats is R * sqrt(3).
     const circumdiameter = Math.hypot(vertices[0].x - vertices[3].x, vertices[0].y - vertices[3].y);
     expect((circumdiameter / 2) * Math.sqrt(3)).toBeCloseTo(13, 9);
-  });
-
-  it('puts plate screws 71 mm apart', () => {
-    const [a, b] = jackPlateScrewCentres();
-    expect(b.x - a.x).toBeCloseTo(71, 9);
   });
 
   it('sizes a plate by its diagonal', () => {

@@ -9,8 +9,8 @@ Deferred implementation note, prepared 2026-10-04.
   `jacks` and has a cross-writer fixture (`output_jacks.axe.svg`).
 - **Steps 3-4 (web editor, plan rendering): done behind
   `OUTPUT_JACKS_ENABLED`.** Canvas, printable SVG, sidebar, inspector.
-  At `angleDegrees` 0 a Strat plate's long axis lies along X; iOS must draw
-  the same.
+  At `angleDegrees` 0 a Strat plate's long axis lies along X with its pointed
+  end toward +X; iOS draws the same.
 - **Step 6 (iOS): done behind `OutputJackFeature.isAuthoringEnabled`.** iOS
   reads, preserves, draws (canvas, printable SVG, PDF), hit-tests, selects,
   moves, rotates (plates only) and deletes jacks, with a selection card and an
@@ -59,8 +59,9 @@ Deferred implementation note, prepared 2026-10-04.
   at 0) with two screws and its teardrop cutout over a dark floor. The iPad
   meshes are a port of the viewer's, and both suites assert the same vertex
   counts and bounds for the same inputs. The editor passes jacks through "View
-  in 3D" (`viewer3d.version` is pinned). The 2D plan still draws the plainer
-  rounded-end plate symbol, by choice.
+  in 3D" (`viewer3d.version` is pinned). The 2D plan draws the same teardrop
+  (outline, cutout, two screws, the 9.8 mm hole) in the editor, the printable
+  SVG and the iPad, so 2D and 3D agree.
 - **Not done:** the physical printout above, and turning either flag on.
 
 ## Status and release gate
@@ -96,10 +97,13 @@ has exactly two mounting styles:
 
 | Stored style | Plan-view representation | Intended use |
 | --- | --- | --- |
-| `strat_plate` | A rotated flat oval plate, visible jack assembly, and two screw markers | Strat-style front-face installation |
+| `strat_plate` | The real teardrop plate (round at one end, a small point at the other), its teardrop cutout, two screw markers and the 9.8 mm jack hole, rotated as a whole | Strat-style front-face installation |
 | `direct` | A visible jack washer, hex nut, and central through-hole | Through the pickguard or the body top |
 
-The Strat plate is deliberately a simplified plan symbol. Do **not** represent
+The Strat plate is a plan symbol, not a manufacturing drawing. Its outline and
+cutout are the real teardrop (traced from a manufacturer's drawing, scaled onto
+the agreed 80.5 x 31.3 mm; `src/utils/jackPlateShape.ts`, with copies in the
+viewer and the iPad pinned by a shared area fingerprint). Do **not** represent
 its dished/angled cup, thickness, countersinks, jack barrel, or routing depth.
 Those are manufacturing and 3D concerns, not part of the current 2D hardware
 presentation model.
@@ -119,13 +123,14 @@ per-project user controls in v1.
 | Jack through-hole | 9.8 mm diameter | The regular output-jack body/pickguard hole |
 | Nut | 13 mm across flats | `SW13`; draw as a hexagon where shown |
 | Washer | 15 mm diameter | Visible on a direct-mounted jack |
-| Strat plate overall | 80.5 x 31.3 mm | Flat oval silhouette |
+| Strat plate overall | 80.5 x 31.3 mm | Teardrop silhouette; the point is toward +X at 0 degrees |
 | Strat plate screw spacing | 71.0 mm centre-to-centre | Screw diameter is visual-only until a manufacturing definition exists |
 
 For `direct`, draw the 15 mm washer, 13 mm hex nut, and 9.8 mm opening. For
-`strat_plate`, draw the 80.5 x 31.3 mm oval with its two screw markers and the
-same compact jack assembly centred on the plate. Plate rotation controls the
-whole symbol. A direct jack is rotationally symmetric, so it has no meaningful
+`strat_plate`, draw the 80.5 x 31.3 mm teardrop plate, its teardrop cutout, two
+screw markers (the left one 5.6 mm from the round end, the other 71.0 mm along)
+and the 9.8 mm jack hole 29.1 mm from the round end, with no washer or nut.
+`position` is the plate's centre. Plate rotation controls the whole symbol. A direct jack is rotationally symmetric, so it has no meaningful
 user-facing rotation control.
 
 ## Schema 8 contract
@@ -240,8 +245,9 @@ than promoting these presentation symbols directly into machining geometry.
   the Strat plate alone can be rotated.
 - A direct jack is readable over both a body finish and a pickguard, using the
   agreed washer, nut, and hole geometry.
-- A Strat plate reads as an oval 80.5 x 31.3 mm metal plate with two screws
-  71.0 mm apart and a central jack assembly, without a simulated recessed cup.
+- A Strat plate reads as a teardrop 80.5 x 31.3 mm metal plate with a teardrop
+  cutout, two screws 71.0 mm apart and the jack hole, without a simulated
+  recessed cup.
 - Output-jack placement survives Save, Open, templates, undo/redo, SVG
   metadata round-trip, and web/iOS cross-writer fixtures.
 - Documents without a jack do not become Schema 8 merely because they were

@@ -355,6 +355,10 @@ written at 8; every other document keeps the version it already needed.
   restores the rotation. New `direct` jacks start at 0.
 - Dimensions are shared drawing constants, not stored: through-hole 9.8 mm,
   `SW13` hex nut, 15 mm washer, plate 80.5 x 31.3 mm with screws 71.0 mm apart.
+  A `strat_plate` is drawn as a teardrop (round end, small point at +X when the
+  angle is 0), with a teardrop cutout, two screws and the 9.8 mm hole; `position`
+  is the plate's centre. Both writers draw identical primitives, pinned by
+  `jackCrossWriter.test.ts`.
 - Side-mounted jacks are out of scope for version 8. DXF omits jacks.
 
 Reading 8 is safe to deploy before iOS ships; *placing* a jack is not, and
