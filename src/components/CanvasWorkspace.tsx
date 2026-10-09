@@ -31,7 +31,7 @@ import {
   getBridgeDrawingGeometry,
 } from '../utils/bridgeDrawing';
 import type { BridgeDrawingRect } from '../utils/bridgeDrawing';
-import { ZoomIn, ZoomOut, Maximize2, Hand, Spline } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, Hand, Spline, Move } from 'lucide-react';
 import {
   SCALE_BAR_STEPS,
   formatLength,
@@ -167,6 +167,10 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   const [zoom, setZoom] = useState(1.2); // 1.2 px per mm base scale
   const [panOffset, setPanOffset] = useState<Vector2D>({ x: 0, y: 0 });
   const [isPanToolActive, setIsPanToolActive] = useState(false);
+  // The body fill sits above the guide image and swallows its clicks, so once
+  // the image is aligned under the outline it can no longer be grabbed. This
+  // mode makes every layer above it transparent to the pointer.
+  const [isMoveGuideActive, setIsMoveGuideActive] = useState(false);
   const [isSpacePressed, setIsSpacePressed] = useState(false);
   const [isModifierPanning, setIsModifierPanning] = useState(false);
   const [isDraggingStage, setIsDraggingStage] = useState(false);
@@ -458,6 +462,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   };
 
   const isPanMode = isPanToolActive || isSpacePressed || isModifierPanning;
+  const canMoveGuide = guideImage.visible && !!guideImage.element && !guideImage.locked;
+  const moveGuideMode = isMoveGuideActive && canMoveGuide;
 
   // The bug this closes: releasing Space/Alt (or the window losing focus -
   // `releaseAll` above, on blur) mid-pan-drag flips `draggable` off on the
@@ -559,6 +565,16 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           <Hand size={14} /> Pan (P)
         </button>
 
+        {canMoveGuide && (
+          <button
+            className={`btn btn-sm ${moveGuideMode ? 'btn-primary' : ''}`}
+            onClick={() => setIsMoveGuideActive((p) => !p)}
+            title="Drag the guide image even when it sits underneath the body outline"
+          >
+            <Move size={14} /> Move guide
+          </button>
+        )}
+
         <button
           className={`btn btn-sm ${showAllHandles ? 'btn-primary' : ''}`}
           onClick={() => setShowAllHandles((p) => !p)}
@@ -654,7 +670,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
             ghost/guide-image/back-routes), and only the guide image needs to be
             hittable, so the layer's own listening flag matches its old layer
             and the rest get an explicit listening={false} on their Group. */}
-        <Layer listening={!isPanMode && !calibration.active && isBodyActive}>
+        <Layer listening={!isPanMode && !calibration.active && (isBodyActive || moveGuideMode)}>
           <Group listening={false}>
           {settings.showGrid && (
             <Group>
@@ -809,7 +825,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 scaleY={guideImage.scale}
                 rotation={guideImage.rotationDegrees}
                 opacity={guideImage.opacity}
-                draggable={!isPanMode && isBodyActive && !guideImage.locked}
+                draggable={!isPanMode && (isBodyActive || moveGuideMode) && !guideImage.locked}
                 onDragStart={() => onBeginEdit(GUIDE_DRAG_KEY)}
                 onDragEnd={(e) => {
                   onUpdateGuideImage(
@@ -843,7 +859,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         </Layer>
 
         {/* LAYER 1: LIVE BODY SHAPE (and, while editing one, the active pickguard/route outline) */}
-        <Layer listening={!isPanMode && !calibration.active}>
+        <Layer listening={!isPanMode && !calibration.active && !moveGuideMode}>
           <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
             {/* Dimmed reference outline of the real body, while editing a different layer */}
             {!isBodyActive && (
@@ -923,7 +939,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
             above for why). Hardware/routs stay display-only via an explicit
             listening={false} on their Group; hardware remains hittable for
             shared layer-aware selection, with dragging gated by the active layer. */}
-        <Layer listening={!isPanMode && !calibration.active}>
+        <Layer listening={!isPanMode && !calibration.active && !moveGuideMode}>
           {settings.showHardwareCavities && (
             <Group listening={false} x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               {/* Neck Pocket Cavity */}
@@ -1570,7 +1586,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
             renders while calibration.active is true, at which point this layer's
             own listening flag is already false, so the two never fight over
             hit-testing. */}
-        <Layer listening={!isPanMode && !calibration.active}>
+        <Layer listening={!isPanMode && !calibration.active && !moveGuideMode}>
           {/* Selected segment highlight */}
           {selectedSegmentIndex !== null && (
             <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation} listening={false}>
