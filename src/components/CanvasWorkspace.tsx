@@ -478,54 +478,73 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
     if (!isPanMode) stageRef.current?.stopDrag();
   }, [isPanMode]);
 
-  /** Nearest active-contour segment to a stage pointer position, if the click was close enough. */
-  const pickSegment = (pointer: Vector2D): number | null => {
-    const hit = findClosestSegment(activeContour.anchors, activeContour.closed, toModel(pointer));
-    if (!hit) return null;
-    // Tolerance in screen px, so it stays the same size as you zoom
-    return hit.distance * zoom <= PICK_TOLERANCE_PX ? hit.index : null;
-  };
-
   /** Only empty canvas and the active outline pick segments - never a node or handle. */
   const isOutlinePickTarget = (target: Konva.Node): boolean =>
     target === target.getStage() || target.name() === BODY_OUTLINE_NAME;
 
-  /**
-   * A layer's fill can be large and overlap the body, so switching layers is
-   * deliberately an outline-only gesture. The nearest eligible outline wins;
-   * ties follow the visible paint order, with front routes above pickguards,
-   * the body, then back routes.
-   */
-  const selectableLayerAt = (pointer: Vector2D): ActiveLayer | null => {
+  /** Shared click/tap resolver. Active contours win before cross-layer hardware. */
+  const handleObjectSelection = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+    if ('touches' in e.evt && e.evt.touches.length > 1) return;
+    const pointer = e.target.getStage()?.getPointerPosition();
+    if (!pointer) return;
+    if (calibration.active) {
+      onCalibrationPick(toModel(pointer));
+      return;
+    }
+    if (isPanMode) return;
+    const hardwareTarget = e.target.findAncestor('.selectable-hardware', true);
+    if (!isOutlinePickTarget(e.target) && !hardwareTarget) return;
+    const touch = 'changedTouches' in e.evt ? e.evt.changedTouches[0] : undefined;
+    // Safari exposes Pencil touches as stylus. Other pointer input keeps the
+    // precise mouse tolerance; only direct finger input enlarges the footprint.
+    const finger = touch && (touch as Touch & { touchType?: string }).touchType !== 'stylus';
+    const tolerance = finger ? 22 : PICK_TOLERANCE_PX;
+    const footprintTolerance = finger ? 10 : 0;
     const modelPoint = toModel(pointer);
-    const currentHit = findClosestSegment(activeContour.anchors, activeContour.closed, modelPoint);
-    // When outlines overlap within the normal selection radius, preserve the
-    // current layer. There is no unambiguous path to switch to in that case.
-    if (currentHit && currentHit.distance * zoom <= PICK_TOLERANCE_PX) return null;
-    const candidates: ActiveLayer[] = [
+    const candidates: Array<{ layer: ActiveLayer; index: number; distance: number }> = [];
+    const layers: ActiveLayer[] = [
       ...(settings.showFrontRoutes !== false
-        ? frontRoutes.filter((route) => route.visible !== false && !route.locked).map((route) => ({ kind: 'frontRoute' as const, id: route.id }))
-        : []),
+        ? frontRoutes.filter((r) => r.visible !== false && !r.locked).map((r) => ({ kind: 'frontRoute' as const, id: r.id })) : []),
       ...(settings.showPickguard !== false
-        ? pickguards.filter((pickguard) => pickguard.visible !== false && !pickguard.locked).map((pickguard) => ({ kind: 'pickguard' as const, id: pickguard.id }))
-        : []),
+        ? pickguards.filter((p) => p.visible !== false && !p.locked).map((p) => ({ kind: 'pickguard' as const, id: p.id })) : []),
       { kind: 'body' },
       ...(settings.showBackRoutes !== false
-        ? backRoutes.filter((route) => route.visible !== false && !route.locked).map((route) => ({ kind: 'backRoute' as const, id: route.id }))
-        : []),
+        ? backRoutes.filter((r) => r.visible !== false && !r.locked).map((r) => ({ kind: 'backRoute' as const, id: r.id })) : []),
     ];
-
-    let best: { layer: ActiveLayer; distance: number } | null = null;
-    for (const layer of candidates) {
-      if (activeLayersEqual(layer, activeLayer)) continue;
+    for (const layer of layers) {
       const contour = getActiveContour(project, layer);
       if (!contour) continue;
       const hit = findClosestSegment(contour.anchors, contour.closed, modelPoint);
-      if (hit && hit.distance * zoom <= PICK_TOLERANCE_PX && (!best || hit.distance < best.distance)) {
-        best = { layer, distance: hit.distance };
-      }
+      if (hit && hit.distance * zoom <= tolerance) candidates.push({ layer, index: hit.index, distance: hit.distance });
     }
-    return best?.layer ?? null;
+    // Use the rendered footprint, so rotated pickups and jack plates have the
+    // exact same hit geometry as the existing drag targets. Reverse paint order.
+    const groups = stageRef.current?.find<Konva.Group>('.selectable-hardware') ?? [];
+    const hardware = [...groups].reverse().find((group) => {
+      if (!group.isVisible()) return false;
+      const footprint = group.getChildren()[0];
+      if (!(footprint instanceof Konva.Shape)) return false;
+      if (footprint.intersects(pointer)) return true;
+      for (let i = 0; footprintTolerance && i < 16; i++) {
+        const angle = i * Math.PI / 8;
+        if (footprint.intersects({ x: pointer.x + Math.cos(angle) * footprintTolerance, y: pointer.y + Math.sin(angle) * footprintTolerance })) return true;
+      }
+      return false;
+    });
+    const active = candidates.find((hit) => activeLayersEqual(hit.layer, activeLayer));
+    if (hardware && (isBodyActive || !active)) {
+      onSelectHardware(hardware.getAttr('hardwareSelection') as SelectedHardwarePlacement);
+      return;
+    }
+    const hit = active ?? candidates.sort((a, b) => a.distance - b.distance)[0];
+    if (hit) {
+      if (!activeLayersEqual(hit.layer, activeLayer)) onSelectLayer(hit.layer);
+      onSelectSegment(hit.index);
+      return;
+    }
+    onSelectSegment(null);
+    onSelectAnchor(null);
+    onSelectHardware(null);
   };
 
   return (
@@ -606,31 +625,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         style={{
           cursor: isPanMode ? (isDraggingStage ? 'grabbing' : 'grab') : 'default',
         }}
-        onClick={(e) => {
-          if (calibration.active) {
-            const pointer = e.target.getStage()?.getPointerPosition();
-            if (pointer) onCalibrationPick(toModel(pointer));
-            return;
-          }
-          if (isPanMode || !isOutlinePickTarget(e.target)) return;
-
-          const pointer = e.target.getStage()?.getPointerPosition();
-          if (!pointer) return;
-          const layerHit = selectableLayerAt(pointer);
-          // Switching layers is its own click: it activates the layer with nothing
-          // selected in it, and a second click picks a segment.
-          if (layerHit) {
-            onSelectLayer(layerHit);
-            return;
-          }
-          const index = pickSegment(pointer);
-          onSelectSegment(index);
-          // A click out in open space, or well inside the body, clears everything
-          if (index === null) {
-            onSelectAnchor(null);
-            onSelectHardware(null);
-          }
-        }}
+        onClick={handleObjectSelection}
+        onTap={handleObjectSelection}
         onDblClick={(e) => {
           if (isPanMode || calibration.active || !isOutlinePickTarget(e.target)) return;
 
@@ -925,9 +921,9 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
         {/* LAYER 2: HARDWARE, ROUTS & PICKUPS - merged into one Layer (see LAYER 0
             above for why). Hardware/routs stay display-only via an explicit
-            listening={false} on their Group; pickups keep the layer's own
-            listening flag so their drag/rotate handles still hit-test. */}
-        <Layer listening={!isPanMode && !calibration.active && isBodyActive}>
+            listening={false} on their Group; hardware remains hittable for
+            shared layer-aware selection, with dragging gated by the active layer. */}
+        <Layer listening={!isPanMode && !calibration.active}>
           {settings.showHardwareCavities && (
             <Group listening={false} x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               {/* Neck Pocket Cavity */}
@@ -1064,9 +1060,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
             </Group>
           )}
 
-          {/* Pickups - interactive, body-layer-only (the same "not the active
-              layer doesn't hit-test" rule the pickguard/route content follows,
-              applied to pickups instead - see EditingController.ActiveLayer on iOS) */}
+          {/* Hardware drags stay on Body Outline; shared click/tap picking
+              can activate that layer from any visible editable contour. */}
           {settings.showHardwareCavities && (
             <Group x={originX} y={originY} scaleX={zoom} scaleY={zoom} rotation={rotation}>
               {pickups.map((p) => {
@@ -1076,6 +1071,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 return (
                   <Group key={p.id}>
                     <Group
+                      name="selectable-hardware"
+                      hardwareSelection={{ kind: 'pickup', id: p.id }}
                       x={p.offsetXMm}
                       y={p.offsetYMm}
                       rotation={p.angleDegrees}
@@ -1091,9 +1088,6 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                           ? snapToGridMm(model.y, settings.gridSizeMm, settings.unitDisplay)
                           : model.y;
                         return toScreen({ x: 0, y });
-                      }}
-                      onClick={() => {
-                        if (!isPanMode) onSelectHardware({ kind: 'pickup', id: p.id });
                       }}
                       onDragStart={() => {
                         onSelectHardware({ kind: 'pickup', id: p.id });
@@ -1172,6 +1166,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 return (
                   <Group
                     key={potentiometer.id}
+                    name="selectable-hardware"
+                    hardwareSelection={{ kind: 'potentiometer', id: potentiometer.id }}
                     x={potentiometer.position.x}
                     y={potentiometer.position.y}
                     draggable={!isPanMode && isBodyActive}
@@ -1184,9 +1180,6 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                           }
                         : model;
                       return toScreen(snapped);
-                    }}
-                    onClick={() => {
-                      if (!isPanMode) onSelectHardware({ kind: 'potentiometer', id: potentiometer.id });
                     }}
                     onDragStart={() => {
                       onSelectHardware({ kind: 'potentiometer', id: potentiometer.id });
@@ -1248,6 +1241,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 return (
                   <Group key={selector.id}>
                     <Group
+                      name="selectable-hardware"
+                      hardwareSelection={{ kind: 'switch', id: selector.id }}
                       x={selector.position.x}
                       y={selector.position.y}
                       rotation={selector.angleDegrees}
@@ -1261,9 +1256,6 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                             }
                           : model;
                         return toScreen(snapped);
-                      }}
-                      onClick={() => {
-                        if (!isPanMode) onSelectHardware({ kind: 'switch', id: selector.id });
                       }}
                       onDragStart={() => {
                         onSelectHardware({ kind: 'switch', id: selector.id });
@@ -1425,6 +1417,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 return (
                   <Group key={jack.id}>
                     <Group
+                      name="selectable-hardware"
+                      hardwareSelection={{ kind: 'jack', id: jack.id }}
                       x={jack.position.x}
                       y={jack.position.y}
                       // A direct jack is symmetric and an unknown style has no
@@ -1440,9 +1434,6 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                             }
                           : model;
                         return toScreen(snapped);
-                      }}
-                      onClick={() => {
-                        if (!isPanMode) onSelectHardware({ kind: 'jack', id: jack.id });
                       }}
                       onDragStart={() => {
                         onSelectHardware({ kind: 'jack', id: jack.id });
