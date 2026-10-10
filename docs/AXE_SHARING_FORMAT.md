@@ -63,6 +63,10 @@ Hashing requires Web Crypto, available on HTTPS and trusted localhost contexts.
 Plain HTTP over a LAN may lack it. `projectDigest()` returns the typed
 `crypto-unavailable` error in that case so the sharing UI can offer file sharing
 or explain that a secure connection is needed.
+The capability check runs first: when crypto is unavailable, this error takes
+precedence over malformed or oversized project input. Hash success does not
+establish upload eligibility; client preflight must separately check the exact
+serialized request against the 1 MiB transport limit before sending it.
 Do not introduce application-specific number rounding. The future iPad adapter
 uses JCS-compatible serialization, independent of its normal file encoder.
 

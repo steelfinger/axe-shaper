@@ -102,6 +102,7 @@ describe('sharing canonical JSON contract', () => {
       await expect(projectDigest({ name: 'Design' })).rejects.toMatchObject({
         name: 'CanonicalJsonError', code: 'crypto-unavailable', message: 'crypto-unavailable',
       });
+      await expect(projectDigest({ invalid: undefined })).rejects.toMatchObject({ code: 'crypto-unavailable' });
     }
   });
   it('hashes all metadata without mutating the project', async () => {

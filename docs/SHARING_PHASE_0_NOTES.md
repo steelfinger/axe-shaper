@@ -159,3 +159,11 @@ Hashing encodes the bounded canonical text once. Tests cover number expansion,
 UTF-8/escaped-string boundaries, early stopping, missing crypto and final-newline
 tag rejection. All 330 unit tests (24 sharing tests), build and lint passed;
 lint retains the existing `src/App.tsx` warning. Cloud prerequisites are unchanged.
+
+Second review follow-up: removed the incorrect JavaScript `$` comment and
+redundant full-match guards. Both coordinated and hotfix policies now compare
+the base coordinated tag with the confirmed iPad marketing version; a matching
+but inconsistent base/hotfix pair is rejected. Removed duplicate Unicode checks
+for canonical object names and documented/tested crypto-error precedence.
+All 331 unit tests (25 sharing tests), build and lint passed with the existing
+lint warning. Upload preflight must still enforce the raw request size separately.
