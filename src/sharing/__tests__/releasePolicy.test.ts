@@ -32,6 +32,12 @@ describe('sharing release compatibility policy', () => {
     expect(validateSharingReleasePolicy({ ...base, releaseTag: 'v1.3.0', baseCoordinatedTag: 'v1.3.0', confirmedIpadVersion: '1.3.0' }))
       .toEqual([]);
   });
+  it('rejects a hotfix whose base and confirmed iPad version disagree', () => {
+    const invalidBase = { ...base, confirmedIpadVersion: '1.1.0' };
+    const hotfix = { ...invalidBase, releaseTag: 'v1.2.0-web.1' };
+    expect(validateSharingReleasePolicy(invalidBase)).toContain('coordinated-version-mismatch');
+    expect(validateSharingReleasePolicy(hotfix, invalidBase)).toContain('coordinated-version-mismatch');
+  });
   it('enforces each reader and the independently confirmed native ceiling', () => {
     expect(validateSharingReleasePolicy({ ...base, maxAcceptedProjectSchema: 8 })).toContain('schema-exceeds-ipad');
     for (const key of ['serverReadSchema', 'webReadSchema', 'viewerReadSchema'] as const) {
