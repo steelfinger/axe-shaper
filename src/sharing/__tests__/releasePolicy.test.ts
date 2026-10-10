@@ -11,7 +11,7 @@ const base: SharingReleasePolicy = {
 };
 
 describe('sharing release compatibility policy', () => {
-  it('accepts coordinated and web hotfix tags covered by the deployment trigger', () => {
+  it('accepts coordinated/hotfix tags and checks the workflow contains the broad tag pattern', () => {
     expect(workflow).toContain("- 'v*'");
     expect(parseSharingReleaseTag('v1.2.0')).toEqual({ baseCoordinatedTag: 'v1.2.0', hotfix: false });
     expect(parseSharingReleaseTag('v1.2.0-web.12')).toEqual({ baseCoordinatedTag: 'v1.2.0', hotfix: true });
@@ -24,6 +24,13 @@ describe('sharing release compatibility policy', () => {
     }
     expect(validateSharingReleasePolicy({ ...base, baseCoordinatedTag: 'v1.1.0' })).toContain('invalid-release-tag');
     expect(validateSharingReleasePolicy({ ...base, confirmedIpadVersion: '1.2.0-web.1' })).toContain('invalid-ipad-version');
+    expect(validateSharingReleasePolicy({ ...base, confirmedIpadVersion: '1.2.0\n' })).toContain('invalid-ipad-version');
+  });
+  it('ties coordinated release tags to the confirmed iPad marketing version', () => {
+    expect(validateSharingReleasePolicy({ ...base, releaseTag: 'v1.3.0', baseCoordinatedTag: 'v1.3.0' }))
+      .toContain('coordinated-version-mismatch');
+    expect(validateSharingReleasePolicy({ ...base, releaseTag: 'v1.3.0', baseCoordinatedTag: 'v1.3.0', confirmedIpadVersion: '1.3.0' }))
+      .toEqual([]);
   });
   it('enforces each reader and the independently confirmed native ceiling', () => {
     expect(validateSharingReleasePolicy({ ...base, maxAcceptedProjectSchema: 8 })).toContain('schema-exceeds-ipad');
