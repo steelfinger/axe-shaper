@@ -1,0 +1,1546 @@
+{
+  "schemaVersion": 8,
+  "appVersion": "1.0.0",
+  "instrumentType": "guitar",
+  "stringCount": 6,
+  "metadata": {
+    "created": "2026-10-05T12:00:00.000Z",
+    "modified": "2026-10-05T12:00:00.000Z",
+    "author": "Axe Shaper Luthier"
+  },
+  "settings": {
+    "name": "Known schema-8 sharing fixture",
+    "unitDisplay": "mm",
+    "canvasOrientation": "vertical",
+    "symmetry": {
+      "mode": "none",
+      "sourceSide": "left"
+    },
+    "showCenterAxis": true,
+    "showGhostGuide": true,
+    "showHardwareCavities": true,
+    "showControls": true,
+    "showDimensions": true,
+    "showGrid": true,
+    "gridSizeMm": 50,
+    "snapToGridEnabled": false,
+    "finishStyle": "sunburst",
+    "bodyColor": "#3b82f6",
+    "secondaryColor": "#f59e0b",
+    "bodyFillOpacity": 0.35,
+    "pickguardEnabled": true,
+    "pickguardColor": "#ffffff"
+  },
+  "activeTemplateId": "s_style",
+  "contour": {
+    "anchors": [
+      {
+        "handleIn": {
+          "x": 25.4661,
+          "y": -0.2415
+        },
+        "handleMode": "corner",
+        "handleOut": {
+          "x": 0.2857,
+          "y": 10.2857
+        },
+        "id": "s_pocket_left",
+        "locked": false,
+        "position": {
+          "x": -26.822769606128524,
+          "y": 0
+        },
+        "semanticRole": "neck_pocket_left"
+      },
+      {
+        "handleIn": {
+          "x": 18.2792,
+          "y": 0.8649
+        },
+        "handleMode": "smooth",
+        "handleOut": {
+          "x": -14.8712,
+          "y": -0.7037
+        },
+        "id": "s_horn_scoop_left",
+        "position": {
+          "x": -51.9339,
+          "y": 19.7886
+        }
+      },
+      {
+        "handleIn": {
+          "x": 7.0419,
+          "y": 20.0405
+        },
+        "handleMode": "smooth",
+        "handleOut": {
+          "x": -8.03,
+          "y": -22.8525
+        },
+        "id": "anchor_1785076078057_sf1j7",
+        "position": {
+          "x": -90.5311,
+          "y": -13.2636
+        },
+        "semanticRole": "custom"
+      },
+      {
+        "handleIn": {
+          "x": 19.0642,
+          "y": 2.4153
+        },
+        "handleMode": "smooth",
+        "handleOut": {
+          "x": -26.5176,
+          "y": -3.3596
+        },
+        "id": "s_upper_horn_tip",
+        "position": {
+          "x": -107.1323,
+          "y": -61.8832
+        },
+        "semanticRole": "upper_horn_left"
+      },
+      {
+        "handleIn": {
+          "x": -3.0951,
+          "y": -35.2196
+        },
+        "handleMode": "smooth",
+        "handleOut": {
+          "x": 4.1429,
+          "y": 47.1429
+        },
+        "id": "s_upper_bout_outer_left",
+        "position": {
+          "x": -141.7143,
+          "y": 15.7143
+        }
+      },
+      {
+        "handleIn": {
+          "x": 0.4847,
+          "y": -37.8928
+        },
+        "handleMode": "smooth",
+        "handleOut": {
+          "x": -0.496,
+          "y": 38.7761
+        },
+        "id": "s_waist_left",
+        "position": {
+          "x": -115.4286,
+          "y": 134.8571
+        },
+        "semanticRole": "waist_left"
+      },
+      {
+        "bevelIntensity": 2,
+        "handleIn": {
+          "x": -0.05704360298190274,
+          "y": -64.24475582009606
+        },
+        "handleMode": "smooth",
+        "handleOut": {
+          "x": 0.024751659370455998,
+          "y": 27.876295136925744
+        },
+        "id": "s_lower_bout_left",
+        "position": {
+          "x": -163.725,
+          "y": 303.7229
+        },
+        "semanticRole": "lower_bout_left"
+      },
+      {
+        "bevelIntensity": 2,
+        "handleIn": {
+          "x": -27.232924463015877,
+          "y": -17.960610479062943
+        },
+        "handleMode": "smooth",
+        "handleOut": {
+          "x": 39.15601885928619,
+          "y": 25.82410874004971
+        },
+        "id": "anchor_1786052680160_7758k",
+        "position": {
+          "x": -129.4561227820676,
+          "y": 377.2833546857121
+        },
+        "semanticRole": "custom"
+      },
+      {
+        "handleIn": {
+          "x": -68.14440042432116,
+          "y": -0.7589687012621198
+        },
+        "handleMode": "symmetric",
+        "handleOut": {
+          "x": 69.65872043375052,
+          "y": 0.7758346724012881
+        },
+        "id": "s_tail_center",
+        "position": {
+          "x": 1.979288923546889,
+          "y": 404.2636117002971
+        },
+        "semanticRole": "tail_center"
+      },
+      {
+        "handleIn": {
+          "x": -29.61267123396943,
+          "y": 22.21115045806752
+        },
+        "handleMode": "smooth",
+        "handleOut": {
+          "x": 25.920051383713478,
+          "y": -19.441480189875115
+        },
+        "id": "anchor_1786052708418_595uk",
+        "position": {
+          "x": 128.02348094035992,
+          "y": 379.12721553921614
+        },
+        "semanticRole": "custom"
+      },
+      {
+        "bevelIntensity": 0.4714510080431168,
+        "handleIn": {
+          "x": 0.6114468701597761,
+          "y": 24.5311172513861
+        },
+        "handleMode": "smooth",
+        "handleOut": {
+          "x": -1.6366220898180392,
+          "y": -65.66092712363354
+        },
+        "id": "s_lower_bout_right",
+        "position": {
+          "x": 160.54932277675016,
+          "y": 304.6251556941876
+        },
+        "semanticRole": "lower_bout_right"
+      },
+      {
+        "bevelIntensity": 0.614333368624528,
+        "handleIn": {
+          "x": -0.6584333359826239,
+          "y": 26.590520485464047
+        },
+        "handleMode": "smooth",
+        "handleOut": {
+          "x": 0.9091422980386782,
+          "y": -36.715283961317084
+        },
+        "id": "s_waist_right",
+        "position": {
+          "x": 114.84041138837507,
+          "y": 150.29414430581247
+        },
+        "semanticRole": "waist_right"
+      },
+      {
+        "bevelIntensity": 0.5163290116787204,
+        "handleIn": {
+          "x": -1.1332,
+          "y": 44.872
+        },
+        "handleMode": "smooth",
+        "handleOut": {
+          "x": 0.5459,
+          "y": -21.6156
+        },
+        "id": "s_upper_bout_outer_right",
+        "position": {
+          "x": 140.6996224648282,
+          "y": 49.99788892354689
+        }
+      },
+      {
+        "bevelIntensity": 0.4280068492932073,
+        "handleIn": {
+          "x": 21.53600083204122,
+          "y": -0.5864600688190179
+        },
+        "handleMode": "smooth",
+        "handleOut": {
+          "x": -22.65748892354688,
+          "y": 0.6170000000000002
+        },
+        "id": "s_treble_horn_tip",
+        "position": {
+          "x": 114.69962246482818,
+          "y": 4.71852215290623
+        },
+        "semanticRole": "upper_horn_right"
+      },
+      {
+        "bevelIntensity": 0.6120892557648823,
+        "handleIn": {
+          "x": 29.7954,
+          "y": -20.8211
+        },
+        "handleMode": "smooth",
+        "handleOut": {
+          "x": -17.7472,
+          "y": 12.4018
+        },
+        "id": "anchor_1785075971501_6na5z",
+        "position": {
+          "x": 80.46591107645312,
+          "y": 58.99014461773443
+        },
+        "semanticRole": "custom"
+      },
+      {
+        "bevelIntensity": 0,
+        "handleIn": {
+          "x": 9.4329,
+          "y": 12.0763
+        },
+        "handleMode": "corner",
+        "id": "s_horn_scoop_right",
+        "position": {
+          "x": 28.877055694187536,
+          "y": 53.28593322935935
+        }
+      },
+      {
+        "handleMode": "corner",
+        "handleOut": {
+          "x": -21.1533,
+          "y": 0.2551
+        },
+        "id": "s_pocket_right",
+        "locked": false,
+        "position": {
+          "x": 26.822769606128524,
+          "y": 0
+        },
+        "semanticRole": "neck_pocket_right"
+      }
+    ],
+    "closed": true
+  },
+  "edgeProfile": {
+    "baseRadiusMm": 8,
+    "kind": "contoured"
+  },
+  "bodyThicknessMm": 45,
+  "instrumentAppearance": {
+    "neckFinish": "natural_maple",
+    "fingerboard": "maple",
+    "fretboardBinding": false,
+    "fretboardInlay": "dots",
+    "headstockShape": "strat_style"
+  },
+  "neckPresetId": "fender_scale",
+  "neckPreset": {
+    "id": "fender_scale",
+    "name": "Fender Scale (25.5\" Scale, 22 Frets)",
+    "scaleLengthMm": 647.7,
+    "nutToBodyEdgeMm": 390.7000328275048,
+    "nutToJointMm": 465.9453328275048,
+    "frets": 22,
+    "jointWidthMm": 55.88,
+    "jointDepthMm": 76.2,
+    "jointCornerRadiusMm": 6.35,
+    "pocketWidthMm": 55.88,
+    "pocketDepthMm": 76.2,
+    "pocketCornerRadiusMm": 6.35,
+    "style": "fender_style"
+  },
+  "neckJointMechanism": "bolt_on",
+  "bridgePresetId": "tremolo_strat",
+  "bridgePreset": {
+    "id": "tremolo_strat",
+    "name": "F-style Tremolo",
+    "scaleReference": "saddle_line",
+    "compensationMm": {
+      "treble": 2,
+      "bass": 5
+    },
+    "saddleOffsetYMm": 10,
+    "widthMm": 74,
+    "lengthMm": 38
+  },
+  "pickups": [
+    {
+      "angleDegrees": 0,
+      "cornerRadiusMm": 9,
+      "heightMm": 26.11,
+      "id": "p_neck",
+      "offsetXMm": 0,
+      "offsetYMm": 100.18684664937005,
+      "type": "single_coil",
+      "widthMm": 86.041,
+      "anchors": [
+        {
+          "id": "single_coil_a0",
+          "position": {
+            "x": 33.615,
+            "y": -9.992
+          },
+          "handleOut": {
+            "x": -22.541,
+            "y": 0.027
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a1",
+          "position": {
+            "x": -34.01,
+            "y": -9.936
+          },
+          "handleIn": {
+            "x": 22.54,
+            "y": -0.071
+          },
+          "handleOut": {
+            "x": -5.343,
+            "y": 0.203
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a2",
+          "position": {
+            "x": -42.986,
+            "y": 0.685
+          },
+          "handleIn": {
+            "x": -0.457,
+            "y": -5.2
+          },
+          "handleOut": {
+            "x": 0.079,
+            "y": 4.64
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a3",
+          "position": {
+            "x": -34.505,
+            "y": 9.825
+          },
+          "handleIn": {
+            "x": -4.579,
+            "y": -0.502
+          },
+          "handleOut": {
+            "x": 9.192,
+            "y": 2.083
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a4",
+          "position": {
+            "x": -6.928,
+            "y": 16.07
+          },
+          "handleIn": {
+            "x": -9.194,
+            "y": -2.075
+          },
+          "handleOut": {
+            "x": 4.5,
+            "y": -0.029
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a5",
+          "position": {
+            "x": 6.582,
+            "y": 15.968
+          },
+          "handleIn": {
+            "x": -4.481,
+            "y": 0.265
+          },
+          "handleOut": {
+            "x": 9.803,
+            "y": -2.241
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a6",
+          "position": {
+            "x": 35.996,
+            "y": 9.256
+          },
+          "handleIn": {
+            "x": -9.778,
+            "y": 2.341
+          },
+          "handleOut": {
+            "x": 4.94,
+            "y": -1.328
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a7",
+          "position": {
+            "x": 42.7,
+            "y": -2.494
+          },
+          "handleIn": {
+            "x": 1.363,
+            "y": 4.928
+          },
+          "handleOut": {
+            "x": -0.895,
+            "y": -4.188
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a8",
+          "position": {
+            "x": 33.615,
+            "y": -9.992
+          },
+          "handleIn": {
+            "x": 4.427,
+            "y": -0.199
+          },
+          "handleMode": "corner"
+        }
+      ],
+      "name": "Strat-Style Single Coil"
+    },
+    {
+      "angleDegrees": 0,
+      "cornerRadiusMm": 9,
+      "heightMm": 26.11,
+      "id": "p_middle",
+      "offsetXMm": 0,
+      "offsetYMm": 160.43905538226556,
+      "type": "single_coil",
+      "widthMm": 86.041,
+      "anchors": [
+        {
+          "id": "single_coil_a0",
+          "position": {
+            "x": 33.615,
+            "y": -9.992
+          },
+          "handleOut": {
+            "x": -22.541,
+            "y": 0.027
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a1",
+          "position": {
+            "x": -34.01,
+            "y": -9.936
+          },
+          "handleIn": {
+            "x": 22.54,
+            "y": -0.071
+          },
+          "handleOut": {
+            "x": -5.343,
+            "y": 0.203
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a2",
+          "position": {
+            "x": -42.986,
+            "y": 0.685
+          },
+          "handleIn": {
+            "x": -0.457,
+            "y": -5.2
+          },
+          "handleOut": {
+            "x": 0.079,
+            "y": 4.64
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a3",
+          "position": {
+            "x": -34.505,
+            "y": 9.825
+          },
+          "handleIn": {
+            "x": -4.579,
+            "y": -0.502
+          },
+          "handleOut": {
+            "x": 9.192,
+            "y": 2.083
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a4",
+          "position": {
+            "x": -6.928,
+            "y": 16.07
+          },
+          "handleIn": {
+            "x": -9.194,
+            "y": -2.075
+          },
+          "handleOut": {
+            "x": 4.5,
+            "y": -0.029
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a5",
+          "position": {
+            "x": 6.582,
+            "y": 15.968
+          },
+          "handleIn": {
+            "x": -4.481,
+            "y": 0.265
+          },
+          "handleOut": {
+            "x": 9.803,
+            "y": -2.241
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a6",
+          "position": {
+            "x": 35.996,
+            "y": 9.256
+          },
+          "handleIn": {
+            "x": -9.778,
+            "y": 2.341
+          },
+          "handleOut": {
+            "x": 4.94,
+            "y": -1.328
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a7",
+          "position": {
+            "x": 42.7,
+            "y": -2.494
+          },
+          "handleIn": {
+            "x": 1.363,
+            "y": 4.928
+          },
+          "handleOut": {
+            "x": -0.895,
+            "y": -4.188
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a8",
+          "position": {
+            "x": 33.615,
+            "y": -9.992
+          },
+          "handleIn": {
+            "x": 4.427,
+            "y": -0.199
+          },
+          "handleMode": "corner"
+        }
+      ],
+      "name": "Strat-Style Single Coil"
+    },
+    {
+      "angleDegrees": 10,
+      "cornerRadiusMm": 9,
+      "heightMm": 26.11,
+      "id": "p_bridge",
+      "offsetXMm": 0,
+      "offsetYMm": 216.2878110764531,
+      "type": "single_coil",
+      "widthMm": 86.041,
+      "anchors": [
+        {
+          "id": "single_coil_a0",
+          "position": {
+            "x": 33.615,
+            "y": -9.992
+          },
+          "handleOut": {
+            "x": -22.541,
+            "y": 0.027
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a1",
+          "position": {
+            "x": -34.01,
+            "y": -9.936
+          },
+          "handleIn": {
+            "x": 22.54,
+            "y": -0.071
+          },
+          "handleOut": {
+            "x": -5.343,
+            "y": 0.203
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a2",
+          "position": {
+            "x": -42.986,
+            "y": 0.685
+          },
+          "handleIn": {
+            "x": -0.457,
+            "y": -5.2
+          },
+          "handleOut": {
+            "x": 0.079,
+            "y": 4.64
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a3",
+          "position": {
+            "x": -34.505,
+            "y": 9.825
+          },
+          "handleIn": {
+            "x": -4.579,
+            "y": -0.502
+          },
+          "handleOut": {
+            "x": 9.192,
+            "y": 2.083
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a4",
+          "position": {
+            "x": -6.928,
+            "y": 16.07
+          },
+          "handleIn": {
+            "x": -9.194,
+            "y": -2.075
+          },
+          "handleOut": {
+            "x": 4.5,
+            "y": -0.029
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a5",
+          "position": {
+            "x": 6.582,
+            "y": 15.968
+          },
+          "handleIn": {
+            "x": -4.481,
+            "y": 0.265
+          },
+          "handleOut": {
+            "x": 9.803,
+            "y": -2.241
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a6",
+          "position": {
+            "x": 35.996,
+            "y": 9.256
+          },
+          "handleIn": {
+            "x": -9.778,
+            "y": 2.341
+          },
+          "handleOut": {
+            "x": 4.94,
+            "y": -1.328
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a7",
+          "position": {
+            "x": 42.7,
+            "y": -2.494
+          },
+          "handleIn": {
+            "x": 1.363,
+            "y": 4.928
+          },
+          "handleOut": {
+            "x": -0.895,
+            "y": -4.188
+          },
+          "handleMode": "corner"
+        },
+        {
+          "id": "single_coil_a8",
+          "position": {
+            "x": 33.615,
+            "y": -9.992
+          },
+          "handleIn": {
+            "x": 4.427,
+            "y": -0.199
+          },
+          "handleMode": "corner"
+        }
+      ],
+      "name": "Strat-Style Single Coil"
+    }
+  ],
+  "potentiometers": [
+    {
+      "id": "pot_1789416367325_k5dbi",
+      "position": {
+        "x": 53.75255850182065,
+        "y": 227.9950131718731
+      },
+      "bodyDiameterMm": 24,
+      "knobStyleId": "generic"
+    },
+    {
+      "id": "pot_1789416367913_2r6af",
+      "position": {
+        "x": 93.14720632809883,
+        "y": 248.90341900209955
+      },
+      "bodyDiameterMm": 24,
+      "knobStyleId": "generic"
+    },
+    {
+      "id": "pot_1789416368445_94swx",
+      "position": {
+        "x": 127.19319219780749,
+        "y": 278.0779387652062
+      },
+      "bodyDiameterMm": 24,
+      "knobStyleId": "generic"
+    }
+  ],
+  "switches": [
+    {
+      "id": "switch_1789416395977_tcp53",
+      "type": "fender_blade",
+      "position": {
+        "x": 96.05561215832529,
+        "y": 204.8295395548506
+      },
+      "angleDegrees": -45
+    }
+  ],
+  "pickguards": [
+    {
+      "colorHex": "#ffffff",
+      "contour": {
+        "anchors": [
+          {
+            "handleIn": {
+              "x": -2.6921248349408713,
+              "y": 8.147757747516362
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": 3.1630401550141958,
+              "y": -9.572990299050641
+            },
+            "id": "anchor_1785921238136_azt1g",
+            "position": {
+              "x": -55.500205394360556,
+              "y": 42.619472135629714
+            }
+          },
+          {
+            "handleIn": {
+              "x": -9.438724669040601,
+              "y": -3.533667588975466
+            },
+            "handleMode": "corner",
+            "handleOut": {
+              "x": 0.8590534984972036,
+              "y": 14.299370322182208
+            },
+            "id": "anchor_1785921406235_70awl",
+            "position": {
+              "x": -28.930025038660506,
+              "y": 45.1720497787949
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": -5.206555323765869,
+              "y": -3.5771160295527507
+            },
+            "handleMode": "corner",
+            "handleOut": {
+              "x": 13.831273918776734,
+              "y": 3.721639428294493
+            },
+            "id": "anchor_1785921411640_vrtut",
+            "position": {
+              "x": -25.838454501985904,
+              "y": 75.64964235963886
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": -14.57824931018544,
+              "y": 4.054854437204817
+            },
+            "handleMode": "corner",
+            "handleOut": {
+              "x": 3.8211362953345347,
+              "y": -1.9657555426163091
+            },
+            "id": "anchor_1785921417257_pcfyg",
+            "position": {
+              "x": 25.799322564969327,
+              "y": 75.6665154989927
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": -0.7645909671773297,
+              "y": 3.1537177374207275
+            },
+            "handleMode": "corner",
+            "handleOut": {
+              "x": 14.64027372928783,
+              "y": 8.453994864476671
+            },
+            "id": "anchor_1785921422083_c9jvw",
+            "position": {
+              "x": 29.8551552997631,
+              "y": 68.82142753893893
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": -19.062668493697842,
+              "y": 11.923566102746555
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": 35.22231985481632,
+              "y": -22.031315249479874
+            },
+            "id": "anchor_1785921429418_0pkpq",
+            "position": {
+              "x": 85.28289072395364,
+              "y": 73.15716693745262
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": -8.773496286113293,
+              "y": 0.5635506638704658
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": 6.2154755120079965,
+              "y": -0.39924053499707596
+            },
+            "id": "anchor_1785921238136_hvlhc",
+            "position": {
+              "x": 115.73101005170413,
+              "y": 16.241424751131625
+            }
+          },
+          {
+            "handleIn": {
+              "x": -0.032968232210499326,
+              "y": -25.032639551270506
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": 0.04712974532766082,
+              "y": 35.78541668226863
+            },
+            "id": "anchor_1785921931421_ykb5o",
+            "position": {
+              "x": 128.72908974113275,
+              "y": 51.99194407789361
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": 0.08972030601945846,
+              "y": -31.588864438738966
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": -0.08207153692907809,
+              "y": 28.89587395933782
+            },
+            "id": "anchor_1785921907781_d5cgd",
+            "position": {
+              "x": 102.9752915872102,
+              "y": 146.55593021125316
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": -10.644972603396942,
+              "y": -24.910608847044042
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": 19.173004683807118,
+              "y": 44.86730383396673
+            },
+            "id": "anchor_1785921978285_vbefh",
+            "position": {
+              "x": 131.0307589407716,
+              "y": 228.38319354400824
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": 9.272602323953944,
+              "y": -7.895153573408439
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": -14.737707045501041,
+              "y": 12.54841482240107
+            },
+            "id": "anchor_1785921238136_omq4a",
+            "position": {
+              "x": 145.21812883396638,
+              "y": 301.65084234908863
+            }
+          },
+          {
+            "handleIn": {
+              "x": 13.8285810362381,
+              "y": 12.464671966526856
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": -16.83207871160271,
+              "y": -15.17193550842893
+            },
+            "id": "anchor_1785921848551_utwqm",
+            "position": {
+              "x": 93.24159039674683,
+              "y": 275.4629218327228
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": 19.66331919023525,
+              "y": -0.7678713730380667
+            },
+            "handleMode": "corner",
+            "handleOut": {
+              "x": -1.0419293873017679,
+              "y": -7.949065338737125
+            },
+            "id": "anchor_1785921765780_4rsuf",
+            "position": {
+              "x": 37.803635774982226,
+              "y": 263.93626623972636
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": 4.4165289233442975,
+              "y": 0.6857744206658636
+            },
+            "handleMode": "corner",
+            "handleOut": {
+              "x": -30.307716277895725,
+              "y": -0.6963579728052212
+            },
+            "id": "anchor_1785921762894_zorxc",
+            "position": {
+              "x": 34.02838786601383,
+              "y": 247.8157235007792
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": 27.297231220750568,
+              "y": 0.577755179080051
+            },
+            "handleMode": "corner",
+            "handleOut": {
+              "x": -8.669913687969368,
+              "y": -0.498962168932518
+            },
+            "id": "anchor_1785921751374_shmko",
+            "position": {
+              "x": -31.902615769411167,
+              "y": 247.78272588044328
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": 0.13976542719133114,
+              "y": -8.89205117560939
+            },
+            "handleMode": "corner",
+            "handleOut": {
+              "x": -31.651576251320186,
+              "y": 0.9270825576025459
+            },
+            "id": "anchor_1785921741008_qnvla",
+            "position": {
+              "x": -39.510155392581424,
+              "y": 262.7925078394676
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": -0.3201621077977992,
+              "y": 9.485948185323597
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": 1.4438427943580787,
+              "y": -42.779009762402985
+            },
+            "id": "anchor_1785921238136_6yor7",
+            "position": {
+              "x": -77.62446411724049,
+              "y": 215.68316961056902
+            }
+          },
+          {
+            "handleIn": {
+              "x": -2.489229055754671,
+              "y": 47.60693316377751
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": 0.857329146919246,
+              "y": -16.39656716298811
+            },
+            "id": "anchor_1785921599707_uk99x",
+            "position": {
+              "x": -49.53801806705683,
+              "y": 108.9797471595793
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": 2.5327817528056613,
+              "y": 10.65265465960671
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": -2.1657119335584696,
+              "y": -9.10879166546082
+            },
+            "id": "anchor_1785921648262_pkte8",
+            "position": {
+              "x": -53.2239437585211,
+              "y": 66.57730542376584
+            },
+            "semanticRole": "custom"
+          }
+        ],
+        "closed": true
+      },
+      "id": "s_pickguard",
+      "name": "Pickguard"
+    }
+  ],
+  "frontRoutes": [
+    {
+      "contour": {
+        "anchors": [
+          {
+            "handleMode": "corner",
+            "handleOut": {
+              "x": -0.85373833061103,
+              "y": -0.17157287904430518
+            },
+            "id": "anchor_1785922992747_4hxsx",
+            "position": {
+              "x": 38.33128587326177,
+              "y": 215.99106237162576
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": -9.349373674501306,
+              "y": -0.8179360512419004
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": 4.761525726354911,
+              "y": 0.4165651824488869
+            },
+            "id": "anchor_1785924134995_039hh",
+            "position": {
+              "x": 84.4937122289876,
+              "y": 179.39213305607464
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": 3.57888298942862,
+              "y": -21.633844045684306
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": -1.8598106397526752,
+              "y": 11.242293602154719
+            },
+            "id": "anchor_1785924138793_rrlf2",
+            "position": {
+              "x": 118.51718715156186,
+              "y": 232.97468212548793
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": 19.326413146196412,
+              "y": -19.51892155650608
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": -15.974325700785906,
+              "y": 16.13344431338953
+            },
+            "id": "anchor_1785924143311_hcqak",
+            "position": {
+              "x": 140.6648556583474,
+              "y": 291.59633514887213
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": 23.778939325987096,
+              "y": 14.94116913572634
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": -23.047279654418276,
+              "y": -14.481440854627039
+            },
+            "id": "anchor_1785924149874_vkkg0",
+            "position": {
+              "x": 87.76361359275809,
+              "y": 263.867059742516
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": 1.2964046000825629,
+              "y": 13.598302346453588
+            },
+            "handleMode": "corner",
+            "id": "anchor_1785922998651_9rwgn",
+            "position": {
+              "x": 33.472438368430424,
+              "y": 233.65257733104806
+            },
+            "semanticRole": "custom"
+          }
+        ],
+        "closed": true
+      },
+      "depthMm": 15,
+      "id": "front_route",
+      "name": "Front Route"
+    },
+    {
+      "contour": {
+        "anchors": [
+          {
+            "handleIn": {
+              "x": -13.047435465874514,
+              "y": -5.6151858043272265
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": 14.000231646708619,
+              "y": 6.025237848886487
+            },
+            "id": "anchor_1786052905903_m5hid",
+            "position": {
+              "x": 82.00660951879588,
+              "y": 296.05103722027644
+            }
+          },
+          {
+            "handleIn": {
+              "x": -12.069725913470338,
+              "y": -17.03854378801408
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": 6.426136503882286,
+              "y": 9.071623414990412
+            },
+            "id": "anchor_1786052905903_n5io9",
+            "position": {
+              "x": 116.82027051565689,
+              "y": 325.6955780949473
+            }
+          },
+          {
+            "handleIn": {
+              "x": 6.04403260551541,
+              "y": 1.6817677594680018
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": -15.072566479344772,
+              "y": -4.193980742967641
+            },
+            "id": "anchor_1786052905903_abhdi",
+            "position": {
+              "x": 108.18593822206344,
+              "y": 338.7823726330896
+            }
+          },
+          {
+            "handleIn": {
+              "x": 9.053274363125082,
+              "y": 12.759700547137987
+            },
+            "handleMode": "smooth",
+            "handleOut": {
+              "x": -4.796851274218602,
+              "y": -6.760690483156742
+            },
+            "id": "anchor_1786052905903_p9u5x",
+            "position": {
+              "x": 69.63073323131195,
+              "y": 312.0159425229499
+            }
+          }
+        ],
+        "closed": true
+      },
+      "id": "route_1786052905903_gko8v",
+      "locked": false,
+      "visible": true
+    }
+  ],
+  "backRoutes": [
+    {
+      "contour": {
+        "anchors": [
+          {
+            "handleIn": {
+              "x": -3.917897915655723,
+              "y": 0.06530529568648334
+            },
+            "handleMode": "corner",
+            "id": "anchor_1785928629461_rlkl4",
+            "position": {
+              "x": -23.212801834012247,
+              "y": 168.63324600331964
+            }
+          },
+          {
+            "handleMode": "corner",
+            "handleOut": {
+              "x": 4.570880901598343,
+              "y": -0.3062737841325246
+            },
+            "id": "anchor_1785928629461_5f0xp",
+            "position": {
+              "x": 20.61745912572312,
+              "y": 169.50376905027989
+            }
+          },
+          {
+            "handleIn": {
+              "x": -0.1331923346439493,
+              "y": -3.8295947033890956
+            },
+            "handleMode": "corner",
+            "id": "anchor_1785928716650_4en7v",
+            "position": {
+              "x": 27.27703068401595,
+              "y": 176.52094164202222
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleMode": "corner",
+            "id": "anchor_1785928734261_kiab0",
+            "position": {
+              "x": 28.448514349494406,
+              "y": 269.33557256557697
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleMode": "corner",
+            "handleOut": {
+              "x": 7.2797097826494435,
+              "y": -0.3583417756851847
+            },
+            "id": "anchor_1785928775765_anrfy",
+            "position": {
+              "x": 39.180907741479025,
+              "y": 269.66545548700634
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleIn": {
+              "x": 7.182812845368826,
+              "y": -0.3543300570132907
+            },
+            "handleMode": "corner",
+            "id": "anchor_1785928629461_e6jwt",
+            "position": {
+              "x": 39.21840448055957,
+              "y": 287.02500620168354
+            }
+          },
+          {
+            "handleMode": "corner",
+            "handleOut": {
+              "x": -8.488778817254072,
+              "y": -0.4721654955414257
+            },
+            "id": "anchor_1785928629461_cvul0",
+            "position": {
+              "x": -29.421795755256156,
+              "y": 286.8159902210787
+            }
+          },
+          {
+            "handleIn": {
+              "x": -6.669559032117958,
+              "y": 0.3270248185243394
+            },
+            "handleMode": "corner",
+            "id": "anchor_1785928741509_c3yyh",
+            "position": {
+              "x": -29.64351971008526,
+              "y": 268.62309745143966
+            },
+            "semanticRole": "custom"
+          },
+          {
+            "handleMode": "corner",
+            "handleOut": {
+              "x": -0.018920896086247994,
+              "y": -4.089262127635174
+            },
+            "id": "anchor_1785928720563_c1gll",
+            "position": {
+              "x": -30.03958003287158,
+              "y": 175.88683266188542
+            },
+            "semanticRole": "custom"
+          }
+        ],
+        "closed": true
+      },
+      "depthMm": 38,
+      "id": "back_route",
+      "name": "Back Route"
+    }
+  ],
+  "neckJointGeometry": {
+    "mode": "locked",
+    "profileId": "s-style-1962-fender-019574-v1",
+    "mechanism": "bolt_on",
+    "planShape": "bolt_on_pocket",
+    "parameters": {
+      "mouthWidthMm": 53.64553921225705,
+      "deepEndWidthMm": 55.88,
+      "planLengthMm": 76.2,
+      "endCornerRadiusMm": 6.35,
+      "endTreatment": "compound",
+      "endRoundnessMm": 127
+    },
+    "profileSnapshot": {
+      "id": "s-style-1962-fender-019574-v1",
+      "name": "S-style 1962 compound pocket",
+      "mechanism": "bolt_on",
+      "planShape": "bolt_on_pocket",
+      "parameters": {
+        "mouthWidthMm": 53.64553921225705,
+        "deepEndWidthMm": 55.88,
+        "planLengthMm": 76.2,
+        "endCornerRadiusMm": 6.35,
+        "endTreatment": "compound",
+        "endRoundnessMm": 127
+      },
+      "evidenceLevel": "documented",
+      "provenance": "Fender Vintage Stratocaster 1962 body, part 019574 (released 1982)"
+    }
+  },
+  "neckPlacement": {
+    "mode": "blueprint",
+    "referenceFret": 22,
+    "jointToReferenceFretMm": 75.2453,
+    "provenance": "FINGERBOARD_OVERHANG_MM:s_style"
+  },
+  "jacks": [
+    {
+      "id": "plate",
+      "position": {
+        "x": 93.2,
+        "y": 317.7
+      },
+      "mountingStyle": "strat_plate",
+      "angleDegrees": 40
+    },
+    {
+      "id": "direct",
+      "position": {
+        "x": 30,
+        "y": 360
+      },
+      "mountingStyle": "direct",
+      "angleDegrees": 33
+    }
+  ]
+}
