@@ -11,6 +11,11 @@ means, and the handful of fields where the obvious reading is the wrong one.
 `src/constants/schema.ts` holds the version history; `src/types/guitar.ts`
 holds the field-by-field types.
 
+Hosted sharing adds a separate envelope and stricter upload admission; its
+[draft contract](AXE_SHARING_FORMAT.md) defines JCS project hashing and fixture
+expectations. These requirements do not change tolerant `.axe.svg` decoding,
+saved-project preservation, or the existing editing/version policy below.
+
 ## Shape of the file
 
 A `.axe.svg` is a real, printable SVG with the project stashed in

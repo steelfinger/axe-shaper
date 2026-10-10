@@ -1,0 +1,48 @@
+{
+  "canonicalization": "rfc8785",
+  "digestAlgorithm": "sha256",
+  "digestScope": "input JSON value (canonicalizer vectors, not design uploads)",
+  "accepted": [
+    {
+      "id": "awkward-numbers",
+      "inputJson": "{\"values\":[0.1,1e21,-0,333333333.33333329,1e-7,1e-6,1e20]}",
+      "canonicalJson": "{\"values\":[0.1,1e+21,0,333333333.3333333,1e-7,0.000001,100000000000000000000]}",
+      "expectedDigest": "sha256:0ee72c19cba21c7eafda1eb7de1ae2c7a92b4209fb3a43e0a6219f969c478ba2"
+    },
+    {
+      "id": "numeric-property-names",
+      "inputJson": "{\"2\":\"two\",\"10\":\"ten\"}",
+      "canonicalJson": "{\"10\":\"ten\",\"2\":\"two\"}",
+      "expectedDigest": "sha256:b71e124675fc80e7314688bffdb68e83515851fb51474125db9a0c4c8aca3808"
+    },
+    {
+      "id": "unicode-order-and-preservation",
+      "inputJson": "{\"\":\"bmp\",\"😀\":\"astral\",\"é\":\"composed\",\"é\":\"decomposed\"}",
+      "canonicalJson": "{\"é\":\"decomposed\",\"é\":\"composed\",\"😀\":\"astral\",\"\":\"bmp\"}",
+      "expectedDigest": "sha256:39523ad87a2ed4f2e31af86f760d90aea85ca40ec7434176af240151a92d0ed2"
+    },
+    {
+      "id": "nested-array-order",
+      "inputJson": "{\"z\":[{\"b\":2,\"a\":1},3,2,1],\"a\":null}",
+      "canonicalJson": "{\"a\":null,\"z\":[{\"a\":1,\"b\":2},3,2,1]}",
+      "expectedDigest": "sha256:da05b3e0be7e03b20231ba1ebb76aadbbebe4864ee949c19c3ccfc1af274e6e9"
+    }
+  ],
+  "rejected": [
+    {
+      "id": "duplicate-property",
+      "inputJson": "{\"x\":1,\"x\":2}",
+      "expectedError": "duplicate-property"
+    },
+    {
+      "id": "lone-surrogate",
+      "inputJson": "{\"label\":\"\\ud800\"}",
+      "expectedError": "invalid-unicode"
+    },
+    {
+      "id": "nonfinite-number",
+      "inputJson": "{\"value\":NaN}",
+      "expectedError": "invalid-json"
+    }
+  ]
+}
