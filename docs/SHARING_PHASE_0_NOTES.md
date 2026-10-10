@@ -130,9 +130,9 @@ Phase 1 work; the draft and vectors are not an implementation claim.
 The first local foundation adds `src/sharing/canonicalJson.ts`: bounded raw
 JSON parsing that rejects duplicate decoded property names, RFC 8785
 canonicalization, and SHA-256 project hashing with the committed vectors.
-This does not implement project admission: valid JSON is not necessarily a
-valid hosted design. Recursive project vocabulary/geometry validation and
-envelope fixtures remain pending.
+That first commit did not implement project admission: valid JSON is not
+necessarily a valid hosted design. The follow-up below implements project
+vocabulary/geometry validation; request/envelope fixtures remain pending.
 
 `src/sharing/releasePolicy.ts` checks the compatibility portion of future
 manifests, including coordinated/hotfix tag forms, reader/native ceilings and
@@ -167,3 +167,34 @@ but inconsistent base/hotfix pair is rejected. Removed duplicate Unicode checks
 for canonical object names and documented/tested crypto-error precedence.
 All 331 unit tests (25 sharing tests), build and lint passed with the existing
 lint warning. Upload preflight must still enforce the raw request size separately.
+
+## Shared project admission — 2026-10-10
+
+Added `project-upload-v1` in `src/sharing/projectAdmission.ts`, shared by future
+client/server integrations. It validates the exact project value without save
+normalization, catalogue resolution or mutation: schema/release ceilings,
+recursive fields/enums, complete embedded hardware, rout anchors, instrument
+combinations, paired v7 geometry and resource limits. Unknown IDs with valid
+embedded presets are preserved. The canonical project budget is provisionally
+384 KiB within a planned 512 KiB creation request; actual cloud sizing and full
+request enforcement still await the service. See the format document for limits.
+
+The separate client `prepareSharedProject()` adapter creates the normal full
+saved JSON, validates it, freezes a detached copy before hashing, and returns a
+digest or a typed file-fallback reason. No upload/consent UI is enabled.
+
+Admission tests include the unchanged native v7 baseline, a new positive
+known-vocabulary schema-8 JSON fixture at ceilings 7/8, and explicit vocabulary
+rejections for all three named future-vocabulary v8 files at ceiling 8. They
+also cover all 20 bundled full save payloads, unknown recursive fields, missing
+embedded data, schema-stamp bypasses, invalid joint geometry, budgets, and
+independent edits during hashing. Original tolerant SVG fixtures are untouched.
+
+This continues local contract work while Phase 0/0a cloud prerequisites remain
+unresolved. Status/API envelopes, Functions, emulator configuration, staging
+migration, independent viewer integration and the sharing UI remain pending.
+
+Validation: all 350 web unit tests (44 sharing tests), build, lint, schema,
+fixture, corpus and bass checks passed. Lint has only the existing App hook
+warning. This is local web evidence, not independent viewer/iPad or staging
+verification; no services were deployed.

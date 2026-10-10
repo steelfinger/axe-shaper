@@ -1,6 +1,6 @@
 # Axe Shaper sharing format — draft
 
-**Status:** Canonical JSON/hash foundation implemented; admission and endpoint/envelope implementation pending
+**Status:** Canonical JSON/hash and shared project admission implemented; endpoint/envelope implementation pending
 
 Companion to [the product plan](DESIGN_SHARING_AND_GALLERY_PLAN.md) and
 [the saved-project contract](AXE_SVG_FORMAT.md). This defines hosted-sharing
@@ -19,6 +19,40 @@ numeric/resource limits, and declared/required schema within the release ceiling
 The status endpoint identifies the active policy revision and admission ceiling.
 If the client does not support that revision, offer an app update/file sharing
 before consent. The server remains authoritative for every write.
+
+`src/sharing/projectAdmission.ts` implements this project boundary under
+`project-upload-v1`. `validateProjectUpload()` accepts an explicit policy revision
+and release ceiling, returns the exact received project object on success, and
+reports a stable error code and a known field path on failure. Unknown property
+names and supplied metadata are not echoed into errors. It checks schema 3–8,
+the supported Guitar/6 and Bass/4 combinations, known recursive vocabulary,
+paired/buildable v7 joint geometry and exact required-schema stamping.
+
+Embedded neck/bridge presets and pickup rout anchors are required. IDs do not
+require catalogue membership. Current known knob/jack vocabulary is intentionally
+strict even where local file types permit arbitrary strings. The validator also
+recognizes saved pickup `name`, `cornerRadiusMm` and `defaultAngleDegrees`, and
+the historical `settings.snapToGrid` spelling. Pre-release joint `mouthAnchorIds`
+and unrestricted edge/binding extension fields are not accepted.
+
+The initial policy limits canonical project data to **384 KiB**, leaving room
+for the planned **512 KiB complete creation request**. It caps total anchors at
+2,048, each contour at 512, all hardware/pickguard/route placements together at
+128, and coordinates/handles at ±5,000 mm. Physical dimensions are positive and
+bounded (general dimensions up to 2,000 mm, neck scale 200–1,500 mm, body
+thickness 5–150 mm); finite angles are preserved rather than normalized.
+Text is bounded: IDs 160 UTF-16 units, display names/author 200, provenance 2,048.
+Colours use six-digit hex. These provisional upload bounds are exercised against
+all 20 bundled save payloads and the committed native/web fixtures; they do not
+claim cloud storage sizing or staging performance validation.
+
+`src/sharing/prepareSharedProject.ts` is the client-only adapter. It runs
+`withEmbeddedPresets()` and normal saved-JSON serialization, checks the strict
+policy, freezes a detached copy, and computes its digest. Optional in-memory
+`undefined` fields are omitted just as they are in the SVG save payload. Future
+JSON fields remain intact and cause refusal rather than being erased to pass
+admission. The adapter leaves the working project unchanged. Consent UI,
+status loading, full request validation and actual upload remain pending.
 
 Tolerant file saving may preserve future vocabulary that hosted admission rejects.
 Client preflight must detect this and offer the file fallback before upload consent;
@@ -84,7 +118,7 @@ fixtures, marking each policy ceiling and expected result explicitly:
 | Source/case | Expected hosted admission |
 | --- | --- |
 | `tests/fixtures/ios-written-v5/s_style.axe.svg` | Known schema-7 positive baseline; validate complete fields against final limits |
-| New `schema8-known-jacks` fixture | Known styles/fields only; accept at ceiling 8, refuse at ceiling 7 |
+| `tests/fixtures/sharing/schema8-known-jacks.json` | Known styles/fields only; accept at ceiling 8, refuse at ceiling 7 |
 | `tests/fixtures/web-written-v8/output_jacks.axe.svg` | Reject unknown `side_mounted` and `futureField` at ceiling 8 |
 | `tests/fixtures/ios-written-v5/web_roundtrip_output_jacks.axe.svg` | Same rejection; retain the independent tolerant round-trip test |
 | `tests/fixtures/ios-written-v5/output_jacks.axe.svg` | Reject unknown `side_mounted` at ceiling 8 |
@@ -94,8 +128,8 @@ does not mask the strict validator result. Never change those original fixtures
 or weaken the existing preservation assertions. Add independent unknown-key and
 unknown-enum cases so each rule is tested on its own.
 
-Web unit checks now consume the digest vectors. Functions/admission checks
-remain pending. Sync the vectors and admission matrix into
+Web unit checks now consume the digest vectors and project admission cases.
+Functions integration and request/envelope checks remain pending. Sync the vectors and admission cases into
 the viewer's own `npm run check` inputs, and require iPad digest/adapter checks
 when that client is added. Record fixture revision/digests across repositories.
 
