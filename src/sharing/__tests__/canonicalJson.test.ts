@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import vectors from '../../../tests/fixtures/sharing/jcs-digest-vectors.json';
 import { canonicalizeJson, CanonicalJsonError, parseSharingJson, projectDigest, SHARING_JSON_LIMITS } from '../canonicalJson';
 
@@ -11,6 +11,7 @@ function errorCode(action: () => unknown): string {
 }
 
 describe('sharing canonical JSON contract', () => {
+  afterEach(() => vi.unstubAllGlobals());
   for (const vector of vectors.accepted) {
     it(vector.id, async () => {
       const project = parseSharingJson(vector.inputJson);
@@ -58,7 +59,50 @@ describe('sharing canonical JSON contract', () => {
     expect(errorCode(() => parseSharingJson(JSON.stringify('é'.repeat(SHARING_JSON_LIMITS.maxBytes / 2))))).toBe('resource-limit');
     expect(errorCode(() => parseSharingJson('['.repeat(65) + '0' + ']'.repeat(65)))).toBe('resource-limit');
     expect(errorCode(() => parseSharingJson('[' + '0,'.repeat(100_000) + '0]'))).toBe('resource-limit');
-    expect(errorCode(() => canonicalizeJson('x'.repeat(SHARING_JSON_LIMITS.maxBytes)))).toBe('resource-limit');
+    expect(errorCode(() => canonicalizeJson('x'.repeat(SHARING_JSON_LIMITS.maxCanonicalBytes)))).toBe('resource-limit');
+  });
+  it('allows canonical number expansion beyond the raw request limit', async () => {
+    const source = '[' + Array(60_000).fill('1e20').join(',') + ']';
+    const parsed = parseSharingJson(source);
+    const canonical = canonicalizeJson(parsed);
+    expect(new TextEncoder().encode(source).byteLength).toBeLessThan(SHARING_JSON_LIMITS.maxBytes);
+    expect(new TextEncoder().encode(canonical).byteLength).toBeGreaterThan(SHARING_JSON_LIMITS.maxBytes);
+    expect(await projectDigest(parsed)).toBe(await projectDigest(Array(60_000).fill(1e20)));
+  });
+  it('counts raw UTF-8 bytes correctly for all character widths', () => {
+    for (const char of ['a', 'é', '漢', '😀']) {
+      const width = new TextEncoder().encode(char).byteLength;
+      const length = Math.floor((SHARING_JSON_LIMITS.maxBytes - 2) / width);
+      const source = JSON.stringify(char.repeat(length));
+      expect(parseSharingJson(source)).toBe(char.repeat(length));
+      expect(errorCode(() => parseSharingJson(JSON.stringify(char.repeat(length + 1))))).toBe('resource-limit');
+    }
+  });
+  it('counts escaped strings before allocating output, including names and astral characters', () => {
+    const max = SHARING_JSON_LIMITS.maxCanonicalBytes;
+    expect(canonicalizeJson('x'.repeat(max - 2)).length).toBe(max);
+    for (const [char, width] of [['\u0000', 6], ['\n', 2], ['"', 2], ['\\', 2], ['é', 2], ['漢', 3], ['😀', 4]] as const) {
+      const length = Math.floor((max - 2) / width);
+      const value = char.repeat(length);
+      expect(canonicalizeJson(value)).toBe(JSON.stringify(value));
+      expect(errorCode(() => canonicalizeJson(char.repeat(length + 1)))).toBe('resource-limit');
+    }
+    expect(errorCode(() => canonicalizeJson({ ['\u0000'.repeat(max / 6)]: 0 }))).toBe('resource-limit');
+  });
+  it('stops oversized serialization before visiting later subtrees', () => {
+    let visited = false;
+    const later = new Proxy({}, { getPrototypeOf() { visited = true; return Object.prototype; } });
+    const oversized = [Array(8).fill('x'.repeat(1024 * 1024)), later];
+    expect(errorCode(() => canonicalizeJson(oversized))).toBe('resource-limit');
+    expect(visited).toBe(false);
+  });
+  it('returns a typed error when hashing is unavailable in the browser context', async () => {
+    for (const crypto of [undefined, {}]) {
+      vi.stubGlobal('crypto', crypto);
+      await expect(projectDigest({ name: 'Design' })).rejects.toMatchObject({
+        name: 'CanonicalJsonError', code: 'crypto-unavailable', message: 'crypto-unavailable',
+      });
+    }
   });
   it('hashes all metadata without mutating the project', async () => {
     const project = Object.freeze({ name: 'Design', metadata: Object.freeze({ author: 'A' }), geometry: [0.1, -0] });

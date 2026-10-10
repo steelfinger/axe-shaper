@@ -50,6 +50,19 @@ safe binary64 integer range. Application bounds may be stricter than JCS bounds.
 bounded raw JSON parsing and Web Crypto hashing. Its tests consume the fixed
 vectors, including duplicate decoded names and invalid Unicode. Sorting keys
 and calling ordinary Swift `JSONEncoder` is insufficient.
+Raw JSON requests are limited to 1 MiB of UTF-8, depth 64 and 100,000 value
+nodes. Canonical output has a separate 6 MiB ceiling to allow number expansion
+such as `1e20` becoming `100000000000000000000`. Whitespace and equivalent
+number spellings can still affect the raw transport limit; that limit protects
+request handling, while the canonical ceiling protects serialization memory.
+Canonicalization counts output bytes incrementally, including escaped strings,
+and stops before building an oversized result. These are transport/serialization
+bounds; the project admission policy and deployment storage bounds remain pending.
+
+Hashing requires Web Crypto, available on HTTPS and trusted localhost contexts.
+Plain HTTP over a LAN may lack it. `projectDigest()` returns the typed
+`crypto-unavailable` error in that case so the sharing UI can offer file sharing
+or explain that a secure connection is needed.
 Do not introduce application-specific number rounding. The future iPad adapter
 uses JCS-compatible serialization, independent of its normal file encoder.
 
