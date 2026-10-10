@@ -9,8 +9,8 @@
 # that reads the same format is live too, and a tag is where that judgement is
 # recorded.
 #
-# Tag the same version number as the iPad marketing version, so "what is live
-# where" is one string:
+# Coordinated tags match the iPad marketing version. Web/backend hotfix tags
+# use v1.3.0-web.1 and preserve that base release's schema/authoring gates:
 #
 #   git tag v1.3.0 && git push origin v1.3.0
 #
@@ -47,6 +47,7 @@ jobs:
       # any commit, including one that never went through a PR, so the gate has
       # to belong to the publish rather than to something upstream of it.
       - run: npm run lint
+      - run: npm test
       - run: npm run dxf:check
       - run: npm run corpus:check
       - run: npm run schema:check

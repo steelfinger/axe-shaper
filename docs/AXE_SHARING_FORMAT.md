@@ -1,6 +1,6 @@
 # Axe Shaper sharing format — draft
 
-**Status:** Phase 0 contract decisions; endpoint/envelope implementation remains Phase 1
+**Status:** Canonical JSON/hash foundation implemented; admission and endpoint/envelope implementation pending
 
 Companion to [the product plan](DESIGN_SHARING_AND_GALLERY_PLAN.md) and
 [the saved-project contract](AXE_SVG_FORMAT.md). This defines hosted-sharing
@@ -46,8 +46,10 @@ identity under the defined JSON/binary64 model, not original source-file bytes.
 Retain supported geometry precision; integers that must be exact stay within the
 safe binary64 integer range. Application bounds may be stricter than JCS bounds.
 
-Select a conforming canonicalizer before Phase 1 and check it against the fixed
-vectors; sorting keys and calling ordinary Swift `JSONEncoder` is insufficient.
+`src/sharing/canonicalJson.ts` implements the browser/server canonicalizer,
+bounded raw JSON parsing and Web Crypto hashing. Its tests consume the fixed
+vectors, including duplicate decoded names and invalid Unicode. Sorting keys
+and calling ordinary Swift `JSONEncoder` is insufficient.
 Do not introduce application-specific number rounding. The future iPad adapter
 uses JCS-compatible serialization, independent of its normal file encoder.
 
@@ -75,7 +77,8 @@ does not mask the strict validator result. Never change those original fixtures
 or weaken the existing preservation assertions. Add independent unknown-key and
 unknown-enum cases so each rule is tested on its own.
 
-Web and Functions checks consume the vectors/admission matrix. Sync them into
+Web unit checks now consume the digest vectors. Functions/admission checks
+remain pending. Sync the vectors and admission matrix into
 the viewer's own `npm run check` inputs, and require iPad digest/adapter checks
 when that client is added. Record fixture revision/digests across repositories.
 

@@ -107,8 +107,19 @@ the web stops being editable on the iPad - native's `VersionPolicy.decide`
 opens a payload newer than its own `Migration.currentPayloadVersion` as
 `.readOnly`, and `loadProject()` here refuses one outright. So **the web goes
 live only when an App Store version that reads the same format is live too**,
-and the tag is where that judgement is recorded. Tag the same version number
-as the iPad marketing version, so "what is live where" is one string.
+and the tag is where that judgement is recorded. Coordinated releases use the
+iPad marketing version, such as `v1.2.0`. Web/backend hotfixes use
+`v1.2.0-web.1`, incrementing the suffix against that coordinated release. They
+preserve its approved schema admission ceiling and authoring flags; increasing
+either requires renewed compatible-live-iPad evidence. A hotfix does not imply
+a new iPad release. The sharing manifest records `confirmedIpadVersion`
+separately from the deployment tag.
+
+Hotfix suffixes have SemVer prerelease precedence below the base release.
+Select rollback targets by recorded successful deployment time/sequence and
+explicit predecessor, never by tag sorting or GitHub “latest.” The sharing
+compatibility policy checks in `src/sharing/releasePolicy.ts` are groundwork;
+complete release manifests and deployment enforcement are still pending.
 
 Rollback is `firebase hosting:rollback`, or re-running the release workflow on
 an earlier tag.
