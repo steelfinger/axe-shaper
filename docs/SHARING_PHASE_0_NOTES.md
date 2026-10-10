@@ -88,9 +88,10 @@ and acceptance are in [operations](sharing-operations.md).
 The stable staging live channel deliberately drops the old channel's 30-day
 expiry/dead-man's switch; the Phase 0a `CLAUDE.md` update records that change.
 
-Proposed hotfix convention: `v1.2.0-web.1`, incrementing the suffix for later
+Recorded hotfix convention: `v1.2.0-web.1`, incrementing the suffix for later
 web/backend fixes against the coordinated release. The existing `v*` workflow
-trigger matches it. Manifest validation and `CLAUDE.md` still need updating;
+trigger matches it. `CLAUDE.md` and pure compatibility checks now reflect it;
+complete manifests and deployment enforcement remain pending.
 the confirmed iPad version is a separate field, not inferred from this suffix.
 Hotfixes preserve admission/authoring gates and runtime pause overrides.
 Because the suffix has prerelease precedence under SemVer, successful deployment
@@ -124,19 +125,27 @@ Phase 1 work; the draft and vectors are not an implementation claim.
 - Runtime incident switches that pause/restore without a tag and survive release
   deployment; hotfix manifest/trigger checks for both supported tag forms.
 
-The October 10 plan revision changes documentation only. It does not enable
-output-jack authoring, change schema behavior, migrate lanes, or deploy services.
+## Implementation started — 2026-10-10
 
-## Phase 0a: staging project — 2026-10-12
+The first local foundation adds `src/sharing/canonicalJson.ts`: bounded raw
+JSON parsing that rejects duplicate decoded property names, RFC 8785
+canonicalization, and SHA-256 project hashing with the committed vectors.
+This does not implement project admission: valid JSON is not necessarily a
+valid hosted design. Recursive project vocabulary/geometry validation and
+envelope fixtures remain pending.
 
-Created `axe-shaper-staging` (project number 334289943565), Analytics off, no
-default resource location set yet (chosen with Firestore). Hosting default site
-`https://axe-shaper-staging.web.app`. A `github-hosting-deploy` service account
-deploys it via the `FIREBASE_SERVICE_ACCOUNT_AXE_SHAPER_STAGING` repository
-secret. `.firebaserc` gains the `staging` alias.
+`src/sharing/releasePolicy.ts` checks the compatibility portion of future
+manifests, including coordinated/hotfix tag forms, reader/native ceilings and
+preserved hotfix gates. Tests pin both forms against the existing `v*` trigger.
+`CLAUDE.md` now records the hotfix convention and the tag lane runs unit tests.
+Complete manifests, evidence verification and deployment enforcement are
+still pending; test policies are not live-release evidence.
 
-The main and PR Hosting workflows now target this project (main → its live
-channel, PRs → its preview channels); the release workflow still targets
-`axe-shaper-web`. The old `staging` channel on `axe-shaper-web` is retired only
-after the first staging deploy is verified. Billing linkage and the staging
-budget are recorded in the console, not verified from this repository.
+No provisioning, Hosting-lane migration, service rewrites or deployment has
+been performed. Phase 0/0a cloud prerequisites remain unresolved. Existing
+file/schema behavior and the output-jack authoring flag are unchanged.
+
+Local validation: all 324 unit tests (including 18 new sharing tests), build,
+schema, fixture, corpus and bass checks passed. Lint passed with the existing
+`src/App.tsx` hook-dependency warning. This is web-only evidence; no viewer,
+iPad, emulator or staging integration checks are claimed for this foundation.
