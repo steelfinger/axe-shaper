@@ -92,7 +92,7 @@ Recorded hotfix convention: `v1.2.0-web.1`, incrementing the suffix for later
 web/backend fixes against the coordinated release. The existing `v*` workflow
 trigger matches it. `CLAUDE.md` and pure compatibility checks now reflect it;
 complete manifests and deployment enforcement remain pending.
-the confirmed iPad version is a separate field, not inferred from this suffix.
+The confirmed iPad version is a separate field, not inferred from this suffix.
 Hotfixes preserve admission/authoring gates and runtime pause overrides.
 Because the suffix has prerelease precedence under SemVer, successful deployment
 history and explicit predecessor manifests determine rollback order, not tag sort
@@ -136,7 +136,8 @@ envelope fixtures remain pending.
 
 `src/sharing/releasePolicy.ts` checks the compatibility portion of future
 manifests, including coordinated/hotfix tag forms, reader/native ceilings and
-preserved hotfix gates. Tests pin both forms against the existing `v*` trigger.
+preserved hotfix gates. Tests validate both tag forms and check that the workflow
+text includes `v*`; they do not parse or verify the complete workflow trigger.
 `CLAUDE.md` now records the hotfix convention and the tag lane runs unit tests.
 Complete manifests, evidence verification and deployment enforcement are
 still pending; test policies are not live-release evidence.
@@ -149,3 +150,12 @@ Local validation: all 324 unit tests (including 18 new sharing tests), build,
 schema, fixture, corpus and bass checks passed. Lint passed with the existing
 `src/App.tsx` hook-dependency warning. This is web-only evidence; no viewer,
 iPad, emulator or staging integration checks are claimed for this foundation.
+
+Review follow-up on 2026-10-10: coordinated tags must match the confirmed iPad
+marketing version; missing Web Crypto yields `crypto-unavailable`. Request byte
+counting avoids a buffer allocation, numeric parsing uses a sticky token regex,
+and serialization enforces its separate 6 MiB byte budget incrementally.
+Hashing encodes the bounded canonical text once. Tests cover number expansion,
+UTF-8/escaped-string boundaries, early stopping, missing crypto and final-newline
+tag rejection. All 330 unit tests (24 sharing tests), build and lint passed;
+lint retains the existing `src/App.tsx` warning. Cloud prerequisites are unchanged.

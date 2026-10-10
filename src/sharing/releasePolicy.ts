@@ -1,9 +1,11 @@
 /** Deployment recency comes from the release ledger, never SemVer sorting. */
 const VERSION = '(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)';
 const TAG = new RegExp(`^(v${VERSION})(?:-web\\.([1-9]\\d*))?$`);
+const IPAD_VERSION = new RegExp(`^${VERSION}$`);
 
 export function parseSharingReleaseTag(tag: string): { baseCoordinatedTag: string; hotfix: boolean } | null {
   const match = TAG.exec(tag);
+  // JavaScript's $ can match before a final newline, even without the m flag.
   return match && match[0] === tag ? { baseCoordinatedTag: match[1], hotfix: !!match[2] } : null;
 }
 
@@ -20,7 +22,7 @@ export interface SharingReleasePolicy {
   outputJackAuthoring: boolean;
 }
 
-export type ReleasePolicyError = 'invalid-release-tag' | 'invalid-ipad-version' | 'invalid-schema' |
+export type ReleasePolicyError = 'invalid-release-tag' | 'invalid-ipad-version' | 'coordinated-version-mismatch' | 'invalid-schema' |
   'schema-exceeds-reader' | 'schema-exceeds-ipad' | 'authoring-exceeds-admission' | 'hotfix-changes-compatibility';
 
 /** Pure policy check. Supplied iPad evidence must still be verified before deployment. */
@@ -31,7 +33,8 @@ export function validateSharingReleasePolicy(
   const errors = new Set<ReleasePolicyError>();
   const tag = parseSharingReleaseTag(policy.releaseTag);
   if (!tag || tag.baseCoordinatedTag !== policy.baseCoordinatedTag) errors.add('invalid-release-tag');
-  if (new RegExp(`^${VERSION}$`).exec(policy.confirmedIpadVersion)?.[0] !== policy.confirmedIpadVersion) errors.add('invalid-ipad-version');
+  if (IPAD_VERSION.exec(policy.confirmedIpadVersion)?.[0] !== policy.confirmedIpadVersion) errors.add('invalid-ipad-version');
+  if (tag && !tag.hotfix && policy.releaseTag !== `v${policy.confirmedIpadVersion}`) errors.add('coordinated-version-mismatch');
   const ceilings = [policy.confirmedIpadEditableSchema, policy.maxAcceptedProjectSchema,
     policy.serverReadSchema, policy.webReadSchema, policy.viewerReadSchema];
   if (ceilings.some(value => !Number.isSafeInteger(value) || value < 3)) errors.add('invalid-schema');
