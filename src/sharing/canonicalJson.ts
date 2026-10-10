@@ -197,7 +197,6 @@ export function canonicalizeJson(input: unknown): string {
       if (array && key === 'length') continue;
       const descriptor = descriptors[key];
       if (!descriptor.enumerable || !('value' in descriptor)) fail('invalid-json');
-      checkUnicode(key);
     }
     ancestors.add(value);
     if (array) {
@@ -227,7 +226,11 @@ export function canonicalizeJson(input: unknown): string {
   return chunks.join('');
 }
 
-/** Hash only the complete project value, never the envelope or creator secrets. */
+/**
+ * Hash only the complete project value, never the envelope or creator secrets.
+ * Missing Web Crypto takes precedence over input errors: no canonicalization
+ * work is performed when this context cannot create a digest.
+ */
 export async function projectDigest(project: unknown): Promise<`sha256:${string}`> {
   const subtle = globalThis.crypto?.subtle;
   if (!subtle) fail('crypto-unavailable');

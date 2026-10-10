@@ -5,8 +5,7 @@ const IPAD_VERSION = new RegExp(`^${VERSION}$`);
 
 export function parseSharingReleaseTag(tag: string): { baseCoordinatedTag: string; hotfix: boolean } | null {
   const match = TAG.exec(tag);
-  // JavaScript's $ can match before a final newline, even without the m flag.
-  return match && match[0] === tag ? { baseCoordinatedTag: match[1], hotfix: !!match[2] } : null;
+  return match ? { baseCoordinatedTag: match[1], hotfix: !!match[2] } : null;
 }
 
 /** Compatibility portion of the eventual complete deployment manifest. */
@@ -33,8 +32,8 @@ export function validateSharingReleasePolicy(
   const errors = new Set<ReleasePolicyError>();
   const tag = parseSharingReleaseTag(policy.releaseTag);
   if (!tag || tag.baseCoordinatedTag !== policy.baseCoordinatedTag) errors.add('invalid-release-tag');
-  if (IPAD_VERSION.exec(policy.confirmedIpadVersion)?.[0] !== policy.confirmedIpadVersion) errors.add('invalid-ipad-version');
-  if (tag && !tag.hotfix && policy.releaseTag !== `v${policy.confirmedIpadVersion}`) errors.add('coordinated-version-mismatch');
+  if (!IPAD_VERSION.test(policy.confirmedIpadVersion)) errors.add('invalid-ipad-version');
+  if (tag && tag.baseCoordinatedTag !== `v${policy.confirmedIpadVersion}`) errors.add('coordinated-version-mismatch');
   const ceilings = [policy.confirmedIpadEditableSchema, policy.maxAcceptedProjectSchema,
     policy.serverReadSchema, policy.webReadSchema, policy.viewerReadSchema];
   if (ceilings.some(value => !Number.isSafeInteger(value) || value < 3)) errors.add('invalid-schema');
