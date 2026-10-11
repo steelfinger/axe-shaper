@@ -6,7 +6,7 @@ project admission. These values are not necessarily valid designs.
 `schema8-known-jacks.json` is a complete saved project derived from the committed
 `../web-written-v8/output_jacks.axe.svg`: only the two known mounting styles are
 retained and the title identifies the new fixture. The original SVG is unchanged.
-This positive case is accepted under `project-upload-v1` at ceiling 8 and refused
+This positive case is accepted under `project-upload-v2` at ceiling 8 and refused
 at ceiling 7.
 
 The admission tests also decode `../ios-written-v5/s_style.axe.svg` directly as

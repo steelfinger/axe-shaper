@@ -45,4 +45,15 @@ describe('client shared-project preparation', () => {
     expect(await prepareSharedProject(createProject({ templateId: 's_style' }), policy))
       .toMatchObject({ ok: false, code: 'crypto-unavailable' });
   });
+  it('propagates unexpected save bugs instead of reporting a malformed design', async () => {
+    const working = createProject({ templateId: 's_style' });
+    const bug = new TypeError('Unexpected saver failure');
+    Object.defineProperty(working, 'bridgePreset', { get() { throw bug; }, enumerable: true });
+    await expect(prepareSharedProject(working, policy)).rejects.toBe(bug);
+  });
+  it('maps known malformed-joint errors to the file fallback', async () => {
+    const working = createProject({ templateId: 's_style' });
+    delete working.neckPlacement;
+    expect(await prepareSharedProject(working, policy)).toMatchObject({ ok: false, code: 'invalid-project' });
+  });
 });

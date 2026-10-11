@@ -1,10 +1,19 @@
-import type { GuitarProject } from '../types/guitar';
+import type {
+  GuitarProject, Vector2D, PathAnchor, BodyContour, NeckJointPlanParameters,
+  NeckJointGeometry, NeckJointProfileSnapshot, ProjectSettings, InstrumentAppearance,
+  HeadstockShapeId, BodyNodeRole, SymmetryConfig, BodyTop, NeckPreset, NeckTaper,
+  BridgePreset, NeckPlacement, PickupPlacement, PotentiometerPlacement,
+  SwitchPlacement, OutputJackPlacement, PickguardPlacement, RoutedCavity,
+} from '../types/guitar';
 import { PROJECT_SCHEMA_VERSION, requiredSchemaVersion } from '../constants/schema';
+import { PICKUP_TYPE_INSTRUMENT } from '../constants/hardware';
+import { isSupportedInstrument } from '../utils/instrument';
 import { NeckJointContractError, validateNeckJointContract } from '../utils/neckJointGeometry';
 import { canonicalizeJson, CanonicalJsonError } from './canonicalJson';
+import type { CanonicalJsonText } from './canonicalJson';
 
 /** Change the revision when changing accepted vocabulary or resource bounds. */
-export const UPLOAD_POLICY_REVISION = 'project-upload-v1';
+export const UPLOAD_POLICY_REVISION = 'project-upload-v2';
 export const PROJECT_UPLOAD_LIMITS = {
   maxProjectBytes: 384 * 1024,
   maxAnchors: 2048,
@@ -20,7 +29,7 @@ export interface ProjectAdmissionPolicy {
 export type ProjectAdmissionErrorCode = 'unsupported-policy' | 'unsupported-schema' |
   'schema-mismatch' | 'unknown-vocabulary' | 'invalid-project' | 'resource-limit';
 export type ProjectAdmissionResult =
-  | { ok: true; project: GuitarProject }
+  | { ok: true; project: GuitarProject; canonicalJson: CanonicalJsonText }
   | { ok: false; code: ProjectAdmissionErrorCode; path: string };
 
 class AdmissionError extends Error {
@@ -52,6 +61,8 @@ const choice = (...values: string[]): Rule => (value, path) => {
   if (typeof value !== 'string') reject('invalid-project', path);
   if (!values.includes(value)) reject('unknown-vocabulary', path);
 };
+// Closed enum maps must list every member, so union changes fail type-checking.
+const completeChoice = <T extends string>(members: Record<T, null>): Rule => choice(...Object.keys(members));
 const object = (fields: Record<string, Field>): Rule => (value, path, context) => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) reject('invalid-project', path);
   const record = value as Record<string, unknown>;
@@ -68,6 +79,8 @@ const object = (fields: Record<string, Field>): Rule => (value, path, context) =
     (required ? field : field.rule)(record[key], `${path}.${key}`, context);
   }
 };
+// Every declared property needs a deliberate required/optional/refusal rule.
+const objectFor = <T,>(fields: Record<keyof T, Field>): Rule => object(fields);
 const list = (rule: Rule, min: number, max: number, budget?: keyof Context): Rule => (value, path, context) => {
   if (!Array.isArray(value) || value.length < min) reject('invalid-project', path);
   if (value.length > max) reject('resource-limit', path);
@@ -95,7 +108,7 @@ const dimension = number(0.01, 2000);
 const nonnegative = number(0, 2000);
 const coordinate = number(-PROJECT_UPLOAD_LIMITS.maxCoordinateMm, PROJECT_UPLOAD_LIMITS.maxCoordinateMm);
 const angle = number(-3600, 3600);
-const vector = object({ x: coordinate, y: coordinate });
+const vector = objectFor<Vector2D>({ x: coordinate, y: coordinate });
 const color: Rule = (value, path) => {
   if (typeof value !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(value)) reject('invalid-project', path);
 };
@@ -104,54 +117,55 @@ const timestamp: Rule = (value, path) => {
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(value as string) ||
     !Number.isFinite(Date.parse(value as string))) reject('invalid-project', path);
 };
-const anchor = object({
+const anchor = objectFor<PathAnchor>({
   id, position: vector, handleMode: choice('corner', 'smooth', 'symmetric'),
   handleIn: optional(vector), handleOut: optional(vector), locked: optional(boolean),
-  semanticRole: optional(choice('neck_pocket_left', 'neck_pocket_right', 'upper_horn_left', 'upper_horn_right',
-    'waist_left', 'waist_right', 'lower_bout_left', 'lower_bout_right', 'tail_center', 'custom')),
+  semanticRole: optional(completeChoice<BodyNodeRole>({ neck_pocket_left: null, neck_pocket_right: null,
+    upper_horn_left: null, upper_horn_right: null, waist_left: null, waist_right: null,
+    lower_bout_left: null, lower_bout_right: null, tail_center: null, custom: null })),
   mirrorId: optional(id), bevelIntensity: optional(number(0, 2)),
 });
 const anchors: Rule = (value, path, context) => {
   list(anchor, 3, PROJECT_UPLOAD_LIMITS.maxAnchorsPerContour, 'anchors')(value, path, context);
   const entries = value as Array<{ id: string; mirrorId?: string }>;
-  const ids = new Set(entries.map(entry => entry.id));
   for (const [index, entry] of entries.entries()) {
-    if (entry.mirrorId && (entry.mirrorId === entry.id || !ids.has(entry.mirrorId))) reject('invalid-project', `${path}[${index}].mirrorId`);
+    // Missing partners are harmless saved state handled by live symmetry.
+    if (entry.mirrorId === entry.id) reject('invalid-project', `${path}[${index}].mirrorId`);
   }
 };
-const contour = object({ anchors, closed: (value, path) => { if (value !== true) reject('invalid-project', path); } });
-const parameters = object({
+const contour = objectFor<BodyContour>({ anchors, closed: (value, path) => { if (value !== true) reject('invalid-project', path); } });
+const parameters = objectFor<NeckJointPlanParameters>({
   mouthWidthMm: dimension, planLengthMm: dimension, endCornerRadiusMm: nonnegative,
   endTreatment: choice('square', 'rounded', 'compound'), endRoundnessMm: nonnegative,
   deepEndWidthMm: optional(dimension),
 });
 const mechanism = choice('bolt_on', 'glued');
 const planShape = choice('bolt_on_pocket', 'straight_mortise', 'tapered_mortise');
-const joint = object({
+const joint = objectFor<NeckJointGeometry>({
   mode: choice('locked', 'custom'), profileId: optional(id), derivedFromProfileId: optional(id),
   mechanism, planShape, parameters,
-  profileSnapshot: optional(object({ id, name, mechanism, planShape, parameters,
+  profileSnapshot: optional(objectFor<NeckJointProfileSnapshot>({ id, name, mechanism, planShape, parameters,
     evidenceLevel: choice('documented', 'measured', 'verified', 'unverified'), provenance })),
   targetHeelWidthMm: optional(dimension), fittingClearanceMm: optional(number(0, 20)),
   cutterDiameterMm: optional(number(0, 100)), neckAngleDegrees: optional(number(-15, 15)),
+  // Known pre-release field; its presence is deliberately refused on upload.
+  mouthAnchorIds: optional((_value, path) => reject('unknown-vocabulary', path)),
 });
 const placements = (rule: Rule) => optional(list(rule, 0, PROJECT_UPLOAD_LIMITS.maxPlacements, 'placements'));
-const pickupType = choice('humbucker', 'mini_humbucker', 'single_coil', 'lipstick', 'p90_soapbar', 'p90_dogear',
-  'tele_neck', 'tele_bridge', 'bass_split_coil', 'bass_j_single_coil', 'bass_humbucker', 'bass_soapbar',
-  'bass_r_toaster', 'bass_r_horseshoe', 'bass_mudbucker', 'bass_mini_humbucker');
-const routes = object({ id, name: optional(name), contour, depthMm: optional(number(0, 150)),
+const pickupType = choice(...Object.keys(PICKUP_TYPE_INSTRUMENT));
+const routes = objectFor<RoutedCavity>({ id, name: optional(name), contour, depthMm: optional(number(0, 150)),
   visible: optional(boolean), locked: optional(boolean) });
 
 /** Explicit recursive vocabulary; no extension dictionaries or catalogue resolution. */
 const projectRule = object({
   schemaVersion: number(3, PROJECT_SCHEMA_VERSION, true), appVersion: text(80, true),
-  instrumentType: choice('guitar', 'bass'), stringCount: number(4, 6, true),
-  jacks: optional(list(object({ id, position: vector, mountingStyle: choice('strat_plate', 'direct'), angleDegrees: angle }),
-    1, PROJECT_UPLOAD_LIMITS.maxPlacements, 'placements')),
-  metadata: object({ created: timestamp, modified: timestamp, author: text(200) }),
-  settings: object({
+  instrumentType: choice('guitar', 'bass'), stringCount: number(1, 32, true),
+  jacks: optional(list(objectFor<OutputJackPlacement>({ id, position: vector, mountingStyle: choice('strat_plate', 'direct'), angleDegrees: angle }),
+    0, PROJECT_UPLOAD_LIMITS.maxPlacements, 'placements')),
+  metadata: objectFor<GuitarProject['metadata']>({ created: timestamp, modified: timestamp, author: text(200) }),
+  settings: objectFor<ProjectSettings & { snapToGrid?: boolean }>({
     name, unitDisplay: choice('mm', 'inches'), canvasOrientation: choice('vertical', 'horizontal'),
-    symmetry: object({ mode: choice('none', 'live_centerline', 'copy_once'), sourceSide: choice('left', 'right') }),
+    symmetry: objectFor<SymmetryConfig>({ mode: choice('none', 'live_centerline', 'copy_once'), sourceSide: choice('left', 'right') }),
     showCenterAxis: boolean, showGhostGuide: boolean, showHardwareCavities: boolean,
     showDimensions: boolean, showGrid: boolean, gridSizeMm: number(0.1, 100), snapToGridEnabled: boolean,
     // Historical iOS setting is preserved alongside the current spelling.
@@ -161,11 +175,12 @@ const projectRule = object({
     pickguardEnabled: boolean, pickguardColor: color, showPickguard: optional(boolean),
     showFrontRoutes: optional(boolean), showBackRoutes: optional(boolean), showControls: optional(boolean),
   }),
-  instrumentAppearance: optional(object({
+  instrumentAppearance: optional(objectFor<InstrumentAppearance>({
     neckFinish: choice('natural_maple', 'body_matched'), fingerboard: choice('maple', 'rosewood'),
     fretboardBinding: boolean, fretboardInlay: choice('dots', 'trapezoids', 'blocks', 'sharkfins'),
-    headstockShape: choice('strat_style', 't_style', 'gibson', 'explorer', 'firebird', 'thunderbird',
-      'flying_v', 'bass_f', 'bass_mm', 'bass_r', 'bass_sg'),
+    headstockShape: completeChoice<HeadstockShapeId>({ strat_style: null, t_style: null, gibson: null,
+      explorer: null, firebird: null, thunderbird: null, flying_v: null, bass_f: null,
+      bass_mm: null, bass_r: null, bass_sg: null }),
   })),
   activeTemplateId: id, contour,
   edgeProfile: optional(object({
@@ -175,35 +190,35 @@ const projectRule = object({
     dropMm: optional(nonnegative), channelRadiusMm: optional(nonnegative), easeMm: optional(nonnegative),
     baseRadiusMm: optional(nonnegative), previewFallback: optional(choice('beveled', 'german_carve')),
   })),
-  bodyThicknessMm: optional(number(5, 150)), bodyTop: optional(object({ construction: choice('carved_cap', 'solid_body_carve') })),
+  bodyThicknessMm: optional(number(5, 150)), bodyTop: optional(objectFor<BodyTop>({ construction: choice('carved_cap', 'solid_body_carve') })),
   binding: optional(object({ appliesTo: choice('top_only', 'top_and_back') })),
   neckPresetId: id, bridgePresetId: id,
   // Embedded hardware is required even when its ID is unfamiliar.
-  neckPreset: object({
+  neckPreset: objectFor<NeckPreset>({
     id, name, scaleLengthMm: number(200, 1500), nutToBodyEdgeMm: coordinate, nutToJointMm: coordinate,
     frets: number(1, 36, true), jointWidthMm: dimension, jointDepthMm: dimension, jointCornerRadiusMm: nonnegative,
     style: choice('fender_style', 'gibson_style', 'baritone'), pocketWidthMm: optional(dimension),
     pocketDepthMm: optional(dimension), pocketCornerRadiusMm: optional(nonnegative),
     nutStringSpacingMm: optional(dimension),
-    neckTaper: optional(object({ nutWidthMm: dimension, heelWidthMm: dimension, nutToHeelMm: dimension })),
+    neckTaper: optional(objectFor<NeckTaper>({ nutWidthMm: dimension, heelWidthMm: dimension, nutToHeelMm: dimension })),
   }),
-  bridgePreset: object({
+  bridgePreset: objectFor<BridgePreset>({
     id, name, scaleReference: choice('saddle_line', 'post_line', 'plate_origin'),
-    compensationMm: object({ treble: coordinate, bass: coordinate }),
+    compensationMm: objectFor<BridgePreset['compensationMm']>({ treble: coordinate, bass: coordinate }),
     mountingPoints: optional(list(vector, 0, 32)), widthMm: dimension, lengthMm: dimension,
     saddleOffsetYMm: optional(coordinate), singlePlate: optional(boolean), outlineMm: optional(list(vector, 3, 128)),
     stringSpacingMm: optional(dimension), heightMm: optional(dimension),
   }),
   neckJointMechanism: optional(mechanism), neckJointGeometry: optional(joint),
-  neckPlacement: optional(object({ mode: choice('blueprint', 'custom'), referenceFret: number(1, 36, true),
+  neckPlacement: optional(objectFor<NeckPlacement>({ mode: choice('blueprint', 'custom'), referenceFret: number(1, 36, true),
     jointToReferenceFretMm: coordinate, provenance })),
-  pickups: list(object({ id, name: optional(name), cornerRadiusMm: optional(nonnegative),
+  pickups: list(objectFor<PickupPlacement & { name?: string; cornerRadiusMm?: number; defaultAngleDegrees?: number }>({ id, name: optional(name), cornerRadiusMm: optional(nonnegative),
     defaultAngleDegrees: optional(angle),
     type: pickupType, offsetYMm: coordinate, offsetXMm: coordinate, angleDegrees: angle,
     widthMm: dimension, heightMm: dimension, anchors }), 0, PROJECT_UPLOAD_LIMITS.maxPlacements, 'placements'),
-  potentiometers: placements(object({ id, position: vector, bodyDiameterMm: dimension, knobStyleId: choice('generic') })),
-  switches: placements(object({ id, type: choice('gibson_toggle', 'fender_blade'), position: vector, angleDegrees: angle })),
-  pickguards: placements(object({ id, name: optional(name), contour, colorHex: optional(color),
+  potentiometers: placements(objectFor<PotentiometerPlacement>({ id, position: vector, bodyDiameterMm: dimension, knobStyleId: choice('generic') })),
+  switches: placements(objectFor<SwitchPlacement>({ id, type: choice('gibson_toggle', 'fender_blade'), position: vector, angleDegrees: angle })),
+  pickguards: placements(objectFor<PickguardPlacement>({ id, name: optional(name), contour, colorHex: optional(color),
     visible: optional(boolean), locked: optional(boolean) })),
   frontRoutes: placements(routes), backRoutes: placements(routes),
 } satisfies Record<keyof GuitarProject, Field>);
@@ -220,18 +235,17 @@ export function validateProjectUpload(input: unknown, policy: ProjectAdmissionPo
   }
   try {
     // Reject JS-only values/getters before accessing the structural fields.
-    const canonical = canonicalizeJson(input);
-    if (new TextEncoder().encode(canonical).byteLength > PROJECT_UPLOAD_LIMITS.maxProjectBytes) reject('resource-limit', 'project');
+    const canonicalJson = canonicalizeJson(input, PROJECT_UPLOAD_LIMITS.maxProjectBytes);
     if (!input || typeof input !== 'object' || Array.isArray(input)) reject('invalid-project', 'project');
     const project = input as GuitarProject;
     if (!Number.isInteger(project.schemaVersion) || project.schemaVersion < 3 ||
       project.schemaVersion > policy.maxAcceptedProjectSchema) reject('unsupported-schema', 'project.schemaVersion');
     projectRule(project, 'project', { anchors: 0, placements: 0 });
-    if (project.stringCount !== (project.instrumentType === 'guitar' ? 6 : 4)) reject('invalid-project', 'project.stringCount');
+    if (!isSupportedInstrument(project.instrumentType, project.stringCount)) reject('invalid-project', 'project.stringCount');
     for (const [index, pickup] of project.pickups.entries()) {
-      if (pickup.type.startsWith('bass_') !== (project.instrumentType === 'bass')) reject('invalid-project', `project.pickups[${index}].type`);
+      if (PICKUP_TYPE_INSTRUMENT[pickup.type] !== project.instrumentType) reject('invalid-project', `project.pickups[${index}].type`);
     }
-    if (project.neckJointGeometry || project.neckPlacement || project.schemaVersion >= 7) {
+    if (project.neckJointGeometry || project.neckPlacement || project.schemaVersion === 7) {
       try { validateNeckJointContract(project.neckJointGeometry, project.neckPlacement, project.instrumentType); }
       catch (error) {
         if (error instanceof NeckJointContractError) reject('invalid-project', 'project.neckJointGeometry');
@@ -239,7 +253,7 @@ export function validateProjectUpload(input: unknown, policy: ProjectAdmissionPo
       }
     }
     if (project.schemaVersion !== requiredSchemaVersion(project)) reject('schema-mismatch', 'project.schemaVersion');
-    return { ok: true, project };
+    return { ok: true, project, canonicalJson };
   } catch (error) {
     if (error instanceof AdmissionError) return { ok: false, code: error.code, path: error.path };
     if (error instanceof CanonicalJsonError) return { ok: false,

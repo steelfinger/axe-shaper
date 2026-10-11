@@ -198,3 +198,30 @@ Validation: all 350 web unit tests (44 sharing tests), build, lint, schema,
 fixture, corpus and bass checks passed. Lint has only the existing App hook
 warning. This is local web evidence, not independent viewer/iPad or staging
 verification; no services were deployed.
+
+## Admission review follow-up — 2026-10-11
+
+`project-upload-v2` corrects admission of editor/file states: stale missing
+mirror targets are preserved, legacy projects saved with jacks at schema 8 need
+no v7 joint pair, and empty jack arrays are accepted without mutation. Schema 7
+and any present joint fields still require a valid pair, and exact required-schema
+stamping remains enforced. Both editor delete branches now unlink removed mirror
+partners while preserving surviving geometry, including locked anchors.
+
+Instrument/string-count and pickup compatibility use the repository's central
+tables. Nested field maps are checked against their model types, closed headstock
+and semantic-role vocabulary maps must cover their unions, and pickup vocabulary
+comes from the compatibility table. Known legacy pickup/settings fields remain
+explicit. Pre-release joint fields and open extension bags are still refused.
+
+Canonicalization enforces the project byte budget directly and its branded text
+is reused for preflight hashing. Snapshot detachment and freeze responsibilities
+are documented separately. Only known preparation errors become file-fallback
+reasons; unexpected failures propagate. Regression tests cover these behaviors.
+The policy revision changed because admission semantics changed; no deployed
+service or stored snapshots use the provisional earlier revision.
+
+Validation: all 359 web unit tests (51 sharing tests plus two mirror-deletion
+tests), 32 browser smoke tests, build, lint, schema, fixture, corpus and bass
+checks passed. Lint retains the existing App hook warning. No cloud deployment
+or independent viewer/iPad checks were performed.

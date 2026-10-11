@@ -1,6 +1,7 @@
 import type { GuitarProject, StoredProject } from '../types/guitar';
 import { withEmbeddedPresets } from '../utils/presets';
-import { CanonicalJsonError, parseSharingJson, projectDigest } from './canonicalJson';
+import { NeckJointContractError } from '../utils/neckJointGeometry';
+import { CanonicalJsonError, parseSharingJson, canonicalJsonDigest } from './canonicalJson';
 import { validateProjectUpload } from './projectAdmission';
 import type { ProjectAdmissionPolicy, ProjectAdmissionResult } from './projectAdmission';
 
@@ -20,8 +21,9 @@ function freezeJson(value: unknown): void {
 /**
  * Client-only save adapter. Prepare the same JSON value embedded by SVG export,
  * including JSON's omission of optional undefined fields, then validate it using
- * the server's strict policy. Freeze before hashing so edits during async work
- * cannot change the snapshot. No changes are made to the working project.
+ * the server's strict policy. Saved JSON detaches the snapshot synchronously;
+ * freezing prevents later callers from modifying the returned value.
+ * No changes are made to the working project.
  * This is preflight groundwork; the consent flow and full request are pending.
  */
 export async function prepareSharedProject(
@@ -32,14 +34,17 @@ export async function prepareSharedProject(
   try {
     project = parseSharingJson(JSON.stringify(withEmbeddedPresets(workingProject)));
   } catch (error) {
-    return { ok: false, code: error instanceof CanonicalJsonError && error.code === 'resource-limit'
-      ? 'resource-limit' : 'invalid-project', path: 'project' };
+    if (error instanceof CanonicalJsonError || error instanceof NeckJointContractError) {
+      return { ok: false, code: error instanceof CanonicalJsonError && error.code === 'resource-limit'
+        ? 'resource-limit' : 'invalid-project', path: 'project' };
+    }
+    throw error;
   }
   const admission = validateProjectUpload(project, policy);
   if (!admission.ok) return admission;
   freezeJson(admission.project);
   try {
-    return { ok: true, project: admission.project, digest: await projectDigest(admission.project) };
+    return { ok: true, project: admission.project, digest: await canonicalJsonDigest(admission.canonicalJson) };
   } catch (error) {
     if (error instanceof CanonicalJsonError) {
       return { ok: false, code: error.code === 'crypto-unavailable' ? 'crypto-unavailable'
