@@ -1,5 +1,8 @@
 /** Shared browser/server JSON boundary. No project migration or catalogue imports. */
 export type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
+declare const canonicalJsonBrand: unique symbol;
+/** Only canonicalizeJson produces this text; never cast raw request strings to it. */
+export type CanonicalJsonText = string & { readonly [canonicalJsonBrand]: true };
 export type CanonicalJsonErrorCode = 'invalid-json' | 'duplicate-property' | 'invalid-unicode' | 'resource-limit' | 'crypto-unavailable';
 
 export class CanonicalJsonError extends Error {
@@ -162,17 +165,18 @@ export function parseSharingJson(source: string): JsonValue {
 }
 
 /** RFC 8785: UTF-16 name ordering and ECMAScript primitive serialization. */
-export function canonicalizeJson(input: unknown): string {
+export function canonicalizeJson(input: unknown, maxBytes: number = SHARING_JSON_LIMITS.maxCanonicalBytes): CanonicalJsonText {
+  if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > SHARING_JSON_LIMITS.maxCanonicalBytes) fail('resource-limit');
   const ancestors = new Set<object>();
   const chunks: string[] = [];
   let bytes = 0;
   let nodes = 0;
   const append = (chunk: string) => {
-    bytes += boundedUtf8Length(chunk, SHARING_JSON_LIMITS.maxCanonicalBytes - bytes);
+    bytes += boundedUtf8Length(chunk, maxBytes - bytes);
     chunks.push(chunk);
   };
   const appendString = (value: string) => {
-    bytes += boundedJsonStringLength(value, SHARING_JSON_LIMITS.maxCanonicalBytes - bytes);
+    bytes += boundedJsonStringLength(value, maxBytes - bytes);
     chunks.push(JSON.stringify(value));
   };
   const encode = (value: unknown, depth: number): void => {
@@ -223,7 +227,23 @@ export function canonicalizeJson(input: unknown): string {
     ancestors.delete(value);
   };
   encode(input, 0);
-  return chunks.join('');
+  return chunks.join('') as CanonicalJsonText;
+}
+
+function digestCrypto(): SubtleCrypto {
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle) fail('crypto-unavailable');
+  return subtle;
+}
+
+async function hashCanonicalText(text: CanonicalJsonText, subtle: SubtleCrypto): Promise<`sha256:${string}`> {
+  const digest = await subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return `sha256:${Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('')}`;
+}
+
+/** Reuse canonical text produced during admission; never accept a client-supplied cache. */
+export async function canonicalJsonDigest(text: CanonicalJsonText): Promise<`sha256:${string}`> {
+  return hashCanonicalText(text, digestCrypto());
 }
 
 /**
@@ -232,9 +252,6 @@ export function canonicalizeJson(input: unknown): string {
  * work is performed when this context cannot create a digest.
  */
 export async function projectDigest(project: unknown): Promise<`sha256:${string}`> {
-  const subtle = globalThis.crypto?.subtle;
-  if (!subtle) fail('crypto-unavailable');
-  const bytes = new TextEncoder().encode(canonicalizeJson(project));
-  const digest = await subtle.digest('SHA-256', bytes);
-  return `sha256:${Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('')}`;
+  const subtle = digestCrypto();
+  return hashCanonicalText(canonicalizeJson(project), subtle);
 }

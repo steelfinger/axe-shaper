@@ -35,7 +35,7 @@ import {
   resolvePopState,
   type NavigationEnv,
 } from './utils/editorNavigation';
-import { mirroredSegmentIndex, withMirroredInsertion } from './utils/symmetry';
+import { mirroredSegmentIndex, removeAnchorsAndUnlinkMirrors, withMirroredInsertion } from './utils/symmetry';
 import { buildProjectFilename, downloadSVGFile, exportProjectToSVG, extractProjectFromSVG } from './utils/svgExporter';
 import { downloadDXFFile, exportProjectToDXF } from './utils/dxfExporter';
 import { neckJointFabricationDisclosure } from './utils/neckJointDisclosure';
@@ -501,7 +501,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
 
         return withActiveContour(prev, activeLayer, {
           ...active,
-          anchors: anchors.filter((a) => !idsToRemove.includes(a.id)),
+          anchors: removeAnchorsAndUnlinkMirrors(anchors, new Set(idsToRemove)),
         });
       }
 
@@ -519,7 +519,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       if (idsToRemove.size === 0 || anchors.length - idsToRemove.size < MIN_ANCHOR_COUNT) return prev;
       return withActiveContour(prev, activeLayer, {
         ...active,
-        anchors: anchors.filter((a) => !idsToRemove.has(a.id)),
+        anchors: removeAnchorsAndUnlinkMirrors(anchors, idsToRemove),
       });
     });
     setSelectedAnchorIds(new Set());

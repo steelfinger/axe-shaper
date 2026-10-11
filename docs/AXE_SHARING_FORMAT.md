@@ -21,12 +21,19 @@ If the client does not support that revision, offer an app update/file sharing
 before consent. The server remains authoritative for every write.
 
 `src/sharing/projectAdmission.ts` implements this project boundary under
-`project-upload-v1`. `validateProjectUpload()` accepts an explicit policy revision
-and release ceiling, returns the exact received project object on success, and
-reports a stable error code and a known field path on failure. Unknown property
+`project-upload-v2`. `validateProjectUpload()` accepts an explicit policy revision
+and release ceiling. On success it returns the exact received project object
+and internally computed canonical text for digest reuse. On failure it reports
+a stable error code and a known field path. Unknown property
 names and supplied metadata are not echoed into errors. It checks schema 3–8,
 the supported Guitar/6 and Bass/4 combinations, known recursive vocabulary,
-paired/buildable v7 joint geometry and exact required-schema stamping.
+paired/buildable joint geometry whenever either joint field is present, and exact
+required-schema stamping. Schema 7 requires the joint pair; schema 8 can carry
+legacy v3–v6 neck data plus jacks without that pair, matching the normal file save
+contract. Partial pairs are always refused. Empty jack lists are accepted unchanged
+but do not raise the required schema: schema 8 with only empty jacks still fails
+the exact-stamp rule. Dangling mirror links are harmless preserved file state;
+self-links remain refused. Explicit editor deletion now unlinks missing partners.
 
 Embedded neck/bridge presets and pickup rout anchors are required. IDs do not
 require catalogue membership. Current known knob/jack vocabulary is intentionally
@@ -53,6 +60,16 @@ policy, freezes a detached copy, and computes its digest. Optional in-memory
 JSON fields remain intact and cause refusal rather than being erased to pass
 admission. The adapter leaves the working project unchanged. Consent UI,
 status loading, full request validation and actual upload remain pending.
+
+Admission counts canonical bytes with the 384 KiB budget during serialization,
+without re-encoding the complete result merely to measure it. Client hashing
+reuses that internally generated text through `canonicalJsonDigest()`; the text
+has a branded type to distinguish it from untrusted request strings. The service
+must always compute it from received project data, never accept a supplied cache.
+Saved-JSON serialization detaches the client snapshot synchronously. Freezing
+protects the returned snapshot from later modification; it is not what detaches
+it from the working project. Known malformed-joint/JSON errors become file-fallback
+reasons, while unexpected save failures propagate for diagnosis.
 
 Tolerant file saving may preserve future vocabulary that hosted admission rejects.
 Client preflight must detect this and offer the file fallback before upload consent;

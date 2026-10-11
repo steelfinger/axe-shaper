@@ -13,6 +13,17 @@ const CENTERLINE_EPSILON_MM = 1;
  */
 const MIRROR_MATCH_TOLERANCE_MM = 5;
 
+/** Explicit deletion unlinks missing partners without changing surviving geometry. */
+export function removeAnchorsAndUnlinkMirrors(anchors: PathAnchor[], removedIds: ReadonlySet<string>): PathAnchor[] {
+  const remaining = anchors.filter(anchor => !removedIds.has(anchor.id));
+  const ids = new Set(remaining.map(anchor => anchor.id));
+  return remaining.map(anchor => {
+    if (!anchor.mirrorId || ids.has(anchor.mirrorId)) return anchor;
+    const { mirrorId: _removedPartner, ...unlinked } = anchor;
+    return unlinked;
+  });
+}
+
 /**
  * Apply live centerline symmetry to an anchor list: whichever anchor the
  * user just moved, mirror that change onto its paired anchor on the other

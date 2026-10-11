@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vectors from '../../../tests/fixtures/sharing/jcs-digest-vectors.json';
-import { canonicalizeJson, CanonicalJsonError, parseSharingJson, projectDigest, SHARING_JSON_LIMITS } from '../canonicalJson';
+import { canonicalizeJson, canonicalJsonDigest, CanonicalJsonError, parseSharingJson, projectDigest, SHARING_JSON_LIMITS } from '../canonicalJson';
 
 function errorCode(action: () => unknown): string {
   try { action(); } catch (error) {
@@ -17,6 +17,7 @@ describe('sharing canonical JSON contract', () => {
       const project = parseSharingJson(vector.inputJson);
       expect(canonicalizeJson(project)).toBe(vector.canonicalJson);
       expect(await projectDigest(project)).toBe(vector.expectedDigest);
+      expect(await canonicalJsonDigest(canonicalizeJson(project))).toBe(vector.expectedDigest);
     });
   }
   for (const vector of vectors.rejected) {
@@ -95,6 +96,16 @@ describe('sharing canonical JSON contract', () => {
     const oversized = [Array(8).fill('x'.repeat(1024 * 1024)), later];
     expect(errorCode(() => canonicalizeJson(oversized))).toBe('resource-limit');
     expect(visited).toBe(false);
+  });
+  it('enforces a caller byte budget during serialization', () => {
+    const project = { name: 'é😀', value: 0.1 };
+    const canonical = canonicalizeJson(project);
+    const size = new TextEncoder().encode(canonical).byteLength;
+    expect(canonicalizeJson(project, size)).toBe(canonical);
+    expect(errorCode(() => canonicalizeJson(project, size - 1))).toBe('resource-limit');
+    for (const budget of [0, -1, NaN, Infinity, 0.5, SHARING_JSON_LIMITS.maxCanonicalBytes + 1]) {
+      expect(errorCode(() => canonicalizeJson({}, budget))).toBe('resource-limit');
+    }
   });
   it('returns a typed error when hashing is unavailable in the browser context', async () => {
     for (const crypto of [undefined, {}]) {

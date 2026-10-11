@@ -11,6 +11,9 @@ import { withEmbeddedPresets } from '../../utils/presets';
 import { exportProjectToSVG } from '../../utils/svgExporter';
 import { REFERENCE_TEMPLATES } from '../../constants/templates';
 import type { GuitarProject } from '../../types/guitar';
+import { PICKUP_TYPE_INSTRUMENT } from '../../constants/hardware';
+import { SUPPORTED_STRING_COUNTS } from '../../utils/instrument';
+import { removeAnchorsAndUnlinkMirrors } from '../../utils/symmetry';
 
 const policy7 = { revision: UPLOAD_POLICY_REVISION, maxAcceptedProjectSchema: 7 };
 const policy8 = { ...policy7, maxAcceptedProjectSchema: 8 };
@@ -151,7 +154,7 @@ describe('strict project upload admission', () => {
       project => { project.contour.anchors[0].position.y = Infinity; },
       project => { project.pickups[0].widthMm = 0; },
       project => { project.contour.anchors[1].id = project.contour.anchors[0].id; },
-      project => { project.contour.anchors[0].mirrorId = 'missing'; },
+      project => { project.contour.anchors[0].mirrorId = project.contour.anchors[0].id; },
       project => { project.settings.bodyColor = 'url(https://example.com/image)'; },
       project => { Object.assign(project, { guideImage: { imageUrl: 'blob:local' } }); },
     ];
@@ -171,5 +174,66 @@ describe('strict project upload admission', () => {
     expect(preflight(manyAnchors)).toMatchObject({ ok: false, code: 'resource-limit' });
     expect(preflight({ ...baseline, metadata: { ...baseline.metadata, author: 'x'.repeat(PROJECT_UPLOAD_LIMITS.maxProjectBytes) } }))
       .toMatchObject({ ok: false, code: 'resource-limit', path: 'project' });
+  });
+  it('admits older saved dangling mirror links and cleans them on explicit deletion', () => {
+    const project = fresh();
+    project.settings.symmetry.mode = 'none';
+    const [first, partner] = project.contour.anchors;
+    first.mirrorId = partner.id;
+    partner.mirrorId = first.id;
+    partner.locked = true;
+    // Historical editor saves can carry a partner that was deleted while symmetry was off.
+    const historical = structuredClone(project);
+    historical.contour.anchors = historical.contour.anchors.filter(anchor => anchor.id !== first.id);
+    expect(preflight(historical)).toMatchObject({ ok: true });
+    expect(historical.contour.anchors[0].mirrorId).toBe(first.id);
+    // The helper now used by both editor deletion branches removes only the link.
+    project.contour.anchors = removeAnchorsAndUnlinkMirrors(project.contour.anchors, new Set([first.id]));
+    expect(project.contour.anchors[0].mirrorId).toBeUndefined();
+    expect(project.contour.anchors[0].locked).toBe(true);
+    expect(project.contour.anchors[0].position).toEqual(partner.position);
+    expect(preflight(project)).toMatchObject({ ok: true });
+  });
+  it('admits a legacy v5 project after the normal save path adds a jack without a v7 joint', () => {
+    const legacy = fresh();
+    delete legacy.neckJointGeometry; delete legacy.neckPlacement; delete legacy.instrumentAppearance;
+    legacy.bodyTop = { construction: 'carved_cap' };
+    legacy.schemaVersion = 5;
+    expect(preflight(JSON.parse(JSON.stringify(withEmbeddedPresets(legacy))))).toMatchObject({ ok: true });
+    legacy.jacks = [{ id: 'new-jack', mountingStyle: 'direct', position: { x: 0, y: 0 }, angleDegrees: 0 }];
+    const saved = JSON.parse(JSON.stringify(withEmbeddedPresets(legacy)));
+    expect(saved.schemaVersion).toBe(8);
+    expect(saved.neckJointGeometry).toBeUndefined();
+    expect(preflight(saved)).toMatchObject({ ok: true });
+    expect(validateProjectUpload(saved, policy7)).toMatchObject({ ok: false, code: 'unsupported-schema' });
+    const partial = { ...saved, neckPlacement: baseline.neckPlacement };
+    expect(preflight(partial)).toMatchObject({ ok: false, code: 'invalid-project' });
+  });
+  it('accepts an empty jack list without rewriting it and independently checks its schema stamp', () => {
+    const project = fresh(); project.jacks = [];
+    const result = validateProjectUpload(project, policy7);
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) throw new Error(result.code);
+    expect(result.project).toBe(project);
+    expect(result.project.jacks).toEqual([]);
+    // Empty jacks alone do not justify schema 8 under the exact save-stamp rule.
+    project.schemaVersion = 8;
+    expect(preflight(project)).toMatchObject({ ok: false, code: 'schema-mismatch' });
+  });
+  it('tracks the central instrument and pickup compatibility tables', () => {
+    for (const [instrument, counts] of Object.entries(SUPPORTED_STRING_COUNTS)) {
+      for (const count of counts) {
+        const project = fresh();
+        project.instrumentType = instrument as GuitarProject['instrumentType'];
+        project.stringCount = count;
+        project.neckPlacement!.referenceFret = instrument === 'bass' ? 20 : 22;
+        project.pickups = [];
+        expect(preflight(project)).toMatchObject({ ok: true });
+        for (const [type, compatibleInstrument] of Object.entries(PICKUP_TYPE_INSTRUMENT)) {
+          project.pickups = [{ ...baseline.pickups[0], type: type as GuitarProject['pickups'][number]['type'] }];
+          expect(preflight(project).ok, `${instrument}/${type}`).toBe(instrument === compatibleInstrument);
+        }
+      }
+    }
   });
 });
