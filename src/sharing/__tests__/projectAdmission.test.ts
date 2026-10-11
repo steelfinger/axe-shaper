@@ -19,6 +19,10 @@ import { removeAnchorsAndUnlinkMirrors } from '../../utils/symmetry';
 
 const policy7 = { revision: UPLOAD_POLICY_REVISION, maxAcceptedProjectSchema: 7 };
 const policy8 = { ...policy7, maxAcceptedProjectSchema: 8 };
+const policyDefinitions = import.meta.glob<unknown>('../../../tests/fixtures/sharing/project-upload-*-definition.json',
+  { eager: true, import: 'default' });
+const definitionFor = (revision: string) => Object.entries(policyDefinitions)
+  .find(([path]) => path.endsWith(`/${revision}-definition.json`))?.[1];
 function fromSvg(svg: string): GuitarProject {
   const encoded = svg.match(/<project:data>([\s\S]*?)<\/project:data>/)?.[1];
   if (!encoded) throw new Error('Missing fixture project');
@@ -37,11 +41,17 @@ function freeze(value: unknown): void {
 describe('strict project upload admission', () => {
   it('pins bounds, recursive field sets, enum vocabulary and compatibility tables to the policy revision', async () => {
     const fingerprints: Record<string, string> = policyFingerprints;
+    expect(definitionFor(UPLOAD_POLICY_REVISION), 'Keep the independently consumed definition equal to the compiled rules')
+      .toEqual(PROJECT_UPLOAD_POLICY_DEFINITION);
     expect(Object.keys(PROJECT_REVISION_READERS).sort(), 'Keep a reader for every fingerprinted revision')
       .toEqual(Object.keys(fingerprints).sort());
     expect(Object.hasOwn(fingerprints, UPLOAD_POLICY_REVISION), 'New policies need a fingerprint and retained historical readers').toBe(true);
     expect(await projectDigest(PROJECT_UPLOAD_POLICY_DEFINITION), 'Policy drift requires a new revision; do not replace an existing fingerprint')
       .toBe(fingerprints[UPLOAD_POLICY_REVISION]);
+    for (const [revision, fingerprint] of Object.entries(fingerprints)) {
+      expect(definitionFor(revision), `Keep the immutable ${revision} definition`).toBeDefined();
+      expect(await projectDigest(definitionFor(revision))).toBe(fingerprint);
+    }
   });
   it('accepts the complete native v7 fixture unchanged with equal digest/export payload', async () => {
     const project = fresh();
