@@ -36,3 +36,14 @@ recursive field sets, all enums, numeric/text/list bounds, safety limits and
 compatibility tables. Treat entries as immutable: policy drift requires a new
 revision and retained historical readers, not replacing the old fingerprint.
 Custom validation logic still needs reviewed semantics and regression cases.
+
+`project-upload-v2-definition.json` exports the same data-only definition for an
+independent viewer interpreter. Web tests check equality with the compiled rules
+and fingerprint every retained definition. `node scripts/write-sharing-policy.ts`
+exports a missing definition and refuses to overwrite a changed existing revision;
+add `--check` to verify only. It does not replace fingerprint entries.
+
+The viewer vendors all sharing JSON artifacts under `contracts/sharing`, with
+file SHA-256 pins in its own contract manifest. Its independent JSON/JCS/envelope
+checks now run in `npm run check`. Neither repository's normal tests/build require
+the sibling checkout. Native iPad sharing-adapter checks and endpoints remain pending.

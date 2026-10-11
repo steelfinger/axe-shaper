@@ -286,3 +286,31 @@ fixture, corpus and bass checks passed; final capability/retention guards were
 additionally type-checked and covered by rerun sharing tests. Lint retains the
 existing App hook warning. No cloud deployment or independent client verification
 was performed, and no editor/browser flow changed.
+
+## Independent viewer contract checks — 2026-10-11
+
+The web exports `project-upload-v2-definition.json` as data for independent
+clients. Tests compare the current revision's artifact with compiled admission
+rules and check every retained definition against its immutable fingerprint.
+`scripts/write-sharing-policy.ts` generates a missing revision artifact and
+refuses changed existing definitions; `--check` verifies without writing.
+
+The viewer's `codex/sharing` branch vendors eight JSON artifacts, pinned by file
+SHA-256 in its own contract manifest. Its own JSON tokenizer/JCS implementation,
+policy-data interpreter and envelope/support/error readers import no web code.
+Full saved snapshot integrity is checked before renderer normalization. Tests
+cover canonical vectors, private creation hash vectors, native schema-7/known
+schema-8 positives, preserved native future vocabulary, explicit reader ceilings,
+preview paths/states, tampering, complexity limits, stale mirrors/empty jacks,
+joint pairing/placement/compound tangency, native minimum versions and separate
+missing/revoked/quota/unavailable errors. Historical revision entries are retained
+explicitly. The existing tolerant SVG/fragment/handoff readers are unchanged.
+
+Validation: viewer `npm run check` passed (460 tests, including 52 sharing tests;
+lint, 58 pinned contract files, 22 preview capability checks, type check/build).
+Web passed all 409 unit tests, build, lint, schema, fixture, corpus and bass checks,
+plus policy export verification. Final artifact-retention assertions were rerun
+with all 101 web sharing tests and type checking. Both repositories retain their
+existing lint warning and build chunk-size warning. No iPad suite or cloud deploy
+was performed. Hosted fetch/query integration, status/deployment manifests,
+Functions/emulators, quotas/storage and sharing UI are still pending.

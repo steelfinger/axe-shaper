@@ -257,15 +257,21 @@ Request/envelope checks also consume `creation-v1.json`, its independently compu
 private hash vectors, `envelope-v1.json` and `support-manifest-v1.json`. Negative
 cases mutate individual fields and cover tampering, secret encoding, unknown fields,
 whole-body UTF-8 limits, schema gates and all preview variants. Functions integration
-remains pending. Sync the vectors and admission cases into
-the viewer's own `npm run check` inputs, and require iPad digest/adapter checks
+remains pending. The viewer now vendors the eight sharing JSON artifacts, pins
+their file hashes, and independently checks raw parsing/JCS, envelope integrity,
+the frozen policy definition, schema gates, previews, support manifests and service
+errors in its own `npm run check`. Its data interpreter uses the fingerprinted
+`project-upload-v2-definition.json` without importing web implementation code.
+The web checks that this exported definition equals the compiled rules and retains
+every revision's definition/fingerprint. Hosted viewer fetch/query/UI integration
+is still pending. Require iPad digest/adapter checks
 when that client is added. Record fixture revision/digests across repositories.
 
 ## Phase 1 completion
 
 The local versioned envelope, public support-manifest structure, preview variants,
 error codes and idempotency request comparison now have fixtures/tests. Complete
-the deployment manifest/status contract, independent viewer/iPad checks and isolated
+the deployment manifest/status contract, independent iPad checks and isolated
 Functions/emulator foundation before marking Phase 1 complete. Preserve the
 project-digest algorithm defined here; change it only through an explicit versioned
 contract migration that keeps older snapshots/verifiers usable.
