@@ -1,7 +1,8 @@
 import type { GuitarProject } from '../types/guitar';
+import { PROJECT_SCHEMA_VERSION } from '../constants/schema';
 import { canonicalizeJson, canonicalJsonDigest, CanonicalJsonError, parseSharingJson } from './canonicalJson';
-import { UPLOAD_POLICY_REVISION, validateProjectUpload } from './projectAdmission';
-import type { ProjectAdmissionPolicy } from './projectAdmission';
+import { validateProjectUpload, PROJECT_REVISION_READERS } from './projectAdmission';
+import type { ProjectAdmissionPolicy, ProjectAdmissionResult, ProjectRevisionReaders } from './projectAdmission';
 import { parseSharingReleaseTag } from './releasePolicy';
 
 export const SHARE_FORMAT_VERSION = 1;
@@ -57,13 +58,19 @@ export interface SharedProjectEnvelope {
   requirements: { projectSchema: number; supportManifest: string };
   preview: SharePreview;
 }
+type SchemaRange<Max extends number, Values extends number[] = []> = Values['length'] extends Max
+  ? Values[number] | Max : SchemaRange<Max, [...Values, Values['length']]>;
+export type SharingProjectSchema = Exclude<SchemaRange<typeof PROJECT_SCHEMA_VERSION>, 0 | 1 | 2>;
+export const SHARING_PROJECT_SCHEMAS = Object.freeze(Array.from({ length: PROJECT_SCHEMA_VERSION - 2 },
+  (_, index) => index + 3) as SharingProjectSchema[]);
+
 /** Public compatibility data; null means native edit support is not confirmed. */
 export interface SharingClientSupportManifest {
   shareFormatVersion: 1;
   releaseTag: string;
   webReadSchema: number;
   viewerReadSchema: number;
-  minimumEditableIpadVersionBySchema: Record<3 | 4 | 5 | 6 | 7 | 8, string | null>;
+  minimumEditableIpadVersionBySchema: Record<SharingProjectSchema, string | null>;
 }
 
 const ID = /^[A-Za-z0-9]{20}$/;
@@ -100,8 +107,7 @@ function mapError(error: unknown): never {
   }
   throw error;
 }
-function admittedProject(value: unknown, policy: ProjectAdmissionPolicy) {
-  const result = validateProjectUpload(value, policy);
+function requireAdmitted(result: ProjectAdmissionResult) {
   if (!result.ok) {
     fail(result.code === 'unsupported-schema' || result.code === 'unsupported-policy' ? result.code :
       result.code === 'resource-limit' ? 'too-large' : 'invalid-project');
@@ -134,6 +140,17 @@ export function serializeShareCreationRequest(request: ShareCreationRequest): st
   return source;
 }
 
+// Compare validated SemVer numeric components without losing integer precision.
+function compareMarketingVersions(left: string, right: string): number {
+  const a = left.split('.');
+  const b = right.split('.');
+  for (let i = 0; i < 3; i++) {
+    if (a[i].length !== b[i].length) return a[i].length - b[i].length;
+    if (a[i] !== b[i]) return a[i] < b[i] ? -1 : 1;
+  }
+  return 0;
+}
+
 /** Structural check only: deployed native-version evidence must be independently verified. */
 export function readSharingClientSupportManifest(source: string, expectedReleaseTag: string): SharingClientSupportManifest {
   supportManifestPath(expectedReleaseTag);
@@ -144,14 +161,20 @@ export function readSharingClientSupportManifest(source: string, expectedRelease
   if (manifest.shareFormatVersion !== SHARE_FORMAT_VERSION) fail('unsupported-share-format');
   if (manifest.releaseTag !== expectedReleaseTag) fail('malformed-request');
   for (const ceiling of [manifest.webReadSchema, manifest.viewerReadSchema]) {
-    if (typeof ceiling !== 'number' || !Number.isSafeInteger(ceiling) || ceiling < 3 || ceiling > 8) fail('unsupported-schema');
+    if (typeof ceiling !== 'number' || !Number.isSafeInteger(ceiling) || ceiling < 3 || ceiling > PROJECT_SCHEMA_VERSION) fail('unsupported-schema');
   }
-  const versions = exact(manifest.minimumEditableIpadVersionBySchema, ['3', '4', '5', '6', '7', '8']);
-  for (const version of Object.values(versions)) {
-    if (version === null) continue;
+  const versions = exact(manifest.minimumEditableIpadVersionBySchema, SHARING_PROJECT_SCHEMAS.map(String));
+  let previousVersion: string | undefined;
+  let unconfirmed = false;
+  for (const schema of SHARING_PROJECT_SCHEMAS) {
+    const version = versions[String(schema)];
+    if (version === null) { unconfirmed = true; continue; }
+    if (unconfirmed) fail('malformed-request');
     if (typeof version !== 'string') fail('malformed-request');
     const tag = parseSharingReleaseTag(`v${version}`);
     if (!tag || tag.hotfix) fail('malformed-request');
+    if (previousVersion && compareMarketingVersions(version, previousVersion) < 0) fail('malformed-request');
+    previousVersion = version;
   }
   freeze(manifest);
   return manifest as unknown as SharingClientSupportManifest;
@@ -174,7 +197,7 @@ export async function admitShareCreation(source: string, policy: ProjectAdmissio
   if (typeof request.operationKey !== 'string' || !SECRET.test(request.operationKey) ||
     typeof request.managementSecret !== 'string' || !SECRET.test(request.managementSecret) ||
     request.operationKey === request.managementSecret) fail('malformed-request');
-  const admitted = admittedProject(request.project, policy);
+  const admitted = requireAdmitted(validateProjectUpload(request.project, policy));
   freeze(admitted.project);
   const projectDigest = await digest(admitted.canonicalJson);
   if (projectDigest !== request.projectDigest) fail('digest-mismatch');
@@ -211,9 +234,9 @@ function validatePreview(value: unknown, id: string): SharePreview {
 
 /** Reader capabilities belong to the installed client, never to the received envelope. */
 export async function readSharedProjectEnvelope(source: string, expectedId: string,
-  maxReadableProjectSchema: number): Promise<SharedProjectEnvelope> {
+  maxReadableProjectSchema: number, revisionReaders: ProjectRevisionReaders = PROJECT_REVISION_READERS): Promise<SharedProjectEnvelope> {
   if (!isShareId(expectedId)) fail('invalid-id');
-  if (!Number.isSafeInteger(maxReadableProjectSchema) || maxReadableProjectSchema < 3 || maxReadableProjectSchema > 8) {
+  if (!Number.isSafeInteger(maxReadableProjectSchema) || maxReadableProjectSchema < 3 || maxReadableProjectSchema > PROJECT_SCHEMA_VERSION) {
     fail('unsupported-schema');
   }
   const envelope = exact(parse(source), keysFor<SharedProjectEnvelope>({
@@ -222,15 +245,19 @@ export async function readSharedProjectEnvelope(source: string, expectedId: stri
   }));
   if (envelope.shareFormatVersion !== SHARE_FORMAT_VERSION) fail('unsupported-share-format');
   if (envelope.id !== expectedId) fail('invalid-id');
-  if (envelope.uploadPolicyRevision !== UPLOAD_POLICY_REVISION) fail('unsupported-policy');
+  const revision = envelope.uploadPolicyRevision;
+  if (typeof revision !== 'string' || !Object.hasOwn(revisionReaders, revision)) fail('unsupported-policy');
+  const reader = revisionReaders[revision];
   if (typeof envelope.createdAt !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(envelope.createdAt) ||
     !Number.isFinite(Date.parse(envelope.createdAt)) || new Date(envelope.createdAt).toISOString() !== envelope.createdAt) fail('malformed-request');
   if (envelope.digestCanonicalization !== 'rfc8785' || typeof envelope.projectDigest !== 'string' ||
     !DIGEST.test(envelope.projectDigest)) fail('malformed-request');
   const requirements = exact(envelope.requirements, ['projectSchema', 'supportManifest']);
   if (!isManifestPath(requirements.supportManifest)) fail('malformed-request');
-  const admitted = admittedProject(envelope.project, { revision: UPLOAD_POLICY_REVISION,
-    maxAcceptedProjectSchema: maxReadableProjectSchema });
+  const admitted = requireAdmitted(reader(envelope.project, maxReadableProjectSchema));
+  // Retained validators may have their own historical ceiling; installed
+  // reader capability is still authoritative at the shared envelope boundary.
+  if (admitted.project.schemaVersion > maxReadableProjectSchema) fail('unsupported-schema');
   if (requirements.projectSchema !== admitted.project.schemaVersion) fail('invalid-project');
   validatePreview(envelope.preview, expectedId);
   freeze(envelope);
@@ -238,7 +265,11 @@ export async function readSharedProjectEnvelope(source: string, expectedId: stri
   return envelope as unknown as SharedProjectEnvelope;
 }
 
-/** Explicit projection prevents private transaction/control fields leaking into GET responses. */
+/**
+ * Explicit projection prevents private fields leaking into GET responses. The
+ * deliberate read-back self-check repeats admission/hash work to verify exactly
+ * what will be served, including serialization and server-assigned metadata.
+ */
 export async function buildSharedProjectEnvelope(creation: AdmittedShareCreation,
   metadata: { id: string; createdAt: string; releaseTag: string }): Promise<SharedProjectEnvelope> {
   const envelope: SharedProjectEnvelope = {
@@ -248,5 +279,5 @@ export async function buildSharedProjectEnvelope(creation: AdmittedShareCreation
     requirements: { projectSchema: creation.project.schemaVersion, supportManifest: supportManifestPath(metadata.releaseTag) },
     preview: { kind: 'generic' },
   };
-  return readSharedProjectEnvelope(JSON.stringify(envelope), metadata.id, 8);
+  return readSharedProjectEnvelope(JSON.stringify(envelope), metadata.id, PROJECT_SCHEMA_VERSION);
 }

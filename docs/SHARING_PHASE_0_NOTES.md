@@ -257,3 +257,32 @@ The final field-set guard change was additionally type-checked and the sharing
 tests rerun. No browser flow changed, cloud service was deployed, or independent
 viewer/iPad verification performed. Status/deployment manifests, consent/pending
 operation storage, Functions/emulators and the actual sharing API remain pending.
+
+## Wire/admission review follow-up — 2026-10-11
+
+The pickup vocabulary is now an explicit exhaustive list for `project-upload-v2`,
+and every closed model enum uses a compile-time coverage guard. Intentionally
+open string types keep their explicit admitted subsets. A pinned policy fingerprint
+covers recursive required/optional fields, enum vocabulary, numeric/text/list
+bounds, JSON safety limits and compatibility tables. The catalogue-walk test
+remains a drift alarm. Existing fingerprints must not be replaced when admission
+changes; custom validator semantics still require reviewed regression tests.
+
+Envelope reading dispatches through a supplied/default table of known revision
+validators. Tests check historical dispatch, refusal of unknown/inherited keys,
+retention of a reader for each fingerprinted revision, and the installed schema
+ceiling even when a historical validator uses its own ceiling. Before deploying a
+new revision, preserve the old implementation/entry and historical fixtures.
+Only v2 is registered today; no v1 snapshots were deployed.
+
+Public support manifests reject confirmed versions after a null gap and decreasing
+minimum versions as schema increases. Numeric components are compared without
+binary64 rounding. Manifest type/key ranges and reader/builder ceilings derive
+from `PROJECT_SCHEMA_VERSION`. Envelope building retains a deliberate serialization,
+admission and digest read-back self-check; its comment now explains that cost.
+
+Validation: all 409 web unit tests (101 sharing tests), build, lint, schema,
+fixture, corpus and bass checks passed; final capability/retention guards were
+additionally type-checked and covered by rerun sharing tests. Lint retains the
+existing App hook warning. No cloud deployment or independent client verification
+was performed, and no editor/browser flow changed.
