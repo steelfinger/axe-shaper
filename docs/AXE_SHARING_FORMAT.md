@@ -35,6 +35,21 @@ but do not raise the required schema: schema 8 with only empty jacks still fails
 the exact-stamp rule. Dangling mirror links are harmless preserved file state;
 self-links remain refused. Explicit editor deletion now unlinks missing partners.
 
+The revision's pickup vocabulary is an explicit frozen list; catalogue additions
+cannot silently enlarge it. Every closed model enum has an exhaustive type guard.
+Open string types (jack/knob IDs and edge/binding bags) retain explicit admitted
+subsets. The catalogue-walk test remains a drift alarm requiring a new policy
+revision when new types become shareable.
+
+`policy-fingerprints.json` pins a SHA-256 digest of the policy definition to its
+revision: recursive required/optional field sets, enum lists, number/text/list
+bounds, JSON safety limits and instrument/pickup compatibility tables. Changing
+that data without adding a new revision fails the test. Existing fingerprints
+must remain unchanged; add a revision and retain its historical validator before
+deploying an admission change. This data guard does not fingerprint arbitrary
+validation code: changes to custom semantics still require review and regression
+tests.
+
 Embedded neck/bridge presets and pickup rout anchors are required. IDs do not
 require catalogue membership. Current known knob/jack vocabulary is intentionally
 strict even where local file types permit arbitrary strings. The validator also
@@ -174,9 +189,12 @@ generic preview, keeping transaction/control hashes out of the response.
 
 `readSharedProjectEnvelope()` checks the expected route ID, installed reader's
 schema ceiling, full project admission and recomputed digest before returning a
-frozen snapshot. It currently understands `project-upload-v2` only. Historical
-policy dispatch must be added before changing that revision in a deployed service.
-The current policy is reused to check stored project vocabulary/resource limits;
+frozen snapshot. It takes a table of known revision validators, defaulting to
+`PROJECT_REVISION_READERS` with `project-upload-v2`. The stored revision selects
+its validator independently of the current creation revision; unknown revisions
+are refused. When a new revision is deployed, retain the old validator implementation
+and registry entry so the fixed historical envelope fixtures continue to read.
+The selected revision checks stored project vocabulary/resource limits;
 receiving a support-manifest reference does not raise the installed reader's ceiling.
 
 Preview variants are `{ kind: "generic" }`, generated `pending`/`failed` with no
@@ -186,8 +204,11 @@ not request jobs or publish media. Publication/licence fields require a later
 explicit contract extension and remain refused by this version's reader.
 
 `readSharingClientSupportManifest()` validates the expected tag, format version,
-web/viewer reader ceilings, and an explicit schema-3–8 map of minimum editable
-iPad marketing versions. `null` means native edit support is unconfirmed. This
+web/viewer reader ceilings, and an explicit map from schema 3 through the central
+`PROJECT_SCHEMA_VERSION` to minimum editable iPad marketing versions. Non-null
+versions must not decrease as schema increases; once a minimum is `null`, every
+higher schema must also be `null`. Comparisons preserve numeric component precision.
+`null` means native edit support is unconfirmed. This
 is public compatibility data, separate from the full private deployment manifest;
 it does not validate release evidence or prove that a manifest has been published.
 The fixture is synthetic test data, not a live release declaration.

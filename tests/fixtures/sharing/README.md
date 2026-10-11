@@ -30,3 +30,9 @@ minimum is explicitly unknown. Original SVG fixtures remain unchanged.
 Tests mutate these fixtures to check rejected requests/envelopes, exact transport
 limits, schema gates, previews, integrity and public/private separation. No endpoint
 or independent viewer/iPad verification is claimed.
+
+`policy-fingerprints.json` pins each admission revision's definition, including
+recursive field sets, all enums, numeric/text/list bounds, safety limits and
+compatibility tables. Treat entries as immutable: policy drift requires a new
+revision and retained historical readers, not replacing the old fingerprint.
+Custom validation logic still needs reviewed semantics and regression cases.

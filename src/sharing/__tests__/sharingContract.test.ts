@@ -5,11 +5,12 @@ import schema8 from '../../../tests/fixtures/sharing/schema8-known-jacks.json';
 import manifestFixture from '../../../tests/fixtures/sharing/support-manifest-v1.json';
 import hashesFixture from '../../../tests/fixtures/sharing/creation-v1-hashes.json';
 import { parseSharingJson, projectDigest } from '../canonicalJson';
-import { UPLOAD_POLICY_REVISION } from '../projectAdmission';
+import { UPLOAD_POLICY_REVISION, validateProjectUpload } from '../projectAdmission';
+import { PROJECT_SCHEMA_VERSION } from '../../constants/schema';
 import { admitShareCreation, buildSharedProjectEnvelope, compareShareCreationRetry,
   generateShareCreationSecrets, MAX_CREATION_REQUEST_BYTES, readSharedProjectEnvelope,
   SharingContractError, SHARING_ERROR_STATUS, supportManifestPath, readSharingClientSupportManifest,
-  serializeShareCreationRequest } from '../sharingContract';
+  serializeShareCreationRequest, SHARING_PROJECT_SCHEMAS } from '../sharingContract';
 import type { ShareCreationRequest } from '../sharingContract';
 
 const policy = { revision: UPLOAD_POLICY_REVISION, maxAcceptedProjectSchema: 7 };
@@ -107,6 +108,27 @@ describe('tagged public client support manifest', () => {
     expect(manifest.minimumEditableIpadVersionBySchema[8]).toBeNull();
     expect(Object.isFrozen(manifest.minimumEditableIpadVersionBySchema)).toBe(true);
   });
+  it('derives its complete schema range from the central project schema version', () => {
+    expect(SHARING_PROJECT_SCHEMAS).toEqual(Array.from({ length: PROJECT_SCHEMA_VERSION - 2 }, (_, i) => i + 3));
+    expect(Object.keys(manifestFixture.minimumEditableIpadVersionBySchema)).toEqual(SHARING_PROJECT_SCHEMAS.map(String));
+  });
+  it('allows equal or increasing minimum versions across confirmed schemas', () => {
+    const versions = { '3': '1.2.0', '4': '1.2.0', '5': '1.2.9', '6': '1.2.10', '7': '1.10.0', '8': '2.0.0' };
+    expect(readManifest({ ...manifestFixture, minimumEditableIpadVersionBySchema: versions }).minimumEditableIpadVersionBySchema).toEqual(versions);
+  });
+  it('compares version components without binary64 rounding', () => {
+    const versions = Object.fromEntries(SHARING_PROJECT_SCHEMAS.map(schema => [schema, '9007199254740992.0.0']));
+    versions[7] = '9007199254740993.0.0';
+    versions[8] = '9007199254740992.0.0';
+    expect(() => readManifest({ ...manifestFixture, minimumEditableIpadVersionBySchema: versions })).toThrow('malformed-request');
+  });
+  it.each([
+    { ...manifestFixture.minimumEditableIpadVersionBySchema, '6': null },
+    { ...manifestFixture.minimumEditableIpadVersionBySchema, '7': '1.3.0', '8': '1.2.0' },
+    { ...manifestFixture.minimumEditableIpadVersionBySchema, '7': '1.2.0', '8': '1.1.9' },
+  ])('refuses contradictory native support %#', versions => {
+    expect(() => readManifest({ ...manifestFixture, minimumEditableIpadVersionBySchema: versions })).toThrow('malformed-request');
+  });
   it.each([
     { releaseTag: 'v1.3.0' }, { webReadSchema: 9 }, { viewerReadSchema: 2 },
     { minimumEditableIpadVersionBySchema: { '7': '1.2.0' } },
@@ -119,6 +141,21 @@ describe('tagged public client support manifest', () => {
 });
 
 describe('public snapshot envelope', () => {
+  it('dispatches stored revisions independently of the current creation policy', async () => {
+    const historical = { ...envelopeFixture, uploadPolicyRevision: 'historical-test-revision' };
+    const historicalReader = vi.fn((project: unknown, _ceiling: number) =>
+      validateProjectUpload(project, { revision: UPLOAD_POLICY_REVISION, maxAcceptedProjectSchema: 7 }));
+    await expect(readSharedProjectEnvelope(JSON.stringify(historical), id, 7, {
+      'historical-test-revision': historicalReader,
+    })).resolves.toEqual(historical);
+    expect(historicalReader).toHaveBeenCalledOnce();
+    expect(historicalReader).toHaveBeenCalledWith(historical.project, 7);
+    await expect(readSharedProjectEnvelope(JSON.stringify(historical), id, 6, {
+      'historical-test-revision': historicalReader,
+    })).rejects.toMatchObject({ code: 'unsupported-schema' });
+    await expect(readSharedProjectEnvelope(JSON.stringify(historical), id, 7)).rejects.toMatchObject({ code: 'unsupported-policy' });
+    await expect(read({ ...envelopeFixture, uploadPolicyRevision: 'constructor' })).rejects.toMatchObject({ code: 'unsupported-policy' });
+  });
   it('reads the fixed envelope with independent content verification', async () => {
     const envelope = await read();
     expect(envelope).toEqual(envelopeFixture);

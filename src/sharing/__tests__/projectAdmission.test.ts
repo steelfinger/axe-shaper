@@ -4,7 +4,9 @@ import webV8Svg from '../../../tests/fixtures/web-written-v8/output_jacks.axe.sv
 import returnedV8Svg from '../../../tests/fixtures/ios-written-v5/web_roundtrip_output_jacks.axe.svg?raw';
 import nativeV8Svg from '../../../tests/fixtures/ios-written-v5/output_jacks.axe.svg?raw';
 import schema8 from '../../../tests/fixtures/sharing/schema8-known-jacks.json';
-import { PROJECT_UPLOAD_LIMITS, UPLOAD_POLICY_REVISION, validateProjectUpload } from '../projectAdmission';
+import { PROJECT_UPLOAD_LIMITS, UPLOAD_POLICY_REVISION, validateProjectUpload, PROJECT_UPLOAD_POLICY_DEFINITION,
+  PROJECT_REVISION_READERS } from '../projectAdmission';
+import policyFingerprints from '../../../tests/fixtures/sharing/policy-fingerprints.json';
 import { parseSharingJson, projectDigest } from '../canonicalJson';
 import { createProject } from '../../utils/projectFactory';
 import { withEmbeddedPresets } from '../../utils/presets';
@@ -33,6 +35,14 @@ function freeze(value: unknown): void {
 }
 
 describe('strict project upload admission', () => {
+  it('pins bounds, recursive field sets, enum vocabulary and compatibility tables to the policy revision', async () => {
+    const fingerprints: Record<string, string> = policyFingerprints;
+    expect(Object.keys(PROJECT_REVISION_READERS).sort(), 'Keep a reader for every fingerprinted revision')
+      .toEqual(Object.keys(fingerprints).sort());
+    expect(Object.hasOwn(fingerprints, UPLOAD_POLICY_REVISION), 'New policies need a fingerprint and retained historical readers').toBe(true);
+    expect(await projectDigest(PROJECT_UPLOAD_POLICY_DEFINITION), 'Policy drift requires a new revision; do not replace an existing fingerprint')
+      .toBe(fingerprints[UPLOAD_POLICY_REVISION]);
+  });
   it('accepts the complete native v7 fixture unchanged with equal digest/export payload', async () => {
     const project = fresh();
     freeze(project);
