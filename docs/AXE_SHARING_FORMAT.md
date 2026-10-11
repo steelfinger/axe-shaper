@@ -1,6 +1,6 @@
 # Axe Shaper sharing format — draft
 
-**Status:** Canonical JSON/hash and shared project admission implemented; endpoint/envelope implementation pending
+**Status:** Local hashing, admission and version-1 request/envelope contracts implemented; endpoints and independent clients pending
 
 Companion to [the product plan](DESIGN_SHARING_AND_GALLERY_PLAN.md) and
 [the saved-project contract](AXE_SVG_FORMAT.md). This defines hosted-sharing
@@ -43,7 +43,7 @@ the historical `settings.snapToGrid` spelling. Pre-release joint `mouthAnchorIds
 and unrestricted edge/binding extension fields are not accepted.
 
 The initial policy limits canonical project data to **384 KiB**, leaving room
-for the planned **512 KiB complete creation request**. It caps total anchors at
+for the **512 KiB complete creation request**. It caps total anchors at
 2,048, each contour at 512, all hardware/pickguard/route placements together at
 128, and coordinates/handles at ±5,000 mm. Physical dimensions are positive and
 bounded (general dimensions up to 2,000 mm, neck scale 200–1,500 mm, body
@@ -59,7 +59,8 @@ policy, freezes a detached copy, and computes its digest. Optional in-memory
 `undefined` fields are omitted just as they are in the SVG save payload. Future
 JSON fields remain intact and cause refusal rather than being erased to pass
 admission. The adapter leaves the working project unchanged. Consent UI,
-status loading, full request validation and actual upload remain pending.
+status loading and actual upload remain pending. The wire boundary below validates
+the full request; the consent/pending-operation integration has not been added.
 
 Admission counts canonical bytes with the 384 KiB budget during serialization,
 without re-encoding the complete result merely to measure it. Client hashing
@@ -108,7 +109,8 @@ number spellings can still affect the raw transport limit; that limit protects
 request handling, while the canonical ceiling protects serialization memory.
 Canonicalization counts output bytes incrementally, including escaped strings,
 and stops before building an oversized result. These are transport/serialization
-bounds; the project admission policy and deployment storage bounds remain pending.
+bounds; the stricter project/request admission limits apply separately. Deployment
+storage bounds remain pending.
 
 Hashing requires Web Crypto, available on HTTPS and trusted localhost contexts.
 Plain HTTP over a LAN may lack it. `projectDigest()` returns the typed
@@ -117,9 +119,93 @@ or explain that a secure connection is needed.
 The capability check runs first: when crypto is unavailable, this error takes
 precedence over malformed or oversized project input. Hash success does not
 establish upload eligibility; client preflight must separately check the exact
-serialized request against the 1 MiB transport limit before sending it.
+serialized creation request against the 512 KiB limit before sending it.
 Do not introduce application-specific number rounding. The future iPad adapter
 uses JCS-compatible serialization, independent of its normal file encoder.
+
+## Version-1 creation and public envelope
+
+`src/sharing/sharingContract.ts` defines the local wire boundary. These contracts
+do not create a deployed API, quotas, App Check enforcement or a storage transaction.
+
+Creation JSON has exactly `shareFormatVersion: 1`, `uploadPolicyRevision`,
+`digestCanonicalization: "rfc8785"`, `project`, `projectDigest`, `operationKey`
+and `managementSecret`. `serializeShareCreationRequest()` checks the exact
+serialized UTF-8 body against **512 KiB** for client transport preflight.
+`admitShareCreation()` checks that budget before parsing, rejects decoded duplicate
+names/invalid Unicode, validates the full unchanged project against the server's
+policy, recomputes its digest, and refuses a claimed digest mismatch. Client
+serialization alone does not establish admission. All request fields are required;
+unknown fields are refused. The format version is independent of project schema.
+
+Both keys are distinct, canonical unpadded base64url strings encoding exactly
+32 random bytes. `generateShareCreationSecrets()` uses Web Crypto independently
+for each. The application must persist the confirmed pending operation before
+sending, retain it across uncertain results, and put later management credentials
+in an authorization header. No local recovery storage or management handler exists
+yet. The parser verifies encoding/length, not the entropy of client-supplied keys.
+
+The admitted transaction input contains the frozen project and only private key
+hashes, never plaintext key fields. Define each private hash as JCS/UTF-8/SHA-256:
+
+| Hash | Canonical input |
+| --- | --- |
+| `operationKeyHash` | `{ domain: "axe-sharing-operation-v1", secret: operationKey }` |
+| `managementSecretHash` | `{ domain: "axe-sharing-management-v1", secret: managementSecret }` |
+| `requestDigest` | `{ domain: "axe-sharing-creation-v1", shareFormatVersion: 1, uploadPolicyRevision, digestCanonicalization: "rfc8785", projectDigest, managementSecretHash }` |
+
+Look up the operation using `operationKeyHash`. Equal request digests mean the
+same confirmed request; a different digest under that key means **409 conflict**.
+This binds both project content and management authority, while JCS-equivalent
+property order/number spellings do not create conflicts. Different operation keys
+are separate operations. `compareShareCreationRetry()` performs only that comparison:
+the future atomic transaction must also check quotas, expiry and revocation,
+return the existing ID on a matching live retry, and never reactivate a revoked share.
+
+The public envelope has exactly `shareFormatVersion`, `id`, `createdAt`,
+`uploadPolicyRevision`, `digestCanonicalization`, `projectDigest`, `project`,
+`requirements` and `preview`. IDs are 20 ASCII alphanumeric characters. Times are
+canonical UTC ISO timestamps with milliseconds. `requirements.projectSchema`
+equals the project's actual schema; `requirements.supportManifest` is the
+same-origin path `/sharing/releases/<release-tag>.json` (including hotfix tags).
+Public routing/absolute share URLs still need trusted deployment-origin config.
+`buildSharedProjectEnvelope()` explicitly projects public fields and emits a
+generic preview, keeping transaction/control hashes out of the response.
+
+`readSharedProjectEnvelope()` checks the expected route ID, installed reader's
+schema ceiling, full project admission and recomputed digest before returning a
+frozen snapshot. It currently understands `project-upload-v2` only. Historical
+policy dispatch must be added before changing that revision in a deployed service.
+The current policy is reused to check stored project vocabulary/resource limits;
+receiving a support-manifest reference does not raise the installed reader's ceiling.
+
+Preview variants are `{ kind: "generic" }`, generated `pending`/`failed` with no
+URL, or generated `ready` with exactly `/media/shares/<same-id>/v1.jpg`.
+Readers already accept these planned Release-B variants; Release-A builders do
+not request jobs or publish media. Publication/licence fields require a later
+explicit contract extension and remain refused by this version's reader.
+
+`readSharingClientSupportManifest()` validates the expected tag, format version,
+web/viewer reader ceilings, and an explicit schema-3–8 map of minimum editable
+iPad marketing versions. `null` means native edit support is unconfirmed. This
+is public compatibility data, separate from the full private deployment manifest;
+it does not validate release evidence or prove that a manifest has been published.
+The fixture is synthetic test data, not a live release declaration.
+
+Errors contain a fixed code and no supplied field names, keys or metadata:
+
+| HTTP | Codes |
+| --- | --- |
+| 400 | `malformed-request`, `invalid-id` |
+| 422 | `unsupported-share-format`, `unsupported-policy`, `unsupported-schema`, `invalid-project`, `digest-mismatch` |
+| 413 / 409 | `too-large` / `conflict` |
+| 404 / 410 | `not-found` / `revoked` |
+| 429 / 503 | `quota-exceeded` / `unavailable` |
+
+The local boundary maps absent digest crypto to `unavailable`; unexpected internal
+errors propagate. Future HTTP adapters must emit these codes as `{ error: { code } }`,
+distinguish missing/revoked from quota/service errors, and enforce infrastructure
+body limits before decoding the raw request into a string.
 
 ## Fixture expectations
 
@@ -146,14 +232,19 @@ or weaken the existing preservation assertions. Add independent unknown-key and
 unknown-enum cases so each rule is tested on its own.
 
 Web unit checks now consume the digest vectors and project admission cases.
-Functions integration and request/envelope checks remain pending. Sync the vectors and admission cases into
+Request/envelope checks also consume `creation-v1.json`, its independently computed
+private hash vectors, `envelope-v1.json` and `support-manifest-v1.json`. Negative
+cases mutate individual fields and cover tampering, secret encoding, unknown fields,
+whole-body UTF-8 limits, schema gates and all preview variants. Functions integration
+remains pending. Sync the vectors and admission cases into
 the viewer's own `npm run check` inputs, and require iPad digest/adapter checks
 when that client is added. Record fixture revision/digests across repositories.
 
 ## Phase 1 completion
 
-Finalize the versioned envelope, upload-policy revision, support manifest, preview
-variants, error codes and idempotency request comparison. Add full accepted and
-rejected envelope fixtures and run the independent client checks. Preserve the
+The local versioned envelope, public support-manifest structure, preview variants,
+error codes and idempotency request comparison now have fixtures/tests. Complete
+the deployment manifest/status contract, independent viewer/iPad checks and isolated
+Functions/emulator foundation before marking Phase 1 complete. Preserve the
 project-digest algorithm defined here; change it only through an explicit versioned
 contract migration that keeps older snapshots/verifiers usable.

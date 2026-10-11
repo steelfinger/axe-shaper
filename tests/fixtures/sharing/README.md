@@ -18,4 +18,15 @@ the schema-7 positive baseline. The original web v8 file, its native return
 Run `npx vitest run src/sharing`. Tests check validation without mutation,
 digest/export equality, every bundled full save payload, unknown fields at each
 recursive object, enum/schema failures, embedded hardware, complexity and bytes.
-There are no API/envelope fixtures or deployed endpoint claims yet.
+
+`creation-v1.json` and `envelope-v1.json` wrap the unchanged native schema-7
+baseline. The deterministic keys are public test bytes (32 bytes of `01` and
+`02`), never real credentials. `creation-v1-hashes.json` pins the private hashes
+and retry digest, calculated independently using Node SHA-256 and direct JCS
+serialization. `support-manifest-v1.json` is synthetic compatibility data, not
+verified live iPad evidence or a deployed release manifest. Its schema-8 native
+minimum is explicitly unknown. Original SVG fixtures remain unchanged.
+
+Tests mutate these fixtures to check rejected requests/envelopes, exact transport
+limits, schema gates, previews, integrity and public/private separation. No endpoint
+or independent viewer/iPad verification is claimed.

@@ -1,0 +1,14 @@
+{
+  "shareFormatVersion": 1,
+  "releaseTag": "v1.2.0",
+  "webReadSchema": 8,
+  "viewerReadSchema": 8,
+  "minimumEditableIpadVersionBySchema": {
+    "3": "1.2.0",
+    "4": "1.2.0",
+    "5": "1.2.0",
+    "6": "1.2.0",
+    "7": "1.2.0",
+    "8": null
+  }
+}
