@@ -80,9 +80,10 @@ function checkUnicode(value: string): void {
  * compares decoded names, so "x" and "\u0078" are also duplicates.
  * Limits bound work before any admission, quota or persistence operations.
  */
-export function parseSharingJson(source: string): JsonValue {
-  if (source.length > SHARING_JSON_LIMITS.maxBytes) fail('resource-limit');
-  boundedUtf8Length(source, SHARING_JSON_LIMITS.maxBytes);
+export function parseSharingJson(source: string, maxBytes: number = SHARING_JSON_LIMITS.maxBytes): JsonValue {
+  if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > SHARING_JSON_LIMITS.maxBytes) fail('resource-limit');
+  if (source.length > maxBytes) fail('resource-limit');
+  boundedUtf8Length(source, maxBytes);
   let offset = 0;
   let nodes = 0;
   const whitespace = () => {

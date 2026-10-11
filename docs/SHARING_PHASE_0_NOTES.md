@@ -225,3 +225,35 @@ Validation: all 359 web unit tests (51 sharing tests plus two mirror-deletion
 tests), 32 browser smoke tests, build, lint, schema, fixture, corpus and bass
 checks passed. Lint retains the existing App hook warning. No cloud deployment
 or independent viewer/iPad checks were performed.
+
+## Version-1 wire contracts — 2026-10-11
+
+`sharingContract.ts` adds the local creation request, public snapshot envelope,
+public tagged client-support manifest, preview variants and stable HTTP error
+mapping. Creation enforces 512 KiB of raw UTF-8 before parsing, reuses project
+admission and verifies the claimed digest. Separate canonical 256-bit operation
+and management keys become domain-separated private hashes. The retry digest
+binds project identity and management authority; the transaction adapter still
+must enforce expiry, quotas and revocation atomically.
+
+Public envelopes use an explicit projection, expected route ID, required schema,
+tagged same-origin manifest reference and verified project digest. Reader schema
+ceilings come from installed capabilities. Generic previews are the builder's
+Release-A output; readers also check the planned generated preview states and
+same-share media path. Public manifests structurally validate the explicit
+schema-to-minimum-iPad-version map, retaining null for unconfirmed support.
+They do not prove live release evidence. Contract field sets have compile-time
+coverage guards.
+
+Fixed complete request/envelope/support fixtures and independent private hash
+vectors complement negative mutation cases. Their public deterministic secrets
+and compatibility entries are synthetic test data. No existing SVG fixture was
+changed. This milestone changes only the web repository; independent viewer/iPad
+readers and fixture syncing remain the next contract work.
+
+Validation: all 401 web unit tests (93 sharing tests), build, lint, schema,
+fixture, corpus and bass checks passed. Lint retains the existing App hook warning.
+The final field-set guard change was additionally type-checked and the sharing
+tests rerun. No browser flow changed, cloud service was deployed, or independent
+viewer/iPad verification performed. Status/deployment manifests, consent/pending
+operation storage, Functions/emulators and the actual sharing API remain pending.
