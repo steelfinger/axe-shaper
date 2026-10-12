@@ -343,3 +343,38 @@ schema, fixture, corpus and bass checks passed. Viewer `npm run check` passed:
 type check and build. Final numeric descriptor guards were additionally verified
 with sharing tests/type checking/lint. Both existing lint warnings remain. No
 deployment, hosted UI or native sharing adapter was added.
+
+## Local snapshot service core — 2026-10-12
+
+`src/sharing/snapshotService.ts` implements the Release A service rules behind a
+serializable transactional storage interface. Creation validates the raw request
+before storage, atomically writes snapshot/control/operation/quota records, and
+returns the original result for matching concurrent retries. Retained expired or
+conflicting operations are refused. UTC fixed-window global/client counters are
+configurable, and retries count once even when quotas are exhausted. Opaque IDs
+use unbiased random sampling; different operations never deduplicate by digest.
+
+Public reads project only the original envelope. Creator status/removal require
+the separate management capability; wrong keys do not disclose existence/state.
+Revocation immediately removes the project payload, retains a bounded tombstone,
+and stays final through retry races. Independent creation/read controls fail
+closed when missing; management remains available during pauses. Existing shares
+retain their original schema and release manifest after admission rollback.
+Unexpected adapter failures return the fixed `unavailable` error.
+
+The [service adapter contract](SHARING_SNAPSHOT_SERVICE.md) records transaction,
+privacy, retry-window, control and retention requirements. The in-memory adapter
+is test-only. After operation TTL deletion, retry recognition is no longer possible;
+the future client must persist its deadline and stop automatic retries. No HTTP
+handlers, physical storage, App Check enforcement, cloud provisioning, emulator
+integration, maintenance, hosted fetch or sharing UI are added. Phase 0/0a staging,
+billing, database and live iPad prerequisites remain unresolved.
+
+Validation: all 440 web unit tests (132 sharing tests, including 20 new service
+tests), build/type checking, lint, policy export, schema, fixture, corpus and bass
+checks passed. Tests cover concurrent retries/quotas, conflicts, rollback,
+transaction callback reruns, expiry boundaries, authorization, revocation races,
+pauses, configuration detachment, ID collisions, release rollback and random ID
+sampling. Existing App hook and bundle-size warnings remain. Viewer/iOS code and
+public wire fixtures are unchanged; their suites were not rerun for this local
+service-only milestone.

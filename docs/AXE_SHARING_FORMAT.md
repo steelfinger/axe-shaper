@@ -141,7 +141,10 @@ uses JCS-compatible serialization, independent of its normal file encoder.
 ## Version-1 creation and public envelope
 
 `src/sharing/sharingContract.ts` defines the local wire boundary. These contracts
-do not create a deployed API, quotas, App Check enforcement or a storage transaction.
+do not create a deployed API or App Check enforcement. The
+[local snapshot service](SHARING_SNAPSHOT_SERVICE.md) now implements creation,
+quota, retry, public-read and management rules behind a transactional storage
+interface; the production adapter remains pending.
 
 Creation JSON has exactly `shareFormatVersion: 1`, `uploadPolicyRevision`,
 `digestCanonicalization: "rfc8785"`, `project`, `projectDigest`, `operationKey`
@@ -157,8 +160,7 @@ Both keys are distinct, canonical unpadded base64url strings encoding exactly
 32 random bytes. `generateShareCreationSecrets()` uses Web Crypto independently
 for each. The application must persist the confirmed pending operation before
 sending, retain it across uncertain results, and put later management credentials
-in an authorization header. No local recovery storage or management handler exists
-yet. The parser verifies encoding/length, not the entropy of client-supplied keys.
+in an authorization header. Local recovery storage and HTTP management handlers remain pending. The parser verifies encoding/length, not the entropy of client-supplied keys.
 
 The admitted transaction input contains the frozen project and only private key
 hashes, never plaintext key fields. Define each private hash as JCS/UTF-8/SHA-256:
@@ -174,8 +176,9 @@ same confirmed request; a different digest under that key means **409 conflict**
 This binds both project content and management authority, while JCS-equivalent
 property order/number spellings do not create conflicts. Different operation keys
 are separate operations. `compareShareCreationRetry()` performs only that comparison:
-the future atomic transaction must also check quotas, expiry and revocation,
-return the existing ID on a matching live retry, and never reactivate a revoked share.
+the local snapshot service checks quotas, expiry and revocation atomically,
+returns the existing ID on a matching live retry, and never reactivates a revoked
+share. Its storage adapter must uphold the documented transaction guarantees.
 
 The public envelope has exactly `shareFormatVersion`, `id`, `createdAt`,
 `uploadPolicyRevision`, `digestCanonicalization`, `projectDigest`, `project`,

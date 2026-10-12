@@ -121,6 +121,12 @@ async function secretHash(domain: string, secret: string): Promise<ProjectDigest
   return digest(canonicalizeJson({ domain, secret }));
 }
 
+/** Header-supplied creator capability, using the same domain as creation. */
+export async function hashShareManagementSecret(secret: string): Promise<ProjectDigest> {
+  if (typeof secret !== 'string' || !SECRET.test(secret)) fail('malformed-request');
+  return secretHash('axe-sharing-management-v1', secret);
+}
+
 /** Generate both keys before persisting a pending operation or sending a request. */
 export function generateShareCreationSecrets(): Pick<ShareCreationRequest, 'operationKey' | 'managementSecret'> {
   const crypto = globalThis.crypto;
@@ -209,7 +215,7 @@ export async function admitShareCreation(source: string, policy: ProjectAdmissio
   const projectDigest = await digest(admitted.canonicalJson);
   if (projectDigest !== request.projectDigest) fail('digest-mismatch');
   const operationKeyHash = await secretHash('axe-sharing-operation-v1', request.operationKey);
-  const managementSecretHash = await secretHash('axe-sharing-management-v1', request.managementSecret);
+  const managementSecretHash = await hashShareManagementSecret(request.managementSecret);
   // Compare under the operation-key hash; bind content AND management authority.
   const requestDigest = await digest(canonicalizeJson({
     domain: 'axe-sharing-creation-v1', shareFormatVersion: SHARE_FORMAT_VERSION,
