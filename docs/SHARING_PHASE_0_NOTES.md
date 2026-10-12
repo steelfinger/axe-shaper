@@ -578,3 +578,23 @@ never served `/share/:id` through the sharing flow.
 Still deferred: the minimum-iPad-version line on the page (needs the support
 manifest), the creator management page, and per-design preview images
 (Release B).
+
+## Link management page on staging — 2026-10-12
+
+`/manage/share/:id` (SPA, behind `SHARING_ENABLED`) shows the creator whether a
+link is active and offers **Remove link** behind an inline confirmation that
+explains what removal does and does not do (copies already downloaded or opened
+stay; caches can show the page for up to five minutes; no undo). The key comes
+from this browser's `localStorage` (`axe-shaper.sharing.keys.v1`, written when
+the link is created) or is pasted - the bare key or the whole recovery file. It
+travels only in the `Authorization` header, never a URL. A wrong key and an
+unknown link get the same answer. The success view gains **Manage this link**;
+the recovery file now includes the manage URL.
+
+Verified against staging: create → stored key → manage page shows active →
+confirm → removed (landing page and API both 410), a malformed pasted key is
+refused locally, a wrong well-formed key and a stale saved key get the mismatch
+message, and no request URL carried a key.
+
+Deferred to Release B as planned: the multi-link management library and
+recovery-file import.

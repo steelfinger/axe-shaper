@@ -4,7 +4,8 @@ import schema8 from '../../../tests/fixtures/sharing/schema8-known-jacks.json';
 import type { StoredProject } from '../../types/guitar';
 import { UPLOAD_POLICY_REVISION } from '../projectAdmission';
 import {
-  beginShare, fetchSharingStatus, loadSharedProject, preflightShare, sendShare, shareIdFromPath, shareUrl,
+  beginShare, fetchSharingStatus, forgetShareKey, loadSharedProject, manageShare, managementKeyFromInput,
+  preflightShare, recoveryKeyText, rememberShareKey, sendShare, shareIdFromPath, shareUrl, storedShareKey,
 } from '../shareLinkClient';
 import type { SharingStatus } from '../shareLinkClient';
 import { createSharingHttpHandler } from '../sharingHttp';
@@ -101,5 +102,51 @@ describe('share link client', () => {
     expect(shareIdFromPath('/app/share/../etc')).toBeNull();
     expect(shareIdFromPath(`/app/share/${id}/extra`)).toBeNull();
     expect(shareUrl('https://axe-shaper-staging.web.app', id)).toBe(`https://axe-shaper-staging.web.app/share/${id}`);
+  });
+
+  it('lets the creator check and remove a link with the key, and refuses any other key alike', async () => {
+    const { fetchImpl } = server();
+    const preflight = await preflightShare(project, await fetchSharingStatus(fetchImpl));
+    if (!preflight.ok) throw new Error(preflight.reason);
+    const pending = beginShare(preflight, Date.now());
+    const created = await sendShare(pending, fetchImpl, Date.now, noWait);
+    if (!created.ok) throw new Error(created.code);
+    expect(await manageShare(created.id, pending.managementSecret, 'status', fetchImpl))
+      .toEqual({ ok: true, state: 'active', revokedAt: null });
+    const wrong = await manageShare(created.id, 'A'.repeat(43), 'status', fetchImpl);
+    const unknown = await manageShare('Z'.repeat(20), pending.managementSecret, 'status', fetchImpl);
+    expect(wrong).toEqual(unknown);
+    expect(wrong.ok).toBe(false);
+    const removed = await manageShare(created.id, pending.managementSecret, 'revoke', fetchImpl);
+    expect(removed.ok && removed.state).toBe('revoked');
+    // Removing again is harmless and keeps the original removal time.
+    expect(await manageShare(created.id, pending.managementSecret, 'revoke', fetchImpl)).toEqual(removed);
+  });
+
+  it('reads a key from the bare key or the whole recovery file', () => {
+    const key = 'k'.repeat(43);
+    expect(managementKeyFromInput(`  ${key}\n`)).toBe(key);
+    const file = recoveryKeyText('https://axe-shaper-staging.web.app/share/mNYiSR2ND7TWcLMTkYk4', 'mNYiSR2ND7TWcLMTkYk4', key, 'Strat');
+    expect(file).toContain('Manage it at: https://axe-shaper-staging.web.app/manage/share/mNYiSR2ND7TWcLMTkYk4');
+    expect(managementKeyFromInput(file)).toBe(key);
+    expect(managementKeyFromInput('not a key')).toBeNull();
+    expect(managementKeyFromInput(`${key}x`)).toBeNull();
+  });
+
+  it('remembers keys per link, and survives storage that is missing, corrupt or full', () => {
+    const map = new Map<string, string>();
+    const storage = { getItem: (name: string) => map.get(name) ?? null, setItem: (name: string, value: string) => { map.set(name, value); } };
+    const key = { managementSecret: 'k'.repeat(43), title: 'Strat', createdAt: '2026-10-12T15:15:25.125Z' };
+    rememberShareKey(storage, 'A'.repeat(20), key);
+    rememberShareKey(storage, 'B'.repeat(20), { ...key, title: 'Bass' });
+    expect(storedShareKey(storage, 'A'.repeat(20))).toEqual(key);
+    forgetShareKey(storage, 'A'.repeat(20));
+    expect(storedShareKey(storage, 'A'.repeat(20))).toBeNull();
+    expect(storedShareKey(storage, 'B'.repeat(20))?.title).toBe('Bass');
+    map.set('axe-shaper.sharing.keys.v1', '{not json');
+    expect(storedShareKey(storage, 'B'.repeat(20))).toBeNull();
+    const full = { getItem: () => null, setItem: () => { throw new DOMException('full', 'QuotaExceededError'); } };
+    expect(() => rememberShareKey(full, 'A'.repeat(20), key)).not.toThrow();
+    expect(storedShareKey(null, 'A'.repeat(20))).toBeNull();
   });
 });

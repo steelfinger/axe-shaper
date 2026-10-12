@@ -68,6 +68,7 @@ import { OUTPUT_JACKS_ENABLED, SHARING_ENABLED } from './constants/features';
 import { SaveInfoModal } from './components/SaveInfoModal';
 import { ShareLinkModal } from './components/ShareLinkModal';
 import { DownloadSharePage } from './components/DownloadSharePage';
+import { ManageSharePage } from './components/ManageSharePage';
 import { loadSharedProject, shareIdFromPath } from './sharing/shareLinkClient';
 import { WelcomeModal } from './components/WelcomeModal';
 import { AboutModal } from './components/AboutModal';
@@ -1179,6 +1180,8 @@ export function App(): React.JSX.Element {
   if (path === '/app' || (SHARING_ENABLED && shareIdFromPath(path))) return <EditorRoute />;
   const downloadId = SHARING_ENABLED ? shareIdFromPath(path, 'download') : null;
   if (downloadId) return <DownloadSharePage id={downloadId} />;
+  const manageId = SHARING_ENABLED ? shareIdFromPath(path, 'manage') : null;
+  if (manageId) return <ManageSharePage id={manageId} />;
   return <MarketingSite path={path} />;
 }
 

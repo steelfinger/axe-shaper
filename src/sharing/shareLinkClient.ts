@@ -125,11 +125,12 @@ export function shareUrl(origin: string, id: string): string {
 }
 
 /**
- * Share ID from a browser route: `/app/share/:id` (editable copy) or
- * `/download/share/:id` (project download), or null. `/share/:id` itself is the
+ * Share ID from a browser route: `/app/share/:id` (editable copy),
+ * `/download/share/:id` (project download) or `/manage/share/:id` (creator
+ * management), or null. `/share/:id` itself is the
  * server-rendered landing page, never an SPA route.
  */
-export function shareIdFromPath(pathname: string, route: 'app' | 'download' = 'app'): string | null {
+export function shareIdFromPath(pathname: string, route: 'app' | 'download' | 'manage' = 'app'): string | null {
   const match = new RegExp(`^/${route}/share/([^/]+)/?$`).exec(pathname);
   return match && isShareId(match[1]) ? match[1] : null;
 }
@@ -143,11 +144,81 @@ export function recoveryKeyText(url: string, id: string, managementSecret: strin
     `Link: ${url}`,
     `Share ID: ${id}`,
     `Management key: ${managementSecret}`,
+    `Manage it at: ${new URL(url).origin}/manage/share/${id}`,
     '',
     'Keep this file private. Anyone with the management key can remove this link.',
     'The link itself is safe to share; it does not contain this key.',
     '',
   ].join('\n');
+}
+
+const MANAGEMENT_KEY = /^[A-Za-z0-9_-]{43}$/;
+
+/**
+ * A management key from what the creator pastes: the bare key, or the whole
+ * recovery file. Null when there is no well-formed key in it.
+ */
+export function managementKeyFromInput(input: string): string | null {
+  const trimmed = input.trim();
+  if (MANAGEMENT_KEY.test(trimmed)) return trimmed;
+  const line = /^Management key:\s*([A-Za-z0-9_-]{43})\s*$/m.exec(input);
+  return line ? line[1] : null;
+}
+
+/** Keys for links created on this device. A convenience only - the recovery file is the durable copy. */
+export interface StoredShareKey { managementSecret: string; title: string; createdAt: string }
+type KeyStorage = Pick<Storage, 'getItem' | 'setItem'>;
+const KEY_STORE = 'axe-shaper.sharing.keys.v1';
+
+function readKeys(storage: KeyStorage | null): Record<string, StoredShareKey> {
+  try {
+    const parsed = JSON.parse(storage?.getItem(KEY_STORE) ?? '{}') as unknown;
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as Record<string, StoredShareKey> : {};
+  } catch {
+    return {};
+  }
+}
+export function rememberShareKey(storage: KeyStorage | null, id: string, key: StoredShareKey): void {
+  try { storage?.setItem(KEY_STORE, JSON.stringify({ ...readKeys(storage), [id]: key })); } catch { /* private mode or full: the recovery file still works */ }
+}
+export function storedShareKey(storage: KeyStorage | null, id: string): StoredShareKey | null {
+  const entry = readKeys(storage)[id];
+  return entry && typeof entry.managementSecret === 'string' && MANAGEMENT_KEY.test(entry.managementSecret) ? entry : null;
+}
+export function forgetShareKey(storage: KeyStorage | null, id: string): void {
+  const keys = readKeys(storage);
+  delete keys[id];
+  try { storage?.setItem(KEY_STORE, JSON.stringify(keys)); } catch { /* nothing to undo */ }
+}
+
+export type ManagedShare = { ok: true; state: 'active' | 'revoked'; revokedAt: string | null } | { ok: false; message: string };
+
+/**
+ * Creator status (`GET`) or removal (`DELETE`). The key travels only in the
+ * Authorization header - never a URL. A wrong key and an unknown share answer
+ * the same, so neither reveals whether the other exists.
+ */
+export async function manageShare(id: string, managementSecret: string, action: 'status' | 'revoke',
+  fetchImpl: FetchLike): Promise<ManagedShare> {
+  try {
+    const response = await fetchImpl(action === 'status' ? `/api/shares/${id}/manage` : `/api/shares/${id}`, {
+      method: action === 'status' ? 'GET' : 'DELETE', cache: 'no-store',
+      headers: { Authorization: `Bearer ${managementSecret}` },
+    });
+    const payload = await response.json().catch(() => null) as
+      { state?: unknown; revokedAt?: unknown; error?: { code?: unknown } } | null;
+    if (response.ok && (payload?.state === 'active' || payload?.state === 'revoked')) {
+      return { ok: true, state: payload.state, revokedAt: typeof payload.revokedAt === 'string' ? payload.revokedAt : null };
+    }
+    const code = payload?.error?.code;
+    if (code === 'not-found' || code === 'unauthorized') {
+      return { ok: false, message: 'That key does not match this link. Check that you pasted the key for this design.' };
+    }
+    if (code === 'quota-exceeded') return { ok: false, message: 'Too many attempts. Wait a minute and try again.' };
+    return { ok: false, message: 'The sharing service did not respond. Try again in a moment.' };
+  } catch {
+    return { ok: false, message: 'The sharing service could not be reached. Check your connection and try again.' };
+  }
 }
 
 /** Fetch a share and run it through the same gate as every other open. */

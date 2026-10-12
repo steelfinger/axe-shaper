@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Check, Copy, Download, ExternalLink, FileUp, Link2, X } from 'lucide-react';
 import type { GuitarProject } from '../types/guitar';
 import {
-  beginShare, fetchSharingStatus, preflightShare, recoveryKeyText, sendShare, shareUrl,
+  beginShare, fetchSharingStatus, preflightShare, recoveryKeyText, rememberShareKey, sendShare, shareUrl,
 } from '../sharing/shareLinkClient';
 import type { PendingShare, ShareBlockReason, SharePreflight, ShareSendResult } from '../sharing/shareLinkClient';
 
@@ -90,6 +90,13 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
   const send = async (pending: PendingShare) => {
     setState({ kind: 'creating', pending });
     const result = await sendShare(pending, (input, init) => fetch(input, init));
+    if (result.ok && project) {
+      // So Manage this link works on this device without the recovery file.
+      let storage: Storage | null = null;
+      try { storage = window.localStorage; } catch { /* blocked storage: the recovery file still works */ }
+      rememberShareKey(storage, result.id, { managementSecret: pending.managementSecret, title: project.settings.name,
+        createdAt: result.createdAt });
+    }
     setState(result.ok
       ? { kind: 'created', id: result.id, url: shareUrl(window.location.origin, result.id), managementSecret: pending.managementSecret }
       : { kind: 'failed', pending, result });
@@ -204,8 +211,8 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
                 </button>
               </div>
               <p className="share-link-muted">
-                Save the recovery key to remove this link later. It is the only way to manage the link, and it is not
-                stored anywhere else - keep it private.
+                This browser remembers the key to manage or remove the link. Save the recovery key too - it is the
+                only way to manage the link from another device or after clearing this browser. Keep it private.
               </p>
             </>
           )}
@@ -239,6 +246,9 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
               </button>
               <a className="btn btn-sm" href={`/share/${state.id}`} target="_blank" rel="noopener noreferrer">
                 <ExternalLink size={15} /> Open shared design
+              </a>
+              <a className="btn btn-sm" href={`/manage/share/${state.id}`} target="_blank" rel="noopener noreferrer">
+                Manage this link
               </a>
               <button type="button" className="btn btn-sm" onClick={onClose}>Done</button>
             </>

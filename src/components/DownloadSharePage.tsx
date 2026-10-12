@@ -26,6 +26,8 @@ function download(project: GuitarProject): boolean {
 export const DownloadSharePage: React.FC<{ id: string }> = ({ id }) => {
   const [state, setState] = useState<DownloadState>({ kind: 'loading' });
 
+  useEffect(() => { document.title = 'Download shared design — Axe Shaper'; }, []);
+
   useEffect(() => {
     let cancelled = false;
     void (async () => {
