@@ -16,8 +16,13 @@ production storage implementation yet.
 
 The handler accepts no query parameters and validates public ID syntax before
 service lookup. It returns 404 for unknown routes and 405 with `Allow` for unsupported
-methods. Noncreation routes accept no request body. It does not fall through to an
-editor, fragment or default project, and generates no absolute URLs from Host.
+methods. Noncreation routes accept no request body. The hosting bridge must pass
+`body: null` for absent or zero-byte raw input, including an empty Express/Functions
+`rawBody` buffer. An empty string/buffer passed as a Fetch body still creates a
+stream and is refused. Normalize only confirmed zero-byte input; never discard a
+nonempty payload to bypass this check, and reconcile declared transport length
+before normalization. The handler does not fall through to an editor, fragment
+or default project, and generates no absolute URLs from Host.
 Every response, including errors and status, is JSON with `Cache-Control: no-store`,
 `X-Content-Type-Options: nosniff` and `Referrer-Policy: no-referrer`.
 
@@ -26,9 +31,11 @@ Every response, including errors and status, is JSON with `Cache-Control: no-sto
 The server hosting bridge supplies `SharingHttpContext.clientKey`, an
 environment-owned keyed digest derived from verified ingress/proxy metadata.
 The handler never derives that key from a body or arbitrary forwarded/client
-headers. `allowRequest` is a required ingress-throttling hook for all supported
-routes, separate from accepted-creation quotas; false returns 429 and a thrown
-failure returns 503. The bridge must provide an actual limiter, not an always-true
+headers. `allowRequest` is required for requests that pass route, method, ID,
+query/body-presence and trusted-context checks, separate from accepted-creation
+quotas. Invalid requests rejected by those cheap checks never reach this hook or
+storage; provider/bridge ingress controls must also bound that traffic. For
+requests reaching the hook, false returns 429 and a thrown failure returns 503. The bridge must provide an actual limiter, not an always-true
 production stub. Missing trusted context fails closed.
 
 Creation additionally requires a bounded `X-Firebase-AppCheck` token and the
@@ -41,7 +48,9 @@ and creator management need no App Check, but still pass through the limiter.
 Creation accepts `application/json` with optional UTF-8 charset and only absent
 or identity content encoding. A malformed declared length is refused; a declared
 length over 512 KiB is rejected before consuming the stream. The reader counts
-actual bytes and cancels oversize input before storage. It uses one bounded buffer
+actual bytes and cancels oversize input before storage. It allocates the declared
+size when known (otherwise 512 KiB), refuses bytes exceeding that declaration
+before copying, and uses one bounded buffer
 rather than retaining an unbounded number of small chunk objects, handles split
 UTF-8 characters, refuses malformed UTF-8/BOM input, and cancels a pending read
 when the Request signal aborts. Early rejections cancel unused bodies without
@@ -74,5 +83,12 @@ The production bridge still needs the selected Functions runtime and database
 adapter, explicit region, trusted-origin/CORS policy (no permissive CORS is emitted
 here), canonical-origin configuration for landing pages, bounded negative caching
 for missing public IDs, environment identities and deployment/emulator wiring.
+This handler returns 405 for OPTIONS and HEAD. Same-origin browser requests do
+not require CORS preflight; cross-origin creation with JSON/App Check headers does.
+If cross-origin access is enabled, the bridge must answer OPTIONS before calling
+the handler, validate allowed origins/methods/headers, and emit the corresponding
+CORS response headers. Simply forwarding preflight to this handler returns 405
+and prevents browser creation. No permissive CORS policy is supplied here.
+
 This adapter does not implement HTML landing pages, pending-operation storage,
 client consent, hosted fetch, iPad integration or Phase 0 provisioning.

@@ -445,3 +445,29 @@ rerun independently. Existing lint and bundle-size warnings remain. No Firebase
 SDK, production verifier/limiter/storage implementation, deployment, hosted client
 UI or native adapter was added. The detailed remaining hosting requirements are
 in [the HTTP adapter notes](SHARING_HTTP_ADAPTER.md).
+
+## Hosting bridge contract review — 2026-10-12
+
+The HTTP adapter contract now explicitly requires the hosting bridge to represent
+absent/confirmed zero-byte input with `body: null`, including empty Functions/
+Express raw buffers. Passing an empty string/buffer creates a Fetch body stream
+and remains a malformed noncreation request. The bridge must preserve nonempty
+input and reconcile declared lengths before normalization. Regression tests cover
+both empty representations and successful normalized revocation.
+
+Creation allocates only the declared byte length when provided, with the same
+512 KiB ceiling for unknown lengths. Bytes exceeding the declaration are refused
+before copying, preserving typed length errors and cancellation. The integration
+test exercises a correctly declared creation followed by an undeclared replay.
+Docs clarify that cheap route/method/ID/query/body/context failures skip the
+service limiter, and provider ingress controls must still bound those requests.
+OPTIONS/HEAD return 405; cross-origin browser access requires the bridge to answer
+validated CORS preflights before dispatch. Same-origin access needs no preflight.
+The sharing-format status now reflects implemented local handlers and independent
+viewer validation while retaining deployment/client/native pending work.
+
+Validation: all 485 web tests (177 sharing tests), type checking, lint and build
+passed. Existing App hook and bundle-size warnings remain. Public wire vectors,
+viewer/iOS code, project admission and saved-file behavior are unchanged; their
+suites and the four saved-format checks were not rerun for this bridge-contract
+and transport-allocation change. No bridge or cloud deployment was performed.
