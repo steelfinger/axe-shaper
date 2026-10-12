@@ -95,6 +95,8 @@ function sharingRuntime() {
       try { result = await getAppCheck().verifyToken(token, { consume: true }); } catch (error) {
         const code = (error as { code?: string }).code;
         if (code === 'app-check/invalid-argument' || code === 'app-check/app-check-token-expired') return false;
+        // The adapter turns this into a fixed 503; the cause belongs in private logs.
+        logger.error('App Check verification failed', { code, detail: (error as Error).message });
         throw error;
       }
       return !result.alreadyConsumed;

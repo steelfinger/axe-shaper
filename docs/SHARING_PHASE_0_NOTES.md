@@ -619,3 +619,13 @@ because secret scanning flags the API key pattern.
 Function: `verifyToken(token, { consume: true })`; an invalid, expired or
 already-consumed token is 401, a verification-service failure is 503. The
 `staging-bypass` mode and the client placeholder token are gone.
+
+Single-use verification (`consume: true`) needs the Function's runtime service
+account, `334289943565-compute@developer.gserviceaccount.com`, to hold **Firebase
+App Check Token Verifier** (`firebaseappcheck.appCheckTokens.verify`); without it
+every real token fails with `app-check/permission-denied` and creation answers
+503. Granted on staging; production needs the same grant on its own runtime
+account. Verified on staging after the grant: no token 401, forged token 401,
+real token 201, the same token reused for a new request 401, and Create link in
+the deployed staging editor (reCAPTCHA loaded only on that click, no console
+errors). Test shares made during verification were revoked.
