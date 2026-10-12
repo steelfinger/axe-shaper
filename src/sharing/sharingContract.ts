@@ -7,14 +7,25 @@ import { parseSharingReleaseTag } from './releasePolicy';
 
 export const SHARE_FORMAT_VERSION = 1;
 export const MAX_CREATION_REQUEST_BYTES = 512 * 1024;
+/** Fixed v1 protection window, known before sending even if every response is lost. */
+export const SHARE_OPERATION_TTL_MS = 24 * 60 * 60 * 1000;
+export const SHARE_RETRY_SAFETY_MARGIN_MS = 60 * 1000;
+/** Persist with the pending operation BEFORE its first send; never extend on retry. */
+export function shareCreationRetryDeadline(startedAt: number): number {
+  const deadline = startedAt + SHARE_OPERATION_TTL_MS - SHARE_RETRY_SAFETY_MARGIN_MS;
+  if (!Number.isSafeInteger(startedAt) || startedAt < 0 || !Number.isSafeInteger(deadline)) {
+    throw new SharingContractError('malformed-request');
+  }
+  return deadline;
+}
 export type ProjectDigest = `sha256:${string}`;
 export type SharingErrorCode = 'malformed-request' | 'invalid-id' | 'unsupported-share-format' |
   'unsupported-policy' | 'unsupported-schema' | 'invalid-project' | 'digest-mismatch' |
-  'too-large' | 'conflict' | 'not-found' | 'revoked' | 'quota-exceeded' | 'unavailable';
+  'too-large' | 'conflict' | 'operation-expired' | 'not-found' | 'revoked' | 'quota-exceeded' | 'unavailable';
 export const SHARING_ERROR_STATUS = {
   'malformed-request': 400, 'invalid-id': 400, 'unsupported-share-format': 422,
   'unsupported-policy': 422, 'unsupported-schema': 422, 'invalid-project': 422,
-  'digest-mismatch': 422, 'too-large': 413, conflict: 409, 'not-found': 404,
+  'digest-mismatch': 422, 'too-large': 413, conflict: 409, 'operation-expired': 409, 'not-found': 404,
   revoked: 410, 'quota-exceeded': 429, unavailable: 503,
 } as const satisfies Record<SharingErrorCode, number>;
 

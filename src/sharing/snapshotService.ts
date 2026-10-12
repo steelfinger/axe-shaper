@@ -1,8 +1,9 @@
 import { PROJECT_SCHEMA_VERSION } from '../constants/schema';
+import { PROJECT_REVISION_READERS, UPLOAD_POLICY_REVISION } from './projectAdmission';
 import type { ProjectAdmissionPolicy } from './projectAdmission';
 import {
   admitShareCreation, buildSharedProjectEnvelope, hashShareManagementSecret, isShareId,
-  SharingContractError, supportManifestPath,
+  SharingContractError, supportManifestPath, SHARE_OPERATION_TTL_MS,
 } from './sharingContract';
 import type { ProjectDigest, SharedProjectEnvelope } from './sharingContract';
 
@@ -47,7 +48,6 @@ export interface SnapshotServiceConfig {
   releaseTag: string;
   admission: ProjectAdmissionPolicy;
   quotas: { globalPerDay: number; clientPerHour: number; clientPerDay: number };
-  operationTtlMs: number;
 }
 export interface ShareCreationResult { id: string; createdAt: string; replayed: boolean }
 export interface ShareManagementStatus { id: string; state: 'active' | 'revoked'; revokedAt: string | null }
@@ -92,9 +92,10 @@ export function allocateShareId(): string {
  */
 export function createSnapshotService(config: SnapshotServiceConfig, dependencies: SnapshotServiceDependencies) {
   supportManifestPath(config.releaseTag);
-  if (!Number.isSafeInteger(config.admission.maxAcceptedProjectSchema) ||
+  if (config.admission.revision !== UPLOAD_POLICY_REVISION ||
+    !Object.hasOwn(PROJECT_REVISION_READERS, config.admission.revision) ||
+    !Number.isSafeInteger(config.admission.maxAcceptedProjectSchema) ||
     config.admission.maxAcceptedProjectSchema < 3 || config.admission.maxAcceptedProjectSchema > PROJECT_SCHEMA_VERSION ||
-    !Number.isSafeInteger(config.operationTtlMs) || config.operationTtlMs <= 0 ||
     Object.values(config.quotas).some(limit => !Number.isSafeInteger(limit) || limit < 1)) {
     fail('unavailable');
   }
@@ -103,7 +104,7 @@ export function createSnapshotService(config: SnapshotServiceConfig, dependencie
   const policy = Object.freeze({ ...config.admission });
   const quotas = Object.freeze({ ...config.quotas });
   const releaseTag = config.releaseTag;
-  const ttl = config.operationTtlMs;
+  const ttl = SHARE_OPERATION_TTL_MS;
   const { store } = dependencies;
   const transact = async <T>(action: (tx: SnapshotTransaction) => Promise<T>): Promise<T> => {
     try { return await store.transaction(action); } catch (error) {
@@ -136,8 +137,9 @@ export function createSnapshotService(config: SnapshotServiceConfig, dependencie
       if (!HASH.test(trustedClientKey)) fail('malformed-request');
       // Bound and validate untrusted content before any storage/quota work.
       const creation = await admitShareCreation(source, policy);
-      const id = allocateId();
-      requireId(id);
+      let id: string;
+      try { id = allocateId(); } catch { return fail('unavailable'); }
+      if (!isShareId(id)) fail('unavailable');
       const createdAt = new Date(time()).toISOString();
       const envelope = await buildSharedProjectEnvelope(creation, { id, createdAt, releaseTag });
       return transact(async tx => {
@@ -145,7 +147,8 @@ export function createSnapshotService(config: SnapshotServiceConfig, dependencie
         const controls = await controlsFor(tx);
         const operation = await tx.getOperation(creation.operationKeyHash);
         if (operation) {
-          if (!sameHash(operation.requestDigest, creation.requestDigest) || operation.expiresAt <= currentTime) fail('conflict');
+          if (operation.expiresAt <= currentTime) fail('operation-expired');
+          if (!sameHash(operation.requestDigest, creation.requestDigest)) fail('conflict');
           const previous = await tx.getShare(operation.shareId);
           if (!previous) fail('not-found');
           if (previous.revokedAt !== null) fail('revoked');
@@ -171,11 +174,15 @@ export function createSnapshotService(config: SnapshotServiceConfig, dependencie
           if (count >= window.limit) fail('quota-exceeded');
           counters.push({ key, value: { count: count + 1, expiresAt: start + window.duration } });
         }
-        tx.putShare(id, { envelope, managementSecretHash: creation.managementSecretHash, revokedAt: null });
+        // Use this attempt's clock for metadata, quotas and expiry together.
+        // Project bytes/digest and all other envelope fields are already validated.
+        const committedAt = new Date(currentTime).toISOString();
+        const committedEnvelope = Object.freeze({ ...envelope, createdAt: committedAt });
+        tx.putShare(id, { envelope: committedEnvelope, managementSecretHash: creation.managementSecretHash, revokedAt: null });
         tx.putOperation(creation.operationKeyHash, { requestDigest: creation.requestDigest, shareId: id,
-          createdAt, expiresAt: currentTime + ttl });
+          createdAt: committedAt, expiresAt: currentTime + ttl });
         for (const counter of counters) tx.putQuota(counter.key, counter.value);
-        return { id, createdAt, replayed: false };
+        return { id, createdAt: committedAt, replayed: false };
       });
     },
     async read(id: string): Promise<SharedProjectEnvelope> {

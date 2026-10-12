@@ -447,8 +447,8 @@ the snapshot/control/result atomically. An identical retry returns the same ID;
 different content or management-secret hash under that key returns 409.
 Concurrent retries count once. Release B enqueues one logical preview job.
 
-Keep operation records for a proposed 24 hours and limit automatic retries to
-that window. Do not present expiry of retry protection as a safe automatic new
+The v1 contract fixes operation retry protection at 24 hours. Keep operation
+records for that window and stop automatic client retries before it ends. Do not present expiry of retry protection as a safe automatic new
 creation. A retry of an already revoked result never restores it.
 
 Store the creator key locally and offer a small recovery-key text export with
