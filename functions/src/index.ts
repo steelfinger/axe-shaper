@@ -26,6 +26,14 @@ const MAX_SCHEMA = defineInt('SHARING_MAX_ACCEPTED_SCHEMA');
 const APP_CHECK_MODE = defineString('SHARING_APP_CHECK_MODE', { default: 'enforce' });
 /** HMAC key that turns the client IP into an opaque quota key. Never stored with records. */
 const CLIENT_KEY_SECRET = defineSecret('SHARING_CLIENT_KEY_SECRET');
+/**
+ * Hosting sites allowed to front this API. Hosting sets X-Forwarded-Host to the
+ * site domain; the direct cloudfunctions.net / run.app URLs do not, so this
+ * refuses casual direct calls. It is not authentication: a direct caller can
+ * forge both headers and pick its own quota key. The global daily cap bounds
+ * that, and enforced App Check on creation is the real answer before production.
+ */
+const HOSTING_SITES = defineString('SHARING_HOSTING_SITES');
 const PRODUCTION_PROJECT = 'axe-shaper-web';
 
 initializeApp();
@@ -44,10 +52,10 @@ function allowIngress(kind: SharingRequestKind, clientKey: string): boolean {
 }
 
 /**
- * The client address as Google's front end saw it. Firebase Hosting and the
- * Google front end each append to X-Forwarded-For, so the entries a client can
- * forge are on the LEFT; the last two are infrastructure-written
- * ("<client>, <hosting proxy>"). Never use the leftmost entry.
+ * The client address behind Firebase Hosting. Verified on staging (2026-10-12):
+ * Hosting discards any client-sent X-Forwarded-For and the Function receives
+ * exactly "<client>, <hosting proxy>". Direct calls keep caller-sent entries on
+ * the left, so take the second-to-last hop, never the leftmost.
  */
 export function clientAddress(forwardedFor: string | undefined): string | null {
   const hops = (forwardedFor ?? '').split(',').map(hop => hop.trim()).filter(Boolean);
@@ -117,9 +125,7 @@ export const sharingApi = onRequest({
   res.on('close', () => { if (!res.writableFinished) abort.abort(); });
   let response: Response;
   const address = clientAddress(req.get('x-forwarded-for'));
-  // TEMPORARY (staging verification of the hop layout; remove after checking).
-  logger.info('sharing forwarded-for', { forwardedFor: req.get('x-forwarded-for') ?? null });
-  if (!address) {
+  if (!address || !HOSTING_SITES.value().split(',').includes(req.get('x-forwarded-host') ?? '')) {
     logger.warn('sharing request without a trusted client address');
     response = new Response(JSON.stringify({ error: { code: 'unavailable' } }), { status: 503,
       headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });

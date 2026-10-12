@@ -486,3 +486,38 @@ channel, PRs → its preview channels); the release workflow still targets
 after the first staging deploy is verified; that deploy passed on 2026-10-12
 (run 38237339834: app shell and composed viewer titles served). Billing linkage and the staging
 budget are recorded in the console, not verified from this repository.
+
+## First backend slice on staging — 2026-10-12
+
+`axe-shaper-staging` now runs the sharing API end to end. Firestore (Standard
+edition, `europe-north1`, delete protection on) holds private `sharingShares`,
+`sharingOperations`, `sharingQuotas` and the `sharingControl/service` switch
+record (created by hand in the console; both switches `true`). `firestore.rules`
+denies every client; operation and quota records carry an `expireAt` TTL field.
+The `sharingApi` Function (Node 22, 2nd gen, `europe-north1`, max 2 instances,
+20 s timeout) wraps the unchanged snapshot service and HTTP adapter; Hosting
+rewrites `/api/**` to it via `firebase.staging.json`, which only the staging
+workflow uses. Deploy the Function with `npm run functions:deploy:staging`;
+`npm run functions:test` runs the Firestore adapter against the emulator (needs
+JDK 21+).
+
+Verified through `https://axe-shaper-staging.web.app` with the committed
+creation fixture and fresh secrets: status 200; create 201; identical replay 200
+with the same ID; read 200 with the exact project and digest; wrong management
+key 404; manage 200 `active`; revoke 200; read after revoke 410; creation
+without an App Check header 401; direct Function URL 503.
+
+Client keys: verified that Hosting discards client-sent `X-Forwarded-For` and
+delivers exactly `<client>, <hosting proxy>`, so the Function HMACs the
+second-to-last hop with the `SHARING_CLIENT_KEY_SECRET` secret. Requests whose
+`X-Forwarded-Host` is not a listed staging site are refused, which stops casual
+use of the direct `cloudfunctions.net` / `run.app` URLs. **Open before
+production:** a direct caller can forge both headers and choose its own quota
+key (the global daily cap still bounds creation); enforced App Check on creation
+is the intended fix. App Check is in `staging-bypass` mode because the web app
+has no App Check yet; the Function refuses that mode on `axe-shaper-web`.
+
+Also still open: the Functions framework buffers the body before the 512 KiB
+adapter limit applies (Cloud Run's own request cap bounds it); ingress limits
+are per instance and approximate; no client UI, `VITE_SHARING` flag, budget
+verification or production deployment yet.

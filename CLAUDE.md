@@ -103,6 +103,14 @@ service rewrites exist. The staging URL is that project's live channel and
 does **not** expire - the old `staging` channel's 30-day dead-man's switch was
 dropped deliberately when it moved.
 
+The staging project also runs the **sharing backend**: the `sharingApi`
+Function (`functions/`, deployed by hand with `npm run functions:deploy:staging`
+- CI deploys Hosting only) and Firestore in `europe-north1`. Its `/api/**`
+rewrite lives in `firebase.staging.json`, which the staging workflow copies over
+`firebase.json` before deploying. Keep `firebase.json` rewrite-free: the release
+lane and PR previews use it, and `axe-shaper-web` has no such Function. See
+`docs/SHARING_PHASE_0_NOTES.md`.
+
 ```bash
 git tag v1.3.0 && git push origin v1.3.0   # this is the deploy
 gh run list --limit 1                       # this is the whole test
