@@ -124,9 +124,13 @@ export function shareUrl(origin: string, id: string): string {
   return `${origin}/share/${id}`;
 }
 
-/** Share ID from `/share/:id` or `/app/share/:id`, or null. */
-export function shareIdFromPath(pathname: string): string | null {
-  const match = /^(?:\/app)?\/share\/([^/]+)\/?$/.exec(pathname);
+/**
+ * Share ID from a browser route: `/app/share/:id` (editable copy) or
+ * `/download/share/:id` (project download), or null. `/share/:id` itself is the
+ * server-rendered landing page, never an SPA route.
+ */
+export function shareIdFromPath(pathname: string, route: 'app' | 'download' = 'app'): string | null {
+  const match = new RegExp(`^/${route}/share/([^/]+)/?$`).exec(pathname);
   return match && isShareId(match[1]) ? match[1] : null;
 }
 

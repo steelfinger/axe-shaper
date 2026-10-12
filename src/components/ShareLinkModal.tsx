@@ -237,7 +237,7 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
               <button type="button" className="btn btn-sm" onClick={handleSaveKey}>
                 <Download size={15} /> Save recovery key
               </button>
-              <a className="btn btn-sm" href={`/app/share/${state.id}`} target="_blank" rel="noopener noreferrer">
+              <a className="btn btn-sm" href={`/share/${state.id}`} target="_blank" rel="noopener noreferrer">
                 <ExternalLink size={15} /> Open shared design
               </a>
               <button type="button" className="btn btn-sm" onClick={onClose}>Done</button>

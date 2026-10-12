@@ -67,6 +67,7 @@ import { addingJack } from './utils/jackEditing';
 import { OUTPUT_JACKS_ENABLED, SHARING_ENABLED } from './constants/features';
 import { SaveInfoModal } from './components/SaveInfoModal';
 import { ShareLinkModal } from './components/ShareLinkModal';
+import { DownloadSharePage } from './components/DownloadSharePage';
 import { loadSharedProject, shareIdFromPath } from './sharing/shareLinkClient';
 import { WelcomeModal } from './components/WelcomeModal';
 import { AboutModal } from './components/AboutModal';
@@ -116,7 +117,7 @@ const cloneDoc = (doc: EditorDoc): EditorDoc => ({
 const UNDO_STEPS = 50;
 
 const planParamFromLocation = (): string | null => planParamFromSearch(window.location.search);
-/** The share to open from `/share/:id` or `/app/share/:id`; never when sharing is off. */
+/** The share to open as an editable copy from `/app/share/:id`; never when sharing is off. */
 const shareIdFromLocation = (): string | null => (SHARING_ENABLED ? shareIdFromPath(window.location.pathname) : null);
 
 /** What the editor was showing when it left for the New Design screen, so the
@@ -1105,7 +1106,7 @@ function EditorRoute(): React.JSX.Element {
   }, []);
 
   /**
-   * Open the shared design named by `/share/:id` or `/app/share/:id` as a fresh,
+   * Open the shared design named by `/app/share/:id` as a fresh,
    * clean session - the same relation a file open has to whatever was before.
    * The address then becomes plain `/app`, so a reload does not silently
    * re-apply the share over edits made since.
@@ -1176,6 +1177,8 @@ function EditorRoute(): React.JSX.Element {
 export function App(): React.JSX.Element {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
   if (path === '/app' || (SHARING_ENABLED && shareIdFromPath(path))) return <EditorRoute />;
+  const downloadId = SHARING_ENABLED ? shareIdFromPath(path, 'download') : null;
+  if (downloadId) return <DownloadSharePage id={downloadId} />;
   return <MarketingSite path={path} />;
 }
 

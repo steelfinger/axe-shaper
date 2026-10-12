@@ -91,12 +91,15 @@ describe('share link client', () => {
     expect(unknown.ok ? '' : unknown.message).toMatch(/does not point to a design/);
   });
 
-  it('parses share paths and builds the one public URL', () => {
+  it('parses the SPA share routes and builds the one public URL', () => {
     const id = 'mNYiSR2ND7TWcLMTkYk4';
-    expect(shareIdFromPath(`/share/${id}`)).toBe(id);
     expect(shareIdFromPath(`/app/share/${id}/`)).toBe(id);
-    expect(shareIdFromPath('/share/../etc')).toBeNull();
-    expect(shareIdFromPath(`/share/${id}/extra`)).toBeNull();
+    expect(shareIdFromPath(`/download/share/${id}`, 'download')).toBe(id);
+    // The landing page is server-rendered; the SPA never claims it.
+    expect(shareIdFromPath(`/share/${id}`)).toBeNull();
+    expect(shareIdFromPath(`/download/share/${id}`)).toBeNull();
+    expect(shareIdFromPath('/app/share/../etc')).toBeNull();
+    expect(shareIdFromPath(`/app/share/${id}/extra`)).toBeNull();
     expect(shareUrl('https://axe-shaper-staging.web.app', id)).toBe(`https://axe-shaper-staging.web.app/share/${id}`);
   });
 });

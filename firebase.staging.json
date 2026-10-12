@@ -13,6 +13,10 @@
         "function": { "functionId": "sharingApi", "region": "europe-north1" }
       },
       {
+        "source": "/share/**",
+        "function": { "functionId": "sharingApi", "region": "europe-north1" }
+      },
+      {
         "source": "/viewer3d/**",
         "destination": "/viewer3d/index.html"
       },

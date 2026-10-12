@@ -3671,6 +3671,17 @@ html.marketing-document {
   margin: 40px auto;
 }
 
+.share-download-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.share-download-actions a.btn,
+.share-open-error a.btn {
+  text-decoration: none;
+}
+
 .share-open-error {
   display: grid;
   justify-items: start;

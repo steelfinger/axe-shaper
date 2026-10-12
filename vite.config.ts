@@ -37,12 +37,14 @@ function viewer3dDevFallback(): Plugin {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), viewer3dDevFallback()],
-  // The sharing API only exists behind staging Hosting. Proxying through the
+  // The sharing API and share pages only exist behind staging Hosting. Proxying through the
   // staging site (not the Function URL) keeps the X-Forwarded-Host check and
   // client-address handling exactly as deployed. Dev only; `vite build` ignores it.
   server: {
     proxy: {
       '/api': { target: 'https://axe-shaper-staging.web.app', changeOrigin: true },
+      // The server-rendered share landing page and its /share/:id/3d redirect.
+      '/share': { target: 'https://axe-shaper-staging.web.app', changeOrigin: true },
     },
   },
 })

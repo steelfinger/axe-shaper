@@ -7,12 +7,15 @@ import { defineInt, defineSecret, defineString } from 'firebase-functions/params
 import { onRequest } from 'firebase-functions/v2/https';
 import type { Request as FunctionsRequest } from 'firebase-functions/v2/https';
 import { UPLOAD_POLICY_REVISION } from '../../src/sharing/projectAdmission';
+import { renderShareErrorPage, renderShareLandingPage } from '../../src/sharing/landingPage';
+import type { LandingPage } from '../../src/sharing/landingPage';
 import { createSharingHttpHandler } from '../../src/sharing/sharingHttp';
 import type { SharingRequestKind } from '../../src/sharing/sharingHttp';
-import { SharingContractError } from '../../src/sharing/sharingContract';
+import { isShareId, SharingContractError } from '../../src/sharing/sharingContract';
 import type { ProjectDigest } from '../../src/sharing/sharingContract';
 import { createSnapshotService } from '../../src/sharing/snapshotService';
 import type { SnapshotStore } from '../../src/sharing/snapshotService';
+import { buildViewer3DPath } from '../../src/utils/viewer3dLink';
 import { createFirestoreSnapshotStore } from './firestoreSnapshotStore';
 
 /**
@@ -34,6 +37,8 @@ const CLIENT_KEY_SECRET = defineSecret('SHARING_CLIENT_KEY_SECRET');
  * that, and enforced App Check on creation is the real answer before production.
  */
 const HOSTING_SITES = defineString('SHARING_HOSTING_SITES');
+/** Absolute origin for canonical and social-card URLs. Never taken from a request Host header. */
+const PUBLIC_ORIGIN = defineString('SHARING_PUBLIC_ORIGIN');
 const PRODUCTION_PROJECT = 'axe-shaper-web';
 
 initializeApp();
@@ -74,9 +79,9 @@ function loggedStore(store: SnapshotStore): SnapshotStore {
   };
 }
 
-let handler: ReturnType<typeof createSharingHttpHandler> | undefined;
-function sharingHandler() {
-  if (handler) return handler;
+let runtime: { service: ReturnType<typeof createSnapshotService>; handler: ReturnType<typeof createSharingHttpHandler> } | undefined;
+function sharingRuntime() {
+  if (runtime) return runtime;
   const project = process.env.GCLOUD_PROJECT;
   const mode = APP_CHECK_MODE.value();
   if (mode !== 'enforce' && (mode !== 'staging-bypass' || project === PRODUCTION_PROJECT)) {
@@ -87,7 +92,7 @@ function sharingHandler() {
     admission: { revision: UPLOAD_POLICY_REVISION, maxAcceptedProjectSchema: MAX_SCHEMA.value() },
     quotas: { globalPerDay: 100, clientPerHour: 10, clientPerDay: 25 },
   }, { store: loggedStore(createFirestoreSnapshotStore(getFirestore())) });
-  handler = createSharingHttpHandler({
+  const handler = createSharingHttpHandler({
     service,
     async verifyAppCheck(token) {
       if (mode === 'staging-bypass') return true;
@@ -95,7 +100,36 @@ function sharingHandler() {
     },
     async allowRequest(kind, context) { return allowIngress(kind, context.clientKey); },
   });
-  return handler;
+  runtime = { service, handler };
+  return runtime;
+}
+
+function htmlResponse(page: LandingPage): Response {
+  return new Response(page.html, { status: page.status, headers: page.headers });
+}
+
+/**
+ * `/share/:id` (the landing page) and `/share/:id/3d` (a redirect into the
+ * pinned viewer's existing `#d=` link, so View in 3D needs no viewer release).
+ * Null for anything else, which goes to the JSON API adapter.
+ */
+async function sharePage(req: FunctionsRequest, clientKey: string): Promise<Response | null> {
+  const match = /^\/share\/([^/]+)(\/3d)?\/?$/.exec(req.path);
+  if (!match) return null;
+  const origin = PUBLIC_ORIGIN.value();
+  if (req.method !== 'GET') return new Response(null, { status: 405, headers: { Allow: 'GET' } });
+  if (!allowIngress('read', clientKey)) return htmlResponse(renderShareErrorPage('quota-exceeded', origin));
+  if (!isShareId(match[1])) return htmlResponse(renderShareErrorPage('invalid-id', origin));
+  try {
+    const envelope = await sharingRuntime().service.read(match[1]);
+    if (!match[2]) return htmlResponse(renderShareLandingPage(envelope, origin));
+    return new Response(null, { status: 302, headers: {
+      Location: await buildViewer3DPath(envelope.project), 'Cache-Control': 'public, max-age=300, s-maxage=300',
+      'Referrer-Policy': 'same-origin',
+    } });
+  } catch (error) {
+    return htmlResponse(renderShareErrorPage(error instanceof SharingContractError ? error.code : 'unavailable', origin));
+  }
 }
 
 /** Express (already buffered by the Functions framework) -> Fetch Request. */
@@ -131,7 +165,9 @@ export const sharingApi = onRequest({
       headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
   } else {
     const clientKey = `sha256:${createHmac('sha256', CLIENT_KEY_SECRET.value()).update(address).digest('hex')}` as ProjectDigest;
-    try { response = await sharingHandler()(toFetchRequest(req, abort.signal), { clientKey }); } catch (error) {
+    try {
+      response = await sharePage(req, clientKey) ?? await sharingRuntime().handler(toFetchRequest(req, abort.signal), { clientKey });
+    } catch (error) {
       logger.error('sharing handler failed', error);
       response = new Response(JSON.stringify({ error: { code: 'unavailable' } }), { status: 503,
         headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
