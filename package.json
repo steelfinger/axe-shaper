@@ -23,7 +23,8 @@
     "schema:check": "node scripts/check-schema-migration.ts",
     "bass:check": "node scripts/check-bass-hardware.ts",
     "check:all": "node scripts/check-all.ts",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sharing:export": "node scripts/write-sharing-policy.ts"
   },
   "dependencies": {
     "konva": "^10.3.0",

@@ -1,0 +1,177 @@
+{
+  "revision": "joint-contract-v1",
+  "cases": [
+    {
+      "id": "near-tangent-compound-valid",
+      "instrumentType": "guitar",
+      "geometry": {
+        "mode": "custom",
+        "derivedFromProfileId": "sharing-joint-vector",
+        "mechanism": "bolt_on",
+        "planShape": "bolt_on_pocket",
+        "parameters": {
+          "mouthWidthMm": 12.700001,
+          "deepEndWidthMm": 12.700001,
+          "planLengthMm": 76.2,
+          "endCornerRadiusMm": 6.35,
+          "endTreatment": "compound",
+          "endRoundnessMm": 127
+        }
+      },
+      "placement": {
+        "mode": "custom",
+        "referenceFret": 22,
+        "jointToReferenceFretMm": 75.0,
+        "provenance": "Shared independent joint vector"
+      },
+      "accepted": true
+    },
+    {
+      "id": "near-tangent-compound-invalid",
+      "instrumentType": "guitar",
+      "geometry": {
+        "mode": "custom",
+        "derivedFromProfileId": "sharing-joint-vector",
+        "mechanism": "bolt_on",
+        "planShape": "bolt_on_pocket",
+        "parameters": {
+          "mouthWidthMm": 12.699999,
+          "deepEndWidthMm": 12.699999,
+          "planLengthMm": 76.2,
+          "endCornerRadiusMm": 6.35,
+          "endTreatment": "compound",
+          "endRoundnessMm": 127
+        }
+      },
+      "placement": {
+        "mode": "custom",
+        "referenceFret": 22,
+        "jointToReferenceFretMm": 75.0,
+        "provenance": "Shared independent joint vector"
+      },
+      "accepted": false
+    },
+    {
+      "id": "exact-tangent-compound-invalid",
+      "instrumentType": "guitar",
+      "geometry": {
+        "mode": "custom",
+        "derivedFromProfileId": "sharing-joint-vector",
+        "mechanism": "bolt_on",
+        "planShape": "bolt_on_pocket",
+        "parameters": {
+          "mouthWidthMm": 12.7,
+          "deepEndWidthMm": 12.7,
+          "planLengthMm": 76.2,
+          "endCornerRadiusMm": 6.35,
+          "endTreatment": "compound",
+          "endRoundnessMm": 127
+        }
+      },
+      "placement": {
+        "mode": "custom",
+        "referenceFret": 22,
+        "jointToReferenceFretMm": 75.0,
+        "provenance": "Shared independent joint vector"
+      },
+      "accepted": false
+    },
+    {
+      "id": "bass-reference-fret-20",
+      "instrumentType": "bass",
+      "geometry": {
+        "mode": "custom",
+        "derivedFromProfileId": "sharing-joint-vector",
+        "mechanism": "bolt_on",
+        "planShape": "bolt_on_pocket",
+        "parameters": {
+          "mouthWidthMm": 63.5,
+          "planLengthMm": 76.2,
+          "endCornerRadiusMm": 6.35,
+          "endTreatment": "rounded",
+          "endRoundnessMm": 6.35
+        }
+      },
+      "placement": {
+        "mode": "custom",
+        "referenceFret": 20,
+        "jointToReferenceFretMm": 75.0,
+        "provenance": "Shared independent joint vector"
+      },
+      "accepted": true
+    },
+    {
+      "id": "bass-reference-fret-22-invalid",
+      "instrumentType": "bass",
+      "geometry": {
+        "mode": "custom",
+        "derivedFromProfileId": "sharing-joint-vector",
+        "mechanism": "bolt_on",
+        "planShape": "bolt_on_pocket",
+        "parameters": {
+          "mouthWidthMm": 63.5,
+          "planLengthMm": 76.2,
+          "endCornerRadiusMm": 6.35,
+          "endTreatment": "rounded",
+          "endRoundnessMm": 6.35
+        }
+      },
+      "placement": {
+        "mode": "custom",
+        "referenceFret": 22,
+        "jointToReferenceFretMm": 75.0,
+        "provenance": "Shared independent joint vector"
+      },
+      "accepted": false
+    },
+    {
+      "id": "tapered-mortise-valid",
+      "instrumentType": "guitar",
+      "geometry": {
+        "mode": "custom",
+        "derivedFromProfileId": "sharing-joint-vector",
+        "mechanism": "glued",
+        "planShape": "tapered_mortise",
+        "parameters": {
+          "mouthWidthMm": 55.56,
+          "deepEndWidthMm": 60,
+          "planLengthMm": 76.2,
+          "endCornerRadiusMm": 6.35,
+          "endTreatment": "rounded",
+          "endRoundnessMm": 6.35
+        }
+      },
+      "placement": {
+        "mode": "custom",
+        "referenceFret": 22,
+        "jointToReferenceFretMm": 75.0,
+        "provenance": "Shared independent joint vector"
+      },
+      "accepted": true
+    },
+    {
+      "id": "tapered-mortise-missing-deep-width",
+      "instrumentType": "guitar",
+      "geometry": {
+        "mode": "custom",
+        "derivedFromProfileId": "sharing-joint-vector",
+        "mechanism": "glued",
+        "planShape": "tapered_mortise",
+        "parameters": {
+          "mouthWidthMm": 55.56,
+          "planLengthMm": 76.2,
+          "endCornerRadiusMm": 6.35,
+          "endTreatment": "rounded",
+          "endRoundnessMm": 6.35
+        }
+      },
+      "placement": {
+        "mode": "custom",
+        "referenceFret": 22,
+        "jointToReferenceFretMm": 75.0,
+        "provenance": "Shared independent joint vector"
+      },
+      "accepted": false
+    }
+  ]
+}

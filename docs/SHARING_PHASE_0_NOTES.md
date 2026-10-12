@@ -314,3 +314,32 @@ with all 101 web sharing tests and type checking. Both repositories retain their
 existing lint warning and build chunk-size warning. No iPad suite or cloud deploy
 was performed. Hosted fetch/query integration, status/deployment manifests,
 Functions/emulators, quotas/storage and sharing UI are still pending.
+
+## Manifest compatibility and descriptor review — 2026-10-12
+
+Both public support readers now validate a contiguous schema map starting at 3
+through the manifest's own maximum. Safe-integer web/viewer ceilings must be
+covered by that map, but may exceed the installed reader's capability. Immutable
+older maps and newer release manifests remain readable. Actual project schema
+gates still use installed capability. Regression tests cover both directions,
+map gaps, oversized ceilings, native-version consistency and per-share refusal.
+
+The viewer asserts descriptor assumptions at module load: known operation fields,
+list budget names, numeric metadata, mirror behavior, anchor contour ceiling,
+JSON safety limits and the custom semantics block. Unsupported assumptions fail
+as `unsupported-policy`. Project canonical size now precedes schema refusal,
+matching the server's error priority. `npm run sharing:export` exposes the policy
+generator; unit tests remain its CI drift gate.
+
+`joint-contract-vectors.json` adds seven independently consumed cases for compound
+tangency just above/below/at its boundary, bass reference fret 20 versus 22, and
+tapered mortises with/without deep width. The web validates the pair and generates
+outlines; the viewer reads complete envelopes with the same geometry and its own
+validation. Existing admission definitions/fingerprints are unchanged.
+
+Validation: all 420 web unit tests (112 sharing tests), build, lint, policy export,
+schema, fixture, corpus and bass checks passed. Viewer `npm run check` passed:
+476 tests (68 sharing tests), 59 pinned contract files, preview capability checks,
+type check and build. Final numeric descriptor guards were additionally verified
+with sharing tests/type checking/lint. Both existing lint warnings remain. No
+deployment, hosted UI or native sharing adapter was added.

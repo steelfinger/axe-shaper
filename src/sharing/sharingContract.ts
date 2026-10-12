@@ -70,7 +70,7 @@ export interface SharingClientSupportManifest {
   releaseTag: string;
   webReadSchema: number;
   viewerReadSchema: number;
-  minimumEditableIpadVersionBySchema: Record<SharingProjectSchema, string | null>;
+  minimumEditableIpadVersionBySchema: Record<number, string | null>;
 }
 
 const ID = /^[A-Za-z0-9]{20}$/;
@@ -161,13 +161,20 @@ export function readSharingClientSupportManifest(source: string, expectedRelease
   if (manifest.shareFormatVersion !== SHARE_FORMAT_VERSION) fail('unsupported-share-format');
   if (manifest.releaseTag !== expectedReleaseTag) fail('malformed-request');
   for (const ceiling of [manifest.webReadSchema, manifest.viewerReadSchema]) {
-    if (typeof ceiling !== 'number' || !Number.isSafeInteger(ceiling) || ceiling < 3 || ceiling > PROJECT_SCHEMA_VERSION) fail('unsupported-schema');
+    if (typeof ceiling !== 'number' || !Number.isSafeInteger(ceiling) || ceiling < 3) fail('unsupported-schema');
   }
-  const versions = exact(manifest.minimumEditableIpadVersionBySchema, SHARING_PROJECT_SCHEMAS.map(String));
+  // The manifest describes its release, independently of this installed reader.
+  const versions = manifest.minimumEditableIpadVersionBySchema;
+  if (!versions || typeof versions !== 'object' || Array.isArray(versions)) fail('malformed-request');
+  const count = Object.keys(versions).length;
+  if (!count || !Array.from({ length: count }, (_, index) => String(index + 3))
+    .every(key => Object.hasOwn(versions, key))) fail('malformed-request');
+  const maximum = count + 2;
+  if ((manifest.webReadSchema as number) > maximum || (manifest.viewerReadSchema as number) > maximum) fail('malformed-request');
   let previousVersion: string | undefined;
   let unconfirmed = false;
-  for (const schema of SHARING_PROJECT_SCHEMAS) {
-    const version = versions[String(schema)];
+  for (let schema = 3; schema <= maximum; schema++) {
+    const version = (versions as Record<string, unknown>)[String(schema)];
     if (version === null) { unconfirmed = true; continue; }
     if (unconfirmed) fail('malformed-request');
     if (typeof version !== 'string') fail('malformed-request');
