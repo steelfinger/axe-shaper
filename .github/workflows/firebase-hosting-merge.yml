@@ -50,6 +50,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.VIEWER3D_RELEASE_TOKEN }}
           VITE_OUTPUT_JACKS: '1'
+          # The Create link dialog needs the /api/** sharing backend, which
+          # only this project has. Never set in the release or PR workflows.
+          VITE_SHARING: '1'
       # Staging Hosting rewrites /api/** to the sharingApi Function, which
       # exists only in axe-shaper-staging. firebase.json stays rewrite-free for
       # the release lane and PR previews; the action has no --config input, so

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Save, Upload, Undo2, Redo2, RotateCcw, Share2, Box, CircleHelp, Info, Menu, Printer, FilePlus2, Copy, Download, Palette } from 'lucide-react';
+import { SHARING_ENABLED } from '../constants/features';
 import type { PrintPaper } from '../utils/tiledPrint';
 import type { GuitarProject } from '../types/guitar';
 import { snapGridToUnit } from '../utils/units';
@@ -193,7 +194,7 @@ export const Header: React.FC<HeaderProps> = ({
           <Upload size={15} /> <span className="header-action-label">Open</span>
         </button>
 
-        <button className="btn btn-sm header-secondary-action" onClick={onShare} title="Share the current .axe.svg project file">
+        <button className="btn btn-sm header-secondary-action" onClick={onShare} title={SHARING_ENABLED ? 'Share this design as a link or a project file' : 'Share the current .axe.svg project file'}>
           <Share2 size={15} /> <span className="header-action-label">Share</span>
         </button>
 

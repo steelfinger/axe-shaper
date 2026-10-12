@@ -214,3 +214,20 @@ test.describe('output jacks (schema 8) behind the release gate', () => {
     expect(errors).toEqual([]);
   });
 });
+
+test.describe('share links behind the staging-only flag', () => {
+  // SHARING_ENABLED is off in this build: only staging has the /api/** backend.
+  // A share URL must not open the editor or call an API that is not there.
+  test('the default build ignores share URLs and never calls the sharing API', async ({ page }) => {
+    const apiCalls: string[] = [];
+    page.on('request', (request) => {
+      if (new URL(request.url()).pathname.startsWith('/api/')) apiCalls.push(request.url());
+    });
+    await page.goto('/share/GivpSyqj2ydEpYzd50d7');
+    await expect(page.locator('body')).not.toContainText('Opening shared design');
+    await expect(chooserHeading(page)).toHaveCount(0);
+    await openEditor(page);
+    await expect(page.getByRole('button', { name: 'Share the current .axe.svg project file' })).toHaveCount(1);
+    expect(apiCalls).toEqual([]);
+  });
+});

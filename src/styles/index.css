@@ -1212,6 +1212,133 @@ summary:focus-visible {
   background: var(--bg-tertiary);
 }
 
+/* Share dialog: Create link / Share project file */
+.share-link-backdrop {
+  z-index: 9999;
+  padding: 20px;
+}
+
+.share-link-modal {
+  /* Phone widths stretch .modal-backdrop children for the full-screen chooser. */
+  align-self: center;
+  width: min(100%, 540px);
+  max-height: 100%;
+  overflow-y: auto;
+  background: var(--bg-secondary);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.share-link-header,
+.share-link-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+}
+
+.share-link-header {
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.share-link-header h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.share-link-icon {
+  flex: none;
+  color: var(--accent-gold);
+}
+
+.share-link-close {
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+}
+
+.share-link-body {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.share-link-body p {
+  margin: 0;
+}
+
+.share-link-muted {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.share-link-summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.share-link-summary dt {
+  color: var(--text-secondary);
+}
+
+.share-link-summary dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.share-link-terms {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.share-link-url-row {
+  display: flex;
+  gap: 8px;
+}
+
+.share-link-url {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+}
+
+.share-link-footer {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  padding: 14px 20px;
+  border-top: 1px solid var(--panel-border);
+  background: var(--bg-tertiary);
+}
+
+.share-link-footer a.btn {
+  text-decoration: none;
+}
+
+@media (max-width: 480px) {
+  .share-link-url-row {
+    flex-direction: column;
+  }
+}
+
 .blueprint-chooser-modal {
   display: flex;
   flex-direction: column;
@@ -3542,6 +3669,14 @@ html.marketing-document {
 .design-loading {
   max-width: 1040px;
   margin: 40px auto;
+}
+
+.share-open-error {
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+  max-width: 560px;
+  color: var(--text-secondary);
 }
 
 /* Sits in the instrument row, after the two choices: same height as they are,

@@ -108,7 +108,10 @@ Function (`functions/`, deployed by hand with `npm run functions:deploy:staging`
 - CI deploys Hosting only) and Firestore in `europe-north1`. Its `/api/**`
 rewrite lives in `firebase.staging.json`, which the staging workflow copies over
 `firebase.json` before deploying. Keep `firebase.json` rewrite-free: the release
-lane and PR previews use it, and `axe-shaper-web` has no such Function. See
+lane and PR previews use it, and `axe-shaper-web` has no such Function. The editor's **Create link** dialog and
+the `/share/:id` route are behind `SHARING_ENABLED` (`VITE_SHARING=1`), which
+only the staging workflow sets - like `OUTPUT_JACKS_ENABLED`, it must stay off
+in the release lane until the backend exists on production. See
 `docs/SHARING_PHASE_0_NOTES.md`.
 
 ```bash

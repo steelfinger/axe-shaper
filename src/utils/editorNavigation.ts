@@ -17,6 +17,9 @@ export interface NavigationEnv {
 }
 
 export const LEAVE_FOR_NEW_DESIGN_MESSAGE = 'Start a new design? Unsaved changes to this one will be lost.';
+/** What EditorRoute is showing. Only `editing` has a history entry of its own. */
+export type EditorRouteKind = 'loading' | 'choosing' | 'editing' | 'share-error';
+
 export const LEAVE_VIA_BACK_MESSAGE = 'Leave this design for the New Design screen? Unsaved changes will be lost.';
 
 export function isEditingHistoryEntry(history: Pick<History, 'state'>): boolean {
@@ -29,7 +32,7 @@ export function isEditingHistoryEntry(history: Pick<History, 'state'>): boolean 
  * here), whose own effect normalises the URL, and not if somehow already on
  * the editor entry. Back from the editor then lands on the chooser.
  */
-export function noteEditorOpened(from: 'loading' | 'choosing' | 'editing', env: NavigationEnv): void {
+export function noteEditorOpened(from: EditorRouteKind, env: NavigationEnv): void {
   if (from === 'choosing' && !isEditingHistoryEntry(env.history)) {
     env.history.pushState(EDITING_HISTORY_STATE, '');
   }
@@ -55,7 +58,7 @@ export function mayStartNewDesign(isDirty: boolean, confirm: NavigationEnv['conf
  * been repaired or restored here).
  */
 export function resolvePopState(
-  routeKind: 'loading' | 'choosing' | 'editing',
+  routeKind: EditorRouteKind,
   isDirty: boolean,
   env: NavigationEnv
 ): 'stay' | 'leave' {

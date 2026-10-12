@@ -11,3 +11,12 @@
  * "Status and release gate"). Enable locally with `VITE_OUTPUT_JACKS=1`.
  */
 export const OUTPUT_JACKS_ENABLED = import.meta.env.VITE_OUTPUT_JACKS === '1';
+
+/**
+ * `SHARING_ENABLED` turns the Share action into the Create link / Share project
+ * file dialog. It needs the `/api/**` sharing backend, which only the staging
+ * project has (firebase.staging.json), so only the staging lane builds with it.
+ * Off, Share keeps sharing the .axe.svg file directly. Enable locally with
+ * `VITE_SHARING=1 npm run dev` (the dev server proxies /api to staging).
+ */
+export const SHARING_ENABLED = import.meta.env.VITE_SHARING === '1';

@@ -64,8 +64,10 @@ import {
   removingHardwarePlacement,
 } from './utils/controlEditing';
 import { addingJack } from './utils/jackEditing';
-import { OUTPUT_JACKS_ENABLED } from './constants/features';
+import { OUTPUT_JACKS_ENABLED, SHARING_ENABLED } from './constants/features';
 import { SaveInfoModal } from './components/SaveInfoModal';
+import { ShareLinkModal } from './components/ShareLinkModal';
+import { loadSharedProject, shareIdFromPath } from './sharing/shareLinkClient';
 import { WelcomeModal } from './components/WelcomeModal';
 import { AboutModal } from './components/AboutModal';
 import { MarketingSite } from './components/MarketingSite';
@@ -114,6 +116,8 @@ const cloneDoc = (doc: EditorDoc): EditorDoc => ({
 const UNDO_STEPS = 50;
 
 const planParamFromLocation = (): string | null => planParamFromSearch(window.location.search);
+/** The share to open from `/share/:id` or `/app/share/:id`; never when sharing is off. */
+const shareIdFromLocation = (): string | null => (SHARING_ENABLED ? shareIdFromPath(window.location.pathname) : null);
 
 /** What the editor was showing when it left for the New Design screen, so the
  *  chooser can open on that instrument/blueprint instead of the guitar default -
@@ -165,6 +169,8 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
   const [activeLayer, setActiveLayer] = useState<ActiveLayer>({ kind: 'body' });
   const [handleAngleSnap, setHandleAngleSnap] = useState<HandleAngleSnapPreference>(loadHandleAngleSnapPreference);
   const [isSaveInfoModalOpen, setIsSaveInfoModalOpen] = useState(false);
+  // The design as it was when Share was chosen; null while the dialog is closed.
+  const [shareSnapshot, setShareSnapshot] = useState<GuitarProject | null>(null);
   // Opened from the editor menu only. It used to auto-open on first run as
   // the startup surface, which meant the first thing a new user did was
   // dismiss something to reach the thing they came for; the New Design screen
@@ -821,7 +827,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         onSwitchBlueprint={() => setIsBlueprintChooserOpen(true)}
         onSave={handleSaveProject}
         onExportDXF={() => requestFabricationExport({ kind: 'dxf' })}
-        onShare={handleShareProject}
+        onShare={SHARING_ENABLED ? () => setShareSnapshot(project) : handleShareProject}
         onView3D={handleView3D}
         onShowInstrumentAppearance={() => setIsInstrumentAppearanceOpen(true)}
         view3DAvailable
@@ -968,6 +974,11 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         onCancel={() => setPendingFabricationExport(null)}
         onProceed={handleProceedFabricationExport}
       />
+      <ShareLinkModal
+        project={shareSnapshot}
+        onClose={() => setShareSnapshot(null)}
+        onShareFile={() => void handleShareProject()}
+      />
     </div>
   );
 }
@@ -984,6 +995,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
  */
 type EditorRouteState =
   | { kind: 'loading' }
+  | { kind: 'share-error'; message: string }
   | { kind: 'choosing'; from?: NewDesignHint }
   | { kind: 'editing'; project: GuitarProject; session: number };
 
@@ -995,7 +1007,7 @@ const browserEnv = (): NavigationEnv => ({
 
 function EditorRoute(): React.JSX.Element {
   const [state, setState] = useState<EditorRouteState>(() =>
-    planParamFromLocation() ? { kind: 'loading' } : { kind: 'choosing' }
+    planParamFromLocation() || shareIdFromLocation() ? { kind: 'loading' } : { kind: 'choosing' }
   );
   // Bumped on every New Design, and used as EditorApp's key so a fresh
   // document gets a fresh editor: undo history, selections and the guide
@@ -1092,12 +1104,51 @@ function EditorRoute(): React.JSX.Element {
     };
   }, []);
 
+  /**
+   * Open the shared design named by `/share/:id` or `/app/share/:id` as a fresh,
+   * clean session - the same relation a file open has to whatever was before.
+   * The address then becomes plain `/app`, so a reload does not silently
+   * re-apply the share over edits made since.
+   */
+  useEffect(() => {
+    const id = shareIdFromLocation();
+    if (!id) return;
+    let cancelled = false;
+
+    void (async () => {
+      const result = await loadSharedProject(id, (input, init) => fetch(input, init));
+      if (cancelled) return;
+      if (result.ok) openProject(result.project);
+      else setState({ kind: 'share-error', message: result.message });
+      window.history.replaceState(null, '', '/app');
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   if (state.kind === 'loading') {
     return (
       <div className="new-design-screen">
         <p className="design-loading" role="status">
-          Opening plan&hellip;
+          {shareIdFromLocation() ? 'Opening shared design' : 'Opening plan'}&hellip;
         </p>
+      </div>
+    );
+  }
+
+  if (state.kind === 'share-error') {
+    // Unlike a failed ?plan= link, a failed share stays put and says why:
+    // the person was sent a specific design, not a blank chooser.
+    return (
+      <div className="new-design-screen">
+        <div className="design-loading share-open-error" role="alert">
+          <p>{state.message}</p>
+          <button type="button" className="btn btn-primary" onClick={() => setState({ kind: 'choosing' })}>
+            Start a new design
+          </button>
+        </div>
       </div>
     );
   }
@@ -1124,7 +1175,7 @@ function EditorRoute(): React.JSX.Element {
 
 export function App(): React.JSX.Element {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
-  if (path === '/app') return <EditorRoute />;
+  if (path === '/app' || (SHARING_ENABLED && shareIdFromPath(path))) return <EditorRoute />;
   return <MarketingSite path={path} />;
 }
 

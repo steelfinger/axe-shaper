@@ -521,3 +521,29 @@ Also still open: the Functions framework buffers the body before the 512 KiB
 adapter limit applies (Cloud Run's own request cap bounds it); ingress limits
 are per instance and approximate; no client UI, `VITE_SHARING` flag, budget
 verification or production deployment yet.
+
+## Create link UI on staging — 2026-10-12
+
+`VITE_SHARING=1` (`SHARING_ENABLED`, set only in the staging workflow) turns
+**Share** into a dialog offering **Create link** and **Share project file**. On
+open it snapshots the design, reads `/api/sharing-status` and runs the server's
+own admission rules (`preflightShare`) before showing consent; a blocked design
+gets the matching file-fallback message. **Create link** fixes one request body
+and retry deadline, sends it with up to two automatic resends for transient
+failures, and offers **Try again** with the same body, so a retry can never make
+a second share. Success shows the link, **Copy link**, **Open shared design** and
+**Save recovery key** (a local text file with the management key).
+
+`/share/:id` and `/app/share/:id` open the shared design as a fresh editor
+session through `loadProject()`, then normalise the address to `/app`. Failures
+stay on an explanatory screen with **Start a new design** rather than falling
+back silently. With the flag off neither route exists and nothing calls `/api`
+(`e2e/editor.spec.ts` pins this). Locally, `VITE_SHARING=1 npm run dev` proxies
+`/api` to the staging site.
+
+Verified in the browser against staging: preflight, creation, opening the copied
+`/share/:id` link (URL normalised, canvas drawn), unknown-ID error screen, and the
+dialog at 375px width. Deferred, as in the plan: the server-rendered `/share/:id`
+landing page (View in 3D / Download), the management page, persisting a pending
+creation across a reload, the "editing a copy" provenance banner, and real App
+Check (the client sends a placeholder token that only staging's bypass accepts).
