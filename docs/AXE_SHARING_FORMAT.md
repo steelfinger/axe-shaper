@@ -1,6 +1,6 @@
 # Axe Shaper sharing format — draft
 
-**Status:** Local hashing, admission and version-1 request/envelope contracts implemented; endpoints and independent clients pending
+**Status:** Local hashing, admission, snapshot service and HTTP handlers implemented; independent viewer checks implemented. Deployed endpoints, hosted client UI and iPad integration remain pending.
 
 Companion to [the product plan](DESIGN_SHARING_AND_GALLERY_PLAN.md) and
 [the saved-project contract](AXE_SVG_FORMAT.md). This defines hosted-sharing

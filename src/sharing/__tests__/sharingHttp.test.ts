@@ -53,7 +53,7 @@ describe('sharing HTTP boundary', () => {
   });
   it('creates, replays, reads, manages and revokes a complete saved snapshot', async () => {
     const { handle, store, verifyAppCheck } = setup();
-    const created = await handle(create(), context);
+    const created = await handle(create(raw, { 'content-length': String(new TextEncoder().encode(raw).length) }), context);
     expect(created.status).toBe(201);
     const { id } = await created.json();
     const replay = await handle(create(), context);
@@ -128,6 +128,17 @@ describe('sharing HTTP boundary', () => {
       JSON.stringify({ managementSecret: requestFixture.managementSecret }));
     await expectError(await handle(req, context), 400, 'malformed-request');
     expect(store.calls).toBe(0);
+  });
+  it.each(['', new Uint8Array(0)])('requires the bridge to normalize zero-byte revoke input to null (%#)', async empty => {
+    const { handle } = setup();
+    await handle(create(), context);
+    const url = 'https://sharing.example/api/shares/A0000000000000000001';
+    const headers = { ...authorization, 'content-length': '0' };
+    await expectError(await handle(new Request(url, { method: 'DELETE', headers, body: empty }), context),
+      400, 'malformed-request');
+    const normalized = await handle(new Request(url, { method: 'DELETE', headers, body: null }), context);
+    expect(normalized.status).toBe(200);
+    expect((await normalized.json()).state).toBe('revoked');
   });
   it('distinguishes operation expiry for the client', async () => {
     const { handle, advance } = setup(); await handle(create(), context); advance(SHARE_OPERATION_TTL_MS);

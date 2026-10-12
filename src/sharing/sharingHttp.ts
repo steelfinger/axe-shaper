@@ -39,7 +39,7 @@ async function creationBody(request: Request): Promise<string> {
   }
   if (!request.body) fail('malformed-request');
   const reader = request.body.getReader();
-  const body = new Uint8Array(MAX_CREATION_REQUEST_BYTES);
+  const body = new Uint8Array(declared ?? MAX_CREATION_REQUEST_BYTES);
   let bytes = 0;
   const cancel = () => { void reader.cancel().catch(() => undefined); };
   request.signal.addEventListener('abort', cancel, { once: true });
@@ -51,6 +51,7 @@ async function creationBody(request: Request): Promise<string> {
       if (chunk.done) break;
       bytes += chunk.value.byteLength;
       if (bytes > MAX_CREATION_REQUEST_BYTES) fail('too-large');
+      if (declared !== undefined && bytes > declared) fail('malformed-request');
       // Copy into one bounded buffer, even for many tiny chunks or a producer
       // that reuses its chunk buffer.
       body.set(chunk.value, bytes - chunk.value.byteLength);
@@ -102,6 +103,7 @@ export function createSharingHttpHandler(dependencies: SharingHttpDependencies) 
       if (!allowed.split(', ').includes(request.method)) {
         return json({ error: { code: 'method-not-allowed' } }, 405, { Allow: allowed });
       }
+      // The hosting bridge must represent absent/zero-byte raw bodies as null.
       if (kind !== 'create' && request.body) fail('malformed-request');
       if (!context || !/^sha256:[0-9a-f]{64}$/.test(context.clientKey)) fail('unavailable');
       if (!await allowRequest(kind, context, id)) fail('quota-exceeded');
