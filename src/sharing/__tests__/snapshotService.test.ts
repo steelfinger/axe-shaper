@@ -194,9 +194,13 @@ describe('transactional snapshot service', () => {
     await expect(service.revoke('../other', requestFixture.managementSecret)).rejects.toMatchObject({ code: 'invalid-id' });
     await expect(service.create('{}', client)).rejects.toMatchObject({ code: 'malformed-request' });
     await expect(service.create(source, 'not-a-trusted-hash' as ProjectDigest)).rejects.toMatchObject({ code: 'malformed-request' });
+    expect(store.calls).toBe(0);
+  });
+  it('rejects a new creation above the ceiling after only an operation lookup, without writes or quota', async () => {
+    const { store, service } = setup();
     await expect(service.create(JSON.stringify({ ...requestFixture, project: schema8, projectDigest: await projectDigest(schema8) }), client))
       .rejects.toMatchObject({ code: 'unsupported-schema' });
-    expect(store.calls).toBe(0);
+    expect(store.shares.size).toBe(0); expect(store.operations.size).toBe(0); expect(store.quotas.size).toBe(0);
   });
   it('preserves existing higher-schema snapshots and their original release after an admission rollback', async () => {
     const { store, service } = setup({ releaseTag: 'v1.3.0',
@@ -208,6 +212,21 @@ describe('transactional snapshot service', () => {
     expect(envelope.project).toEqual(schema8);
     expect(envelope.requirements.supportManifest).toBe('/sharing/releases/v1.3.0.json');
     expect((await rolledBack.status()).maxAcceptedProjectSchema).toBe(7);
+  });
+  it('replays a creation accepted before an admission rollback, but refuses new ones above the ceiling', async () => {
+    const { store, service } = setup({ releaseTag: 'v1.3.0',
+      admission: { revision: UPLOAD_POLICY_REVISION, maxAcceptedProjectSchema: 8 } });
+    const body = JSON.stringify({ ...requestFixture, project: schema8, projectDigest: await projectDigest(schema8) });
+    const first = await service.create(body, client);
+    const quotasBefore = structuredClone([...store.quotas.entries()]);
+    const rolledBack = createSnapshotService(config, { store, now: () => Date.parse('2026-10-12T10:00:00.000Z') });
+    // The first response was lost: the identical retry still recovers the ID and management works.
+    expect(await rolledBack.create(body, client)).toEqual({ ...first, replayed: true });
+    expect([...store.quotas.entries()]).toEqual(quotasBefore);
+    expect((await rolledBack.managementStatus(first.id, requestFixture.managementSecret)).state).toBe('active');
+    const fresh = JSON.stringify({ ...JSON.parse(body), ...generateShareCreationSecrets() });
+    await expect(rolledBack.create(fresh, client)).rejects.toMatchObject({ code: 'unsupported-schema' });
+    expect(store.shares.size).toBe(1); expect(store.operations.size).toBe(1);
   });
   it('knows a conservative retry deadline before sending even if the response is lost', async () => {
     const { store, service, advance } = setup();

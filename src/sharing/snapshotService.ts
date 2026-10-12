@@ -135,8 +135,10 @@ export function createSnapshotService(config: SnapshotServiceConfig, dependencie
   return {
     async create(source: string, trustedClientKey: ProjectDigest): Promise<ShareCreationResult> {
       if (!HASH.test(trustedClientKey)) fail('malformed-request');
-      // Bound and validate untrusted content before any storage/quota work.
-      const creation = await admitShareCreation(source, policy);
+      // Bound and validate untrusted content before any storage/quota work. The
+      // current ceiling applies only to NEW creations (below): a retry of an
+      // operation accepted before an admission rollback must stay recoverable.
+      const creation = await admitShareCreation(source, { ...policy, maxAcceptedProjectSchema: PROJECT_SCHEMA_VERSION });
       let id: string;
       try { id = allocateId(); } catch { return fail('unavailable'); }
       if (!isShareId(id)) fail('unavailable');
@@ -156,6 +158,7 @@ export function createSnapshotService(config: SnapshotServiceConfig, dependencie
           // Already accepted results remain recoverable during a creation pause.
           return { id: operation.shareId, createdAt: operation.createdAt, replayed: true };
         }
+        if (creation.project.schemaVersion > policy.maxAcceptedProjectSchema) fail('unsupported-schema');
         if (!controls.creationEnabled) fail('unavailable');
         const collision = await tx.getShare(id);
         if (collision) fail('unavailable');

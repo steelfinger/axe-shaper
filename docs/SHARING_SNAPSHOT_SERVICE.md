@@ -47,6 +47,14 @@ deadline and stop automatic creation retries after it. Never automatically creat
 a new operation to resolve an expired or uncertain result. Client pending-operation
 storage and this UX are still pending.
 
+The admission ceiling gates **new** creations only. Request validation runs at the
+newest schema this build reads; the current ceiling is applied inside the
+transaction after the operation lookup. An identical, unexpired retry of an
+operation accepted before an admission rollback therefore still replays its
+original share ID, so a creator whose first response was lost can recover and
+manage it. An over-ceiling request with no matching operation costs one operation
+read and is refused with `unsupported-schema` before any quota or write.
+
 Public reads return only the full saved-project envelope, preserving its original
 release manifest reference and schema independently of today's admission ceiling.
 They distinguish missing (`not-found`), tombstoned (`revoked`) and paused or failed
