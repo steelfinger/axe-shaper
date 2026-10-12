@@ -160,7 +160,8 @@ Both keys are distinct, canonical unpadded base64url strings encoding exactly
 32 random bytes. `generateShareCreationSecrets()` uses Web Crypto independently
 for each. The application must persist the confirmed pending operation before
 sending, retain it across uncertain results, and put later management credentials
-in an authorization header. Local recovery storage and HTTP management handlers remain pending. The parser verifies encoding/length, not the entropy of client-supplied keys.
+in an authorization header. The [local HTTP adapter](SHARING_HTTP_ADAPTER.md) provides management handlers;
+local recovery storage and deployed endpoints remain pending. The parser verifies encoding/length, not the entropy of client-supplied keys.
 
 The admitted transaction input contains the frozen project and only private key
 hashes, never plaintext key fields. Define each private hash as JCS/UTF-8/SHA-256:
@@ -230,11 +231,13 @@ is public compatibility data, separate from the full private deployment manifest
 it does not validate release evidence or prove that a manifest has been published.
 The fixture is synthetic test data, not a live release declaration.
 
-Errors contain a fixed code and no supplied field names, keys or metadata:
+Errors have exactly `{ "error": { "code": "<known-code>" } }`, with no supplied
+field names, keys or metadata. `http-errors-v1.json` pins the code/status pairs:
 
 | HTTP | Codes |
 | --- | --- |
 | 400 | `malformed-request`, `invalid-id` |
+| 401 / 405 | `unauthorized` / `method-not-allowed` |
 | 422 | `unsupported-share-format`, `unsupported-policy`, `unsupported-schema`, `invalid-project`, `digest-mismatch` |
 | 413 | `too-large` |
 | 409 | `conflict`, `operation-expired` |

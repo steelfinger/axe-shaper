@@ -6,50 +6,10 @@ import { UPLOAD_POLICY_REVISION } from '../projectAdmission';
 import { generateShareCreationSecrets, readSharedProjectEnvelope, SHARE_OPERATION_TTL_MS, SHARE_RETRY_SAFETY_MARGIN_MS, shareCreationRetryDeadline } from '../sharingContract';
 import type { ProjectDigest } from '../sharingContract';
 import { allocateShareId, createSnapshotService } from '../snapshotService';
-import type { CreationOperationRecord, SnapshotControls, SnapshotQuotaRecord, SnapshotRecord,
-  SnapshotServiceConfig, SnapshotStore, SnapshotTransaction } from '../snapshotService';
+import type { SnapshotServiceConfig } from '../snapshotService';
 
-/** Test adapter only. Serialized copy-on-write transactions model commit/rollback. */
-class MemoryStore implements SnapshotStore {
-  shares = new Map<string, SnapshotRecord>();
-  operations = new Map<ProjectDigest, CreationOperationRecord>();
-  quotas = new Map<string, SnapshotQuotaRecord>();
-  controls: SnapshotControls | null = { creationEnabled: true, projectReadsEnabled: true };
-  calls = 0;
-  failCommit = false;
-  rerun = false;
-  betweenAttempts?: () => void;
-  private tail: Promise<unknown> = Promise.resolve();
-  transaction<T>(action: (tx: SnapshotTransaction) => Promise<T>): Promise<T> {
-    this.calls++;
-    const run = this.tail.then(async () => {
-      const attempt = async () => {
-        const shares = structuredClone(this.shares);
-        const operations = structuredClone(this.operations);
-        const quotas = structuredClone(this.quotas);
-        let wrote = false;
-        const read = <V>(value: V): V => { if (wrote) throw new Error('read after write'); return structuredClone(value); };
-        const result = await action({
-          getControls: async () => read(this.controls),
-          getShare: async id => read(shares.get(id) ?? null),
-          getOperation: async hash => read(operations.get(hash) ?? null),
-          getQuota: async key => read(quotas.get(key) ?? null),
-          putShare: (id, value) => { wrote = true; shares.set(id, structuredClone(value)); },
-          putOperation: (hash, value) => { wrote = true; operations.set(hash, structuredClone(value)); },
-          putQuota: (key, value) => { wrote = true; quotas.set(key, structuredClone(value)); },
-        });
-        return { shares, operations, quotas, result };
-      };
-      if (this.rerun) { this.rerun = false; await attempt(); this.betweenAttempts?.(); }
-      const state = await attempt();
-      if (this.failCommit) { this.failCommit = false; throw new Error('injected commit failure'); }
-      this.shares = state.shares; this.operations = state.operations; this.quotas = state.quotas;
-      return state.result;
-    });
-    this.tail = run.catch(() => undefined);
-    return run;
-  }
-}
+import { MemoryStore } from './helpers/memorySnapshotStore';
+
 const client = `sha256:${'1'.repeat(64)}` as const;
 const otherClient = `sha256:${'2'.repeat(64)}` as const;
 const source = JSON.stringify(requestFixture);
@@ -215,7 +175,7 @@ describe('transactional snapshot service', () => {
     await expect(service.create(freshRequest(), client)).rejects.toMatchObject({ code: 'unavailable', status: 503 });
     expect((await service.create(source, client)).replayed).toBe(true);
     expect((await service.read(id)).id).toBe(id);
-    expect(await service.status()).toEqual({ releaseTag: 'v1.2.0', maxAcceptedProjectSchema: 7,
+    expect(await service.status()).toEqual({ releaseTag: 'v1.2.0', uploadPolicyRevision: UPLOAD_POLICY_REVISION, maxAcceptedProjectSchema: 7,
       creationAvailable: false, projectReadAvailable: true });
     store.controls = { creationEnabled: true, projectReadsEnabled: false };
     await expect(service.read(id)).rejects.toMatchObject({ code: 'unavailable' });

@@ -88,7 +88,11 @@ privacy-preserving keyed hash, and implement request throttling/negative caching
 Runtime controls are private administrative state; deploying the service must
 preserve their existing values. No control administration API is added here.
 
+[The local HTTP adapter](SHARING_HTTP_ADAPTER.md) now connects the service routes
+to required attestation/limiter hooks and bounded request streaming.
+
 Cloud Functions, database edition/location and physical records, staging identities,
-billing, live native evidence, HTTP authentication/headers, cache policy, hosted
+billing, live native evidence, actual attestation/limiter implementations, hosting
+bridge and cache policy, hosted
 fetch, pending-operation UI, maintenance and emulator integration remain pending.
 This local milestone does not resolve Phase 0/0a provisioning prerequisites.

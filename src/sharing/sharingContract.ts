@@ -19,11 +19,11 @@ export function shareCreationRetryDeadline(startedAt: number): number {
   return deadline;
 }
 export type ProjectDigest = `sha256:${string}`;
-export type SharingErrorCode = 'malformed-request' | 'invalid-id' | 'unsupported-share-format' |
+export type SharingErrorCode = 'unauthorized' | 'method-not-allowed' | 'malformed-request' | 'invalid-id' | 'unsupported-share-format' |
   'unsupported-policy' | 'unsupported-schema' | 'invalid-project' | 'digest-mismatch' |
   'too-large' | 'conflict' | 'operation-expired' | 'not-found' | 'revoked' | 'quota-exceeded' | 'unavailable';
 export const SHARING_ERROR_STATUS = {
-  'malformed-request': 400, 'invalid-id': 400, 'unsupported-share-format': 422,
+  unauthorized: 401, 'method-not-allowed': 405, 'malformed-request': 400, 'invalid-id': 400, 'unsupported-share-format': 422,
   'unsupported-policy': 422, 'unsupported-schema': 422, 'invalid-project': 422,
   'digest-mismatch': 422, 'too-large': 413, conflict: 409, 'operation-expired': 409, 'not-found': 404,
   revoked: 410, 'quota-exceeded': 429, unavailable: 503,

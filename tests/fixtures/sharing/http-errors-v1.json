@@ -1,0 +1,133 @@
+{
+  "shareFormatVersion": 1,
+  "cases": [
+    {
+      "status": 401,
+      "body": {
+        "error": {
+          "code": "unauthorized"
+        }
+      }
+    },
+    {
+      "status": 405,
+      "body": {
+        "error": {
+          "code": "method-not-allowed"
+        }
+      }
+    },
+    {
+      "status": 400,
+      "body": {
+        "error": {
+          "code": "malformed-request"
+        }
+      }
+    },
+    {
+      "status": 400,
+      "body": {
+        "error": {
+          "code": "invalid-id"
+        }
+      }
+    },
+    {
+      "status": 422,
+      "body": {
+        "error": {
+          "code": "unsupported-share-format"
+        }
+      }
+    },
+    {
+      "status": 422,
+      "body": {
+        "error": {
+          "code": "unsupported-policy"
+        }
+      }
+    },
+    {
+      "status": 422,
+      "body": {
+        "error": {
+          "code": "unsupported-schema"
+        }
+      }
+    },
+    {
+      "status": 422,
+      "body": {
+        "error": {
+          "code": "invalid-project"
+        }
+      }
+    },
+    {
+      "status": 422,
+      "body": {
+        "error": {
+          "code": "digest-mismatch"
+        }
+      }
+    },
+    {
+      "status": 413,
+      "body": {
+        "error": {
+          "code": "too-large"
+        }
+      }
+    },
+    {
+      "status": 409,
+      "body": {
+        "error": {
+          "code": "conflict"
+        }
+      }
+    },
+    {
+      "status": 409,
+      "body": {
+        "error": {
+          "code": "operation-expired"
+        }
+      }
+    },
+    {
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "not-found"
+        }
+      }
+    },
+    {
+      "status": 410,
+      "body": {
+        "error": {
+          "code": "revoked"
+        }
+      }
+    },
+    {
+      "status": 429,
+      "body": {
+        "error": {
+          "code": "quota-exceeded"
+        }
+      }
+    },
+    {
+      "status": 503,
+      "body": {
+        "error": {
+          "code": "unavailable"
+        }
+      }
+    }
+  ]
+}
