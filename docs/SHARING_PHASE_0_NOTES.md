@@ -547,3 +547,34 @@ dialog at 375px width. Deferred, as in the plan: the server-rendered `/share/:id
 landing page (View in 3D / Download), the management page, persisting a pending
 creation across a reload, the "editing a copy" provenance banner, and real App
 Check (the client sends a placeholder token that only staging's bypass accepts).
+
+## Share landing page on staging — 2026-10-12
+
+`/share/:id` is server-rendered by `sharingApi` (`src/sharing/landingPage.ts`,
+Hosting rewrite `/share/**` in `firebase.staging.json`): escaped, bounded title,
+instrument and author; Open Graph/Twitter metadata using the generic site card
+and `SHARING_PUBLIC_ORIGIN` (never the request Host); `noindex` meta and
+`X-Robots-Tag`; a script-free CSP; `Referrer-Policy: same-origin`; and
+`Cache-Control: public, max-age=300, s-maxage=300`, so a revoked share can stay
+visible in caches for up to five minutes. Revoked, unknown and busy shares get
+410, 404 and 503/429 HTML pages (busy is never "not found").
+
+**View in 3D** is `/share/:id/3d`, a 302 to the pinned viewer's existing `#d=`
+link built server-side with `buildViewer3DPath`, so it needs no viewer release.
+The plan's `/viewer3d/?share=:id` can replace it once a viewer version fetches
+snapshots itself. **Download project** is the SPA route `/download/share/:id`,
+which saves the snapshot through the normal `.axe.svg` exporter. The SPA no
+longer claims `/share/:id`.
+
+Verified on staging: page headers and metadata, the 3D redirect into a rendered
+viewer, an unknown ID (404 HTML), the downloaded `.axe.svg` (same contour, neck
+and schema 7 as the stored envelope), and 375px width without horizontal scroll.
+
+Caching note: Hosting serves the SPA shell with `max-age=3600`, so a browser
+that loaded a `/share/:id` URL as the SPA before this route existed keeps that
+copy for up to an hour. That only affected staging testing; production has
+never served `/share/:id` through the sharing flow.
+
+Still deferred: the minimum-iPad-version line on the page (needs the support
+manifest), the creator management page, and per-design preview images
+(Release B).
