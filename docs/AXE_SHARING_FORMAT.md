@@ -180,6 +180,16 @@ the local snapshot service checks quotas, expiry and revocation atomically,
 returns the existing ID on a matching live retry, and never reactivates a revoked
 share. Its storage adapter must uphold the documented transaction guarantees.
 
+The v1 retry-protection window is fixed at **24 hours** by
+`SHARE_OPERATION_TTL_MS`. Before the first send, persist the operation and
+`shareCreationRetryDeadline(startedAt)` (24 hours minus a one-minute safety margin).
+Never extend that deadline on retries. Stop automatic retries at the deadline or
+when a clock rollback makes timing uncertain; no response or status fetch is
+required to learn this window. Retained expired keys return **409 operation-expired**,
+separately from changed-content **409 conflict**. After TTL cleanup removes the
+operation, the server cannot recognize an old key, so client deadline enforcement
+is essential. Expiry does not authorize automatically creating a replacement.
+
 The public envelope has exactly `shareFormatVersion`, `id`, `createdAt`,
 `uploadPolicyRevision`, `digestCanonicalization`, `projectDigest`, `project`,
 `requirements` and `preview`. IDs are 20 ASCII alphanumeric characters. Times are
@@ -226,7 +236,8 @@ Errors contain a fixed code and no supplied field names, keys or metadata:
 | --- | --- |
 | 400 | `malformed-request`, `invalid-id` |
 | 422 | `unsupported-share-format`, `unsupported-policy`, `unsupported-schema`, `invalid-project`, `digest-mismatch` |
-| 413 / 409 | `too-large` / `conflict` |
+| 413 | `too-large` |
+| 409 | `conflict`, `operation-expired` |
 | 404 / 410 | `not-found` / `revoked` |
 | 429 / 503 | `quota-exceeded` / `unavailable` |
 

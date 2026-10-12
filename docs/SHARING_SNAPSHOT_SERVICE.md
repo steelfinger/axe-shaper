@@ -5,10 +5,11 @@ service core behind a transactional storage interface, with no deployed endpoint
 or production database adapter. It does not change the editor or viewer UI.
 
 `createSnapshotService` takes an explicit release tag, upload admission policy,
-quota limits, retry-record lifetime, storage adapter and optional clock/ID
-allocator. Production must validate release/native evidence before constructing
+quota limits, storage adapter and optional clock/ID allocator. Production must validate release/native evidence before constructing
 it; accepting a configuration here does not prove that an iPad version is live.
-Configuration is detached from caller mutation. Controls can pause creation and
+Configuration is detached from caller mutation. An unknown or inactive upload
+policy revision is rejected at startup as `unavailable`, rather than attributing
+a deployment error to the client. Controls can pause creation and
 project reads independently without raising the release's admission ceiling.
 The core reads controls inside each transaction, without a cache. Missing
 controls fail closed for creation, reads and status; creator management does not
@@ -17,16 +18,29 @@ depend on controls.
 Creation validates the bounded raw request and verifies its project digest before
 storage access. The transaction checks the hashed operation key, current controls,
 ID availability and UTC fixed-window quotas before writing the snapshot,
-management-secret hash, operation result and all counters together. Independent
-operations with identical projects create independent shares. IDs use unbiased
-random sampling of 20 alphanumeric characters. An allocation collision returns
+management-secret hash, operation result and all counters together. The successful
+transaction attempt uses one server-clock sample for
+`createdAt`, quota windows and operation expiry, including retries across midnight.
+Independent operations with identical projects create independent shares. IDs use unbiased
+random sampling of 20 alphanumeric characters. Allocator failures, invalid allocator results and allocation collisions return
 `unavailable` without overwriting anything; retrying the same operation is safe
 within the protection window.
 
 Identical concurrent retries return the original ID/time and count once. Changed
 content or management authority under a retained operation returns `conflict`.
 Already accepted results can be recovered during a creation pause when controls
-remain available. Explicit expiry checks refuse retries at or after the deadline,
+remain available. Retry protection is fixed by the v1 contract at 24 hours
+(`SHARE_OPERATION_TTL_MS`), independent of deployment configuration.
+`shareCreationRetryDeadline(startedAt)` subtracts a one-minute safety margin.
+The client must record `startedAt` and persist this deadline with its operation
+before the first send, never recalculate/extend it on retries, and stop sending
+at the deadline even when every server response is lost. A clock rollback or
+uncertain persisted timing must also stop automatic retries. No status or creation
+response is required to learn the window. Changing this guarantee requires an
+explicit versioned contract change, preserving outstanding operations.
+
+Explicit expiry checks return `operation-expired` (409) at or after the server
+record’s `expiresAt`,
 even if database TTL cleanup has not run. Once an expired operation is deleted,
 the server cannot recognize that key: the client must persist its original retry
 deadline and stop automatic creation retries after it. Never automatically create
@@ -58,6 +72,11 @@ all reads before writes and generates its candidate ID/envelope outside the
 callback. Transaction failure must roll back every write. The adapter must keep
 records private, exclude project payloads from unnecessary indexes, enforce finite
 retention for expired operation/quota records, and record diagnostics privately.
+The global day counter is one shared record and every new creation writes it.
+It can become a contention/throughput bottleneck; the selected database adapter
+must load-test its expected burst traffic and retry behavior. Any future sharding
+must preserve the atomic global admission cap rather than just distribute counts.
+
 Unexpected storage failures map to a fixed `unavailable` error at the service
 boundary. The in-memory copy-on-write adapter in tests is not production storage.
 

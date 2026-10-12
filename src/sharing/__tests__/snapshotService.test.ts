@@ -3,7 +3,7 @@ import requestFixture from '../../../tests/fixtures/sharing/creation-v1.json';
 import schema8 from '../../../tests/fixtures/sharing/schema8-known-jacks.json';
 import { projectDigest } from '../canonicalJson';
 import { UPLOAD_POLICY_REVISION } from '../projectAdmission';
-import { generateShareCreationSecrets, readSharedProjectEnvelope } from '../sharingContract';
+import { generateShareCreationSecrets, readSharedProjectEnvelope, SHARE_OPERATION_TTL_MS, SHARE_RETRY_SAFETY_MARGIN_MS, shareCreationRetryDeadline } from '../sharingContract';
 import type { ProjectDigest } from '../sharingContract';
 import { allocateShareId, createSnapshotService } from '../snapshotService';
 import type { CreationOperationRecord, SnapshotControls, SnapshotQuotaRecord, SnapshotRecord,
@@ -18,6 +18,7 @@ class MemoryStore implements SnapshotStore {
   calls = 0;
   failCommit = false;
   rerun = false;
+  betweenAttempts?: () => void;
   private tail: Promise<unknown> = Promise.resolve();
   transaction<T>(action: (tx: SnapshotTransaction) => Promise<T>): Promise<T> {
     this.calls++;
@@ -39,7 +40,7 @@ class MemoryStore implements SnapshotStore {
         });
         return { shares, operations, quotas, result };
       };
-      if (this.rerun) { this.rerun = false; await attempt(); }
+      if (this.rerun) { this.rerun = false; await attempt(); this.betweenAttempts?.(); }
       const state = await attempt();
       if (this.failCommit) { this.failCommit = false; throw new Error('injected commit failure'); }
       this.shares = state.shares; this.operations = state.operations; this.quotas = state.quotas;
@@ -54,7 +55,7 @@ const otherClient = `sha256:${'2'.repeat(64)}` as const;
 const source = JSON.stringify(requestFixture);
 const config: SnapshotServiceConfig = {
   releaseTag: 'v1.2.0', admission: { revision: UPLOAD_POLICY_REVISION, maxAcceptedProjectSchema: 7 },
-  quotas: { globalPerDay: 100, clientPerHour: 10, clientPerDay: 25 }, operationTtlMs: 24 * 60 * 60 * 1000,
+  quotas: { globalPerDay: 100, clientPerHour: 10, clientPerDay: 25 },
 };
 function setup(overrides: Partial<SnapshotServiceConfig> = {}) {
   const store = new MemoryStore();
@@ -142,11 +143,39 @@ describe('transactional snapshot service', () => {
     expect([store.shares.size, store.operations.size, store.quotas.size]).toEqual([1, 1, 3]);
     expect([...store.quotas.values()].every(value => value.count === 1)).toBe(true);
   });
-  it('refuses expired retries even if TTL cleanup has not removed the operation', async () => {
-    const { store, service, advance } = setup({ operationTtlMs: 1000 });
+  it('replays a concurrent winner committed between callback attempts', async () => {
+    const { store, service } = setup();
+    const winningStore = new MemoryStore();
+    const winningService = createSnapshotService(config, { store: winningStore,
+      allocateId: () => 'Z0000000000000000000', now: () => Date.parse('2026-10-12T10:00:00.000Z') });
+    const winner = await winningService.create(source, client);
+    store.rerun = true;
+    store.betweenAttempts = () => {
+      store.shares = structuredClone(winningStore.shares);
+      store.operations = structuredClone(winningStore.operations);
+      store.quotas = structuredClone(winningStore.quotas);
+    };
+    expect(await service.create(source, client)).toEqual({ ...winner, replayed: true });
+    expect(store.shares.size).toBe(1);
+    expect([...store.quotas.values()].every(value => value.count === 1)).toBe(true);
+  });
+  it('uses the final transaction attempt clock consistently across midnight', async () => {
+    const { store, service, advance } = setup();
+    advance(14 * 60 * 60 * 1000 - 1); // 23:59:59.999Z
+    store.rerun = true;
+    store.betweenAttempts = () => advance(2);
     const result = await service.create(source, client);
-    advance(999); expect((await service.create(source, client)).id).toBe(result.id);
-    advance(1); await expect(service.create(source, client)).rejects.toMatchObject({ code: 'conflict' });
+    expect(result.createdAt).toBe('2026-10-13T00:00:00.001Z');
+    expect((await service.read(result.id)).createdAt).toBe(result.createdAt);
+    const dayStart = Date.parse('2026-10-13T00:00:00.000Z');
+    expect(store.quotas.has(`global:${dayStart}`)).toBe(true);
+    expect([...store.operations.values()][0].expiresAt).toBe(Date.parse(result.createdAt) + SHARE_OPERATION_TTL_MS);
+  });
+  it('refuses expired retries even if TTL cleanup has not removed the operation', async () => {
+    const { store, service, advance } = setup();
+    const result = await service.create(source, client);
+    advance(SHARE_OPERATION_TTL_MS - 1); expect((await service.create(source, client)).id).toBe(result.id);
+    advance(1); await expect(service.create(source, client)).rejects.toMatchObject({ code: 'operation-expired', status: 409 });
     expect(store.shares.size).toBe(1); expect(store.operations.size).toBe(1);
     expect((await service.read(result.id)).id).toBe(result.id);
   });
@@ -219,6 +248,32 @@ describe('transactional snapshot service', () => {
     expect(envelope.project).toEqual(schema8);
     expect(envelope.requirements.supportManifest).toBe('/sharing/releases/v1.3.0.json');
     expect((await rolledBack.status()).maxAcceptedProjectSchema).toBe(7);
+  });
+  it('knows a conservative retry deadline before sending even if the response is lost', async () => {
+    const { store, service, advance } = setup();
+    const start = Date.parse('2026-10-12T10:00:00.000Z');
+    const deadline = shareCreationRetryDeadline(start);
+    expect(deadline).toBe(start + SHARE_OPERATION_TTL_MS - SHARE_RETRY_SAFETY_MARGIN_MS);
+    expect(new Date(deadline).toISOString()).toBe('2026-10-13T09:59:00.000Z');
+    advance(2000); // validation/network delay before first server acceptance
+    await service.create(source, client); // simulate discarding the response
+    expect([...store.operations.values()][0].expiresAt).toBeGreaterThan(deadline);
+    expect(() => shareCreationRetryDeadline(NaN)).toThrow('malformed-request');
+    expect(() => shareCreationRetryDeadline(Number.MAX_SAFE_INTEGER)).toThrow('malformed-request');
+  });
+  it.each(['unknown-policy', '__proto__', 'constructor'])('rejects invalid revision %s at startup before storage', revision => {
+    const store = new MemoryStore();
+    expect(() => createSnapshotService({ ...config, admission: { ...config.admission, revision } }, { store }))
+      .toThrow('unavailable');
+    expect(store.calls).toBe(0);
+  });
+  it('maps failed or malformed custom allocators to unavailable before storage', async () => {
+    const store = new MemoryStore();
+    for (const allocateId of [() => { throw new Error('private allocator detail'); }, () => 'bad-id']) {
+      const service = createSnapshotService(config, { store, allocateId });
+      await expect(service.create(source, client)).rejects.toMatchObject({ code: 'unavailable', message: 'unavailable', status: 503 });
+    }
+    expect(store.calls).toBe(0);
   });
   it('distinguishes absent shares from revocation and never replaces an ID collision', async () => {
     const { store, service } = setup(); await service.create(source, client);

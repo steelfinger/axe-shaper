@@ -378,3 +378,30 @@ pauses, configuration detachment, ID collisions, release rollback and random ID
 sampling. Existing App hook and bundle-size warnings remain. Viewer/iOS code and
 public wire fixtures are unchanged; their suites were not rerun for this local
 service-only milestone.
+
+## Snapshot service contract review — 2026-10-12
+
+V1 now fixes retry protection at 24 hours through `SHARE_OPERATION_TTL_MS`;
+server config cannot shorten it. `shareCreationRetryDeadline(startedAt)` subtracts
+one minute and is available before the first send. The future client must persist
+that original deadline, stop retries when it ends or timing becomes uncertain,
+and never extend it after lost responses. Expired retained operations now return
+`operation-expired` (409), independently of changed-request `conflict`. The viewer
+recognizes both codes. TTL deletion still removes recognition of old keys, so the
+pending-operation UI must enforce its deadline; that integration remains pending.
+
+Service construction rejects unknown/inactive upload revisions as `unavailable`.
+Allocator exceptions and invalid allocator output also return fixed `unavailable`
+errors. Snapshot timestamps, operation timestamps/expiry and quota windows now
+share the final transaction attempt's clock, including a retry across midnight.
+The adapter requirements identify the single global counter as a contention
+point and require burst-load verification; no unsupported throughput figure is
+assumed. A new test replaces storage with a concurrent winner between callback
+attempts and checks that the losing attempt replays without extra quota or writes.
+
+Validation: all 447 web tests (139 sharing tests), build/type check, lint, policy
+export and the four format/geometry contract checks passed. Viewer `npm run check`
+passed with 478 tests (70 sharing tests), 59 pinned files, 22 preview capability
+checks and build. The fixed deadline is additionally pinned to an independent
+UTC timestamp. Existing lint and bundle-size warnings remain. No cloud deployment,
+HTTP adapter, pending-operation UI or native changes were made.

@@ -91,7 +91,7 @@ Proposed conservative small-launch configuration:
 | Public reads/media | Separate low scaling limits, CDN caching, negative caches and throttling |
 | Monthly alerts | Proposed $5, $10, and $25 thresholds |
 | Eligible Functions spend cap | Proposed $10/month if available and suitable for this project's other Functions |
-| Operation records | 24-hour retry protection |
+| Operation records | Fixed 24-hour v1 retry protection |
 | Limiter records | Short TTL covering the quota window; no long-term client history |
 
 These are configurable starting points to test, not finalized entitlements.
