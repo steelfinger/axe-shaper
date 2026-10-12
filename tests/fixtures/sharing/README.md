@@ -39,11 +39,18 @@ Custom validation logic still needs reviewed semantics and regression cases.
 
 `project-upload-v2-definition.json` exports the same data-only definition for an
 independent viewer interpreter. Web tests check equality with the compiled rules
-and fingerprint every retained definition. `node scripts/write-sharing-policy.ts`
+and fingerprint every retained definition. `npm run sharing:export`
 exports a missing definition and refuses to overwrite a changed existing revision;
-add `--check` to verify only. It does not replace fingerprint entries.
+add `-- --check` to verify only. It does not replace fingerprint entries. Unit tests
+are the CI gate; this npm command is the explicit generator/check tool.
 
 The viewer vendors all sharing JSON artifacts under `contracts/sharing`, with
 file SHA-256 pins in its own contract manifest. Its independent JSON/JCS/envelope
 checks now run in `npm run check`. Neither repository's normal tests/build require
 the sibling checkout. Native iPad sharing-adapter checks and endpoints remain pending.
+
+`joint-contract-vectors.json` is shared acceptance data for the independently
+implemented joint checks: compound tangency just above/below/at its boundary,
+bass reference fret 20 versus 22, and tapered mortises with/without a deep width.
+Web tests exercise paired validation and outline generation. Viewer tests feed
+the same geometry into full-envelope validation with a recomputed project digest.

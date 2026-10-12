@@ -204,8 +204,12 @@ not request jobs or publish media. Publication/licence fields require a later
 explicit contract extension and remain refused by this version's reader.
 
 `readSharingClientSupportManifest()` validates the expected tag, format version,
-web/viewer reader ceilings, and an explicit map from schema 3 through the central
-`PROJECT_SCHEMA_VERSION` to minimum editable iPad marketing versions. Non-null
+web/viewer reader ceilings, and an explicit contiguous map from schema 3 through
+the manifest's own maximum to minimum editable iPad marketing versions. That range
+belongs to the immutable release manifest, independently of installed client schema
+capability. Ceilings are safe integers covered by the map, and may exceed the local
+reader's maximum. Older maps remain readable after a client update. Per-share
+schema gating still uses the installed client's ceiling. Non-null
 versions must not decrease as schema increases; once a minimum is `null`, every
 higher schema must also be `null`. Comparisons preserve numeric component precision.
 `null` means native edit support is unconfirmed. This
@@ -257,11 +261,16 @@ Request/envelope checks also consume `creation-v1.json`, its independently compu
 private hash vectors, `envelope-v1.json` and `support-manifest-v1.json`. Negative
 cases mutate individual fields and cover tampering, secret encoding, unknown fields,
 whole-body UTF-8 limits, schema gates and all preview variants. Functions integration
-remains pending. The viewer now vendors the eight sharing JSON artifacts, pins
+remains pending. The viewer now vendors the nine sharing JSON artifacts, pins
 their file hashes, and independently checks raw parsing/JCS, envelope integrity,
 the frozen policy definition, schema gates, previews, support manifests and service
 errors in its own `npm run check`. Its data interpreter uses the fingerprinted
 `project-upload-v2-definition.json` without importing web implementation code.
+Module-load assertions check descriptor operations, budgets, mirror semantics,
+JSON safety limits and custom semantics against the interpreter's assumptions.
+Both clients consume `joint-contract-vectors.json`: near/exact compound tangency,
+bass reference-fret acceptance/refusal, and valid/malformed tapered mortises. The
+web exercises `generateNeckJointOutline()` and the viewer exercises its own reader.
 The web checks that this exported definition equals the compiled rules and retains
 every revision's definition/fingerprint. Hosted viewer fetch/query/UI integration
 is still pending. Require iPad digest/adapter checks

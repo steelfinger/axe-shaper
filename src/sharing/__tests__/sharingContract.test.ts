@@ -57,6 +57,11 @@ describe('version 1 creation contract', () => {
       expect(error).toMatchObject({ code: 'digest-mismatch', message: 'digest-mismatch', status: 422 });
     }
   });
+  it('reports the project byte limit before unsupported schema', async () => {
+    const project = { ...requestFixture.project, schemaVersion: 9,
+      metadata: { ...requestFixture.project.metadata, author: 'x'.repeat(384 * 1024) } };
+    await expect(admitShareCreation(JSON.stringify({ ...requestFixture, project }), policy)).rejects.toMatchObject({ code: 'too-large' });
+  });
   it.each([
     [{ shareFormatVersion: 2 }, 'unsupported-share-format'],
     [{ uploadPolicyRevision: 'future' }, 'unsupported-policy'],
@@ -110,7 +115,20 @@ describe('tagged public client support manifest', () => {
   });
   it('derives its complete schema range from the central project schema version', () => {
     expect(SHARING_PROJECT_SCHEMAS).toEqual(Array.from({ length: PROJECT_SCHEMA_VERSION - 2 }, (_, i) => i + 3));
-    expect(Object.keys(manifestFixture.minimumEditableIpadVersionBySchema)).toEqual(SHARING_PROJECT_SCHEMAS.map(String));
+  });
+  it('reads older and newer release manifests independently of installed schema capability', () => {
+    const older = { ...manifestFixture, webReadSchema: 7, viewerReadSchema: 7,
+      minimumEditableIpadVersionBySchema: Object.fromEntries(Object.entries(manifestFixture.minimumEditableIpadVersionBySchema).filter(([key]) => key !== '8')) };
+    expect(readManifest(older)).toEqual(older);
+    const newer = { ...manifestFixture, webReadSchema: 9,
+      minimumEditableIpadVersionBySchema: { ...manifestFixture.minimumEditableIpadVersionBySchema, '9': null } };
+    expect(readManifest(newer)).toEqual(newer);
+  });
+  it.each([
+    { ...manifestFixture, minimumEditableIpadVersionBySchema: { '3': null, '5': null } },
+    { ...manifestFixture, webReadSchema: Number.MAX_SAFE_INTEGER },
+  ])('refuses gaps and ceilings beyond the manifest map %#', value => {
+    expect(() => readManifest(value)).toThrow(SharingContractError);
   });
   it('allows equal or increasing minimum versions across confirmed schemas', () => {
     const versions = { '3': '1.2.0', '4': '1.2.0', '5': '1.2.9', '6': '1.2.10', '7': '1.10.0', '8': '2.0.0' };
