@@ -405,3 +405,43 @@ passed with 478 tests (70 sharing tests), 59 pinned files, 22 preview capability
 checks and build. The fixed deadline is additionally pinned to an independent
 UTC timestamp. Existing lint and bundle-size warnings remain. No cloud deployment,
 HTTP adapter, pending-operation UI or native changes were made.
+
+## Local HTTP boundary — 2026-10-12
+
+`src/sharing/sharingHttp.ts` connects the snapshot service to the planned creation,
+public snapshot, status, creator status and revocation routes using Fetch
+Request/Response APIs. New creations return 201 and identical replays return 200.
+Status now includes `uploadPolicyRevision` for client preflight. All responses use
+no-store JSON and fixed errors; wrong methods return 405 with `Allow`, and bad IDs,
+unknown routes and query/body credential transport never fall through to a design.
+
+Ingress throttling and App Check verification are required injected hooks.
+Creation requires bounded attestation before body reads; missing/invalid tokens
+return 401 and infrastructure failures return 503. Trusted quota identity comes
+from server context, never arbitrary forwarded/client headers or request JSON.
+Creator capability is accepted only in the bearer authorization header. The
+production hosting bridge must supply real verifier/limiter implementations,
+trusted ingress identity, timeouts/header/body limits and request abort wiring.
+
+The creation reader enforces the actual 512 KiB transport budget with one bounded
+buffer, rejects oversized declared lengths before consumption, validates strict
+UTF-8 and cancels oversize/aborted streams. Early rejections cancel unused bodies
+without pulling bytes. The service still validates exact JSON, project admission
+and digest before storage. Tests exercise the full local create/replay/read/manage/
+revoke flow, size boundaries, chunked Unicode, credential handling, throttling,
+attestation errors, cancellation and exception redaction with the transaction test
+adapter, now shared between the two web test suites.
+
+`http-errors-v1.json` pins all 16 status/code pairs and the existing nested
+`{ error: { code } }` wire shape. The viewer vendors that tenth sharing artifact,
+recognizes unauthorized/method refusals and independently checks every vector.
+No public snapshot/admission definition or fingerprint changed.
+
+Validation: all 483 web tests (175 sharing tests), build/type check, lint, policy
+export, schema, fixture, corpus and bass checks passed. Viewer `npm run check`
+passed with 487 tests (79 sharing tests), 60 pinned files, 22 preview capability
+checks and build. A concurrent local Vite check emitted a port warning; build was
+rerun independently. Existing lint and bundle-size warnings remain. No Firebase
+SDK, production verifier/limiter/storage implementation, deployment, hosted client
+UI or native adapter was added. The detailed remaining hosting requirements are
+in [the HTTP adapter notes](SHARING_HTTP_ADAPTER.md).

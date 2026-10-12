@@ -220,7 +220,7 @@ export function createSnapshotService(config: SnapshotServiceConfig, dependencie
     async status() {
       return transact(async tx => {
         const controls = await controlsFor(tx);
-        return { releaseTag, maxAcceptedProjectSchema: policy.maxAcceptedProjectSchema,
+        return { releaseTag, uploadPolicyRevision: policy.revision, maxAcceptedProjectSchema: policy.maxAcceptedProjectSchema,
           creationAvailable: controls.creationEnabled, projectReadAvailable: controls.projectReadsEnabled };
       });
     },
