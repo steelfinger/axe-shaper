@@ -111,7 +111,11 @@ rewrite lives in `firebase.staging.json`, which the staging workflow copies over
 lane and PR previews use it, and `axe-shaper-web` has no such Function. The editor's **Create link** dialog and
 the `/share/:id` route are behind `SHARING_ENABLED` (`VITE_SHARING=1`), which
 only the staging workflow sets - like `OUTPUT_JACKS_ENABLED`, it must stay off
-in the release lane until the backend exists on production. See
+in the release lane until the backend exists on production. Creating a link
+needs App Check: the staging build reads the public Firebase web config and
+reCAPTCHA site key from repository Actions variables (`VITE_FIREBASE_*`,
+`VITE_RECAPTCHA_SITE_KEY`), and local dev from the gitignored `.env.local`.
+Without them the dialog offers only the project file. See
 `docs/SHARING_PHASE_0_NOTES.md`.
 
 ```bash

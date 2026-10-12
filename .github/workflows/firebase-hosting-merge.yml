@@ -53,6 +53,14 @@ jobs:
           # The Create link dialog needs the /api/** sharing backend, which
           # only this project has. Never set in the release or PR workflows.
           VITE_SHARING: '1'
+          # Public Firebase web config and reCAPTCHA Enterprise site key for
+          # App Check on Create link. Repository Actions *variables*, not
+          # secrets - they ship in the bundle - kept out of source only because
+          # secret scanning flags the API key pattern. See src/sharing/appCheck.ts.
+          VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_APP_ID: ${{ vars.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
+          VITE_RECAPTCHA_SITE_KEY: ${{ vars.VITE_RECAPTCHA_SITE_KEY }}
       # Staging Hosting rewrites /api/** to the sharingApi Function, which
       # exists only in axe-shaper-staging. firebase.json stays rewrite-free for
       # the release lane and PR previews; the action has no --config input, so

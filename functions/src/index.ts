@@ -25,21 +25,19 @@ import { createFirestoreSnapshotStore } from './firestoreSnapshotStore';
  */
 const RELEASE_TAG = defineString('SHARING_RELEASE_TAG');
 const MAX_SCHEMA = defineInt('SHARING_MAX_ACCEPTED_SCHEMA');
-/** `enforce` verifies tokens; `staging-bypass` accepts any non-empty token and is refused on production. */
-const APP_CHECK_MODE = defineString('SHARING_APP_CHECK_MODE', { default: 'enforce' });
 /** HMAC key that turns the client IP into an opaque quota key. Never stored with records. */
 const CLIENT_KEY_SECRET = defineSecret('SHARING_CLIENT_KEY_SECRET');
 /**
  * Hosting sites allowed to front this API. Hosting sets X-Forwarded-Host to the
  * site domain; the direct cloudfunctions.net / run.app URLs do not, so this
  * refuses casual direct calls. It is not authentication: a direct caller can
- * forge both headers and pick its own quota key. The global daily cap bounds
- * that, and enforced App Check on creation is the real answer before production.
+ * forge both headers and pick its own quota key. Creation also needs a
+ * single-use App Check token, so forged keys still cost one attestation each;
+ * the global daily cap bounds the rest.
  */
 const HOSTING_SITES = defineString('SHARING_HOSTING_SITES');
 /** Absolute origin for canonical and social-card URLs. Never taken from a request Host header. */
 const PUBLIC_ORIGIN = defineString('SHARING_PUBLIC_ORIGIN');
-const PRODUCTION_PROJECT = 'axe-shaper-web';
 
 initializeApp();
 
@@ -82,11 +80,6 @@ function loggedStore(store: SnapshotStore): SnapshotStore {
 let runtime: { service: ReturnType<typeof createSnapshotService>; handler: ReturnType<typeof createSharingHttpHandler> } | undefined;
 function sharingRuntime() {
   if (runtime) return runtime;
-  const project = process.env.GCLOUD_PROJECT;
-  const mode = APP_CHECK_MODE.value();
-  if (mode !== 'enforce' && (mode !== 'staging-bypass' || project === PRODUCTION_PROJECT)) {
-    throw new Error(`refusing App Check mode ${mode} on ${project}`);
-  }
   const service = createSnapshotService({
     releaseTag: RELEASE_TAG.value(),
     admission: { revision: UPLOAD_POLICY_REVISION, maxAcceptedProjectSchema: MAX_SCHEMA.value() },
@@ -95,8 +88,16 @@ function sharingRuntime() {
   const handler = createSharingHttpHandler({
     service,
     async verifyAppCheck(token) {
-      if (mode === 'staging-bypass') return true;
-      try { await getAppCheck().verifyToken(token); return true; } catch { return false; }
+      // Single-use: a consumed token (a replay) is refused like an invalid one.
+      // Only a token that fails verification returns false; an outage of the
+      // verification service throws, so the adapter answers 503, not 401.
+      let result;
+      try { result = await getAppCheck().verifyToken(token, { consume: true }); } catch (error) {
+        const code = (error as { code?: string }).code;
+        if (code === 'app-check/invalid-argument' || code === 'app-check/app-check-token-expired') return false;
+        throw error;
+      }
+      return !result.alreadyConsumed;
     },
     async allowRequest(kind, context) { return allowIngress(kind, context.clientKey); },
   });

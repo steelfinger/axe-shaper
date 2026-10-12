@@ -32,20 +32,21 @@ function server(maxAcceptedProjectSchema = 7) {
   return { store, fetchImpl, requests, failNext: (count: number) => { failures = count; } };
 }
 const noWait = async () => undefined;
+const token = async () => 'app-check-token';
 
 describe('share link client', () => {
   it('creates a link, retries the same operation, and opens the exact design', async () => {
     const { store, fetchImpl, failNext } = server();
     const status = await fetchSharingStatus(fetchImpl);
     expect(status?.creationAvailable).toBe(true);
-    const preflight = await preflightShare(project, status);
+    const preflight = await preflightShare(project, status, true);
     if (!preflight.ok) throw new Error(preflight.reason);
     const pending = beginShare(preflight, Date.now());
     failNext(2); // first two sends never arrive; the third succeeds
-    const first = await sendShare(pending, fetchImpl, Date.now, noWait);
+    const first = await sendShare(pending, fetchImpl, token, Date.now, noWait);
     if (!first.ok) throw new Error(first.code);
     // A later manual retry of the same pending share is the same share, not a second one.
-    const again = await sendShare(pending, fetchImpl, Date.now, noWait);
+    const again = await sendShare(pending, fetchImpl, token, Date.now, noWait);
     expect(again).toEqual(first);
     expect(store.shares.size).toBe(1);
     const opened = await loadSharedProject(first.id, fetchImpl);
@@ -57,10 +58,12 @@ describe('share link client', () => {
     const schema8Project = schema8 as unknown as StoredProject;
     const status: SharingStatus = { uploadPolicyRevision: UPLOAD_POLICY_REVISION, maxAcceptedProjectSchema: 7,
       creationAvailable: true, projectReadAvailable: true };
-    expect(await preflightShare(schema8Project, status)).toEqual({ ok: false, reason: 'unsupported-schema' });
-    expect(await preflightShare(project, { ...status, creationAvailable: false })).toEqual({ ok: false, reason: 'paused' });
-    expect(await preflightShare(project, { ...status, uploadPolicyRevision: 'project-upload-v9' })).toEqual({ ok: false, reason: 'unavailable' });
-    expect(await preflightShare(project, null)).toEqual({ ok: false, reason: 'unavailable' });
+    expect(await preflightShare(schema8Project, status, true)).toEqual({ ok: false, reason: 'unsupported-schema' });
+    expect(await preflightShare(project, { ...status, creationAvailable: false }, true)).toEqual({ ok: false, reason: 'paused' });
+    expect(await preflightShare(project, { ...status, uploadPolicyRevision: 'project-upload-v9' }, true)).toEqual({ ok: false, reason: 'unavailable' });
+    expect(await preflightShare(project, null, true)).toEqual({ ok: false, reason: 'unavailable' });
+    // A build without App Check config cannot create links, so it never offers to.
+    expect(await preflightShare(project, status, false)).toEqual({ ok: false, reason: 'unavailable' });
   });
 
   it('reports an unreachable status as null rather than guessing', async () => {
@@ -70,20 +73,20 @@ describe('share link client', () => {
 
   it('stops retrying at the fixed deadline instead of creating a new operation', async () => {
     const { fetchImpl, requests } = server();
-    const preflight = await preflightShare(project, await fetchSharingStatus(fetchImpl));
+    const preflight = await preflightShare(project, await fetchSharingStatus(fetchImpl), true);
     if (!preflight.ok) throw new Error(preflight.reason);
     const pending = beginShare(preflight, 1_000_000);
-    expect(await sendShare(pending, fetchImpl, () => pending.deadline, noWait))
+    expect(await sendShare(pending, fetchImpl, token, () => pending.deadline, noWait))
       .toEqual({ ok: false, code: 'operation-expired', retryable: false });
     expect(requests.filter(request => request.startsWith('POST'))).toHaveLength(0);
   });
 
   it('explains removed and unknown shares instead of opening something else', async () => {
     const { fetchImpl } = server();
-    const preflight = await preflightShare(project, await fetchSharingStatus(fetchImpl));
+    const preflight = await preflightShare(project, await fetchSharingStatus(fetchImpl), true);
     if (!preflight.ok) throw new Error(preflight.reason);
     const pending = beginShare(preflight, Date.now());
-    const created = await sendShare(pending, fetchImpl, Date.now, noWait);
+    const created = await sendShare(pending, fetchImpl, token, Date.now, noWait);
     if (!created.ok) throw new Error(created.code);
     await fetchImpl(`/api/shares/${created.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${pending.managementSecret}` } });
     const removed = await loadSharedProject(created.id, fetchImpl);
@@ -106,10 +109,10 @@ describe('share link client', () => {
 
   it('lets the creator check and remove a link with the key, and refuses any other key alike', async () => {
     const { fetchImpl } = server();
-    const preflight = await preflightShare(project, await fetchSharingStatus(fetchImpl));
+    const preflight = await preflightShare(project, await fetchSharingStatus(fetchImpl), true);
     if (!preflight.ok) throw new Error(preflight.reason);
     const pending = beginShare(preflight, Date.now());
-    const created = await sendShare(pending, fetchImpl, Date.now, noWait);
+    const created = await sendShare(pending, fetchImpl, token, Date.now, noWait);
     if (!created.ok) throw new Error(created.code);
     expect(await manageShare(created.id, pending.managementSecret, 'status', fetchImpl))
       .toEqual({ ok: true, state: 'active', revokedAt: null });
@@ -148,5 +151,23 @@ describe('share link client', () => {
     const full = { getItem: () => null, setItem: () => { throw new DOMException('full', 'QuotaExceededError'); } };
     expect(() => rememberShareKey(full, 'A'.repeat(20), key)).not.toThrow();
     expect(storedShareKey(null, 'A'.repeat(20))).toBeNull();
+  });
+
+  it('sends nothing without an App Check token, and carries the token when there is one', async () => {
+    const { fetchImpl, requests, store } = server();
+    const preflight = await preflightShare(project, await fetchSharingStatus(fetchImpl), true);
+    if (!preflight.ok) throw new Error(preflight.reason);
+    const pending = beginShare(preflight, Date.now());
+    expect(await sendShare(pending, fetchImpl, async () => null, Date.now, noWait))
+      .toEqual({ ok: false, code: 'attestation', retryable: true });
+    expect(requests.filter(request => request.startsWith('POST'))).toHaveLength(0);
+    const seen: (string | null)[] = [];
+    const recording = async (input: string, init?: RequestInit) => {
+      seen.push(new Headers(init?.headers).get('X-Firebase-AppCheck'));
+      return fetchImpl(input, init);
+    };
+    expect((await sendShare(pending, recording, token, Date.now, noWait)).ok).toBe(true);
+    expect(seen).toEqual(['app-check-token']);
+    expect(store.shares.size).toBe(1);
   });
 });

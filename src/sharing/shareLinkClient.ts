@@ -2,6 +2,7 @@ import { PROJECT_SCHEMA_VERSION } from '../constants/schema';
 import type { GuitarProject, StoredProject } from '../types/guitar';
 import { loadProject } from '../utils/presets';
 import type { ProjectLoadResult } from '../utils/presets';
+import { appCheckConfigured } from './appCheck';
 import { prepareSharedProject } from './prepareSharedProject';
 import { UPLOAD_POLICY_REVISION } from './projectAdmission';
 import {
@@ -15,14 +16,6 @@ import type { ProjectDigest, SharingErrorCode } from './sharingContract';
  * the injected fetch/clock, so it is unit-tested without a DOM.
  */
 type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
-
-/**
- * The web app has no App Check yet. Staging's Function runs in
- * `staging-bypass` and accepts any non-empty token; it refuses that mode on
- * axe-shaper-web, so this can never authorize a production creation. Replace
- * with a real App Check token before sharing ships live.
- */
-const APP_CHECK_PLACEHOLDER_TOKEN = 'unattested';
 
 export interface SharingStatus {
   uploadPolicyRevision: string;
@@ -51,8 +44,11 @@ export type SharePreflight =
   | { ok: false; reason: ShareBlockReason };
 
 /** Run the server's own admission rules on the exact payload before asking for consent. */
-export async function preflightShare(project: StoredProject, status: SharingStatus | null): Promise<SharePreflight> {
-  if (!status || status.uploadPolicyRevision !== UPLOAD_POLICY_REVISION) return { ok: false, reason: 'unavailable' };
+export async function preflightShare(project: StoredProject, status: SharingStatus | null,
+  attestationAvailable: boolean = appCheckConfigured()): Promise<SharePreflight> {
+  if (!status || status.uploadPolicyRevision !== UPLOAD_POLICY_REVISION || !attestationAvailable) {
+    return { ok: false, reason: 'unavailable' };
+  }
   if (!status.creationAvailable) return { ok: false, reason: 'paused' };
   const prepared = await prepareSharedProject(project, {
     revision: status.uploadPolicyRevision, maxAcceptedProjectSchema: status.maxAcceptedProjectSchema,
@@ -88,21 +84,31 @@ export function beginShare(prepared: Extract<SharePreflight, { ok: true }>, now:
 
 export type ShareSendResult =
   | { ok: true; id: string; createdAt: string }
-  | { ok: false; code: SharingErrorCode | 'network'; retryable: boolean };
+  | { ok: false; code: SharingErrorCode | 'network' | 'attestation'; retryable: boolean };
 
-const RETRYABLE = new Set<string>(['network', 'unavailable', 'quota-exceeded']);
+/** Same-body retries are always safe; these are the failures a retry can fix. */
+const RETRYABLE = new Set<string>(['network', 'unavailable', 'quota-exceeded', 'attestation', 'unauthorized']);
+/** Retry-safe, but not in the next few seconds - left to the person's Try again. */
+const MANUAL_ONLY = new Set<string>(['quota-exceeded', 'attestation', 'unauthorized']);
 const AUTOMATIC_ATTEMPTS = [0, 1_000, 3_000];
 
-/** Send (and automatically resend) one pending creation. Safe to call again with the same pending share. */
-export async function sendShare(pending: PendingShare, fetchImpl: FetchLike, now: () => number = Date.now,
+/**
+ * Send (and automatically resend) one pending creation. Safe to call again with
+ * the same pending share. Each attempt carries a fresh App Check token; without
+ * one nothing is sent.
+ */
+export async function sendShare(pending: PendingShare, fetchImpl: FetchLike, appCheckToken: () => Promise<string | null>,
+  now: () => number = Date.now,
   wait: (ms: number) => Promise<void> = ms => new Promise(resolve => setTimeout(resolve, ms))): Promise<ShareSendResult> {
   let last: ShareSendResult = { ok: false, code: 'network', retryable: true };
   for (const delay of AUTOMATIC_ATTEMPTS) {
     if (delay) await wait(delay);
     if (now() >= pending.deadline) return { ok: false, code: 'operation-expired', retryable: false };
+    const token = await appCheckToken();
+    if (!token) return { ok: false, code: 'attestation', retryable: true };
     try {
       const response = await fetchImpl('/api/shares', { method: 'POST', body: pending.body,
-        headers: { 'Content-Type': 'application/json', 'X-Firebase-AppCheck': APP_CHECK_PLACEHOLDER_TOKEN } });
+        headers: { 'Content-Type': 'application/json', 'X-Firebase-AppCheck': token } });
       const payload = await response.json().catch(() => null) as
         { id?: unknown; createdAt?: unknown; error?: { code?: unknown } } | null;
       if (response.ok && isShareId(payload?.id) && typeof payload?.createdAt === 'string') {
@@ -113,8 +119,8 @@ export async function sendShare(pending: PendingShare, fetchImpl: FetchLike, now
     } catch {
       last = { ok: false, code: 'network', retryable: true };
     }
-    // Quota and rejections will not clear in seconds; only transient failures auto-retry.
-    if (!last.retryable || last.code === 'quota-exceeded') return last;
+    // Quota, attestation and rejections will not clear in seconds; only transient failures auto-retry.
+    if (!last.retryable || MANUAL_ONLY.has(last.code)) return last;
   }
   return last;
 }

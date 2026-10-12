@@ -30,6 +30,7 @@
     "functions:test": "firebase emulators:exec --config firebase.staging.json --only firestore --project demo-axe-shaper 'vitest run --config functions/vitest.config.ts'"
   },
   "dependencies": {
+    "firebase": "^13.0.0",
     "konva": "^10.3.0",
     "lucide-react": "^1.27.0",
     "react": "^19.2.7",

@@ -598,3 +598,24 @@ message, and no request URL carried a key.
 
 Deferred to Release B as planned: the multi-link management library and
 recovery-file import.
+
+## App Check enforced on staging — 2026-10-12
+
+Creation now requires a real App Check token. The staging project has a
+registered web app (`Axe Shaper staging web`) and a score-based reCAPTCHA
+Enterprise key for `axe-shaper-staging.web.app`, `axe-shaper-staging.firebaseapp.com`
+and `localhost`, registered with App Check (Firebase-service enforcement left
+off - the Function verifies tokens itself).
+
+Client (`src/sharing/appCheck.ts`): the Firebase SDK and reCAPTCHA load lazily
+on the first Create link (separate ~15 KB gzip chunks), and each creation
+attempt fetches a **limited-use** token. No token means nothing is sent; the
+dialog explains and offers Try again or the project file. A build without the
+config does not offer Create link. The public config comes from repository
+Actions variables (`VITE_FIREBASE_*`, `VITE_RECAPTCHA_SITE_KEY`) in the staging
+workflow and from the gitignored `.env.local` locally - out of source only
+because secret scanning flags the API key pattern.
+
+Function: `verifyToken(token, { consume: true })`; an invalid, expired or
+already-consumed token is 401, a verification-service failure is 503. The
+`staging-bypass` mode and the client placeholder token are gone.

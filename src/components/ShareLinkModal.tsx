@@ -4,6 +4,7 @@ import type { GuitarProject } from '../types/guitar';
 import {
   beginShare, fetchSharingStatus, preflightShare, recoveryKeyText, rememberShareKey, sendShare, shareUrl,
 } from '../sharing/shareLinkClient';
+import { getAppCheckToken } from '../sharing/appCheck';
 import type { PendingShare, ShareBlockReason, SharePreflight, ShareSendResult } from '../sharing/shareLinkClient';
 
 interface ShareLinkModalProps {
@@ -41,6 +42,8 @@ function failureMessage(result: Extract<ShareSendResult, { ok: false }>): string
     case 'quota-exceeded': return 'Too many links have been created recently. Try again later - trying again will not create a duplicate.';
     case 'operation-expired': return 'This attempt has expired. Close this dialog and create the link again.';
     case 'unavailable': return 'The sharing service did not respond. Trying again will not create a duplicate.';
+    case 'attestation': case 'unauthorized':
+      return 'This browser could not be verified for sharing. Try again - if it keeps failing, a content blocker may be stopping reCAPTCHA. Share the project file instead.';
     default: return 'The link could not be created. Share the project file instead.';
   }
 }
@@ -89,7 +92,7 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
 
   const send = async (pending: PendingShare) => {
     setState({ kind: 'creating', pending });
-    const result = await sendShare(pending, (input, init) => fetch(input, init));
+    const result = await sendShare(pending, (input, init) => fetch(input, init), getAppCheckToken);
     if (result.ok && project) {
       // So Manage this link works on this device without the recovery file.
       let storage: Storage | null = null;
