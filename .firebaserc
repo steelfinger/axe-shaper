@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "axe-shaper-web"
+    "default": "axe-shaper-web",
+    "staging": "axe-shaper-staging"
   }
 }

@@ -126,3 +126,17 @@ Phase 1 work; the draft and vectors are not an implementation claim.
 
 The October 10 plan revision changes documentation only. It does not enable
 output-jack authoring, change schema behavior, migrate lanes, or deploy services.
+
+## Phase 0a: staging project — 2026-10-12
+
+Created `axe-shaper-staging` (project number 334289943565), Analytics off, no
+default resource location set yet (chosen with Firestore). Hosting default site
+`https://axe-shaper-staging.web.app`. A `github-hosting-deploy` service account
+deploys it via the `FIREBASE_SERVICE_ACCOUNT_AXE_SHAPER_STAGING` repository
+secret. `.firebaserc` gains the `staging` alias.
+
+The main and PR Hosting workflows now target this project (main → its live
+channel, PRs → its preview channels); the release workflow still targets
+`axe-shaper-web`. The old `staging` channel on `axe-shaper-web` is retired only
+after the first staging deploy is verified. Billing linkage and the staging
+budget are recorded in the console, not verified from this repository.

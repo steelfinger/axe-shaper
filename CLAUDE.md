@@ -88,9 +88,20 @@ Three lanes, and only one of them publishes:
 
 | Lane | Trigger | Target | Workflow |
 |---|---|---|---|
-| Preview | a pull request | ephemeral channel | `firebase-hosting-pull-request.yml` |
-| Staging | push to `main` | persistent `staging` channel | `firebase-hosting-merge.yml` |
-| **Live** | push of a `v*` tag | `live` | `firebase-hosting-release.yml` |
+| Preview | a pull request | ephemeral channel on `axe-shaper-staging` | `firebase-hosting-pull-request.yml` |
+| Staging | push to `main` | `live` on `axe-shaper-staging` | `firebase-hosting-merge.yml` |
+| **Live** | push of a `v*` tag | `live` on `axe-shaper-web` | `firebase-hosting-release.yml` |
+
+Preview and staging deploy to a **separate Firebase project**,
+`axe-shaper-staging` (https://axe-shaper-staging.web.app, alias `staging` in
+`.firebaserc`, deployed with `FIREBASE_SERVICE_ACCOUNT_AXE_SHAPER_STAGING`).
+Only the release workflow touches `axe-shaper-web`. The reason is the sharing
+backend: a preview channel's Hosting rewrites go to its own project's
+Functions, so previews on the production project would serve production
+sharing data. Never point a PR or `main` lane back at `axe-shaper-web` once
+service rewrites exist. The staging URL is that project's live channel and
+does **not** expire - the old `staging` channel's 30-day dead-man's switch was
+dropped deliberately when it moved.
 
 ```bash
 git tag v1.3.0 && git push origin v1.3.0   # this is the deploy
