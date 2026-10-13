@@ -27,8 +27,7 @@ export type HeadstockShapeId =
   | 'bass_r'
   | 'bass_sg';
 
-/** Schema v6's persisted, cross-platform 3D instrument appearance. */
-/** Independent substrate and coating; absent on legacy documents. */
+/** Schema v9's independent body substrate and coating; absent on legacy documents. */
 export interface BodyAppearance {
   material: 'mahogany' | 'flame_maple' | 'swamp_ash';
   finish: 'natural' | 'solid' | 'sunburst_2' | 'sunburst_3';
@@ -39,6 +38,7 @@ export interface BodyAppearance {
   opacity: number;
 }
 
+/** Schema v6's persisted, cross-platform 3D instrument appearance. */
 export interface InstrumentAppearance {
   body?: BodyAppearance;
   neckFinish: 'natural_maple' | 'body_matched';

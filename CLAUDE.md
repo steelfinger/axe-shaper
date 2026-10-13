@@ -295,13 +295,15 @@ v1/v2 files decode as Guitar/6. That is a default-when-absent read, not a
 guess: nothing else was drawable.
 
 **`PROJECT_SCHEMA_VERSION` is not what a save stamps.** It is the newest
-version this build *understands* - the upper bound of the read gate (8 today).
+version this build *understands* - the upper bound of the read gate (9 today).
 A save carries `requiredSchemaVersion(project)`: the lowest version that can
 represent that document. It is 3 for a plain project, 4 once a potentiometer
 or switch is placed, 5 once a `bodyTop` is chosen, 6 once a persisted
 `instrumentAppearance` is present, 7 once the `neckJointGeometry` /
-`neckPlacement` pair is present, and 8 once a `jacks` entry is placed (checked
-*before* the v7 pair, which every new design carries). It is computed in `withEmbeddedPresets`, so
+`neckPlacement` pair is present, 8 once a `jacks` entry is placed, and 9 once
+`instrumentAppearance.body` (body material, finish, coating colours and
+opacity) is stored. The checks run highest first, ahead of the v7 pair, which
+every new design carries. It is computed in `withEmbeddedPresets`, so
 it happens on the way out as well as on the way in.
 `Migration.requiredPayloadVersion(for:)` in axe-shaper-ios is the same
 function and must agree.
