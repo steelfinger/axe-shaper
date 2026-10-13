@@ -18,7 +18,8 @@ export interface SharingReleasePolicy {
   serverReadSchema: number;
   webReadSchema: number;
   viewerReadSchema: number;
-  outputJackAuthoring: boolean;
+  /** The release lane's `VITE_SCHEMA_9_AUTHORING`: jacks (8) and body material (9). */
+  schema9Authoring: boolean;
 }
 
 export type ReleasePolicyError = 'invalid-release-tag' | 'invalid-ipad-version' | 'coordinated-version-mismatch' | 'invalid-schema' |
@@ -40,11 +41,12 @@ export function validateSharingReleasePolicy(
   if ([policy.serverReadSchema, policy.webReadSchema, policy.viewerReadSchema]
     .some(value => value < policy.maxAcceptedProjectSchema)) errors.add('schema-exceeds-reader');
   if (policy.maxAcceptedProjectSchema > policy.confirmedIpadEditableSchema) errors.add('schema-exceeds-ipad');
-  if (policy.outputJackAuthoring && policy.maxAcceptedProjectSchema < 8) errors.add('authoring-exceeds-admission');
+  // Authoring writes up to 9, so admission has to accept everything it can write.
+  if (policy.schema9Authoring && policy.maxAcceptedProjectSchema < 9) errors.add('authoring-exceeds-admission');
   if (tag?.hotfix && (!basePolicy || basePolicy.releaseTag !== tag.baseCoordinatedTag ||
     basePolicy.baseCoordinatedTag !== tag.baseCoordinatedTag ||
     policy.maxAcceptedProjectSchema !== basePolicy.maxAcceptedProjectSchema ||
-    policy.outputJackAuthoring !== basePolicy.outputJackAuthoring ||
+    policy.schema9Authoring !== basePolicy.schema9Authoring ||
     policy.confirmedIpadVersion !== basePolicy.confirmedIpadVersion ||
     policy.confirmedIpadEditableSchema !== basePolicy.confirmedIpadEditableSchema)) {
     errors.add('hotfix-changes-compatibility');

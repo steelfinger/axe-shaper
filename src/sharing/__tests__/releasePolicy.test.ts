@@ -7,7 +7,7 @@ import type { SharingReleasePolicy } from '../releasePolicy';
 const base: SharingReleasePolicy = {
   releaseTag: 'v1.2.0', baseCoordinatedTag: 'v1.2.0', confirmedIpadVersion: '1.2.0',
   confirmedIpadEditableSchema: 7, maxAcceptedProjectSchema: 7,
-  serverReadSchema: 8, webReadSchema: 8, viewerReadSchema: 8, outputJackAuthoring: false,
+  serverReadSchema: 8, webReadSchema: 8, viewerReadSchema: 8, schema9Authoring: false,
 };
 
 describe('sharing release compatibility policy', () => {
@@ -44,12 +44,22 @@ describe('sharing release compatibility policy', () => {
       expect(validateSharingReleasePolicy({ ...base, [key]: 6 })).toContain('schema-exceeds-reader');
     }
     expect(validateSharingReleasePolicy({ ...base, maxAcceptedProjectSchema: 7.5 })).toContain('invalid-schema');
-    expect(validateSharingReleasePolicy({ ...base, outputJackAuthoring: true })).toContain('authoring-exceeds-admission');
+    expect(validateSharingReleasePolicy({ ...base, schema9Authoring: true })).toContain('authoring-exceeds-admission');
+  });
+  it('admits schema 9 only alongside authoring it, at the release that confirms a 9-reading iPad', () => {
+    const v132 = { ...base, releaseTag: 'v1.3.2', baseCoordinatedTag: 'v1.3.2', confirmedIpadVersion: '1.3.2',
+      confirmedIpadEditableSchema: 9, serverReadSchema: 9, webReadSchema: 9, viewerReadSchema: 9 };
+    // A ceiling of 8 used to be enough for jacks; body material writes 9.
+    expect(validateSharingReleasePolicy({ ...v132, maxAcceptedProjectSchema: 8, schema9Authoring: true }))
+      .toContain('authoring-exceeds-admission');
+    expect(validateSharingReleasePolicy({ ...v132, maxAcceptedProjectSchema: 9, schema9Authoring: true })).toEqual([]);
+    expect(validateSharingReleasePolicy({ ...v132, maxAcceptedProjectSchema: 9, schema9Authoring: true, viewerReadSchema: 8 }))
+      .toContain('schema-exceeds-reader');
   });
   it('requires base evidence and preserves hotfix compatibility gates', () => {
     const hotfix = { ...base, releaseTag: 'v1.2.0-web.2' };
     expect(validateSharingReleasePolicy(hotfix)).toContain('hotfix-changes-compatibility');
-    for (const changed of [{ maxAcceptedProjectSchema: 6 }, { outputJackAuthoring: true }, { confirmedIpadVersion: '1.3.0' }, { confirmedIpadEditableSchema: 8 }]) {
+    for (const changed of [{ maxAcceptedProjectSchema: 6 }, { schema9Authoring: true }, { confirmedIpadVersion: '1.3.0' }, { confirmedIpadEditableSchema: 8 }]) {
       expect(validateSharingReleasePolicy({ ...hotfix, ...changed }, base)).toContain('hotfix-changes-compatibility');
     }
     expect(validateSharingReleasePolicy(hotfix, { ...base, releaseTag: 'v1.1.0' })).toContain('hotfix-changes-compatibility');
