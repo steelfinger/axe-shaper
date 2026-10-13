@@ -869,7 +869,11 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               data={activeSVGPath}
               fill={
                 isBodyActive
-                  ? settings.finishStyle === 'solid'
+                  ? project.instrumentAppearance?.body
+                    ? project.instrumentAppearance.body.finish === 'natural'
+                      ? ({ mahogany: '#b3861f', flame_maple: '#d6b47b', swamp_ash: '#d8bd98' }[project.instrumentAppearance.body.material])
+                      : project.instrumentAppearance.body.color
+                    : settings.finishStyle === 'solid'
                     ? settings.bodyColor
                     : settings.finishStyle === 'sunburst'
                     ? '#8a6718'

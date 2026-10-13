@@ -44,6 +44,7 @@ project name could contain one.
 | 6 | `instrumentAppearance`: persisted 3D neck, fingerboard, inlay, binding and headstock choices. |
 | 7 | Paired `neckJointGeometry` and `neckPlacement`: authored joint-plan parameters and the body-owned scale datum. |
 | 8 | Optional `jacks`: independently placed front-face output jacks. |
+| 9 | Optional `instrumentAppearance.body`: independent material, finish colors and opacity. |
 
 ## Instrument appearance (version 6)
 
@@ -119,6 +120,7 @@ acts on. Above that floor, each version so far is purely additive:
 
 | If the document has | It is written at |
 | --- | --- |
+| an `instrumentAppearance.body` | 9 |
 | a non-empty `jacks` list | 8 |
 | a `neckJointGeometry` / `neckPlacement` pair | 7 |
 | an `instrumentAppearance` | 6 |
@@ -544,3 +546,20 @@ npm run schema:check     # schema migration, round-trip, rejections
 npm run fixtures:check   # iOS-written payloads decode, load and re-save intact
 npm run corpus:check     # geometry output still matches the golden corpus
 ```
+
+### Body appearance (schema 9)
+
+`instrumentAppearance.body` separates the substrate from the coating. It stores
+`material` (`mahogany`, `flame_maple`, `swamp_ash`), `finish` (`natural`, `solid`,
+`sunburst_2`, `sunburst_3`), hex `color`, `middleColor`, `edgeColor`, and `opacity`
+(0–1). Natural uses the unpainted substrate. Opacity applies to a single color or
+the inner sunburst colors; the outer edge remains opaque. All colors are retained
+when changing finish mode. These fields affect preview only, never plan geometry.
+
+Absent `body` retains the legacy `settings.finishStyle` / `bodyColor` rendering.
+Opening the appearance dialog does not migrate a file; the first body edit writes
+the new object. Saving stamps schema 9 only when this object exists, protecting
+it from editors that do not understand these choices. Share admission v3 accepts
+the object; its retained v2 reader keeps the original vocabulary and bounds.
+The updated standalone viewer must be released and `viewer3d.version` advanced
+before deploying this editor feature. Existing iPad releases cannot edit schema 9.

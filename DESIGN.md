@@ -328,9 +328,12 @@ visitor can take away, so they belong to the paper, not to the copy column.
   faint gold-tinted background (`rgba(209,165,61,0.05)`) — the same gold
   language as the active-template card.
 - **Structure:** `Body`, `Hardware`, `Layers`, `Guide`. Body groups physical
-  construction, appearance and outline editing; Hardware groups neck, bridge
+  construction, plan visibility and outline editing; Hardware groups neck, bridge
   and pickups; Layers groups editable body layers with canvas visibility and
   snapping; Guide contains reference-image calibration and transforms.
+- **Appearance placement:** the Body tab retains the `Body Fill` slider under
+  Plan visibility for tracing. Body materials and finishes live in Instrument
+  Appearance, with no finish chooser in the sidebar.
 - **Document actions:** choosing a blueprint is not a tool tab because it
   replaces settings across several groups. Keep it in the header's
   `Blueprint…` chooser, alongside New, Open, Save and other document actions.
@@ -342,6 +345,17 @@ visitor can take away, so they belong to the paper, not to the copy column.
   the topmost floating layer in the app.
 - **Footer:** one tone up (`--bg-tertiary`) to separate actions from body
   copy.
+- **Instrument Appearance:** a compact tool form with Body first and Neck &
+  headstock second, grouped by fieldset legends and the existing hairline
+  border. Body offers mahogany, flame maple and swamp ash, then natural/clear,
+  single-color, two-color or three-color sunburst finishes. Native color inputs
+  and a finish-opacity slider appear only for colored finishes; sunburst
+  opacity affects the inner colors while the outer edge stays opaque. Keep
+  the existing form tokens and neck controls. These project appearance settings
+  affect the 3D preview, not the printable plan.
+- **Appearance layout:** paired fields use two columns with a `14px` gap,
+  stacking into one column at `480px` and below; color fields wrap at the same
+  breakpoint. The modal scrolls within the viewport.
 
 ### Canvas Workspace (signature component)
 The Bezier editing surface is the product, and it has its own deliberate

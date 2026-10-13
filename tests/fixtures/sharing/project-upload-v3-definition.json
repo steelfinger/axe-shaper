@@ -1,0 +1,2616 @@
+{
+  "jsonSafetyLimits": {
+    "maxBytes": 1048576,
+    "maxCanonicalBytes": 6291456,
+    "maxDepth": 64,
+    "maxNodes": 100000
+  },
+  "limits": {
+    "maxAnchors": 2048,
+    "maxAnchorsPerContour": 512,
+    "maxCoordinateMm": 5000,
+    "maxPlacements": 128,
+    "maxProjectBytes": 393216
+  },
+  "pickupInstruments": {
+    "bass_humbucker": "bass",
+    "bass_j_single_coil": "bass",
+    "bass_mini_humbucker": "bass",
+    "bass_mudbucker": "bass",
+    "bass_r_horseshoe": "bass",
+    "bass_r_toaster": "bass",
+    "bass_soapbar": "bass",
+    "bass_split_coil": "bass",
+    "humbucker": "guitar",
+    "lipstick": "guitar",
+    "mini_humbucker": "guitar",
+    "p90_dogear": "guitar",
+    "p90_soapbar": "guitar",
+    "single_coil": "guitar",
+    "tele_bridge": "guitar",
+    "tele_neck": "guitar"
+  },
+  "rule": {
+    "fields": {
+      "activeTemplateId": {
+        "optional": false,
+        "rule": {
+          "kind": "text",
+          "max": 160,
+          "nonblank": true
+        }
+      },
+      "appVersion": {
+        "optional": false,
+        "rule": {
+          "kind": "text",
+          "max": 80,
+          "nonblank": true
+        }
+      },
+      "backRoutes": {
+        "optional": true,
+        "rule": {
+          "budget": "placements",
+          "item": {
+            "fields": {
+              "contour": {
+                "optional": false,
+                "rule": {
+                  "fields": {
+                    "anchors": {
+                      "optional": false,
+                      "rule": {
+                        "kind": "anchors",
+                        "list": {
+                          "budget": "anchors",
+                          "item": {
+                            "fields": {
+                              "bevelIntensity": {
+                                "optional": true,
+                                "rule": {
+                                  "integer": false,
+                                  "kind": "number",
+                                  "max": 2,
+                                  "min": 0
+                                }
+                              },
+                              "handleIn": {
+                                "optional": true,
+                                "rule": {
+                                  "fields": {
+                                    "x": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    },
+                                    "y": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    }
+                                  },
+                                  "kind": "object"
+                                }
+                              },
+                              "handleMode": {
+                                "optional": false,
+                                "rule": {
+                                  "kind": "choice",
+                                  "values": [
+                                    "corner",
+                                    "smooth",
+                                    "symmetric"
+                                  ]
+                                }
+                              },
+                              "handleOut": {
+                                "optional": true,
+                                "rule": {
+                                  "fields": {
+                                    "x": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    },
+                                    "y": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    }
+                                  },
+                                  "kind": "object"
+                                }
+                              },
+                              "id": {
+                                "optional": false,
+                                "rule": {
+                                  "kind": "text",
+                                  "max": 160,
+                                  "nonblank": true
+                                }
+                              },
+                              "locked": {
+                                "optional": true,
+                                "rule": {
+                                  "kind": "boolean"
+                                }
+                              },
+                              "mirrorId": {
+                                "optional": true,
+                                "rule": {
+                                  "kind": "text",
+                                  "max": 160,
+                                  "nonblank": true
+                                }
+                              },
+                              "position": {
+                                "optional": false,
+                                "rule": {
+                                  "fields": {
+                                    "x": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    },
+                                    "y": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    }
+                                  },
+                                  "kind": "object"
+                                }
+                              },
+                              "semanticRole": {
+                                "optional": true,
+                                "rule": {
+                                  "kind": "choice",
+                                  "values": [
+                                    "neck_pocket_left",
+                                    "neck_pocket_right",
+                                    "upper_horn_left",
+                                    "upper_horn_right",
+                                    "waist_left",
+                                    "waist_right",
+                                    "lower_bout_left",
+                                    "lower_bout_right",
+                                    "tail_center",
+                                    "custom"
+                                  ]
+                                }
+                              }
+                            },
+                            "kind": "object"
+                          },
+                          "kind": "list",
+                          "max": 512,
+                          "min": 3
+                        },
+                        "missingMirror": "preserve",
+                        "selfMirror": "refuse"
+                      }
+                    },
+                    "closed": {
+                      "optional": false,
+                      "rule": {
+                        "kind": "literal",
+                        "value": true
+                      }
+                    }
+                  },
+                  "kind": "object"
+                }
+              },
+              "depthMm": {
+                "optional": true,
+                "rule": {
+                  "integer": false,
+                  "kind": "number",
+                  "max": 150,
+                  "min": 0
+                }
+              },
+              "id": {
+                "optional": false,
+                "rule": {
+                  "kind": "text",
+                  "max": 160,
+                  "nonblank": true
+                }
+              },
+              "locked": {
+                "optional": true,
+                "rule": {
+                  "kind": "boolean"
+                }
+              },
+              "name": {
+                "optional": true,
+                "rule": {
+                  "kind": "text",
+                  "max": 200,
+                  "nonblank": false
+                }
+              },
+              "visible": {
+                "optional": true,
+                "rule": {
+                  "kind": "boolean"
+                }
+              }
+            },
+            "kind": "object"
+          },
+          "kind": "list",
+          "max": 128,
+          "min": 0
+        }
+      },
+      "binding": {
+        "optional": true,
+        "rule": {
+          "fields": {
+            "appliesTo": {
+              "optional": false,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "top_only",
+                  "top_and_back"
+                ]
+              }
+            }
+          },
+          "kind": "object"
+        }
+      },
+      "bodyThicknessMm": {
+        "optional": true,
+        "rule": {
+          "integer": false,
+          "kind": "number",
+          "max": 150,
+          "min": 5
+        }
+      },
+      "bodyTop": {
+        "optional": true,
+        "rule": {
+          "fields": {
+            "construction": {
+              "optional": false,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "carved_cap",
+                  "solid_body_carve"
+                ]
+              }
+            }
+          },
+          "kind": "object"
+        }
+      },
+      "bridgePreset": {
+        "optional": false,
+        "rule": {
+          "fields": {
+            "compensationMm": {
+              "optional": false,
+              "rule": {
+                "fields": {
+                  "bass": {
+                    "optional": false,
+                    "rule": {
+                      "integer": false,
+                      "kind": "number",
+                      "max": 5000,
+                      "min": -5000
+                    }
+                  },
+                  "treble": {
+                    "optional": false,
+                    "rule": {
+                      "integer": false,
+                      "kind": "number",
+                      "max": 5000,
+                      "min": -5000
+                    }
+                  }
+                },
+                "kind": "object"
+              }
+            },
+            "heightMm": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0.01
+              }
+            },
+            "id": {
+              "optional": false,
+              "rule": {
+                "kind": "text",
+                "max": 160,
+                "nonblank": true
+              }
+            },
+            "lengthMm": {
+              "optional": false,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0.01
+              }
+            },
+            "mountingPoints": {
+              "optional": true,
+              "rule": {
+                "budget": null,
+                "item": {
+                  "fields": {
+                    "x": {
+                      "optional": false,
+                      "rule": {
+                        "integer": false,
+                        "kind": "number",
+                        "max": 5000,
+                        "min": -5000
+                      }
+                    },
+                    "y": {
+                      "optional": false,
+                      "rule": {
+                        "integer": false,
+                        "kind": "number",
+                        "max": 5000,
+                        "min": -5000
+                      }
+                    }
+                  },
+                  "kind": "object"
+                },
+                "kind": "list",
+                "max": 32,
+                "min": 0
+              }
+            },
+            "name": {
+              "optional": false,
+              "rule": {
+                "kind": "text",
+                "max": 200,
+                "nonblank": false
+              }
+            },
+            "outlineMm": {
+              "optional": true,
+              "rule": {
+                "budget": null,
+                "item": {
+                  "fields": {
+                    "x": {
+                      "optional": false,
+                      "rule": {
+                        "integer": false,
+                        "kind": "number",
+                        "max": 5000,
+                        "min": -5000
+                      }
+                    },
+                    "y": {
+                      "optional": false,
+                      "rule": {
+                        "integer": false,
+                        "kind": "number",
+                        "max": 5000,
+                        "min": -5000
+                      }
+                    }
+                  },
+                  "kind": "object"
+                },
+                "kind": "list",
+                "max": 128,
+                "min": 3
+              }
+            },
+            "saddleOffsetYMm": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 5000,
+                "min": -5000
+              }
+            },
+            "scaleReference": {
+              "optional": false,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "saddle_line",
+                  "post_line",
+                  "plate_origin"
+                ]
+              }
+            },
+            "singlePlate": {
+              "optional": true,
+              "rule": {
+                "kind": "boolean"
+              }
+            },
+            "stringSpacingMm": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0.01
+              }
+            },
+            "widthMm": {
+              "optional": false,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0.01
+              }
+            }
+          },
+          "kind": "object"
+        }
+      },
+      "bridgePresetId": {
+        "optional": false,
+        "rule": {
+          "kind": "text",
+          "max": 160,
+          "nonblank": true
+        }
+      },
+      "contour": {
+        "optional": false,
+        "rule": {
+          "fields": {
+            "anchors": {
+              "optional": false,
+              "rule": {
+                "kind": "anchors",
+                "list": {
+                  "budget": "anchors",
+                  "item": {
+                    "fields": {
+                      "bevelIntensity": {
+                        "optional": true,
+                        "rule": {
+                          "integer": false,
+                          "kind": "number",
+                          "max": 2,
+                          "min": 0
+                        }
+                      },
+                      "handleIn": {
+                        "optional": true,
+                        "rule": {
+                          "fields": {
+                            "x": {
+                              "optional": false,
+                              "rule": {
+                                "integer": false,
+                                "kind": "number",
+                                "max": 5000,
+                                "min": -5000
+                              }
+                            },
+                            "y": {
+                              "optional": false,
+                              "rule": {
+                                "integer": false,
+                                "kind": "number",
+                                "max": 5000,
+                                "min": -5000
+                              }
+                            }
+                          },
+                          "kind": "object"
+                        }
+                      },
+                      "handleMode": {
+                        "optional": false,
+                        "rule": {
+                          "kind": "choice",
+                          "values": [
+                            "corner",
+                            "smooth",
+                            "symmetric"
+                          ]
+                        }
+                      },
+                      "handleOut": {
+                        "optional": true,
+                        "rule": {
+                          "fields": {
+                            "x": {
+                              "optional": false,
+                              "rule": {
+                                "integer": false,
+                                "kind": "number",
+                                "max": 5000,
+                                "min": -5000
+                              }
+                            },
+                            "y": {
+                              "optional": false,
+                              "rule": {
+                                "integer": false,
+                                "kind": "number",
+                                "max": 5000,
+                                "min": -5000
+                              }
+                            }
+                          },
+                          "kind": "object"
+                        }
+                      },
+                      "id": {
+                        "optional": false,
+                        "rule": {
+                          "kind": "text",
+                          "max": 160,
+                          "nonblank": true
+                        }
+                      },
+                      "locked": {
+                        "optional": true,
+                        "rule": {
+                          "kind": "boolean"
+                        }
+                      },
+                      "mirrorId": {
+                        "optional": true,
+                        "rule": {
+                          "kind": "text",
+                          "max": 160,
+                          "nonblank": true
+                        }
+                      },
+                      "position": {
+                        "optional": false,
+                        "rule": {
+                          "fields": {
+                            "x": {
+                              "optional": false,
+                              "rule": {
+                                "integer": false,
+                                "kind": "number",
+                                "max": 5000,
+                                "min": -5000
+                              }
+                            },
+                            "y": {
+                              "optional": false,
+                              "rule": {
+                                "integer": false,
+                                "kind": "number",
+                                "max": 5000,
+                                "min": -5000
+                              }
+                            }
+                          },
+                          "kind": "object"
+                        }
+                      },
+                      "semanticRole": {
+                        "optional": true,
+                        "rule": {
+                          "kind": "choice",
+                          "values": [
+                            "neck_pocket_left",
+                            "neck_pocket_right",
+                            "upper_horn_left",
+                            "upper_horn_right",
+                            "waist_left",
+                            "waist_right",
+                            "lower_bout_left",
+                            "lower_bout_right",
+                            "tail_center",
+                            "custom"
+                          ]
+                        }
+                      }
+                    },
+                    "kind": "object"
+                  },
+                  "kind": "list",
+                  "max": 512,
+                  "min": 3
+                },
+                "missingMirror": "preserve",
+                "selfMirror": "refuse"
+              }
+            },
+            "closed": {
+              "optional": false,
+              "rule": {
+                "kind": "literal",
+                "value": true
+              }
+            }
+          },
+          "kind": "object"
+        }
+      },
+      "edgeProfile": {
+        "optional": true,
+        "rule": {
+          "fields": {
+            "angleDegrees": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 3600,
+                "min": -3600
+              }
+            },
+            "appliesTo": {
+              "optional": true,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "top_only",
+                  "top_and_back"
+                ]
+              }
+            },
+            "baseRadiusMm": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0
+              }
+            },
+            "channelRadiusMm": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0
+              }
+            },
+            "dropMm": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0
+              }
+            },
+            "easeMm": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0
+              }
+            },
+            "insetMm": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0
+              }
+            },
+            "kind": {
+              "optional": false,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "slab",
+                  "contoured",
+                  "beveled",
+                  "german_carve",
+                  "carved_top"
+                ]
+              }
+            },
+            "previewFallback": {
+              "optional": true,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "beveled",
+                  "german_carve"
+                ]
+              }
+            },
+            "widthMm": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0
+              }
+            }
+          },
+          "kind": "object"
+        }
+      },
+      "frontRoutes": {
+        "optional": true,
+        "rule": {
+          "budget": "placements",
+          "item": {
+            "fields": {
+              "contour": {
+                "optional": false,
+                "rule": {
+                  "fields": {
+                    "anchors": {
+                      "optional": false,
+                      "rule": {
+                        "kind": "anchors",
+                        "list": {
+                          "budget": "anchors",
+                          "item": {
+                            "fields": {
+                              "bevelIntensity": {
+                                "optional": true,
+                                "rule": {
+                                  "integer": false,
+                                  "kind": "number",
+                                  "max": 2,
+                                  "min": 0
+                                }
+                              },
+                              "handleIn": {
+                                "optional": true,
+                                "rule": {
+                                  "fields": {
+                                    "x": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    },
+                                    "y": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    }
+                                  },
+                                  "kind": "object"
+                                }
+                              },
+                              "handleMode": {
+                                "optional": false,
+                                "rule": {
+                                  "kind": "choice",
+                                  "values": [
+                                    "corner",
+                                    "smooth",
+                                    "symmetric"
+                                  ]
+                                }
+                              },
+                              "handleOut": {
+                                "optional": true,
+                                "rule": {
+                                  "fields": {
+                                    "x": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    },
+                                    "y": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    }
+                                  },
+                                  "kind": "object"
+                                }
+                              },
+                              "id": {
+                                "optional": false,
+                                "rule": {
+                                  "kind": "text",
+                                  "max": 160,
+                                  "nonblank": true
+                                }
+                              },
+                              "locked": {
+                                "optional": true,
+                                "rule": {
+                                  "kind": "boolean"
+                                }
+                              },
+                              "mirrorId": {
+                                "optional": true,
+                                "rule": {
+                                  "kind": "text",
+                                  "max": 160,
+                                  "nonblank": true
+                                }
+                              },
+                              "position": {
+                                "optional": false,
+                                "rule": {
+                                  "fields": {
+                                    "x": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    },
+                                    "y": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    }
+                                  },
+                                  "kind": "object"
+                                }
+                              },
+                              "semanticRole": {
+                                "optional": true,
+                                "rule": {
+                                  "kind": "choice",
+                                  "values": [
+                                    "neck_pocket_left",
+                                    "neck_pocket_right",
+                                    "upper_horn_left",
+                                    "upper_horn_right",
+                                    "waist_left",
+                                    "waist_right",
+                                    "lower_bout_left",
+                                    "lower_bout_right",
+                                    "tail_center",
+                                    "custom"
+                                  ]
+                                }
+                              }
+                            },
+                            "kind": "object"
+                          },
+                          "kind": "list",
+                          "max": 512,
+                          "min": 3
+                        },
+                        "missingMirror": "preserve",
+                        "selfMirror": "refuse"
+                      }
+                    },
+                    "closed": {
+                      "optional": false,
+                      "rule": {
+                        "kind": "literal",
+                        "value": true
+                      }
+                    }
+                  },
+                  "kind": "object"
+                }
+              },
+              "depthMm": {
+                "optional": true,
+                "rule": {
+                  "integer": false,
+                  "kind": "number",
+                  "max": 150,
+                  "min": 0
+                }
+              },
+              "id": {
+                "optional": false,
+                "rule": {
+                  "kind": "text",
+                  "max": 160,
+                  "nonblank": true
+                }
+              },
+              "locked": {
+                "optional": true,
+                "rule": {
+                  "kind": "boolean"
+                }
+              },
+              "name": {
+                "optional": true,
+                "rule": {
+                  "kind": "text",
+                  "max": 200,
+                  "nonblank": false
+                }
+              },
+              "visible": {
+                "optional": true,
+                "rule": {
+                  "kind": "boolean"
+                }
+              }
+            },
+            "kind": "object"
+          },
+          "kind": "list",
+          "max": 128,
+          "min": 0
+        }
+      },
+      "instrumentAppearance": {
+        "optional": true,
+        "rule": {
+          "fields": {
+            "body": {
+              "optional": true,
+              "rule": {
+                "fields": {
+                  "color": {
+                    "optional": false,
+                    "rule": {
+                      "kind": "color",
+                      "pattern": "^#[0-9a-fA-F]{6}$"
+                    }
+                  },
+                  "edgeColor": {
+                    "optional": false,
+                    "rule": {
+                      "kind": "color",
+                      "pattern": "^#[0-9a-fA-F]{6}$"
+                    }
+                  },
+                  "finish": {
+                    "optional": false,
+                    "rule": {
+                      "kind": "choice",
+                      "values": [
+                        "natural",
+                        "solid",
+                        "sunburst_2",
+                        "sunburst_3"
+                      ]
+                    }
+                  },
+                  "material": {
+                    "optional": false,
+                    "rule": {
+                      "kind": "choice",
+                      "values": [
+                        "mahogany",
+                        "flame_maple",
+                        "swamp_ash"
+                      ]
+                    }
+                  },
+                  "middleColor": {
+                    "optional": false,
+                    "rule": {
+                      "kind": "color",
+                      "pattern": "^#[0-9a-fA-F]{6}$"
+                    }
+                  },
+                  "opacity": {
+                    "optional": false,
+                    "rule": {
+                      "integer": false,
+                      "kind": "number",
+                      "max": 1,
+                      "min": 0
+                    }
+                  }
+                },
+                "kind": "object"
+              }
+            },
+            "fingerboard": {
+              "optional": false,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "maple",
+                  "rosewood"
+                ]
+              }
+            },
+            "fretboardBinding": {
+              "optional": false,
+              "rule": {
+                "kind": "boolean"
+              }
+            },
+            "fretboardInlay": {
+              "optional": false,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "dots",
+                  "trapezoids",
+                  "blocks",
+                  "sharkfins"
+                ]
+              }
+            },
+            "headstockShape": {
+              "optional": false,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "strat_style",
+                  "t_style",
+                  "gibson",
+                  "explorer",
+                  "firebird",
+                  "thunderbird",
+                  "flying_v",
+                  "bass_f",
+                  "bass_mm",
+                  "bass_r",
+                  "bass_sg"
+                ]
+              }
+            },
+            "neckFinish": {
+              "optional": false,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "natural_maple",
+                  "body_matched"
+                ]
+              }
+            }
+          },
+          "kind": "object"
+        }
+      },
+      "instrumentType": {
+        "optional": false,
+        "rule": {
+          "kind": "choice",
+          "values": [
+            "guitar",
+            "bass"
+          ]
+        }
+      },
+      "jacks": {
+        "optional": true,
+        "rule": {
+          "budget": "placements",
+          "item": {
+            "fields": {
+              "angleDegrees": {
+                "optional": false,
+                "rule": {
+                  "integer": false,
+                  "kind": "number",
+                  "max": 3600,
+                  "min": -3600
+                }
+              },
+              "id": {
+                "optional": false,
+                "rule": {
+                  "kind": "text",
+                  "max": 160,
+                  "nonblank": true
+                }
+              },
+              "mountingStyle": {
+                "optional": false,
+                "rule": {
+                  "kind": "choice",
+                  "values": [
+                    "strat_plate",
+                    "direct"
+                  ]
+                }
+              },
+              "position": {
+                "optional": false,
+                "rule": {
+                  "fields": {
+                    "x": {
+                      "optional": false,
+                      "rule": {
+                        "integer": false,
+                        "kind": "number",
+                        "max": 5000,
+                        "min": -5000
+                      }
+                    },
+                    "y": {
+                      "optional": false,
+                      "rule": {
+                        "integer": false,
+                        "kind": "number",
+                        "max": 5000,
+                        "min": -5000
+                      }
+                    }
+                  },
+                  "kind": "object"
+                }
+              }
+            },
+            "kind": "object"
+          },
+          "kind": "list",
+          "max": 128,
+          "min": 0
+        }
+      },
+      "metadata": {
+        "optional": false,
+        "rule": {
+          "fields": {
+            "author": {
+              "optional": false,
+              "rule": {
+                "kind": "text",
+                "max": 200,
+                "nonblank": false
+              }
+            },
+            "created": {
+              "optional": false,
+              "rule": {
+                "kind": "timestamp",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,9})?(?:Z|[+-]\\d{2}:\\d{2})$",
+                "text": {
+                  "kind": "text",
+                  "max": 40,
+                  "nonblank": false
+                }
+              }
+            },
+            "modified": {
+              "optional": false,
+              "rule": {
+                "kind": "timestamp",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,9})?(?:Z|[+-]\\d{2}:\\d{2})$",
+                "text": {
+                  "kind": "text",
+                  "max": 40,
+                  "nonblank": false
+                }
+              }
+            }
+          },
+          "kind": "object"
+        }
+      },
+      "neckJointGeometry": {
+        "optional": true,
+        "rule": {
+          "fields": {
+            "cutterDiameterMm": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 100,
+                "min": 0
+              }
+            },
+            "derivedFromProfileId": {
+              "optional": true,
+              "rule": {
+                "kind": "text",
+                "max": 160,
+                "nonblank": true
+              }
+            },
+            "fittingClearanceMm": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 20,
+                "min": 0
+              }
+            },
+            "mechanism": {
+              "optional": false,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "bolt_on",
+                  "glued"
+                ]
+              }
+            },
+            "mode": {
+              "optional": false,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "locked",
+                  "custom"
+                ]
+              }
+            },
+            "mouthAnchorIds": {
+              "optional": true,
+              "rule": {
+                "kind": "refused"
+              }
+            },
+            "neckAngleDegrees": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 15,
+                "min": -15
+              }
+            },
+            "parameters": {
+              "optional": false,
+              "rule": {
+                "fields": {
+                  "deepEndWidthMm": {
+                    "optional": true,
+                    "rule": {
+                      "integer": false,
+                      "kind": "number",
+                      "max": 2000,
+                      "min": 0.01
+                    }
+                  },
+                  "endCornerRadiusMm": {
+                    "optional": false,
+                    "rule": {
+                      "integer": false,
+                      "kind": "number",
+                      "max": 2000,
+                      "min": 0
+                    }
+                  },
+                  "endRoundnessMm": {
+                    "optional": false,
+                    "rule": {
+                      "integer": false,
+                      "kind": "number",
+                      "max": 2000,
+                      "min": 0
+                    }
+                  },
+                  "endTreatment": {
+                    "optional": false,
+                    "rule": {
+                      "kind": "choice",
+                      "values": [
+                        "square",
+                        "rounded",
+                        "compound"
+                      ]
+                    }
+                  },
+                  "mouthWidthMm": {
+                    "optional": false,
+                    "rule": {
+                      "integer": false,
+                      "kind": "number",
+                      "max": 2000,
+                      "min": 0.01
+                    }
+                  },
+                  "planLengthMm": {
+                    "optional": false,
+                    "rule": {
+                      "integer": false,
+                      "kind": "number",
+                      "max": 2000,
+                      "min": 0.01
+                    }
+                  }
+                },
+                "kind": "object"
+              }
+            },
+            "planShape": {
+              "optional": false,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "bolt_on_pocket",
+                  "straight_mortise",
+                  "tapered_mortise"
+                ]
+              }
+            },
+            "profileId": {
+              "optional": true,
+              "rule": {
+                "kind": "text",
+                "max": 160,
+                "nonblank": true
+              }
+            },
+            "profileSnapshot": {
+              "optional": true,
+              "rule": {
+                "fields": {
+                  "evidenceLevel": {
+                    "optional": false,
+                    "rule": {
+                      "kind": "choice",
+                      "values": [
+                        "documented",
+                        "measured",
+                        "verified",
+                        "unverified"
+                      ]
+                    }
+                  },
+                  "id": {
+                    "optional": false,
+                    "rule": {
+                      "kind": "text",
+                      "max": 160,
+                      "nonblank": true
+                    }
+                  },
+                  "mechanism": {
+                    "optional": false,
+                    "rule": {
+                      "kind": "choice",
+                      "values": [
+                        "bolt_on",
+                        "glued"
+                      ]
+                    }
+                  },
+                  "name": {
+                    "optional": false,
+                    "rule": {
+                      "kind": "text",
+                      "max": 200,
+                      "nonblank": false
+                    }
+                  },
+                  "parameters": {
+                    "optional": false,
+                    "rule": {
+                      "fields": {
+                        "deepEndWidthMm": {
+                          "optional": true,
+                          "rule": {
+                            "integer": false,
+                            "kind": "number",
+                            "max": 2000,
+                            "min": 0.01
+                          }
+                        },
+                        "endCornerRadiusMm": {
+                          "optional": false,
+                          "rule": {
+                            "integer": false,
+                            "kind": "number",
+                            "max": 2000,
+                            "min": 0
+                          }
+                        },
+                        "endRoundnessMm": {
+                          "optional": false,
+                          "rule": {
+                            "integer": false,
+                            "kind": "number",
+                            "max": 2000,
+                            "min": 0
+                          }
+                        },
+                        "endTreatment": {
+                          "optional": false,
+                          "rule": {
+                            "kind": "choice",
+                            "values": [
+                              "square",
+                              "rounded",
+                              "compound"
+                            ]
+                          }
+                        },
+                        "mouthWidthMm": {
+                          "optional": false,
+                          "rule": {
+                            "integer": false,
+                            "kind": "number",
+                            "max": 2000,
+                            "min": 0.01
+                          }
+                        },
+                        "planLengthMm": {
+                          "optional": false,
+                          "rule": {
+                            "integer": false,
+                            "kind": "number",
+                            "max": 2000,
+                            "min": 0.01
+                          }
+                        }
+                      },
+                      "kind": "object"
+                    }
+                  },
+                  "planShape": {
+                    "optional": false,
+                    "rule": {
+                      "kind": "choice",
+                      "values": [
+                        "bolt_on_pocket",
+                        "straight_mortise",
+                        "tapered_mortise"
+                      ]
+                    }
+                  },
+                  "provenance": {
+                    "optional": false,
+                    "rule": {
+                      "kind": "text",
+                      "max": 2048,
+                      "nonblank": true
+                    }
+                  }
+                },
+                "kind": "object"
+              }
+            },
+            "targetHeelWidthMm": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0.01
+              }
+            }
+          },
+          "kind": "object"
+        }
+      },
+      "neckJointMechanism": {
+        "optional": true,
+        "rule": {
+          "kind": "choice",
+          "values": [
+            "bolt_on",
+            "glued"
+          ]
+        }
+      },
+      "neckPlacement": {
+        "optional": true,
+        "rule": {
+          "fields": {
+            "jointToReferenceFretMm": {
+              "optional": false,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 5000,
+                "min": -5000
+              }
+            },
+            "mode": {
+              "optional": false,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "blueprint",
+                  "custom"
+                ]
+              }
+            },
+            "provenance": {
+              "optional": false,
+              "rule": {
+                "kind": "text",
+                "max": 2048,
+                "nonblank": true
+              }
+            },
+            "referenceFret": {
+              "optional": false,
+              "rule": {
+                "integer": true,
+                "kind": "number",
+                "max": 36,
+                "min": 1
+              }
+            }
+          },
+          "kind": "object"
+        }
+      },
+      "neckPreset": {
+        "optional": false,
+        "rule": {
+          "fields": {
+            "frets": {
+              "optional": false,
+              "rule": {
+                "integer": true,
+                "kind": "number",
+                "max": 36,
+                "min": 1
+              }
+            },
+            "id": {
+              "optional": false,
+              "rule": {
+                "kind": "text",
+                "max": 160,
+                "nonblank": true
+              }
+            },
+            "jointCornerRadiusMm": {
+              "optional": false,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0
+              }
+            },
+            "jointDepthMm": {
+              "optional": false,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0.01
+              }
+            },
+            "jointWidthMm": {
+              "optional": false,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0.01
+              }
+            },
+            "name": {
+              "optional": false,
+              "rule": {
+                "kind": "text",
+                "max": 200,
+                "nonblank": false
+              }
+            },
+            "neckTaper": {
+              "optional": true,
+              "rule": {
+                "fields": {
+                  "heelWidthMm": {
+                    "optional": false,
+                    "rule": {
+                      "integer": false,
+                      "kind": "number",
+                      "max": 2000,
+                      "min": 0.01
+                    }
+                  },
+                  "nutToHeelMm": {
+                    "optional": false,
+                    "rule": {
+                      "integer": false,
+                      "kind": "number",
+                      "max": 2000,
+                      "min": 0.01
+                    }
+                  },
+                  "nutWidthMm": {
+                    "optional": false,
+                    "rule": {
+                      "integer": false,
+                      "kind": "number",
+                      "max": 2000,
+                      "min": 0.01
+                    }
+                  }
+                },
+                "kind": "object"
+              }
+            },
+            "nutStringSpacingMm": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0.01
+              }
+            },
+            "nutToBodyEdgeMm": {
+              "optional": false,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 5000,
+                "min": -5000
+              }
+            },
+            "nutToJointMm": {
+              "optional": false,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 5000,
+                "min": -5000
+              }
+            },
+            "pocketCornerRadiusMm": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0
+              }
+            },
+            "pocketDepthMm": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0.01
+              }
+            },
+            "pocketWidthMm": {
+              "optional": true,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 2000,
+                "min": 0.01
+              }
+            },
+            "scaleLengthMm": {
+              "optional": false,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 1500,
+                "min": 200
+              }
+            },
+            "style": {
+              "optional": false,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "fender_style",
+                  "gibson_style",
+                  "baritone"
+                ]
+              }
+            }
+          },
+          "kind": "object"
+        }
+      },
+      "neckPresetId": {
+        "optional": false,
+        "rule": {
+          "kind": "text",
+          "max": 160,
+          "nonblank": true
+        }
+      },
+      "pickguards": {
+        "optional": true,
+        "rule": {
+          "budget": "placements",
+          "item": {
+            "fields": {
+              "colorHex": {
+                "optional": true,
+                "rule": {
+                  "kind": "color",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                }
+              },
+              "contour": {
+                "optional": false,
+                "rule": {
+                  "fields": {
+                    "anchors": {
+                      "optional": false,
+                      "rule": {
+                        "kind": "anchors",
+                        "list": {
+                          "budget": "anchors",
+                          "item": {
+                            "fields": {
+                              "bevelIntensity": {
+                                "optional": true,
+                                "rule": {
+                                  "integer": false,
+                                  "kind": "number",
+                                  "max": 2,
+                                  "min": 0
+                                }
+                              },
+                              "handleIn": {
+                                "optional": true,
+                                "rule": {
+                                  "fields": {
+                                    "x": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    },
+                                    "y": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    }
+                                  },
+                                  "kind": "object"
+                                }
+                              },
+                              "handleMode": {
+                                "optional": false,
+                                "rule": {
+                                  "kind": "choice",
+                                  "values": [
+                                    "corner",
+                                    "smooth",
+                                    "symmetric"
+                                  ]
+                                }
+                              },
+                              "handleOut": {
+                                "optional": true,
+                                "rule": {
+                                  "fields": {
+                                    "x": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    },
+                                    "y": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    }
+                                  },
+                                  "kind": "object"
+                                }
+                              },
+                              "id": {
+                                "optional": false,
+                                "rule": {
+                                  "kind": "text",
+                                  "max": 160,
+                                  "nonblank": true
+                                }
+                              },
+                              "locked": {
+                                "optional": true,
+                                "rule": {
+                                  "kind": "boolean"
+                                }
+                              },
+                              "mirrorId": {
+                                "optional": true,
+                                "rule": {
+                                  "kind": "text",
+                                  "max": 160,
+                                  "nonblank": true
+                                }
+                              },
+                              "position": {
+                                "optional": false,
+                                "rule": {
+                                  "fields": {
+                                    "x": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    },
+                                    "y": {
+                                      "optional": false,
+                                      "rule": {
+                                        "integer": false,
+                                        "kind": "number",
+                                        "max": 5000,
+                                        "min": -5000
+                                      }
+                                    }
+                                  },
+                                  "kind": "object"
+                                }
+                              },
+                              "semanticRole": {
+                                "optional": true,
+                                "rule": {
+                                  "kind": "choice",
+                                  "values": [
+                                    "neck_pocket_left",
+                                    "neck_pocket_right",
+                                    "upper_horn_left",
+                                    "upper_horn_right",
+                                    "waist_left",
+                                    "waist_right",
+                                    "lower_bout_left",
+                                    "lower_bout_right",
+                                    "tail_center",
+                                    "custom"
+                                  ]
+                                }
+                              }
+                            },
+                            "kind": "object"
+                          },
+                          "kind": "list",
+                          "max": 512,
+                          "min": 3
+                        },
+                        "missingMirror": "preserve",
+                        "selfMirror": "refuse"
+                      }
+                    },
+                    "closed": {
+                      "optional": false,
+                      "rule": {
+                        "kind": "literal",
+                        "value": true
+                      }
+                    }
+                  },
+                  "kind": "object"
+                }
+              },
+              "id": {
+                "optional": false,
+                "rule": {
+                  "kind": "text",
+                  "max": 160,
+                  "nonblank": true
+                }
+              },
+              "locked": {
+                "optional": true,
+                "rule": {
+                  "kind": "boolean"
+                }
+              },
+              "name": {
+                "optional": true,
+                "rule": {
+                  "kind": "text",
+                  "max": 200,
+                  "nonblank": false
+                }
+              },
+              "visible": {
+                "optional": true,
+                "rule": {
+                  "kind": "boolean"
+                }
+              }
+            },
+            "kind": "object"
+          },
+          "kind": "list",
+          "max": 128,
+          "min": 0
+        }
+      },
+      "pickups": {
+        "optional": false,
+        "rule": {
+          "budget": "placements",
+          "item": {
+            "fields": {
+              "anchors": {
+                "optional": false,
+                "rule": {
+                  "kind": "anchors",
+                  "list": {
+                    "budget": "anchors",
+                    "item": {
+                      "fields": {
+                        "bevelIntensity": {
+                          "optional": true,
+                          "rule": {
+                            "integer": false,
+                            "kind": "number",
+                            "max": 2,
+                            "min": 0
+                          }
+                        },
+                        "handleIn": {
+                          "optional": true,
+                          "rule": {
+                            "fields": {
+                              "x": {
+                                "optional": false,
+                                "rule": {
+                                  "integer": false,
+                                  "kind": "number",
+                                  "max": 5000,
+                                  "min": -5000
+                                }
+                              },
+                              "y": {
+                                "optional": false,
+                                "rule": {
+                                  "integer": false,
+                                  "kind": "number",
+                                  "max": 5000,
+                                  "min": -5000
+                                }
+                              }
+                            },
+                            "kind": "object"
+                          }
+                        },
+                        "handleMode": {
+                          "optional": false,
+                          "rule": {
+                            "kind": "choice",
+                            "values": [
+                              "corner",
+                              "smooth",
+                              "symmetric"
+                            ]
+                          }
+                        },
+                        "handleOut": {
+                          "optional": true,
+                          "rule": {
+                            "fields": {
+                              "x": {
+                                "optional": false,
+                                "rule": {
+                                  "integer": false,
+                                  "kind": "number",
+                                  "max": 5000,
+                                  "min": -5000
+                                }
+                              },
+                              "y": {
+                                "optional": false,
+                                "rule": {
+                                  "integer": false,
+                                  "kind": "number",
+                                  "max": 5000,
+                                  "min": -5000
+                                }
+                              }
+                            },
+                            "kind": "object"
+                          }
+                        },
+                        "id": {
+                          "optional": false,
+                          "rule": {
+                            "kind": "text",
+                            "max": 160,
+                            "nonblank": true
+                          }
+                        },
+                        "locked": {
+                          "optional": true,
+                          "rule": {
+                            "kind": "boolean"
+                          }
+                        },
+                        "mirrorId": {
+                          "optional": true,
+                          "rule": {
+                            "kind": "text",
+                            "max": 160,
+                            "nonblank": true
+                          }
+                        },
+                        "position": {
+                          "optional": false,
+                          "rule": {
+                            "fields": {
+                              "x": {
+                                "optional": false,
+                                "rule": {
+                                  "integer": false,
+                                  "kind": "number",
+                                  "max": 5000,
+                                  "min": -5000
+                                }
+                              },
+                              "y": {
+                                "optional": false,
+                                "rule": {
+                                  "integer": false,
+                                  "kind": "number",
+                                  "max": 5000,
+                                  "min": -5000
+                                }
+                              }
+                            },
+                            "kind": "object"
+                          }
+                        },
+                        "semanticRole": {
+                          "optional": true,
+                          "rule": {
+                            "kind": "choice",
+                            "values": [
+                              "neck_pocket_left",
+                              "neck_pocket_right",
+                              "upper_horn_left",
+                              "upper_horn_right",
+                              "waist_left",
+                              "waist_right",
+                              "lower_bout_left",
+                              "lower_bout_right",
+                              "tail_center",
+                              "custom"
+                            ]
+                          }
+                        }
+                      },
+                      "kind": "object"
+                    },
+                    "kind": "list",
+                    "max": 512,
+                    "min": 3
+                  },
+                  "missingMirror": "preserve",
+                  "selfMirror": "refuse"
+                }
+              },
+              "angleDegrees": {
+                "optional": false,
+                "rule": {
+                  "integer": false,
+                  "kind": "number",
+                  "max": 3600,
+                  "min": -3600
+                }
+              },
+              "cornerRadiusMm": {
+                "optional": true,
+                "rule": {
+                  "integer": false,
+                  "kind": "number",
+                  "max": 2000,
+                  "min": 0
+                }
+              },
+              "defaultAngleDegrees": {
+                "optional": true,
+                "rule": {
+                  "integer": false,
+                  "kind": "number",
+                  "max": 3600,
+                  "min": -3600
+                }
+              },
+              "heightMm": {
+                "optional": false,
+                "rule": {
+                  "integer": false,
+                  "kind": "number",
+                  "max": 2000,
+                  "min": 0.01
+                }
+              },
+              "id": {
+                "optional": false,
+                "rule": {
+                  "kind": "text",
+                  "max": 160,
+                  "nonblank": true
+                }
+              },
+              "name": {
+                "optional": true,
+                "rule": {
+                  "kind": "text",
+                  "max": 200,
+                  "nonblank": false
+                }
+              },
+              "offsetXMm": {
+                "optional": false,
+                "rule": {
+                  "integer": false,
+                  "kind": "number",
+                  "max": 5000,
+                  "min": -5000
+                }
+              },
+              "offsetYMm": {
+                "optional": false,
+                "rule": {
+                  "integer": false,
+                  "kind": "number",
+                  "max": 5000,
+                  "min": -5000
+                }
+              },
+              "type": {
+                "optional": false,
+                "rule": {
+                  "kind": "choice",
+                  "values": [
+                    "humbucker",
+                    "mini_humbucker",
+                    "single_coil",
+                    "lipstick",
+                    "p90_soapbar",
+                    "p90_dogear",
+                    "tele_neck",
+                    "tele_bridge",
+                    "bass_split_coil",
+                    "bass_j_single_coil",
+                    "bass_humbucker",
+                    "bass_soapbar",
+                    "bass_r_toaster",
+                    "bass_r_horseshoe",
+                    "bass_mudbucker",
+                    "bass_mini_humbucker"
+                  ]
+                }
+              },
+              "widthMm": {
+                "optional": false,
+                "rule": {
+                  "integer": false,
+                  "kind": "number",
+                  "max": 2000,
+                  "min": 0.01
+                }
+              }
+            },
+            "kind": "object"
+          },
+          "kind": "list",
+          "max": 128,
+          "min": 0
+        }
+      },
+      "potentiometers": {
+        "optional": true,
+        "rule": {
+          "budget": "placements",
+          "item": {
+            "fields": {
+              "bodyDiameterMm": {
+                "optional": false,
+                "rule": {
+                  "integer": false,
+                  "kind": "number",
+                  "max": 2000,
+                  "min": 0.01
+                }
+              },
+              "id": {
+                "optional": false,
+                "rule": {
+                  "kind": "text",
+                  "max": 160,
+                  "nonblank": true
+                }
+              },
+              "knobStyleId": {
+                "optional": false,
+                "rule": {
+                  "kind": "choice",
+                  "values": [
+                    "generic"
+                  ]
+                }
+              },
+              "position": {
+                "optional": false,
+                "rule": {
+                  "fields": {
+                    "x": {
+                      "optional": false,
+                      "rule": {
+                        "integer": false,
+                        "kind": "number",
+                        "max": 5000,
+                        "min": -5000
+                      }
+                    },
+                    "y": {
+                      "optional": false,
+                      "rule": {
+                        "integer": false,
+                        "kind": "number",
+                        "max": 5000,
+                        "min": -5000
+                      }
+                    }
+                  },
+                  "kind": "object"
+                }
+              }
+            },
+            "kind": "object"
+          },
+          "kind": "list",
+          "max": 128,
+          "min": 0
+        }
+      },
+      "schemaVersion": {
+        "optional": false,
+        "rule": {
+          "integer": true,
+          "kind": "number",
+          "max": 9,
+          "min": 3
+        }
+      },
+      "settings": {
+        "optional": false,
+        "rule": {
+          "fields": {
+            "bodyColor": {
+              "optional": false,
+              "rule": {
+                "kind": "color",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              }
+            },
+            "bodyFillOpacity": {
+              "optional": false,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 1,
+                "min": 0
+              }
+            },
+            "canvasOrientation": {
+              "optional": false,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "vertical",
+                  "horizontal"
+                ]
+              }
+            },
+            "finishStyle": {
+              "optional": false,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "solid",
+                  "sunburst",
+                  "flame_maple",
+                  "natural_wood"
+                ]
+              }
+            },
+            "gridSizeMm": {
+              "optional": false,
+              "rule": {
+                "integer": false,
+                "kind": "number",
+                "max": 100,
+                "min": 0.1
+              }
+            },
+            "name": {
+              "optional": false,
+              "rule": {
+                "kind": "text",
+                "max": 200,
+                "nonblank": false
+              }
+            },
+            "pickguardColor": {
+              "optional": false,
+              "rule": {
+                "kind": "color",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              }
+            },
+            "pickguardEnabled": {
+              "optional": false,
+              "rule": {
+                "kind": "boolean"
+              }
+            },
+            "secondaryColor": {
+              "optional": false,
+              "rule": {
+                "kind": "color",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              }
+            },
+            "showBackRoutes": {
+              "optional": true,
+              "rule": {
+                "kind": "boolean"
+              }
+            },
+            "showCenterAxis": {
+              "optional": false,
+              "rule": {
+                "kind": "boolean"
+              }
+            },
+            "showControls": {
+              "optional": true,
+              "rule": {
+                "kind": "boolean"
+              }
+            },
+            "showDimensions": {
+              "optional": false,
+              "rule": {
+                "kind": "boolean"
+              }
+            },
+            "showFrontRoutes": {
+              "optional": true,
+              "rule": {
+                "kind": "boolean"
+              }
+            },
+            "showGhostGuide": {
+              "optional": false,
+              "rule": {
+                "kind": "boolean"
+              }
+            },
+            "showGrid": {
+              "optional": false,
+              "rule": {
+                "kind": "boolean"
+              }
+            },
+            "showHardwareCavities": {
+              "optional": false,
+              "rule": {
+                "kind": "boolean"
+              }
+            },
+            "showPickguard": {
+              "optional": true,
+              "rule": {
+                "kind": "boolean"
+              }
+            },
+            "snapToGrid": {
+              "optional": true,
+              "rule": {
+                "kind": "boolean"
+              }
+            },
+            "snapToGridEnabled": {
+              "optional": false,
+              "rule": {
+                "kind": "boolean"
+              }
+            },
+            "symmetry": {
+              "optional": false,
+              "rule": {
+                "fields": {
+                  "mode": {
+                    "optional": false,
+                    "rule": {
+                      "kind": "choice",
+                      "values": [
+                        "none",
+                        "live_centerline",
+                        "copy_once"
+                      ]
+                    }
+                  },
+                  "sourceSide": {
+                    "optional": false,
+                    "rule": {
+                      "kind": "choice",
+                      "values": [
+                        "left",
+                        "right"
+                      ]
+                    }
+                  }
+                },
+                "kind": "object"
+              }
+            },
+            "unitDisplay": {
+              "optional": false,
+              "rule": {
+                "kind": "choice",
+                "values": [
+                  "mm",
+                  "inches"
+                ]
+              }
+            }
+          },
+          "kind": "object"
+        }
+      },
+      "stringCount": {
+        "optional": false,
+        "rule": {
+          "integer": true,
+          "kind": "number",
+          "max": 32,
+          "min": 1
+        }
+      },
+      "switches": {
+        "optional": true,
+        "rule": {
+          "budget": "placements",
+          "item": {
+            "fields": {
+              "angleDegrees": {
+                "optional": false,
+                "rule": {
+                  "integer": false,
+                  "kind": "number",
+                  "max": 3600,
+                  "min": -3600
+                }
+              },
+              "id": {
+                "optional": false,
+                "rule": {
+                  "kind": "text",
+                  "max": 160,
+                  "nonblank": true
+                }
+              },
+              "position": {
+                "optional": false,
+                "rule": {
+                  "fields": {
+                    "x": {
+                      "optional": false,
+                      "rule": {
+                        "integer": false,
+                        "kind": "number",
+                        "max": 5000,
+                        "min": -5000
+                      }
+                    },
+                    "y": {
+                      "optional": false,
+                      "rule": {
+                        "integer": false,
+                        "kind": "number",
+                        "max": 5000,
+                        "min": -5000
+                      }
+                    }
+                  },
+                  "kind": "object"
+                }
+              },
+              "type": {
+                "optional": false,
+                "rule": {
+                  "kind": "choice",
+                  "values": [
+                    "gibson_toggle",
+                    "fender_blade"
+                  ]
+                }
+              }
+            },
+            "kind": "object"
+          },
+          "kind": "list",
+          "max": 128,
+          "min": 0
+        }
+      }
+    },
+    "kind": "object"
+  },
+  "semantics": {
+    "embeddedPresets": "required",
+    "jointPair": "when-present-or-schema-7",
+    "schemaStamp": "exact-required"
+  },
+  "supportedStringCounts": {
+    "bass": [
+      4
+    ],
+    "guitar": [
+      6
+    ]
+  }
+}

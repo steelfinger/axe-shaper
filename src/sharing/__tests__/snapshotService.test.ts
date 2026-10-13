@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import requestFixture from '../../../tests/fixtures/sharing/creation-v1.json';
+import legacyRequestFixture from '../../../tests/fixtures/sharing/creation-v1.json';
 import schema8 from '../../../tests/fixtures/sharing/schema8-known-jacks.json';
 import { projectDigest } from '../canonicalJson';
 import { UPLOAD_POLICY_REVISION } from '../projectAdmission';
@@ -9,6 +9,8 @@ import { allocateShareId, createSnapshotService } from '../snapshotService';
 import type { SnapshotServiceConfig } from '../snapshotService';
 
 import { MemoryStore } from './helpers/memorySnapshotStore';
+
+const requestFixture = { ...legacyRequestFixture, uploadPolicyRevision: UPLOAD_POLICY_REVISION };
 
 const client = `sha256:${'1'.repeat(64)}` as const;
 const otherClient = `sha256:${'2'.repeat(64)}` as const;

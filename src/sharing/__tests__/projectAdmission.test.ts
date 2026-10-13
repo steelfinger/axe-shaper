@@ -124,7 +124,7 @@ describe('strict project upload admission', () => {
   });
   it('fails closed on unknown policy revisions and invalid release ceilings', () => {
     expect(validateProjectUpload(baseline, { ...policy7, revision: 'future-policy' })).toMatchObject({ ok: false, code: 'unsupported-policy' });
-    for (const ceiling of [2, 9, 7.5, NaN]) {
+    for (const ceiling of [2, 10, 7.5, NaN]) {
       expect(validateProjectUpload(baseline, { ...policy7, maxAcceptedProjectSchema: ceiling })).toMatchObject({ ok: false, code: 'unsupported-policy' });
     }
   });

@@ -28,7 +28,19 @@ export type HeadstockShapeId =
   | 'bass_sg';
 
 /** Schema v6's persisted, cross-platform 3D instrument appearance. */
+/** Independent substrate and coating; absent on legacy documents. */
+export interface BodyAppearance {
+  material: 'mahogany' | 'flame_maple' | 'swamp_ash';
+  finish: 'natural' | 'solid' | 'sunburst_2' | 'sunburst_3';
+  color: string;
+  middleColor: string;
+  edgeColor: string;
+  /** Coating opacity only. Sunburst edges remain opaque. */
+  opacity: number;
+}
+
 export interface InstrumentAppearance {
+  body?: BodyAppearance;
   neckFinish: 'natural_maple' | 'body_matched';
   fingerboard: 'maple' | 'rosewood';
   fretboardBinding: boolean;
