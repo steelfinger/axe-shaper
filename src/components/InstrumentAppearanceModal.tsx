@@ -1,11 +1,13 @@
+import { useEffect, useRef } from 'react';
 import { Palette, X } from 'lucide-react';
-import type { GuitarProject, HeadstockShapeId, InstrumentAppearance } from '../types/guitar';
-import { resolveInstrumentAppearance } from '../utils/instrumentAppearance';
+import type { BodyAppearance, GuitarProject, HeadstockShapeId, InstrumentAppearance } from '../types/guitar';
+import { resolveBodyAppearance, resolveInstrumentAppearance } from '../utils/instrumentAppearance';
 
 interface InstrumentAppearanceModalProps {
   isOpen: boolean;
   project: GuitarProject;
   onClose: () => void;
+  onEndEdit: () => void;
   onUpdateProject: (updater: (previous: GuitarProject) => GuitarProject, coalesceKey?: string) => void;
 }
 
@@ -29,10 +31,24 @@ export function InstrumentAppearanceModal({
   isOpen,
   project,
   onClose,
+  onEndEdit,
   onUpdateProject,
 }: InstrumentAppearanceModalProps): React.JSX.Element | null {
+  const dialogRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!isOpen) return;
+    const previous = document.activeElement as HTMLElement | null;
+    dialogRef.current?.querySelector<HTMLButtonElement>('button')?.focus();
+    return () => previous?.focus();
+  }, [isOpen]);
   if (!isOpen) return null;
 
+  const body = resolveBodyAppearance(project);
+  const burst = body.finish.startsWith('sunburst');
+  const updateBody = (patch: Partial<BodyAppearance>) => onUpdateProject((previous) => ({
+    ...previous,
+    instrumentAppearance: { ...resolveInstrumentAppearance(previous), body: { ...resolveBodyAppearance(previous), ...patch } },
+  }), `bodyAppearance.${Object.keys(patch)[0]}`);
   const appearance = resolveInstrumentAppearance(project);
   const update = (patch: Partial<InstrumentAppearance>) => onUpdateProject(
     (previous) => ({
@@ -53,7 +69,14 @@ export function InstrumentAppearanceModal({
     <div className="modal-backdrop" role="presentation" onMouseDown={(event) => {
       if (event.target === event.currentTarget) onClose();
     }}>
-      <section className="app-modal instrument-appearance-modal" role="dialog" aria-modal="true" aria-labelledby="instrument-appearance-title">
+      <section ref={dialogRef} onBlur={onEndEdit} onPointerUp={onEndEdit} onKeyDown={(event) => {
+        if (event.key === 'Escape') { event.stopPropagation(); onClose(); }
+        if (event.key !== 'Tab') return;
+        const controls = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button, select, input') ?? []);
+        const first = controls[0], last = controls.at(-1);
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }} className="app-modal instrument-appearance-modal" role="dialog" aria-modal="true" aria-labelledby="instrument-appearance-title">
         <button className="modal-close" onClick={onClose} aria-label="Close Instrument Appearance"><X size={18} /></button>
         <div className="instrument-appearance-heading">
           <Palette size={22} aria-hidden="true" />
@@ -63,6 +86,49 @@ export function InstrumentAppearanceModal({
           </div>
         </div>
 
+        <fieldset className="appearance-section">
+          <legend>Body</legend>
+          <div className="instrument-appearance-grid">
+            <label className="form-group">
+              <span className="form-label">Material</span>
+              <select className="form-select" value={body.material} onChange={(event) => updateBody({ material: event.target.value as BodyAppearance['material'] })}>
+                <option value="mahogany">Mahogany</option>
+                <option value="flame_maple">Flame maple</option>
+                <option value="swamp_ash">Swamp ash</option>
+              </select>
+            </label>
+            <label className="form-group">
+              <span className="form-label">Finish</span>
+              <select className="form-select" value={body.finish} onChange={(event) => updateBody({ finish: event.target.value as BodyAppearance['finish'] })}>
+                <option value="natural">Natural / clear</option>
+                <option value="solid">Single color</option>
+                <option value="sunburst_2">2-color sunburst</option>
+                <option value="sunburst_3">3-color sunburst</option>
+              </select>
+            </label>
+          </div>
+          {body.finish !== 'natural' && <>
+            <div className="appearance-colors">
+              {([
+                ['color', burst ? 'Center color' : 'Finish color'],
+                ...(body.finish === 'sunburst_3' ? [['middleColor', 'Middle color']] : []),
+                ...(burst ? [['edgeColor', 'Edge color']] : []),
+              ] as Array<['color' | 'middleColor' | 'edgeColor', string]>).map(([key, label]) => (
+                <label className="form-group" key={key}>
+                  <span className="form-label">{label}</span>
+                  <input className="body-color-input" type="color" value={body[key]} onChange={(event) => updateBody({ [key]: event.target.value })} />
+                </label>
+              ))}
+            </div>
+            <label className="appearance-opacity">
+              <span className="form-label">Finish opacity <strong>{Math.round(body.opacity * 100)}%</strong></span>
+              <input type="range" min="0" max="1" step="0.01" value={body.opacity} onChange={(event) => updateBody({ opacity: Number(event.target.value) })} aria-describedby="finish-opacity-help" />
+            </label>
+            <p id="finish-opacity-help" className="appearance-help">{burst ? 'Show the grain through the inner colors. The outer edge stays opaque.' : 'Lower the opacity to reveal the wood grain beneath the color.'}</p>
+          </>}
+        </fieldset>
+        <fieldset className="appearance-section">
+          <legend>Neck & headstock</legend>
         <div className="instrument-appearance-grid">
           <label className="form-group">
             <span className="form-label">Neck finish</span>
@@ -99,6 +165,7 @@ export function InstrumentAppearanceModal({
           <input type="checkbox" checked={appearance.fretboardBinding} onChange={(event) => update({ fretboardBinding: event.target.checked })} />
           <span><strong>Cream fretboard binding</strong><small>Preview-only; binding colour is intentionally fixed.</small></span>
         </label>
+        </fieldset>
       </section>
     </div>
   );

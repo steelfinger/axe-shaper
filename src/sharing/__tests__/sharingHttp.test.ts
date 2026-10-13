@@ -1,12 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 import errorVectors from '../../../tests/fixtures/sharing/http-errors-v1.json';
-import requestFixture from '../../../tests/fixtures/sharing/creation-v1.json';
+import legacyRequestFixture from '../../../tests/fixtures/sharing/creation-v1.json';
 import { createSharingHttpHandler } from '../sharingHttp';
 import { createSnapshotService } from '../snapshotService';
 import { UPLOAD_POLICY_REVISION } from '../projectAdmission';
 import { MAX_CREATION_REQUEST_BYTES, SHARE_OPERATION_TTL_MS, SHARING_ERROR_STATUS } from '../sharingContract';
 import { projectDigest } from '../canonicalJson';
 import { MemoryStore } from './helpers/memorySnapshotStore';
+
+const requestFixture = { ...legacyRequestFixture, uploadPolicyRevision: UPLOAD_POLICY_REVISION };
 
 const clientKey = `sha256:${'1'.repeat(64)}` as const;
 const context = { clientKey };

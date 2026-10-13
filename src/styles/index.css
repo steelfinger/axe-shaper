@@ -1590,6 +1590,8 @@ summary:focus-visible {
 
 .instrument-appearance-modal {
   width: min(660px, 100%);
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
 }
 
 .instrument-appearance-heading {
@@ -3916,4 +3918,25 @@ html.marketing-document {
   font-weight: 600;
   color: var(--text-secondary);
   margin-bottom: 8px;
+}
+
+.appearance-section {
+  border: 0;
+  border-top: 1px solid var(--panel-border);
+  margin: 24px 0 0;
+  padding: 14px 0 0;
+  min-width: 0;
+}
+.appearance-section legend { padding-right: 10px; font-weight: 600; color: var(--text-primary); }
+.appearance-section .instrument-appearance-grid { margin-top: 0; }
+.appearance-colors { display: flex; gap: 14px; margin-top: 16px; }
+.appearance-colors .form-group { flex: 1; min-width: 0; margin-bottom: 16px; }
+.appearance-opacity { display: grid; gap: 8px; }
+.appearance-opacity .form-label { display: flex; justify-content: space-between; }
+.appearance-opacity input { width: 100%; accent-color: var(--accent-gold); }
+.appearance-help { color: var(--text-secondary); font-size: 0.8rem; margin: 8px 0 0; line-height: 1.45; }
+@media (max-width: 480px) {
+  .instrument-appearance-grid { grid-template-columns: 1fr; }
+  .appearance-colors { flex-wrap: wrap; }
+  .appearance-colors .form-group { flex-basis: 100px; }
 }

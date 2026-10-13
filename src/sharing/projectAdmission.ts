@@ -1,6 +1,6 @@
 import type {
   GuitarProject, Vector2D, PathAnchor, BodyContour, NeckJointPlanParameters,
-  NeckJointGeometry, NeckJointProfileSnapshot, ProjectSettings, InstrumentAppearance,
+  NeckJointGeometry, NeckJointProfileSnapshot, ProjectSettings, InstrumentAppearance, BodyAppearance,
   HeadstockShapeId, BodyNodeRole, SymmetryConfig, BodyTop, NeckPreset, NeckTaper,
   BridgePreset, NeckPlacement, PickupPlacement, PotentiometerPlacement,
   SwitchPlacement, OutputJackPlacement, PickguardPlacement, RoutedCavity,
@@ -14,7 +14,7 @@ import { canonicalizeJson, CanonicalJsonError, SHARING_JSON_LIMITS } from './can
 import type { CanonicalJsonText } from './canonicalJson';
 
 /** Change the revision when changing accepted vocabulary or resource bounds. */
-export const UPLOAD_POLICY_REVISION = 'project-upload-v2';
+export const UPLOAD_POLICY_REVISION = 'project-upload-v3';
 export const PROJECT_UPLOAD_LIMITS = {
   maxProjectBytes: 384 * 1024,
   maxAnchors: 2048,
@@ -179,8 +179,8 @@ const routes = objectFor<RoutedCavity>({ id, name: optional(name), contour, dept
  * Plain choice() is reserved for intentionally open string types (jack/knob IDs,
  * edge/binding bags); every closed model union uses completeChoice().
  */
-const projectRule = object({
-  schemaVersion: number(3, PROJECT_SCHEMA_VERSION, true), appVersion: text(80, true),
+const makeProjectRule = (bodyAppearance: boolean) => object({
+  schemaVersion: number(3, bodyAppearance ? PROJECT_SCHEMA_VERSION : 8, true), appVersion: text(80, true),
   instrumentType: completeChoice<InstrumentType>({ guitar: null, bass: null }), stringCount: number(1, 32, true),
   jacks: optional(list(objectFor<OutputJackPlacement>({ id, position: vector, mountingStyle: choice('strat_plate', 'direct'), angleDegrees: angle }),
     0, PROJECT_UPLOAD_LIMITS.maxPlacements, 'placements')),
@@ -197,7 +197,12 @@ const projectRule = object({
     pickguardEnabled: boolean, pickguardColor: color, showPickguard: optional(boolean),
     showFrontRoutes: optional(boolean), showBackRoutes: optional(boolean), showControls: optional(boolean),
   }),
-  instrumentAppearance: optional(objectFor<InstrumentAppearance>({
+  instrumentAppearance: optional(objectFor<Omit<InstrumentAppearance, 'body'>>({
+    ...(bodyAppearance ? { body: optional(objectFor<BodyAppearance>({
+      material: completeChoice<BodyAppearance['material']>({ mahogany: null, flame_maple: null, swamp_ash: null }),
+      finish: completeChoice<BodyAppearance['finish']>({ natural: null, solid: null, sunburst_2: null, sunburst_3: null }),
+      color, middleColor: color, edgeColor: color, opacity: number(0, 1),
+    })) } : {}),
     neckFinish: completeChoice<InstrumentAppearance['neckFinish']>({ natural_maple: null, body_matched: null }), fingerboard: completeChoice<InstrumentAppearance['fingerboard']>({ maple: null, rosewood: null }),
     fretboardBinding: boolean, fretboardInlay: completeChoice<InstrumentAppearance['fretboardInlay']>({ dots: null, trapezoids: null, blocks: null, sharkfins: null }),
     headstockShape: completeChoice<HeadstockShapeId>({ strat_style: null, t_style: null, gibson: null,
@@ -245,6 +250,9 @@ const projectRule = object({
   frontRoutes: placements(routes), backRoutes: placements(routes),
 } satisfies Record<keyof GuitarProject, Field>);
 
+const projectRule = makeProjectRule(true);
+const legacyProjectRule = makeProjectRule(false);
+
 /** Data-only definition used by the revision fingerprint; custom semantics still need review. */
 export const PROJECT_UPLOAD_POLICY_DEFINITION = JSON.parse(canonicalizeJson({
   limits: PROJECT_UPLOAD_LIMITS,
@@ -259,6 +267,8 @@ export const PROJECT_UPLOAD_POLICY_DEFINITION = JSON.parse(canonicalizeJson({
 export type ProjectRevisionValidator = (input: unknown, maxReadableProjectSchema: number) => ProjectAdmissionResult;
 export type ProjectRevisionReaders = Readonly<Record<string, ProjectRevisionValidator>>;
 export const PROJECT_REVISION_READERS: ProjectRevisionReaders = Object.freeze({
+  'project-upload-v3': (input: unknown, ceiling: number) => validateProjectUpload(input,
+    { revision: 'project-upload-v3', maxAcceptedProjectSchema: ceiling }),
   'project-upload-v2': (input: unknown, ceiling: number) => validateProjectUpload(input,
     { revision: 'project-upload-v2', maxAcceptedProjectSchema: ceiling }),
 });
@@ -269,7 +279,7 @@ export const PROJECT_REVISION_READERS: ProjectRevisionReaders = Object.freeze({
  * Parse raw requests with parseSharingJson first to detect duplicate names.
  */
 export function validateProjectUpload(input: unknown, policy: ProjectAdmissionPolicy): ProjectAdmissionResult {
-  if (policy.revision !== UPLOAD_POLICY_REVISION || !Number.isInteger(policy.maxAcceptedProjectSchema) ||
+  if (!['project-upload-v2', UPLOAD_POLICY_REVISION].includes(policy.revision) || !Number.isInteger(policy.maxAcceptedProjectSchema) ||
     policy.maxAcceptedProjectSchema < 3 || policy.maxAcceptedProjectSchema > PROJECT_SCHEMA_VERSION) {
     return { ok: false, code: 'unsupported-policy', path: 'policy' };
   }
@@ -280,7 +290,7 @@ export function validateProjectUpload(input: unknown, policy: ProjectAdmissionPo
     const project = input as GuitarProject;
     if (!Number.isInteger(project.schemaVersion) || project.schemaVersion < 3 ||
       project.schemaVersion > policy.maxAcceptedProjectSchema) reject('unsupported-schema', 'project.schemaVersion');
-    projectRule(project, 'project', { anchors: 0, placements: 0 });
+    (policy.revision === 'project-upload-v2' ? legacyProjectRule : projectRule)(project, 'project', { anchors: 0, placements: 0 });
     if (!isSupportedInstrument(project.instrumentType, project.stringCount)) reject('invalid-project', 'project.stringCount');
     for (const [index, pickup] of project.pickups.entries()) {
       if (PICKUP_TYPE_INSTRUMENT[pickup.type] !== project.instrumentType) reject('invalid-project', `project.pickups[${index}].type`);

@@ -1,0 +1,56 @@
+import { expect, test } from '@playwright/test';
+import { openEditor, instrumentBadge, chooserHeading } from './helpers';
+
+test('body material and coating survive save/reopen', async ({ page }) => {
+  await openEditor(page);
+  await page.getByTitle('Set the saved 3D appearance for this instrument', { exact: true }).click();
+  const modal = page.getByRole('dialog');
+  await modal.getByRole('combobox', { name: 'Material', exact: true }).selectOption('swamp_ash');
+  await modal.getByRole('combobox', { name: 'Finish', exact: true }).selectOption('sunburst_3');
+  await modal.getByLabel('Center color').fill('#eac457');
+  await modal.getByLabel('Middle color').fill('#aa3425');
+  await modal.getByLabel('Edge color').fill('#20100a');
+  await modal.getByLabel('Finish opacity').fill('0.25');
+  await modal.getByRole('combobox', { name: 'Finish', exact: true }).selectOption('sunburst_2');
+  await expect(modal.getByLabel('Middle color')).toHaveCount(0);
+  await modal.getByRole('combobox', { name: 'Finish', exact: true }).selectOption('sunburst_3');
+  await expect(modal.getByLabel('Middle color')).toHaveValue('#aa3425');
+  await page.screenshot({ path: '/tmp/axe-appearance-desktop.png' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(modal.getByRole('combobox', { name: 'Material', exact: true })).toBeVisible();
+  expect(await modal.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
+  await page.screenshot({ path: '/tmp/axe-appearance-mobile.png' });
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.keyboard.press('Escape');
+  await expect(modal).toHaveCount(0);
+  await page.getByRole('button', { name: /^Save/ }).click();
+  const downloaded = page.waitForEvent('download');
+  await page.getByRole('button', { name: /Continue|Save/i }).last().click();
+  const path = await (await downloaded).path();
+  await instrumentBadge(page).click();
+  await expect(chooserHeading(page)).toBeVisible();
+  await page.locator('input[type="file"]').setInputFiles(path!);
+  await page.getByTitle('Set the saved 3D appearance for this instrument', { exact: true }).click();
+  await expect(modal.getByRole('combobox', { name: 'Material', exact: true })).toHaveValue('swamp_ash');
+  await expect(modal.getByLabel('Finish opacity')).toHaveValue('0.25');
+  await expect(modal.getByLabel('Center color')).toHaveValue('#eac457');
+  await expect(modal.getByLabel('Edge color')).toHaveValue('#20100a');
+  await page.keyboard.press('Escape');
+});
+
+test('body appearance edits participate in undo and redo', async ({ page }) => {
+  await openEditor(page);
+  const open = () => page.getByTitle('Set the saved 3D appearance for this instrument', { exact: true }).click();
+  const material = page.getByRole('dialog').getByRole('combobox', { name: 'Material', exact: true });
+  await open();
+  const original = await material.inputValue();
+  await material.selectOption('swamp_ash');
+  await page.keyboard.press('Escape');
+  await page.getByTitle('Undo (Ctrl+Z)', { exact: true }).click();
+  await open();
+  await expect(material).toHaveValue(original);
+  await page.keyboard.press('Escape');
+  await page.getByTitle('Redo (Ctrl+Y)', { exact: true }).click();
+  await open();
+  await expect(material).toHaveValue('swamp_ash');
+});

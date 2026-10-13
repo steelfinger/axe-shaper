@@ -767,53 +767,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             <div className="panel-section">
               <div className="section-title">
-                <Palette size={16} /> Appearance
+                <Palette size={16} /> Plan visibility
               </div>
-
-              <div className="form-group">
-                <label className="form-label" htmlFor="finish-style-select">Finish Style</label>
-                <select
-                  id="finish-style-select"
-                  value={settings.finishStyle}
-                  onChange={(event) =>
-                    onUpdateProject((prev) => ({
-                      ...prev,
-                      settings: {
-                        ...prev.settings,
-                        finishStyle: event.target.value as GuitarProject['settings']['finishStyle'],
-                      },
-                    }))
-                  }
-                  className="form-select"
-                >
-                  <option value="sunburst">Vintage 3-Tone Sunburst</option>
-                  <option value="flame_maple">Amber Flame Maple</option>
-                  <option value="natural_wood">Natural Mahogany Wood</option>
-                  <option value="solid">Solid Gloss Color</option>
-                </select>
-              </div>
-
-              {settings.finishStyle === 'solid' && (
-                <div className="form-group">
-                  <label className="form-label" htmlFor="body-color-input">Body Color</label>
-                  <input
-                    id="body-color-input"
-                    type="color"
-                    value={settings.bodyColor}
-                    onChange={(event) =>
-                      onUpdateProject(
-                        (prev) => ({
-                          ...prev,
-                          settings: { ...prev.settings, bodyColor: event.target.value },
-                        }),
-                        'settings.bodyColor'
-                      )
-                    }
-                    onBlur={onEndEdit}
-                    className="body-color-input"
-                  />
-                </div>
-              )}
 
               <div className="form-group">
                 <label className="form-label">
@@ -839,7 +794,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   style={{ width: '100%' }}
                 />
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                  Lower the fill while tracing a guide image; raise it to judge the finish on its own.
+                  Lower the fill while tracing a guide image. Body materials and finishes are in Instrument Appearance.
                 </p>
               </div>
             </div>

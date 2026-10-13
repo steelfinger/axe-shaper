@@ -60,12 +60,15 @@ import type { StoredProject } from '../types/guitar';
  *       none and is dropped on save. Reading 8 is safe to ship early: a save
  *       stamps 8 only once a jack is placed.
  *
+ *   9 - Adds independent body material, coating colors and opacity under
+ *       `instrumentAppearance.body`. Older editors must not discard them.
+ *
  * This constant is the newest version this build *understands*, and it is the
  * upper bound of the read gate. It is deliberately not what a save stamps -
  * see `requiredSchemaVersion` below, which writes the lowest version that can
  * represent the document in hand.
  */
-export const PROJECT_SCHEMA_VERSION = 8;
+export const PROJECT_SCHEMA_VERSION = 9;
 
 /**
  * The oldest payload this build can read. Nothing has been dropped yet, so
@@ -158,6 +161,7 @@ export function requiredSchemaVersion(
   }
   // Highest first: every new design carries the v7 pair, so checking jacks
   // after it would stamp 7 on a document that has one.
+  if (project.instrumentAppearance?.body) return 9;
   if (project.jacks?.length) return 8;
   // The v7 objects are an atomic contract. `migrateProject()` rejects a
   // partial pair; this conditional simply ensures a fully represented v7

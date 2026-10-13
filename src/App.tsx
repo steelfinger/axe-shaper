@@ -945,6 +945,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
       <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} />
       <InstrumentAppearanceModal
         isOpen={isInstrumentAppearanceOpen}
+        onEndEdit={endEdit}
         project={project}
         onClose={() => setIsInstrumentAppearanceOpen(false)}
         onUpdateProject={handleUpdateProject}

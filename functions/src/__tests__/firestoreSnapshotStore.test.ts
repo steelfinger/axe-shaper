@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { beforeEach, describe, expect, it } from 'vitest';
-import requestFixture from '../../../tests/fixtures/sharing/creation-v1.json';
+import legacyRequestFixture from '../../../tests/fixtures/sharing/creation-v1.json';
 import { UPLOAD_POLICY_REVISION } from '../../../src/sharing/projectAdmission';
 import { generateShareCreationSecrets } from '../../../src/sharing/sharingContract';
 import { createSnapshotService } from '../../../src/sharing/snapshotService';
@@ -9,6 +9,8 @@ import { createFirestoreSnapshotStore, SHARING_COLLECTIONS } from '../firestoreS
 
 if (!process.env.FIRESTORE_EMULATOR_HOST) throw new Error('run through `npm run functions:test` (Firestore emulator)');
 initializeApp({ projectId: 'demo-axe-shaper' });
+const requestFixture = { ...legacyRequestFixture, uploadPolicyRevision: UPLOAD_POLICY_REVISION };
+
 const db = getFirestore();
 const client = `sha256:${'1'.repeat(64)}` as const;
 const source = JSON.stringify(requestFixture);

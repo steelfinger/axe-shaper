@@ -1,4 +1,4 @@
-import type { GuitarProject, HeadstockShapeId, InstrumentAppearance, InstrumentType } from '../types/guitar';
+import type { BodyAppearance, GuitarProject, HeadstockShapeId, InstrumentAppearance, InstrumentType } from '../types/guitar';
 
 const GIBSON_DEFAULT_TEMPLATES = new Set([
   'single_cut', 'sg_style', 'gibson_firebird', 'gretsch_thunderbird', 'gibson_flying_v',
@@ -43,4 +43,18 @@ export function resolveInstrumentAppearance(
   return project.instrumentAppearance ?? legacyInstrumentAppearance(
     project.activeTemplateId, project.instrumentType, project.neckJointMechanism
   );
+}
+
+/** Resolve without migrating the saved document just by opening the modal. */
+export function resolveBodyAppearance(project: Pick<GuitarProject, 'settings' | 'instrumentAppearance'>): BodyAppearance {
+  if (project.instrumentAppearance?.body) return project.instrumentAppearance.body;
+  const style = project.settings.finishStyle;
+  return {
+    material: style === 'flame_maple' ? 'flame_maple' : 'mahogany',
+    finish: style === 'sunburst' ? 'sunburst_3' : style === 'solid' ? 'solid' : 'natural',
+    color: style === 'solid' ? project.settings.bodyColor : '#f2c14e',
+    middleColor: '#a5261b',
+    edgeColor: '#1a1008',
+    opacity: 1,
+  };
 }

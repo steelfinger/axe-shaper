@@ -13,7 +13,7 @@ import { admitShareCreation, buildSharedProjectEnvelope, compareShareCreationRet
   serializeShareCreationRequest, SHARING_PROJECT_SCHEMAS } from '../sharingContract';
 import type { ShareCreationRequest } from '../sharingContract';
 
-const policy = { revision: UPLOAD_POLICY_REVISION, maxAcceptedProjectSchema: 7 };
+const policy = { revision: requestFixture.uploadPolicyRevision, maxAcceptedProjectSchema: 7 };
 const rawRequest = () => JSON.stringify(requestFixture);
 const id = envelopeFixture.id;
 const read = (value: unknown = envelopeFixture, ceiling = 7) => readSharedProjectEnvelope(JSON.stringify(value), id, ceiling);
