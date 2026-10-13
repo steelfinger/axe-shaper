@@ -9,6 +9,7 @@ import { defineConfig, devices } from '@playwright/test'
 // silently (blank canvas, a Back that leaves /app, a deep link that flashes
 // the chooser). Anything that can be a unit test is one: see src/**/__tests__.
 const PORT = 4173
+const SCHEMA9_PORT = 4174
 
 export default defineConfig({
   testDir: 'e2e',
@@ -23,11 +24,38 @@ export default defineConfig({
     // flows can reach buttons directly instead of through the overflow menu.
     viewport: { width: 1600, height: 900 },
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1600, height: 900 } } }],
-  webServer: {
-    command: `npx vite preview --host 127.0.0.1 --port ${PORT} --strictPort`,
-    url: `http://127.0.0.1:${PORT}/app`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 30_000,
-  },
+  projects: [
+    {
+      name: 'chromium',
+      testIgnore: /schema9\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1600, height: 900 } },
+    },
+    // Schema 8/9 authoring is off in the build that ships, so the flows that
+    // author it run against a second build with VITE_SCHEMA_9_AUTHORING=1.
+    // It builds itself, so CI needs no extra step.
+    {
+      name: 'schema9-authoring',
+      testMatch: /schema9\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1600, height: 900 },
+        baseURL: `http://127.0.0.1:${SCHEMA9_PORT}`,
+      },
+    },
+  ],
+  webServer: [
+    {
+      command: `npx vite preview --host 127.0.0.1 --port ${PORT} --strictPort`,
+      url: `http://127.0.0.1:${PORT}/app`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 30_000,
+    },
+    {
+      command: `npx vite build --outDir dist-schema9 --emptyOutDir && npx vite preview --outDir dist-schema9 --host 127.0.0.1 --port ${SCHEMA9_PORT} --strictPort`,
+      env: { VITE_SCHEMA_9_AUTHORING: '1' },
+      url: `http://127.0.0.1:${SCHEMA9_PORT}/app`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+  ],
 })

@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Palette, X } from 'lucide-react';
 import type { BodyAppearance, GuitarProject, HeadstockShapeId, InstrumentAppearance } from '../types/guitar';
 import { resolveBodyAppearance, resolveInstrumentAppearance } from '../utils/instrumentAppearance';
+import { SCHEMA_9_AUTHORING_ENABLED } from '../constants/features';
 
 interface InstrumentAppearanceModalProps {
   isOpen: boolean;
@@ -43,6 +44,14 @@ export function InstrumentAppearanceModal({
   }, [isOpen]);
   if (!isOpen) return null;
 
+  // Choosing a material or finish stamps the save 9. Until that is released,
+  // only a document that already has one gets these controls; the rest keep
+  // the legacy finish, which saves at the version they already have.
+  const bodyAuthoring = SCHEMA_9_AUTHORING_ENABLED || !!project.instrumentAppearance?.body;
+  const updateSettings = (patch: Partial<GuitarProject['settings']>, coalesceKey?: string) => onUpdateProject(
+    (previous) => ({ ...previous, settings: { ...previous.settings, ...patch } }),
+    coalesceKey
+  );
   const body = resolveBodyAppearance(project);
   const burst = body.finish.startsWith('sunburst');
   const updateBody = (patch: Partial<BodyAppearance>) => onUpdateProject((previous) => ({
@@ -88,6 +97,7 @@ export function InstrumentAppearanceModal({
 
         <fieldset className="appearance-section">
           <legend>Body</legend>
+          {bodyAuthoring ? <>
           <div className="instrument-appearance-grid">
             <label className="form-group">
               <span className="form-label">Material</span>
@@ -126,6 +136,25 @@ export function InstrumentAppearanceModal({
             </label>
             <p id="finish-opacity-help" className="appearance-help">{burst ? 'Show the grain through the inner colors. The outer edge stays opaque.' : 'Lower the opacity to reveal the wood grain beneath the color.'}</p>
           </>}
+          </> : (
+          <div className="instrument-appearance-grid">
+            <label className="form-group">
+              <span className="form-label">Finish style</span>
+              <select className="form-select" value={project.settings.finishStyle} onChange={(event) => updateSettings({ finishStyle: event.target.value as GuitarProject['settings']['finishStyle'] })}>
+                <option value="sunburst">Vintage 3-Tone Sunburst</option>
+                <option value="flame_maple">Amber Flame Maple</option>
+                <option value="natural_wood">Natural Mahogany Wood</option>
+                <option value="solid">Solid Gloss Color</option>
+              </select>
+            </label>
+            {project.settings.finishStyle === 'solid' && (
+              <label className="form-group">
+                <span className="form-label">Body color</span>
+                <input className="body-color-input" type="color" value={project.settings.bodyColor} onChange={(event) => updateSettings({ bodyColor: event.target.value }, 'settings.bodyColor')} />
+              </label>
+            )}
+          </div>
+          )}
         </fieldset>
         <fieldset className="appearance-section">
           <legend>Neck & headstock</legend>

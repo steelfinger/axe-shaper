@@ -3,7 +3,7 @@ import { defaultStringCount } from '../utils/instrument';
 import { PICKUP_SPECIFICATIONS } from './hardware';
 import { extractProjectFromSVG } from '../utils/svgExporter';
 import { BLUEPRINT_MANIFEST, BLUEPRINT_ORDER } from './blueprintManifest';
-import { OUTPUT_JACKS_ENABLED } from './features';
+import { SCHEMA_9_AUTHORING_ENABLED } from './features';
 import { applyBlueprintJacks } from '../utils/blueprintJacks';
 
 // Each built-in blueprint is a real .axe.svg file - the same format Save
@@ -52,7 +52,7 @@ function buildReferenceTemplates(): Record<string, ReferenceTemplate> {
         pickguards: project.pickguards ?? [],
         jacks: project.jacks ?? [],
       },
-      OUTPUT_JACKS_ENABLED
+      SCHEMA_9_AUTHORING_ENABLED
     );
 
     templates[id] = {

@@ -32,8 +32,9 @@ Inspected on 2026-10-10:
   use live Hosting. All deploy through `action-hosting-deploy`.
 - `npm run deploy` still invokes `firebase deploy --only hosting` after composing
   the site; it is not a full backend deployment.
-- Staging builds with `VITE_OUTPUT_JACKS=1`; the release workflow does not.
-  Only designs containing jack data require schema 8 on that basis.
+- Staging builds with `VITE_SCHEMA_9_AUTHORING=1`; the release workflow does not.
+  Only designs containing jack data require schema 8, or a body material
+  schema 9, on that basis.
 - `withEmbeddedPresets()` supplies the full payload used by `exportProjectToSVG()`;
   `requiredSchemaVersion()` stamps it from actual fields.
 - `EditorRoute` already handles `?plan=` loading, session/history resets and

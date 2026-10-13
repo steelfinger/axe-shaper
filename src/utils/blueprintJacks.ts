@@ -6,9 +6,9 @@ import type { OutputJackPlacement, PickguardPlacement, PotentiometerPlacement } 
  *
  * They live in `constants/blueprints/blueprint-jacks.json`, not in the
  * blueprint files, on purpose: a blueprint that carried a jack would stamp
- * every new design from it 8, and until an iPad release that reads 8 is live
+ * every new design from it 8, and until an iPad release that reads it is live
  * that file is read-only on the iPad. So the data is applied here, only while
- * `OUTPUT_JACKS_ENABLED`, and the blueprint files stay at 7. The same JSON is
+ * `SCHEMA_9_AUTHORING_ENABLED`, and the blueprint files stay at 7. The same JSON is
  * synced to axe-shaper-ios (`Scripts/sync-contract.sh`), which applies it
  * behind its own gate in `BlueprintLibrary.load`.
  */

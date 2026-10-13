@@ -8,7 +8,7 @@ Deferred implementation note, prepared 2026-10-04.
   stamp rule, empty-list drop and format doc are in; iOS reads and preserves
   `jacks` and has a cross-writer fixture (`output_jacks.axe.svg`).
 - **Steps 3-4 (web editor, plan rendering): done behind
-  `OUTPUT_JACKS_ENABLED`.** Canvas, printable SVG, sidebar, inspector.
+  `OUTPUT_JACKS_ENABLED`, since replaced by `SCHEMA_9_AUTHORING_ENABLED`.** Canvas, printable SVG, sidebar, inspector.
   At `angleDegrees` 0 a Strat plate's long axis lies along X with its pointed
   end toward +X; iOS draws the same.
 - **Step 6 (iOS): done behind `OutputJackFeature.isAuthoringEnabled`.** iOS
@@ -65,6 +65,11 @@ Deferred implementation note, prepared 2026-10-04.
 - **Not done:** the physical printout above, and turning either flag on.
 
 ## Status and release gate
+
+**Update:** schema 8 is not released on its own. Jack authoring ships with
+schema 9's body material and finish, in iPad 1.3.2 and web `v1.3.2`, behind the
+single `SCHEMA_9_AUTHORING_ENABLED` flag (CLAUDE.md, *Schema 8 and 9 authoring
+is built but gated*). The rule below is unchanged; it now applies to 9.
 
 **Deferred. Do not begin the persisted Schema 8 implementation until Schema 7
 has shipped as the shared web/iOS baseline.** This document is the source of

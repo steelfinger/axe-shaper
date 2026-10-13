@@ -64,23 +64,43 @@ anything that touches the file format, the hardware tables or the geometry
 utils - they are seconds locally, and the point of them is to stop a bad
 contract change being written down, not to find out after it is pushed.
 
-## Output jacks are built but gated
+## Schema 8 and 9 authoring is built but gated
 
-Schema 8 `jacks` (`docs/OUTPUT_JACKS_SCHEMA_8_PLAN.md`) can be read, drawn,
-selected, moved and deleted in every build, but the **Output Jack action that
-places one is behind `OUTPUT_JACKS_ENABLED`** (`src/constants/features.ts`,
-set by `VITE_OUTPUT_JACKS=1 npm run dev`, or `VITE_OUTPUT_JACKS=1 npm run dev:with-viewer`; the
-**staging** lane builds with it on, the release lane must not). Placing
-a jack stamps the file 8, which an iPad build older than the one that reads v8
-opens read-only, so **no `v*` tag may enable the flag before that iPad release
-is live**. `e2e/editor.spec.ts` pins the default-off state. The ten bundled
-blueprints' jacks (and the Jaguar's pot swap, the V's round guard) live in
-`src/constants/blueprints/blueprint-jacks.json`, not in the blueprint files, so
-the blueprints stay schema 7 while the flag is off; the iPad gets the same
-JSON from `Scripts/sync-contract.sh`. The 3D viewer reads schema 8 and
-draws jacks from `v0.1.23`, so `projectForViewerLink` passes them and stamps
-the version from the fields it carries. That handoff must never ship ahead of
-the `viewer3d.version` pin: a viewer older than v0.1.23 refuses the 8.
+Schema 8 `jacks` (`docs/OUTPUT_JACKS_SCHEMA_8_PLAN.md`) and schema 9
+`instrumentAppearance.body` (body material and finish) can be read, drawn,
+edited and re-saved in every build, but **introducing either is behind
+`SCHEMA_9_AUTHORING_ENABLED`** (`src/constants/features.ts`, set by
+`VITE_SCHEMA_9_AUTHORING=1 npm run dev`, or the same before
+`npm run dev:with-viewer`). With it off there is no Output Jack action, and the
+Instrument Appearance modal offers the legacy finish style instead of the
+material/finish controls, unless the open document already has a body
+appearance. The **staging** lane builds with it on; the release lane must not
+until the release that turns it on.
+
+Both ship in one coordinated release, iPad 1.3.2 and web `v1.3.2`, which is
+why one flag covers both: they cannot be half enabled. A jack stamps the file
+8 and a body material 9, and an iPad build that cannot read that opens it
+read-only, so **no `v*` tag may enable the flag before iPad 1.3.2 is live**.
+Turn it on in `firebase-hosting-release.yml` only in the commit that is tagged
+`v1.3.2`: there is no release branch, so every later tag inherits it.
+Reading 9 is safe to ship earlier, and should: once the iPad writes 9, a live
+web that cannot read it refuses those files outright.
+
+`e2e/editor.spec.ts` pins the default-off state. The flows that author either
+field run against a second, flag-on build in the `schema9-authoring` Playwright
+project (`*.schema9.spec.ts`), which `playwright.config.ts` builds itself.
+
+The ten bundled blueprints' jacks (and the Jaguar's pot swap, the V's round
+guard) live in `src/constants/blueprints/blueprint-jacks.json`, not in the
+blueprint files, so the blueprints stay schema 7 while the flag is off; the
+iPad gets the same JSON from `Scripts/sync-contract.sh`.
+
+`projectForViewerLink` stamps the handoff from the fields it carries, so it
+must never send a field the pinned viewer cannot read - a viewer refuses a
+newer schema outright. The viewer reads schema 8 and draws jacks from
+`v0.1.23`. `PINNED_VIEWER_READ_SCHEMA` in `src/utils/viewer3dLink.ts` holds
+`body` out of the handoff while the pin reads only 8; raise it in the same
+commit that bumps `viewer3d.version` to a viewer that reads 9.
 
 ## Deploying is a tag, not a push
 
@@ -110,7 +130,7 @@ rewrite lives in `firebase.staging.json`, which the staging workflow copies over
 `firebase.json` before deploying. Keep `firebase.json` rewrite-free: the release
 lane and PR previews use it, and `axe-shaper-web` has no such Function. The editor's **Create link** dialog and
 the `/share/:id` route are behind `SHARING_ENABLED` (`VITE_SHARING=1`), which
-only the staging workflow sets - like `OUTPUT_JACKS_ENABLED`, it must stay off
+only the staging workflow sets - like `SCHEMA_9_AUTHORING_ENABLED`, it must stay off
 in the release lane until the backend exists on production. Creating a link
 needs App Check: the staging build reads the public Firebase web config and
 reCAPTCHA site key from repository Actions variables (`VITE_FIREBASE_*`,
