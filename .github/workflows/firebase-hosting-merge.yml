@@ -41,15 +41,16 @@ jobs:
       # dist/viewer3d. firebase.json has no predeploy hook, so this is the
       # only build; a bare `firebase deploy` would ship whatever is in dist/.
       #
-      # VITE_OUTPUT_JACKS turns on output-jack authoring (schema 8) for this
-      # lane only, so staging shows what is on main. It must NOT be set in
-      # firebase-hosting-release.yml: placing a jack stamps a file 8, which the
-      # iPad build that is live today opens read-only. See CLAUDE.md,
-      # "Output jacks are built but gated".
+      # VITE_SCHEMA_9_AUTHORING turns on output-jack (schema 8) and body
+      # material/finish (schema 9) authoring for this lane only, so staging
+      # shows what is on main. It must NOT be set in
+      # firebase-hosting-release.yml before iPad 1.3.2 is live: either field
+      # stamps a file above 7, which the iPad build that is live today opens
+      # read-only. See CLAUDE.md, "Schema 8 and 9 authoring is built but gated".
       - run: npm run build:site
         env:
           GH_TOKEN: ${{ secrets.VIEWER3D_RELEASE_TOKEN }}
-          VITE_OUTPUT_JACKS: '1'
+          VITE_SCHEMA_9_AUTHORING: '1'
           # The Create link dialog needs the /api/** sharing backend, which
           # only this project has. Never set in the release or PR workflows.
           VITE_SHARING: '1'

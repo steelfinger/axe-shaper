@@ -171,10 +171,11 @@ test.describe('files written by the iPad app', () => {
   }
 });
 
-test.describe('output jacks (schema 8) behind the release gate', () => {
-  // OUTPUT_JACKS_ENABLED is off in this build, and no `v*` tag may turn it on
-  // before an iPad release that reads schema 8 is live. Authoring is hidden,
-  // but a file that already carries jacks must still open, list and draw them.
+test.describe('schema 8/9 authoring behind the release gate', () => {
+  // SCHEMA_9_AUTHORING_ENABLED is off in this build, and no `v*` tag may turn
+  // it on before an iPad release that reads schema 9 is live. Authoring is
+  // hidden, but a file that already carries jacks or a body material must
+  // still open, show them and re-save them intact.
   test('the default build offers no Output Jack action, yet opens a file that has jacks', async ({ page }, testInfo) => {
     const errors = trackPageErrors(page);
     await openEditor(page);
@@ -211,6 +212,53 @@ test.describe('output jacks (schema 8) behind the release gate', () => {
     await expect(page.getByRole('button', { name: /^Output Jack · Direct/ })).toBeVisible();
     await expect(page.getByRole('button', { name: /^Output Jack · unknown style/ })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Output Jack', exact: true })).toHaveCount(0);
+    expect(errors).toEqual([]);
+  });
+  test('the default build offers the legacy body finish, yet keeps a saved body material editable', async ({ page }, testInfo) => {
+    const errors = trackPageErrors(page);
+    const openAppearance = () => page.getByTitle('Set the saved 3D appearance for this instrument', { exact: true }).click();
+    const modal = page.getByRole('dialog');
+    await openEditor(page);
+    await openAppearance();
+    await expect(modal.getByRole('combobox', { name: 'Finish style', exact: true })).toBeVisible();
+    await expect(modal.getByRole('combobox', { name: 'Material', exact: true })).toHaveCount(0);
+    await page.keyboard.press('Escape');
+
+    const save = async () => {
+      await page.getByRole('button', { name: /^Save/ }).click();
+      const downloadPromise = page.waitForEvent('download');
+      await page.getByRole('button', { name: /Continue|Save/i }).last().click();
+      return readFileSync((await (await downloadPromise).path())!, 'utf8');
+    };
+    const decode = (svg: string) => {
+      const payload = /<project:data>([^<]*)<\/project:data>/.exec(svg)!;
+      return { payload: payload[1], project: JSON.parse(Buffer.from(payload[1], 'base64').toString('utf8')) };
+    };
+
+    const saved = await save();
+    const { payload, project } = decode(saved);
+    expect(project.schemaVersion).toBeLessThanOrEqual(7);
+    const body = { material: 'swamp_ash', finish: 'sunburst_2', color: '#eac457',
+      middleColor: '#aa3425', edgeColor: '#20100a', opacity: 0.4 };
+    project.schemaVersion = 9;
+    project.instrumentAppearance = { ...project.instrumentAppearance, body };
+    const file = testInfo.outputPath('with-body.axe.svg');
+    writeFileSync(file, saved
+      .replace(payload, Buffer.from(JSON.stringify(project)).toString('base64'))
+      .replace(/<project:schemaVersion>\d+</, '<project:schemaVersion>9<'));
+
+    await instrumentBadge(page).click();
+    await expect(chooserHeading(page)).toBeVisible();
+    await page.locator('input[type="file"]').setInputFiles(file);
+    await expectCanvasDrawn(page);
+    await openAppearance();
+    await expect(modal.getByRole('combobox', { name: 'Material', exact: true })).toHaveValue('swamp_ash');
+    await modal.getByRole('combobox', { name: 'Material', exact: true }).selectOption('flame_maple');
+    await page.keyboard.press('Escape');
+
+    const resaved = decode(await save()).project;
+    expect(resaved.schemaVersion).toBe(9);
+    expect(resaved.instrumentAppearance.body).toEqual({ ...body, material: 'flame_maple' });
     expect(errors).toEqual([]);
   });
 });

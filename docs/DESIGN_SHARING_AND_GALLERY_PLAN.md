@@ -103,7 +103,7 @@ Checked locally on 2026-10-10:
 | `viewer3d.version` | Viewer release currently pinned to `v0.1.24` |
 | Separate viewer source | Reads schema 8, handles existing fragment links, and captures PNGs |
 | Three Hosting workflows | PR channels, `main` → `staging` channel, `v*` tag → live; all currently target `axe-shaper-web` |
-| `VITE_OUTPUT_JACKS` | Staging enables authoring; live tags keep it off until the compatible iPad release is live |
+| `VITE_SCHEMA_9_AUTHORING` | Staging enables jack and body-material authoring; live tags keep it off until the compatible iPad release is live |
 | `verify.yml` / `scripts/check-all.ts` | Secret-free web correctness gate and local cross-repository evidence |
 
 The current viewer projection deliberately leaves out back routes, most editor

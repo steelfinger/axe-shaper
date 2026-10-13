@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createProject } from '../projectFactory';
 import { resolveBodyAppearance } from '../instrumentAppearance';
-import { projectForViewerLink } from '../viewer3dLink';
+import { PINNED_VIEWER_READ_SCHEMA, projectForViewerLink } from '../viewer3dLink';
 import { exportProjectToSVG, extractProjectFromSVG } from '../svgExporter';
 import { requiredSchemaVersion } from '../../constants/schema';
 import { PROJECT_REVISION_READERS, UPLOAD_POLICY_REVISION, validateProjectUpload } from '../../sharing/projectAdmission';
@@ -24,7 +24,17 @@ describe('body appearance persistence and compatibility', () => {
     expect(project.schemaVersion).toBe(9);
     const reopened = extractProjectFromSVG(exportProjectToSVG(project));
     expect(reopened?.instrumentAppearance?.body).toEqual(project.instrumentAppearance!.body);
-    expect(projectForViewerLink(project).instrumentAppearance?.body).toEqual(project.instrumentAppearance!.body);
+    const handoff = projectForViewerLink(project);
+    if (PINNED_VIEWER_READ_SCHEMA >= 9) {
+      expect(handoff.instrumentAppearance?.body).toEqual(project.instrumentAppearance!.body);
+    } else {
+      // Held back so the pinned viewer does not refuse the link, without
+      // touching the rest of the appearance or the project itself.
+      expect(handoff.instrumentAppearance?.body).toBeUndefined();
+      expect(handoff.instrumentAppearance?.fingerboard).toBe(project.instrumentAppearance!.fingerboard);
+      expect(handoff.schemaVersion).toBeLessThanOrEqual(PINNED_VIEWER_READ_SCHEMA);
+      expect(project.instrumentAppearance!.body).toBeDefined();
+    }
     expect(validateProjectUpload(reopened, { revision: UPLOAD_POLICY_REVISION, maxAcceptedProjectSchema: 9 })).toMatchObject({ ok: true });
     expect(PROJECT_REVISION_READERS['project-upload-v2'](project, 8).ok).toBe(false);
     reopened!.instrumentAppearance!.body!.opacity = 1.1;

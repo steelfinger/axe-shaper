@@ -64,7 +64,7 @@ import {
   removingHardwarePlacement,
 } from './utils/controlEditing';
 import { addingJack } from './utils/jackEditing';
-import { OUTPUT_JACKS_ENABLED, SHARING_ENABLED } from './constants/features';
+import { SCHEMA_9_AUTHORING_ENABLED, SHARING_ENABLED } from './constants/features';
 import { SaveInfoModal } from './components/SaveInfoModal';
 import { ShareLinkModal } from './components/ShareLinkModal';
 import { DownloadSharePage } from './components/DownloadSharePage';
@@ -888,7 +888,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         onDeletePickup={handleDeletePickup}
         onAddPotentiometer={handleAddPotentiometer}
         onAddSwitch={handleAddSwitch}
-        onAddJack={OUTPUT_JACKS_ENABLED ? handleAddJack : undefined}
+        onAddJack={SCHEMA_9_AUTHORING_ENABLED ? handleAddJack : undefined}
         onDeleteHardware={handleDeleteHardware}
         handleAngleSnap={handleAngleSnap}
         onHandleAngleSnapChange={(preference) => {
