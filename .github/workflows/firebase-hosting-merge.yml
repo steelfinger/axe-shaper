@@ -42,11 +42,9 @@ jobs:
       # only build; a bare `firebase deploy` would ship whatever is in dist/.
       #
       # VITE_SCHEMA_9_AUTHORING turns on output-jack (schema 8) and body
-      # material/finish (schema 9) authoring for this lane only, so staging
-      # shows what is on main. It must NOT be set in
-      # firebase-hosting-release.yml before iPad 1.3.2 is live: either field
-      # stamps a file above 7, which the iPad build that is live today opens
-      # read-only. See CLAUDE.md, "Schema 8 and 9 authoring is built but gated".
+      # material/finish (schema 9) authoring, as firebase-hosting-release.yml
+      # does from v1.3.2, so staging shows what a tag of main would publish.
+      # See CLAUDE.md, "Schema 8 and 9 authoring".
       - run: npm run build:site
         env:
           GH_TOKEN: ${{ secrets.VIEWER3D_RELEASE_TOKEN }}

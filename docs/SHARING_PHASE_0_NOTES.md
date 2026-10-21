@@ -69,6 +69,13 @@ exists. Before production deployment, reconfirm the live app's editable schema
 support and record date/source in the manifest. Keep admission at 7 until
 positive evidence permits a higher ceiling; isolated staging may test v8.
 
+**Update 2026-10-21:** iPad 1.3.2, which edits schema 9, is live on the App
+Store (reported by the account holder, not independently verified here), and
+the release workflow builds with schema 9 authoring on from `v1.3.2`, so the
+premise above no longer holds. With authoring on, `validateSharingReleasePolicy`
+refuses an admission ceiling below 9 (`authoring-exceeds-admission`): a
+production sharing release needs 9, recorded with the reconfirmed iPad evidence.
+
 The client checks this ceiling before upload consent; the server enforces it on
 the exact received payload without normalization. Client saving supplies embedded
 presets; unknown upload fields and missing embedded presets are rejected.

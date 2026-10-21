@@ -30,7 +30,8 @@ export default defineConfig({
       testIgnore: /schema9\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1600, height: 900 } },
     },
-    // Schema 8/9 authoring is off in the build that ships, so the flows that
+    // Schema 8/9 authoring is off in the default build but on in the staging
+    // and release lanes (the release lane from v1.3.2), so the flows that
     // author it run against a second build with VITE_SCHEMA_9_AUTHORING=1.
     // It builds itself, so CI needs no extra step.
     {
