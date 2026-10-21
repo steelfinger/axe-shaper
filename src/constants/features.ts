@@ -8,10 +8,11 @@
  * Reading, drawing and editing a file that already carries them is never
  * gated - a v8 or v9 file must open and re-save intact whatever this says.
  *
- * It stays off until an iPad release that reads schema 9 (1.3.2) is live:
- * a save that uses either field stamps 8 or 9, and an older iPad build opens
- * that read-only. Turn it on in the release workflow only in the commit that
- * is tagged for that release. Enable locally with `VITE_SCHEMA_9_AUTHORING=1`.
+ * The staging and release workflows build with it on - the release lane from
+ * `v1.3.2`, once iPad 1.3.2, which reads schema 9, was live. A save that uses
+ * either field stamps 8 or 9, and an older iPad build opens that read-only.
+ * Local builds, `verify` and PR previews leave it off; enable it with
+ * `VITE_SCHEMA_9_AUTHORING=1`.
  */
 export const SCHEMA_9_AUTHORING_ENABLED = import.meta.env.VITE_SCHEMA_9_AUTHORING === '1';
 

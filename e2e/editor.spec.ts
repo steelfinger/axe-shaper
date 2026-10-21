@@ -172,10 +172,10 @@ test.describe('files written by the iPad app', () => {
 });
 
 test.describe('schema 8/9 authoring behind the release gate', () => {
-  // SCHEMA_9_AUTHORING_ENABLED is off in this build, and no `v*` tag may turn
-  // it on before an iPad release that reads schema 9 is live. Authoring is
-  // hidden, but a file that already carries jacks or a body material must
-  // still open, show them and re-save them intact.
+  // SCHEMA_9_AUTHORING_ENABLED is off in this build (the release lane has
+  // built with it on since v1.3.2). Authoring is hidden, but a file that
+  // already carries jacks or a body material must still open, show them and
+  // re-save them intact.
   test('the default build offers no Output Jack action, yet opens a file that has jacks', async ({ page }, testInfo) => {
     const errors = trackPageErrors(page);
     await openEditor(page);

@@ -62,14 +62,16 @@ Deferred implementation note, prepared 2026-10-04.
   in 3D" (`viewer3d.version` is pinned). The 2D plan draws the same teardrop
   (outline, cutout, two screws, the 9.8 mm hole) in the editor, the printable
   SVG and the iPad, so 2D and 3D agree.
-- **Not done:** the physical printout above, and turning either flag on.
+- **Flags: on.** iPad 1.3.2 shipped jack authoring, and the web release lane
+  turns `SCHEMA_9_AUTHORING_ENABLED` on from `v1.3.2`.
+- **Not done:** the physical printout above.
 
 ## Status and release gate
 
 **Update:** schema 8 is not released on its own. Jack authoring ships with
 schema 9's body material and finish, in iPad 1.3.2 and web `v1.3.2`, behind the
 single `SCHEMA_9_AUTHORING_ENABLED` flag (CLAUDE.md, *Schema 8 and 9 authoring
-is built but gated*). The rule below is unchanged; it now applies to 9.
+is on from v1.3.2*). The rule below is unchanged; it now applies to 9.
 
 **Deferred. Do not begin the persisted Schema 8 implementation until Schema 7
 has shipped as the shared web/iOS baseline.** This document is the source of

@@ -64,7 +64,7 @@ anything that touches the file format, the hardware tables or the geometry
 utils - they are seconds locally, and the point of them is to stop a bad
 contract change being written down, not to find out after it is pushed.
 
-## Schema 8 and 9 authoring is built but gated
+## Schema 8 and 9 authoring is on from v1.3.2
 
 Schema 8 `jacks` (`docs/OUTPUT_JACKS_SCHEMA_8_PLAN.md`) and schema 9
 `instrumentAppearance.body` (body material and finish) can be read, drawn,
@@ -74,17 +74,21 @@ edited and re-saved in every build, but **introducing either is behind
 `npm run dev:with-viewer`). With it off there is no Output Jack action, and the
 Instrument Appearance modal offers the legacy finish style instead of the
 material/finish controls, unless the open document already has a body
-appearance. The **staging** lane builds with it on; the release lane must not
-until the release that turns it on.
+appearance. The **staging** and **release** lanes build with it on; local
+builds, `verify` and PR previews leave it off.
 
-Both ship in one coordinated release, iPad 1.3.2 and web `v1.3.2`, which is
-why one flag covers both: they cannot be half enabled. A jack stamps the file
-8 and a body material 9, and an iPad build that cannot read that opens it
-read-only, so **no `v*` tag may enable the flag before iPad 1.3.2 is live**.
-Turn it on in `firebase-hosting-release.yml` only in the commit that is tagged
-`v1.3.2`: there is no release branch, so every later tag inherits it.
-Reading 9 is safe to ship earlier, and should: once the iPad writes 9, a live
-web that cannot read it refuses those files outright.
+Both shipped in one coordinated release, iPad 1.3.2 (on the App Store by 21
+October 2026) and web `v1.3.2`, which is why one flag covers both: they cannot
+be half enabled. A jack stamps the file 8 and a body material 9, and an iPad
+build that cannot read that opens it read-only, so the flag waited for iPad
+1.3.2 to be live. `firebase-hosting-release.yml` sets it from `v1.3.2`; there
+is no release branch, so every later tag inherits it.
+
+The reader has to go first, though, and this time it did not. iPad 1.3.2 went
+live while the site was still `v1.2.0`, which reads 7, so axeshaper.com
+refused every iPad file with a jack or a body finish until the web caught up.
+For the next schema, tag the web reader (flag off, as a `-web.N` hotfix)
+before the iPad build is submitted, not after it is live.
 
 `e2e/editor.spec.ts` pins the default-off state. The flows that author either
 field run against a second, flag-on build in the `schema9-authoring` Playwright
@@ -92,15 +96,18 @@ project (`*.schema9.spec.ts`), which `playwright.config.ts` builds itself.
 
 The ten bundled blueprints' jacks (and the Jaguar's pot swap, the V's round
 guard) live in `src/constants/blueprints/blueprint-jacks.json`, not in the
-blueprint files, so the blueprints stay schema 7 while the flag is off; the
-iPad gets the same JSON from `Scripts/sync-contract.sh`.
+blueprint files, so the blueprints stay schema 7 while the flag is off; with
+it on, a new design from one of them saves at 8. The iPad gets the same JSON
+from `Scripts/sync-contract.sh`.
 
 `projectForViewerLink` stamps the handoff from the fields it carries, so it
 must never send a field the pinned viewer cannot read - a viewer refuses a
 newer schema outright. The viewer reads schema 8 and draws jacks from
-`v0.1.23`. `PINNED_VIEWER_READ_SCHEMA` in `src/utils/viewer3dLink.ts` holds
-`body` out of the handoff while the pin reads only 8; raise it in the same
-commit that bumps `viewer3d.version` to a viewer that reads 9.
+`v0.1.23`, and reads 9 and draws body materials and finishes from `v0.1.25`,
+the pin since `v1.3.2`. `PINNED_VIEWER_READ_SCHEMA` in
+`src/utils/viewer3dLink.ts` must name what the pin reads - below 9 it holds
+`body` out of the handoff - so move it only in the commit that moves
+`viewer3d.version`.
 
 ## Deploying is a tag, not a push
 
@@ -130,8 +137,8 @@ rewrite lives in `firebase.staging.json`, which the staging workflow copies over
 `firebase.json` before deploying. Keep `firebase.json` rewrite-free: the release
 lane and PR previews use it, and `axe-shaper-web` has no such Function. The editor's **Create link** dialog and
 the `/share/:id` route are behind `SHARING_ENABLED` (`VITE_SHARING=1`), which
-only the staging workflow sets - like `SCHEMA_9_AUTHORING_ENABLED`, it must stay off
-in the release lane until the backend exists on production. Creating a link
+only the staging workflow sets; it must stay off in the release lane until the
+backend exists on production. Creating a link
 needs App Check: the staging build reads the public Firebase web config and
 reCAPTCHA site key from repository Actions variables (`VITE_FIREBASE_*`,
 `VITE_RECAPTCHA_SITE_KEY`), and local dev from the gitignored `.env.local`.
@@ -330,7 +337,9 @@ function and must agree.
 
 **What that means in practice: new designs write 7, opened files keep theirs.**
 `createProject` always carries the v7 pair, so every new design and every one
-of the 20 bundled blueprints saves at 7 (`svgRoundTrip.test.ts` pins this).
+of the 20 bundled blueprints saves at 7 (`svgRoundTrip.test.ts` pins this,
+with the authoring flag off; on staging and live, a new design from one of the
+ten blueprints that carry a jack saves at 8).
 Nothing upgrades a file on open: a v2/v3 file saves at 3, a v5 file at 5,
 because the stamp follows the fields the document actually has. The v7 pair is
 atomic - a project with only half of it is refused at save, and a payload with
@@ -346,8 +355,10 @@ with the web has to read v7 or it cannot edit anything created here
 (`VersionPolicy.decide` opens a newer payload read-only). That is exactly the
 "web goes live only when a compatible App Store version is live" rule under
 *Deploying is a tag*, and v7 is why it is not optional. That condition is met
-as of iPad v1.2.0, the first App Store release that reads v7 (October 2026);
-anything older cannot edit a file saved from a new design here. Adding an optional
+as of iPad v1.2.0, the first App Store release that reads v7 (October 2026),
+and iPad 1.3.2 reads 8 and 9; anything older than 1.2.0 cannot edit a file
+saved from a new design here, and a build that cannot read 8 or 9 cannot edit
+one with a jack or a body finish. Adding an optional
 field to a new version is what keeps on-demand stamping possible; a version
 that changes what an existing field means raises the floor instead. See the
 format doc's "A save stamps the version it needs".

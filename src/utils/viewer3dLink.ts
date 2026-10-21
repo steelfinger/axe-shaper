@@ -61,9 +61,9 @@ export type ViewerLinkProject = Pick<
  * The newest schema the viewer pinned in `viewer3d.version` reads. Raise it in
  * the same commit that bumps the pin to a viewer that reads more: until then,
  * a field that needs a newer schema is held out of the handoff, or the viewer
- * would refuse the whole link. v0.1.24 reads 8.
+ * would refuse the whole link. v0.1.25 reads 9.
  */
-export const PINNED_VIEWER_READ_SCHEMA: number = 8;
+export const PINNED_VIEWER_READ_SCHEMA: number = 9;
 
 export function projectForViewerLink(project: GuitarProject): ViewerLinkProject {
   const { name, finishStyle, bodyColor, pickguardColor, showPickguard, showControls } = project.settings;
@@ -99,9 +99,9 @@ export function projectForViewerLink(project: GuitarProject): ViewerLinkProject 
     handoff.instrumentAppearance = appearance;
   }
   // Describe the payload as what it holds: the lowest version that represents
-  // *these* fields. The pinned viewer (v0.1.23 and later) reads schema 8 and
-  // draws jacks; an older one would refuse the 8, so this must not ship ahead
-  // of the `viewer3d.version` pin that carries it.
+  // *these* fields. Viewers from v0.1.23 read schema 8 and draw jacks, and
+  // from v0.1.25 read 9; an older one would refuse the newer stamp, so this
+  // must not ship ahead of the `viewer3d.version` pin that carries it.
   return { ...handoff, schemaVersion: requiredSchemaVersion(handoff) };
 }
 

@@ -368,8 +368,9 @@ written at 8; every other document keeps the version it already needed.
   `jackCrossWriter.test.ts`.
 - Side-mounted jacks are out of scope for version 8. DXF omits jacks.
 
-Reading 8 is safe to deploy before iOS ships; *placing* a jack is not, and
-stays behind a build flag until an iOS release that reads 8 is live. See
+Reading 8 is safe to deploy before iOS ships; *placing* a jack was not, so it
+stayed behind a build flag until an iOS release that reads 8 was live. The web
+release lane turns it on from `v1.3.2`, with iPad 1.3.2. See
 `docs/OUTPUT_JACKS_SCHEMA_8_PLAN.md`.
 
 ## Version 5: body-top construction
@@ -496,8 +497,9 @@ it means recomputing every one of them on both platforms.
 ## 3D viewer compatibility
 
 `steelfinger/axe-shape-3D-viewer` (the pinned bundle in `public/viewer3d`)
-accepts numeric schema versions through version 8 (from `v0.1.23`) and renders the supported
-Guitar/6 and Bass/4 document matrix, placed controls, version-8 output jacks, the version-5
+accepts numeric schema versions through version 9 (8 from `v0.1.23`, 9 from `v0.1.25`) and renders the supported
+Guitar/6 and Bass/4 document matrix, placed controls, version-8 output jacks, version-9 body
+materials and finishes, the version-5
 `bodyTop.construction` choice, and persisted version-6 neck and fingerboard
 appearance. It reads those saved choices for the normal preview, which is the
 only 3D entry point the editor links to. The viewer also keeps an opt-in
@@ -561,5 +563,6 @@ Opening the appearance dialog does not migrate a file; the first body edit write
 the new object. Saving stamps schema 9 only when this object exists, protecting
 it from editors that do not understand these choices. Share admission v3 accepts
 the object; its retained v2 reader keeps the original vocabulary and bounds.
-The updated standalone viewer must be released and `viewer3d.version` advanced
-before deploying this editor feature. Existing iPad releases cannot edit schema 9.
+The standalone viewer reads it from `v0.1.25`, which `viewer3d.version` pins
+from web `v1.3.2`, the release that deploys this editor feature. iPad releases
+before 1.3.2 cannot edit schema 9.
