@@ -48,6 +48,29 @@ body, html, #root {
 }
 
 /* App Layout Grid */
+.sharing-notice, .sharing-provenance {
+  position: fixed;
+  z-index: 45;
+  inset-inline: 16px;
+  bottom: 16px;
+  width: fit-content;
+  max-width: calc(100vw - 32px);
+  margin-inline: auto;
+  padding: 10px 14px;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.sharing-notice { bottom: 68px; }
+.sharing-provenance a, .sharing-notice a, .sharing-recovery-page a:not(.btn) { color: var(--accent-blue); }
+.sharing-recovery-page { max-width: 680px; margin-inline: auto; padding: 40px 20px; height: 100svh; overflow-y: auto; font-size: 16px; }
+.sharing-recovery-page h1 { margin-block: 24px 12px; }
+.sharing-recovery-item { padding-block: 24px; border-bottom: 1px solid var(--panel-border); overflow-wrap: anywhere; }
+.sharing-recovery-item p { margin-block: 12px 16px; line-height: 1.5; }
+.sharing-recovery-item .btn { margin-inline-end: 12px; margin-block-end: 8px; }
 .app-container {
   display: grid;
   grid-template-rows: 56px 1fr;

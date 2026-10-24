@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ExternalLink, KeyRound, Trash2 } from 'lucide-react';
 import { forgetShareKey, manageShare, managementKeyFromInput, storedShareKey } from '../sharing/shareLinkClient';
+import { downloadRecoveryKey } from '../sharing/downloadRecoveryKey';
+import { sharingStorage } from '../sharing/pendingShares';
 import type { ManagedShare } from '../sharing/shareLinkClient';
 
 type ManageState =
@@ -9,9 +11,6 @@ type ManageState =
   | { kind: 'active'; key: string; confirming: boolean; busy: boolean; error?: string }
   | { kind: 'revoked'; revokedAt: string | null };
 
-const storage = (): Storage | null => {
-  try { return window.localStorage; } catch { return null; }
-};
 const fetchImpl = (input: string, init?: RequestInit) => fetch(input, init);
 
 function stateFor(result: ManagedShare, key: string): ManageState {
@@ -34,7 +33,7 @@ function formatDate(iso: string | null): string {
  */
 export const ManageSharePage: React.FC<{ id: string }> = ({ id }) => {
   // Read once on arrival; Forget below navigates away rather than re-rendering without it.
-  const [saved] = useState(() => storedShareKey(storage(), id));
+  const [saved] = useState(() => storedShareKey(sharingStorage(), id));
   const [state, setState] = useState<ManageState>(saved ? { kind: 'checking' } : { kind: 'need-key' });
   const [input, setInput] = useState('');
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -82,6 +81,10 @@ export const ManageSharePage: React.FC<{ id: string }> = ({ id }) => {
   };
 
   const title = saved?.title;
+  const saveKey = () => {
+    if (state.kind !== 'active') return;
+    downloadRecoveryKey(`${window.location.origin}/share/${id}`, id, state.key, title ?? 'Shared design');
+  };
 
   return (
     <div className="new-design-screen">
@@ -137,6 +140,7 @@ export const ManageSharePage: React.FC<{ id: string }> = ({ id }) => {
                 <a className="btn btn-sm" href={`/share/${id}`} target="_blank" rel="noopener noreferrer">
                   <ExternalLink size={15} /> View shared page
                 </a>
+                <button type="button" className="btn btn-sm" onClick={saveKey}>Save recovery key</button>
                 <button type="button" className="btn share-manage-danger"
                   onClick={() => setState({ ...state, confirming: true, error: undefined })}>
                   <Trash2 size={15} /> Remove link&hellip;
@@ -155,7 +159,7 @@ export const ManageSharePage: React.FC<{ id: string }> = ({ id }) => {
             </p>
             <div className="share-download-actions">
               {saved && (
-                <button type="button" className="btn btn-sm" onClick={() => { forgetShareKey(storage(), id); window.location.assign('/app'); }}>
+                <button type="button" className="btn btn-sm" onClick={() => { forgetShareKey(sharingStorage(), id); window.location.assign('/app'); }}>
                   Forget this link on this device
                 </button>
               )}

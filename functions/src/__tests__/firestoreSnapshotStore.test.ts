@@ -26,6 +26,12 @@ beforeEach(async () => {
 });
 
 describe('Firestore snapshot store', () => {
+  it('denies direct client reads and writes to sharing records', async () => {
+    const url = `http://${process.env.FIRESTORE_EMULATOR_HOST}/v1/projects/demo-axe-shaper/databases/(default)/documents/sharingShares/client-probe`;
+    expect((await fetch(url)).status).toBe(403);
+    expect((await fetch(url, { method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: { public: { booleanValue: true } } }) })).status).toBe(403);
+  });
   it('round-trips the exact project and keeps secrets out of stored records', async () => {
     const created = await service().create(source, client);
     expect(created.replayed).toBe(false);

@@ -106,8 +106,10 @@ export async function sendShare(pending: PendingShare, fetchImpl: FetchLike, app
     if (now() >= pending.deadline) return { ok: false, code: 'operation-expired', retryable: false };
     const token = await appCheckToken();
     if (!token) return { ok: false, code: 'attestation', retryable: true };
+    if (now() >= pending.deadline) return { ok: false, code: 'operation-expired', retryable: false };
     try {
       const response = await fetchImpl('/api/shares', { method: 'POST', body: pending.body,
+        signal: AbortSignal.timeout(20_000),
         headers: { 'Content-Type': 'application/json', 'X-Firebase-AppCheck': token } });
       const payload = await response.json().catch(() => null) as
         { id?: unknown; createdAt?: unknown; error?: { code?: unknown } } | null;
@@ -184,17 +186,31 @@ function readKeys(storage: KeyStorage | null): Record<string, StoredShareKey> {
     return {};
   }
 }
-export function rememberShareKey(storage: KeyStorage | null, id: string, key: StoredShareKey): void {
-  try { storage?.setItem(KEY_STORE, JSON.stringify({ ...readKeys(storage), [id]: key })); } catch { /* private mode or full: the recovery file still works */ }
+export function rememberShareKey(storage: KeyStorage | null, id: string, key: StoredShareKey): boolean {
+  try {
+    if (!storage) return false;
+    // Per-share records avoid a read/modify/write race between tabs.
+    const name = `${KEY_STORE}.${id}`;
+    const value = JSON.stringify(key);
+    storage.setItem(name, value);
+    return storage.getItem(name) === value;
+  } catch { return false; }
 }
 export function storedShareKey(storage: KeyStorage | null, id: string): StoredShareKey | null {
-  const entry = readKeys(storage)[id];
+  let entry = readKeys(storage)[id];
+  try {
+    const saved = storage?.getItem(`${KEY_STORE}.${id}`);
+    if (saved !== null && saved !== undefined) entry = JSON.parse(saved);
+  } catch { /* Legacy key remains usable. */ }
   return entry && typeof entry.managementSecret === 'string' && MANAGEMENT_KEY.test(entry.managementSecret) ? entry : null;
 }
 export function forgetShareKey(storage: KeyStorage | null, id: string): void {
   const keys = readKeys(storage);
   delete keys[id];
-  try { storage?.setItem(KEY_STORE, JSON.stringify(keys)); } catch { /* nothing to undo */ }
+  try {
+    storage?.setItem(`${KEY_STORE}.${id}`, 'null');
+    storage?.setItem(KEY_STORE, JSON.stringify(keys));
+  } catch { /* nothing to undo */ }
 }
 
 export type ManagedShare = { ok: true; state: 'active' | 'revoked'; revokedAt: string | null } | { ok: false; message: string };

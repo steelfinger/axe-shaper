@@ -11,6 +11,7 @@ import type { SharingStatus } from '../shareLinkClient';
 import { createSharingHttpHandler } from '../sharingHttp';
 import { createSnapshotService } from '../snapshotService';
 import { MemoryStore } from './helpers/memorySnapshotStore';
+import { forgetPendingShare, pendingShares, savePendingShare } from '../pendingShares';
 
 const project = requestFixture.project as unknown as StoredProject;
 const clientKey = `sha256:${'1'.repeat(64)}` as const;
@@ -35,6 +36,41 @@ const noWait = async () => undefined;
 const token = async () => 'app-check-token';
 
 describe('share link client', () => {
+  it('recovers a server-accepted upload after response loss and reload without duplicating it', async () => {
+    const { store, fetchImpl } = server();
+    const prepared = await preflightShare(project, await fetchSharingStatus(fetchImpl), true);
+    if (!prepared.ok) throw new Error(prepared.reason);
+    const pending = beginShare(prepared, Date.now());
+    const values = new Map<string, string>();
+    const storage = { get length() { return values.size; }, key: (index: number) => [...values.keys()][index] ?? null,
+      getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => { values.set(key, value); },
+      removeItem: (key: string) => { values.delete(key); } };
+    expect(savePendingShare(storage, pending, 'Recovery design')).toBe(true);
+    const lostResponse = async (input: string, init?: RequestInit) => { await fetchImpl(input, init); throw new TypeError('response lost'); };
+    expect((await sendShare(pending, lostResponse, token, Date.now, noWait)).ok).toBe(false);
+    expect(store.shares.size).toBe(1);
+    const restored = pendingShares(storage)[0];
+    expect(restored.body).toBe(pending.body);
+    expect(restored.deadline).toBe(pending.deadline);
+    const recovered = await sendShare(restored, fetchImpl, token, Date.now, noWait);
+    expect(recovered.ok).toBe(true);
+    expect(store.shares.size).toBe(1);
+    forgetPendingShare(storage, restored);
+    expect(pendingShares(storage)).toEqual([]);
+    expect(savePendingShare(null, pending, 'Cannot persist')).toBe(false);
+    expect(savePendingShare({ ...storage, setItem: () => { throw new Error('quota'); } }, pending, 'Full')).toBe(false);
+  });
+
+  it('rechecks expiry after slow attestation and never sends an expired operation', async () => {
+    const { fetchImpl, requests } = server();
+    const prepared = await preflightShare(project, await fetchSharingStatus(fetchImpl), true);
+    if (!prepared.ok) throw new Error(prepared.reason);
+    const pending = beginShare(prepared, Date.now());
+    let now = pending.deadline - 1;
+    const result = await sendShare(pending, fetchImpl, async () => { now = pending.deadline; return 'token'; }, () => now, noWait);
+    expect(result).toMatchObject({ ok: false, code: 'operation-expired' });
+    expect(requests.filter(request => request.startsWith('POST'))).toHaveLength(0);
+  });
   it('creates a link, retries the same operation, and opens the exact design', async () => {
     const { store, fetchImpl, failNext } = server();
     const status = await fetchSharingStatus(fetchImpl);
@@ -146,6 +182,7 @@ describe('share link client', () => {
     forgetShareKey(storage, 'A'.repeat(20));
     expect(storedShareKey(storage, 'A'.repeat(20))).toBeNull();
     expect(storedShareKey(storage, 'B'.repeat(20))?.title).toBe('Bass');
+    map.set('axe-shaper.sharing.keys.v1.' + 'B'.repeat(20), '{not json');
     map.set('axe-shaper.sharing.keys.v1', '{not json');
     expect(storedShareKey(storage, 'B'.repeat(20))).toBeNull();
     const full = { getItem: () => null, setItem: () => { throw new DOMException('full', 'QuotaExceededError'); } };

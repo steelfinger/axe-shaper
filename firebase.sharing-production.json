@@ -1,0 +1,57 @@
+{
+  "hosting": {
+    "public": "dist",
+    "ignore": [
+      "firebase.json",
+      "firebase.staging.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "regex": "^/(api|share)(/.*)?$",
+        "function": {
+          "functionId": "sharingApi",
+          "region": "europe-north1",
+          "pinTag": true
+        }
+      },
+      {
+        "source": "/viewer3d/**",
+        "destination": "/viewer3d/index.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "/sharing/releases/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
+      }
+    ]
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "sharing",
+      "ignore": [
+        "node_modules",
+        "src",
+        "tsconfig.json",
+        "rolldown.config.ts",
+        ".gitignore"
+      ]
+    }
+  ],
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

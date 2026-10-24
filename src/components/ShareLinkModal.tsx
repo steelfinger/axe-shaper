@@ -2,9 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Check, Copy, Download, ExternalLink, FileUp, Link2, X } from 'lucide-react';
 import type { GuitarProject } from '../types/guitar';
 import {
-  beginShare, fetchSharingStatus, preflightShare, recoveryKeyText, rememberShareKey, sendShare, shareUrl,
+  beginShare, fetchSharingStatus, preflightShare, rememberShareKey, sendShare, shareUrl,
 } from '../sharing/shareLinkClient';
+import { downloadRecoveryKey } from '../sharing/downloadRecoveryKey';
+import { shareFailureMessage } from '../sharing/shareErrors';
 import { getAppCheckToken } from '../sharing/appCheck';
+import { finishFailedShare, forgetPendingShare, savePendingShare, sharingStorage } from '../sharing/pendingShares';
 import type { PendingShare, ShareBlockReason, SharePreflight, ShareSendResult } from '../sharing/shareLinkClient';
 
 interface ShareLinkModalProps {
@@ -23,6 +26,7 @@ type ShareLinkState =
   | { kind: 'checking' }
   | { kind: 'ready'; preflight: Extract<SharePreflight, { ok: true }> }
   | { kind: 'blocked'; reason: ShareBlockReason }
+  | { kind: 'storage-error' }
   | { kind: 'creating'; pending: PendingShare }
   | { kind: 'failed'; pending: PendingShare; result: Extract<ShareSendResult, { ok: false }> }
   | { kind: 'created'; id: string; url: string; managementSecret: string };
@@ -31,22 +35,11 @@ const BLOCKED_MESSAGES: Record<ShareBlockReason, string> = {
   unavailable: 'Link sharing is not available right now. You can still share the project file.',
   paused: 'Creating new links is paused for the moment. You can still share the project file.',
   'newer-fields': 'This design contains fields from a newer app. Share the project file instead.',
-  'unsupported-schema': 'This design uses features that the current iPad app cannot open yet, so it cannot be shared as a link. Share the project file instead.',
+  'unsupported-schema': 'This design uses features that link sharing does not support yet. Share the project file instead.',
   invalid: 'This design could not be prepared for a link. Share the project file instead.',
   'too-large': 'This design is too large to share as a link. Share the project file instead.',
 };
 
-function failureMessage(result: Extract<ShareSendResult, { ok: false }>): string {
-  switch (result.code) {
-    case 'network': return 'The link could not be created because the connection failed. Trying again will not create a duplicate.';
-    case 'quota-exceeded': return 'Too many links have been created recently. Try again later - trying again will not create a duplicate.';
-    case 'operation-expired': return 'This attempt has expired. Close this dialog and create the link again.';
-    case 'unavailable': return 'The sharing service did not respond. Trying again will not create a duplicate.';
-    case 'attestation': case 'unauthorized':
-      return 'This browser could not be verified for sharing. Try again - if it keeps failing, a content blocker may be stopping reCAPTCHA. Share the project file instead.';
-    default: return 'The link could not be created. Share the project file instead.';
-  }
-}
 
 /**
  * "Create link": consent, one confirmed upload, then the link and its recovery key.
@@ -95,11 +88,11 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
     const result = await sendShare(pending, (input, init) => fetch(input, init), getAppCheckToken);
     if (result.ok && project) {
       // So Manage this link works on this device without the recovery file.
-      let storage: Storage | null = null;
-      try { storage = window.localStorage; } catch { /* blocked storage: the recovery file still works */ }
-      rememberShareKey(storage, result.id, { managementSecret: pending.managementSecret, title: project.settings.name,
-        createdAt: result.createdAt });
+      const storage = sharingStorage();
+      if (rememberShareKey(storage, result.id, { managementSecret: pending.managementSecret, title: project.settings.name,
+        createdAt: result.createdAt })) forgetPendingShare(storage, pending);
     }
+    if (!result.ok && !result.retryable) finishFailedShare(sharingStorage(), pending, result.code);
     setState(result.ok
       ? { kind: 'created', id: result.id, url: shareUrl(window.location.origin, result.id), managementSecret: pending.managementSecret }
       : { kind: 'failed', pending, result });
@@ -107,7 +100,12 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
 
   const handleCreate = () => {
     if (state.kind !== 'ready') return;
-    void send(beginShare(state.preflight, Date.now()));
+    const pending = beginShare(state.preflight, Date.now());
+    if (!savePendingShare(sharingStorage(), pending, project.settings.name)) {
+      setState({ kind: 'storage-error' });
+      return;
+    }
+    void send(pending);
   };
 
   const handleCopy = async () => {
@@ -122,13 +120,7 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
 
   const handleSaveKey = () => {
     if (state.kind !== 'created') return;
-    const text = recoveryKeyText(state.url, state.id, state.managementSecret, project.settings.name);
-    const href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
-    const anchor = document.createElement('a');
-    anchor.href = href;
-    anchor.download = `axe-shaper-link-${state.id}.txt`;
-    anchor.click();
-    URL.revokeObjectURL(href);
+    downloadRecoveryKey(state.url, state.id, state.managementSecret, project.settings.name);
   };
 
   const handleShareFile = () => {
@@ -196,13 +188,16 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
                 <li>Their edits never change your design. Later edits you make are not shared - create a new link for those.</li>
                 <li>The design is stored on Axe Shaper&rsquo;s servers. A guide image you traced from stays on this device.</li>
               </ul>
+              <p className="share-link-muted"><a href="/recover-sharing">Review interrupted uploads</a></p>
             </>
           )}
           {state.kind === 'creating' && <p className="share-link-muted" role="status">Creating link&hellip;</p>}
 
           {state.kind === 'blocked' && <p>{BLOCKED_MESSAGES[state.reason]}</p>}
+          {state.kind === 'storage-error' && <p role="alert">This browser could not save the recovery details, so nothing was uploaded. Allow browser storage or share the project file.</p>}
 
-          {state.kind === 'failed' && <p role="alert">{failureMessage(state.result)}</p>}
+          {state.kind === 'failed' && <><p role="alert">{shareFailureMessage(state.result.code)}</p>
+            {state.result.retryable ? <p>Your confirmed request is saved in this browser. <a href="/recover-sharing">Recover it after reloading</a>.</p> : <p><a href="/recover-sharing">Review or dismiss the saved request</a>.</p>}</>}
 
           {state.kind === 'created' && (
             <>
@@ -214,7 +209,7 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
                 </button>
               </div>
               <p className="share-link-muted">
-                This browser remembers the key to manage or remove the link. Save the recovery key too - it is the
+                Save the recovery key to manage or remove the link. It is the
                 only way to manage the link from another device or after clearing this browser. Keep it private.
               </p>
             </>
@@ -231,7 +226,7 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
               </button>
             </>
           )}
-          {state.kind === 'blocked' && fileButton(true)}
+          {(state.kind === 'blocked' || state.kind === 'storage-error') && fileButton(true)}
           {state.kind === 'failed' && (
             <>
               {fileButton(!state.result.retryable)}

@@ -1,0 +1,13 @@
+{
+  "v1.3.2": {
+    "releaseTag": "v1.3.2",
+    "baseCoordinatedTag": "v1.3.2",
+    "confirmedIpadVersion": "1.3.2",
+    "confirmedIpadEditableSchema": 9,
+    "maxAcceptedProjectSchema": 9,
+    "serverReadSchema": 9,
+    "webReadSchema": 9,
+    "viewerReadSchema": 9,
+    "schema9Authoring": true
+  }
+}

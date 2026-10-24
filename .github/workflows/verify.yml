@@ -36,6 +36,14 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm ci --prefix functions
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm install --global firebase-tools@15.26.0
+      - name: Sharing backend build and emulator tests
+        run: npm run functions:build && npm run functions:test
 
       - name: Lint
         run: npm run lint
