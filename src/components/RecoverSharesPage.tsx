@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { getAppCheckToken } from '../sharing/appCheck';
-import { finishFailedShare, forgetPendingShare, pendingShares, savedShareAttempts, sharingStorage } from '../sharing/pendingShares';
+import { finishFailedShare, forgetPendingShare, pendingShares, pruneFinishedShares, savedShareAttempts, sharingStorage } from '../sharing/pendingShares';
 import { shareFailureMessage } from '../sharing/shareErrors';
 import type { SavedPendingShare } from '../sharing/pendingShares';
 import { rememberShareKey, sendShare } from '../sharing/shareLinkClient';
 
 export function PendingShareNotice() {
-  const [count] = useState(() => pendingShares(sharingStorage()).length);
+  const [count] = useState(() => {
+    const storage = sharingStorage();
+    pruneFinishedShares(storage);
+    return pendingShares(storage).length;
+  });
   if (!count || window.location.pathname === '/recover-sharing') return null;
   return <aside className="sharing-notice" aria-label="Interrupted sharing">
     <a href="/recover-sharing">Recover an interrupted shared link</a>

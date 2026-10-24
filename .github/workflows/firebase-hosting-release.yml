@@ -96,10 +96,13 @@ jobs:
           GH_TOKEN: ${{ secrets.VIEWER3D_RELEASE_TOKEN }}
           VITE_SCHEMA_9_AUTHORING: '1'
           VITE_SHARING: ${{ steps.sharing.outputs.enabled == 'true' && '1' || '0' }}
-          VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_APP_ID: ${{ vars.VITE_FIREBASE_APP_ID }}
-          VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
-          VITE_RECAPTCHA_SITE_KEY: ${{ vars.VITE_RECAPTCHA_SITE_KEY }}
+          # Only a sharing build gets App Check settings, and only after the
+          # guard above has checked they target axe-shaper-web. A static build
+          # would otherwise fall back to the repository-level (staging) values.
+          VITE_FIREBASE_API_KEY: ${{ steps.sharing.outputs.enabled == 'true' && vars.VITE_FIREBASE_API_KEY || '' }}
+          VITE_FIREBASE_APP_ID: ${{ steps.sharing.outputs.enabled == 'true' && vars.VITE_FIREBASE_APP_ID || '' }}
+          VITE_FIREBASE_PROJECT_ID: ${{ steps.sharing.outputs.enabled == 'true' && vars.VITE_FIREBASE_PROJECT_ID || '' }}
+          VITE_RECAPTCHA_SITE_KEY: ${{ steps.sharing.outputs.enabled == 'true' && vars.VITE_RECAPTCHA_SITE_KEY || '' }}
 
       - uses: FirebaseExtended/action-hosting-deploy@v0
         if: steps.sharing.outputs.enabled != 'true'

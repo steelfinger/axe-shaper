@@ -11,7 +11,6 @@ node_modules
 dist
 dist-ssr
 dist-schema9
-dist-sharing
 functions/.env.axe-shaper-web
 *.local
 *.zip
