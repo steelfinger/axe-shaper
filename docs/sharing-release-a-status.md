@@ -63,9 +63,10 @@ physical-device/native sharing and a compatible full-service rollback drill
 cannot be inferred from unit tests or HTTP 200 responses. Old staging schema-8
 revisions are not valid rollback targets once schema-9 snapshots exist.
 
-The separately prepared `sharing-production-launch.md` is preserved as owner
-planning material; this document records the implementation and evidence for
-this branch, rather than claiming all checklist items are complete.
+The remaining production steps, in order and with owners, are in
+[sharing-production-launch.md](sharing-production-launch.md). This document
+records the implementation and evidence for Release A, rather than claiming
+those steps are complete.
 
 The local iPad gate uses the existing `finger-precision` checkout; those three
 post-1.3.2 commits remain separate and are not claimed as shipped. Compatibility
