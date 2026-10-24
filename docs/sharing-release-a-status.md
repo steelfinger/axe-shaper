@@ -8,7 +8,7 @@ coordinated `v1.3.2`, schema 9, upload policy `project-upload-v3`, viewer
 
 | Finding | Resolution |
 | --- | --- |
-| 1. Expired/permanent uploads nag forever | Only unexpired, retryable attempts enter the pending notice. Expired and terminal attempts can be explicitly dismissed on the recovery page. Details are retained until dismissal because a lost response may represent an existing link. |
+| 1. Expired/permanent uploads nag forever | Only unexpired, retryable attempts enter the pending notice. Expired and terminal attempts can be explicitly dismissed on the recovery page. Details are kept for 7 days after the deadline, because a lost response may represent an existing link, then pruned on page load; they are pruned early if storage is full when a new request is saved. Recovery links open in a new tab so the editor keeps unsaved work. |
 | 2. v1.2.0 claims schema 9 | Corrected the unpublished record to web/viewer schema 7. Verified web tag `v1.2.0` and its viewer pin `v0.1.20`. Schema 8/9 native requirements are null for that release. |
 | 3. Hotfix compares with itself | Independent committed base policies; regression test changes all candidate readers and admission to 10 and still requires `hotfix-changes-compatibility`. |
 | 4. Laptop deployment broken | `npm run deploy` builds the composed site and runs checks from a clean reviewed tag, without GitHub environment variables. Static production works with sharing off; enabled sharing requires explicit production configuration before building. |
@@ -16,7 +16,7 @@ coordinated `v1.3.2`, schema 9, upload policy `project-upload-v3`, viewer
 | 6–7. Permanent errors invite recovery | Shared error mapping; retry buttons/hints depend on retryability. Permanent errors cannot consume another attestation token through recovery. |
 | 8. Duplicated/fragile key download | Shared download helper, attached anchor, Blob URL revoked after 60 seconds. |
 | 9. Inconsistent browser storage | Modal, management and recovery use `sharingStorage()`. Per-share key storage avoids cross-tab map overwrite. |
-| 10. Repeated staging checks | Staging follows successful Verify for the exact main commit and rejects obsolete main commits; it only rebuilds Functions and the composed site. |
+| 10. Repeated staging checks | Staging follows successful Verify for the exact main commit and skips (not fails) superseded main commits; it only rebuilds Functions and the composed site. |
 
 The staging identity has project-scoped Hosting admin, Cloud Functions admin,
 Firebase Rules admin, Datastore index admin, Service Usage consumer, and Secret
@@ -41,7 +41,10 @@ No production permissions or billing were changed. The GitHub secret is
 The viewer change is prepared in PR
 [axe-shaper-3D-viewer#4](https://github.com/steelfinger/axe-shaper-3D-viewer/pull/4).
 Its v0.1.26 bundle is a draft release built from `11b0f30`; publish it after
-review before treating the pin as a public release. The draft was composed locally using maintainer authentication for staging
+review before treating the pin as a public release. Re-verified 2026-10-24: a
+fresh `npm run build` of `11b0f30` is byte-identical to the draft's served
+files (one sourcemap differs only in asset-placeholder order), and the viewer's
+`npm run check` passes locally (494 tests). The draft was composed locally using maintainer authentication for staging
 testing; publish it before merging the web pin so the normal read-only CI token
 can fetch it.
 
