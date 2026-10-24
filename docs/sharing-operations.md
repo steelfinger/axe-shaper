@@ -6,8 +6,6 @@
 
 Companion to [the product and contract plan](DESIGN_SHARING_AND_GALLERY_PLAN.md).
 [Phase 0 notes](SHARING_PHASE_0_NOTES.md) track local evidence and remaining setup.
-The [production launch checklist](sharing-production-launch.md) orders the remaining
-production steps and who does each.
 
 ## Runtime incident controls
 
