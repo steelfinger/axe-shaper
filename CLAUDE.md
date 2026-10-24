@@ -92,7 +92,9 @@ before the iPad build is submitted, not after it is live.
 
 `e2e/editor.spec.ts` pins the default-off state. The flows that author either
 field run against a second, flag-on build in the `schema9-authoring` Playwright
-project (`*.schema9.spec.ts`), which `playwright.config.ts` builds itself.
+project (`*.schema9.spec.ts`), which `playwright.config.ts` builds itself. That
+build also sets `VITE_SHARING=1`, as staging does, and the `sharing` project
+(`*.sharing.spec.ts`) runs against it too - one extra build, not one per flag.
 
 The ten bundled blueprints' jacks (and the Jaguar's pot swap, the V's round
 guard) live in `src/constants/blueprints/blueprint-jacks.json`, not in the
@@ -103,8 +105,9 @@ from `Scripts/sync-contract.sh`.
 `projectForViewerLink` stamps the handoff from the fields it carries, so it
 must never send a field the pinned viewer cannot read - a viewer refuses a
 newer schema outright. The viewer reads schema 8 and draws jacks from
-`v0.1.23`, and reads 9 and draws body materials and finishes from `v0.1.25`,
-the pin since `v1.3.2`. `PINNED_VIEWER_READ_SCHEMA` in
+`v0.1.23`, and reads 9 and draws body materials and finishes from `v0.1.25`.
+The pin is `v0.1.26`, the first with the `?share=` route that `/share/:id/3d`
+redirects to; do not go below it while sharing is on. `PINNED_VIEWER_READ_SCHEMA` in
 `src/utils/viewer3dLink.ts` must name what the pin reads - below 9 it holds
 `body` out of the handoff - so move it only in the commit that moves
 `viewer3d.version`.
@@ -150,6 +153,22 @@ configuration before a production sharing build. Staging uses repository
 git tag v1.3.0 && git push origin v1.3.0   # this is the deploy
 gh run list --limit 1                       # this is the whole test
 ```
+
+**Commit the release record before you tag.** `sharing:check` (run by every
+`build`, by the release workflow and by `npm run deploy`) refuses a tag that is
+not `releaseTag` in `config/sharing-release.json`, so a bare `git tag` fails at
+"Validate release" and publishes nothing. For a new tag, in one commit on the
+commit you will tag:
+
+- `config/sharing-release.json`: `releaseTag`, `baseCoordinatedTag` and, for a
+  coordinated release, the iPad evidence fields.
+- `config/sharing-support.json`: add an entry for the new tag, then
+  `npm run sharing:check -- --write` to create its
+  `public/sharing/releases/<tag>.json`. Never edit an existing entry or file.
+- `config/sharing-base-policies.json`: a coordinated release adds its own
+  record. A `-web.N` hotfix adds nothing, and is checked against its base.
+- `functions/.env.axe-shaper-staging`: `SHARING_RELEASE_TAG` (and the schema
+  ceiling, if it moved).
 
 **Merging no longer publishes.** It used to: a push to `main` went straight to
 the live channel, so an unfinished editor feature could not sit on `main`

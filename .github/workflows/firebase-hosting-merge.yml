@@ -30,19 +30,35 @@ concurrency:
   group: hosting-staging
   cancel-in-progress: false
 jobs:
-  build_and_deploy_staging:
+  # A newer main commit's Verify run owns staging. Superseded runs end as a
+  # skipped deploy job, not a failure: a red staging run has to keep meaning
+  # the build or a credential broke.
+  latest_main:
     if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_repository.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    outputs:
+      current: ${{ steps.compare.outputs.current }}
+    steps:
+      - id: compare
+        env:
+          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          latest=$(gh api "repos/${{ github.repository }}/commits/main" --jq .sha)
+          if [ "$latest" = "$VERIFIED_SHA" ]; then
+            echo current=true >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::A newer main commit ($latest) exists; its Verify run owns staging."
+            echo current=false >> "$GITHUB_OUTPUT"
+          fi
+  build_and_deploy_staging:
+    needs: latest_main
+    if: ${{ needs.latest_main.outputs.current == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
-      - name: Refuse an out-of-order staging deployment
-        env:
-          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
-        run: |
-          latest=$(git ls-remote origin refs/heads/main | cut -f1)
-          test "$latest" = "$VERIFIED_SHA" || { echo 'A newer main commit exists; its Verify run owns staging.'; exit 1; }
       - uses: actions/setup-node@v4
         with:
           node-version: 22

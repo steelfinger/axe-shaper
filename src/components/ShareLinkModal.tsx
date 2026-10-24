@@ -188,7 +188,7 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
                 <li>Their edits never change your design. Later edits you make are not shared - create a new link for those.</li>
                 <li>The design is stored on Axe Shaper&rsquo;s servers. A guide image you traced from stays on this device.</li>
               </ul>
-              <p className="share-link-muted"><a href="/recover-sharing">Review interrupted uploads</a></p>
+              <p className="share-link-muted"><a href="/recover-sharing" target="_blank" rel="noopener noreferrer">Review interrupted uploads</a></p>
             </>
           )}
           {state.kind === 'creating' && <p className="share-link-muted" role="status">Creating link&hellip;</p>}
@@ -197,7 +197,9 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
           {state.kind === 'storage-error' && <p role="alert">This browser could not save the recovery details, so nothing was uploaded. Allow browser storage or share the project file.</p>}
 
           {state.kind === 'failed' && <><p role="alert">{shareFailureMessage(state.result.code)}</p>
-            {state.result.retryable ? <p>Your confirmed request is saved in this browser. <a href="/recover-sharing">Recover it after reloading</a>.</p> : <p><a href="/recover-sharing">Review or dismiss the saved request</a>.</p>}</>}
+            {/* A new tab: the editor has no unload guard, so a same-tab link would drop unsaved work. */}
+            {state.result.retryable ? <p>Your confirmed request is saved in this browser. <a href="/recover-sharing" target="_blank" rel="noopener noreferrer">Recover it later</a>.</p>
+              : <p><a href="/recover-sharing" target="_blank" rel="noopener noreferrer">Review or dismiss the saved request</a>.</p>}</>}
 
           {state.kind === 'created' && (
             <>

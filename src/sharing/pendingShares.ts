@@ -24,9 +24,28 @@ export function savePendingShare(storage: PendingStorage | null, pending: Pendin
     if (!storage) return false;
     const key = keyFor(pending);
     const value = JSON.stringify({ ...pending, title: title.slice(0, 500) });
-    storage.setItem(key, value);
+    try { storage.setItem(key, value); } catch {
+      // Probably full: finished requests are the only ones safe to drop early.
+      pruneFinishedShares(storage, Date.now(), true);
+      storage.setItem(key, value);
+    }
     return storage.getItem(key) === value;
   } catch { return false; }
+}
+
+/** How long an expired or permanently rejected request stays reviewable before it is dropped. */
+export const FINISHED_SHARE_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * Drop requests that can never be sent again. Each holds a full project body
+ * (up to MAX_CREATION_REQUEST_BYTES), and none appears in the pending notice,
+ * so without this they would sit in storage until it is full.
+ */
+export function pruneFinishedShares(storage: PendingStorage | null, now = Date.now(), all = false): void {
+  for (const record of savedShareAttempts(storage, now)) {
+    const finished = record.terminalError !== undefined || record.deadline <= now;
+    if (finished && (all || record.deadline + FINISHED_SHARE_RETENTION_MS <= now)) forgetPendingShare(storage, record);
+  }
 }
 
 export function savedShareAttempts(storage: PendingStorage | null, now = Date.now()): SavedPendingShare[] {

@@ -26,11 +26,6 @@ export default defineConfig({
   },
   projects: [
     {
-      name: 'sharing',
-      testMatch: /sharing\.spec\.ts/,
-      use: { ...devices['Desktop Chrome'], viewport: { width: 1600, height: 900 }, baseURL: 'http://127.0.0.1:4175' },
-    },
-    {
       name: 'chromium',
       testIgnore: /(schema9|sharing)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1600, height: 900 } },
@@ -38,7 +33,9 @@ export default defineConfig({
     // Schema 8/9 authoring is off in the default build but on in the staging
     // and release lanes (the release lane from v1.3.2), so the flows that
     // author it run against a second build with VITE_SCHEMA_9_AUTHORING=1.
-    // It builds itself, so CI needs no extra step.
+    // It builds itself, so CI needs no extra step. That build also turns on
+    // sharing, as staging does, so the sharing flows reuse it rather than
+    // paying for a third build on every run.
     {
       name: 'schema9-authoring',
       testMatch: /schema9\.spec\.ts/,
@@ -48,15 +45,17 @@ export default defineConfig({
         baseURL: `http://127.0.0.1:${SCHEMA9_PORT}`,
       },
     },
+    {
+      name: 'sharing',
+      testMatch: /sharing\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1600, height: 900 },
+        baseURL: `http://127.0.0.1:${SCHEMA9_PORT}`,
+      },
+    },
   ],
   webServer: [
-    {
-      command: 'npx vite build --outDir dist-sharing --emptyOutDir && npx vite preview --outDir dist-sharing --host 127.0.0.1 --port 4175 --strictPort',
-      env: { VITE_SHARING: '1', VITE_SCHEMA_9_AUTHORING: '1' },
-      url: 'http://127.0.0.1:4175/app',
-      reuseExistingServer: !process.env.CI,
-      timeout: 120_000,
-    },
     {
       command: `npx vite preview --host 127.0.0.1 --port ${PORT} --strictPort`,
       url: `http://127.0.0.1:${PORT}/app`,
@@ -65,7 +64,7 @@ export default defineConfig({
     },
     {
       command: `npx vite build --outDir dist-schema9 --emptyOutDir && npx vite preview --outDir dist-schema9 --host 127.0.0.1 --port ${SCHEMA9_PORT} --strictPort`,
-      env: { VITE_SCHEMA_9_AUTHORING: '1' },
+      env: { VITE_SCHEMA_9_AUTHORING: '1', VITE_SHARING: '1' },
       url: `http://127.0.0.1:${SCHEMA9_PORT}/app`,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,

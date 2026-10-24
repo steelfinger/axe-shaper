@@ -91,3 +91,25 @@ Viewer PR CI did not start: GitHub reports failed account payments or a spending
 limit (check run 120900402991). This is distinct from a failed test; the complete
 viewer check passed locally. Resolve the GitHub billing block or deliberately
 use the recorded local release validation before publishing the viewer bundle.
+
+## Live staging result
+
+The corrected combined deploy succeeded using the dedicated staging CI identity
+(Functions, Firestore and pinned Hosting). Its temporary test key was revoked
+and removed from disk. The existing PR identity was unchanged. Content-aware
+smoke passed for `v1.3.2-web.1`, policy v3, schema 9 and all support manifests.
+
+A real browser test created a schema-9 flame-maple design. The first App Check
+request hit a network error before upload; opening the saved request on a fresh
+recovery page then obtained real attestation and completed creation. Management
+opened from the recovered key, and its recovery-key download completed. The
+landing page correctly required iPad 1.3.2. The full-snapshot viewer rendered the
+design and the editable-copy route opened it with provenance. The downloaded
+`.axe.svg` payload exactly matched the immutable project (deep equality), whose
+verified JCS digest was
+`sha256:3ab3d4299b4c6ea9846e4b6c7454d081217ce793b887d32821256bc73c1e1e8c`.
+
+Web PR #12's Verify check passed in GitHub. Its Hosting preview failed because
+the read-only viewer token cannot fetch the draft v0.1.26 release; publishing
+that reviewed dependency is required before merging the web pin. This preview
+failure is separate from the successful manual staging deployment.

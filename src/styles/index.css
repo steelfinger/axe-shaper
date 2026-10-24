@@ -82,6 +82,20 @@ body, html, #root {
   height: 100vh;
   height: 100svh;
 }
+.app-container:has(.sharing-provenance) {
+  grid-template-rows: 56px auto minmax(0, 1fr);
+  grid-template-areas: "header header header" "provenance provenance provenance" "sidebar canvas inspector";
+}
+.sharing-provenance {
+  grid-area: provenance;
+  position: static;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  border-width: 0 0 1px;
+  border-radius: 0;
+  text-align: center;
+}
 
 .tools-panel-wrap {
   grid-area: sidebar;
@@ -436,6 +450,9 @@ body, html, #root {
       "header header"
       "sidebar canvas";
   }
+  .app-container:has(.sharing-provenance) {
+    grid-template-areas: "header header" "provenance provenance" "sidebar canvas";
+  }
 
   .inspector-panel-wrap {
     position: fixed;
@@ -549,6 +566,9 @@ body, html, #root {
     grid-template-areas:
       "header"
       "canvas";
+  }
+  .app-container:has(.sharing-provenance) {
+    grid-template-areas: "header" "provenance" "canvas";
   }
 
   .app-header {
@@ -1294,6 +1314,7 @@ summary:focus-visible {
 .share-link-body p {
   margin: 0;
 }
+.share-link-body a { color: var(--accent-blue); }
 
 .share-link-muted {
   color: var(--text-muted);
