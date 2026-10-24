@@ -9,12 +9,12 @@
     ],
     "rewrites": [
       {
-        "source": "/api/**",
-        "function": { "functionId": "sharingApi", "region": "europe-north1" }
-      },
-      {
-        "source": "/share/**",
-        "function": { "functionId": "sharingApi", "region": "europe-north1" }
+        "regex": "^/(api|share)(/.*)?$",
+        "function": {
+          "functionId": "sharingApi",
+          "region": "europe-north1",
+          "pinTag": true
+        }
       },
       {
         "source": "/viewer3d/**",
@@ -24,13 +24,30 @@
         "source": "**",
         "destination": "/index.html"
       }
+    ],
+    "headers": [
+      {
+        "source": "/sharing/releases/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
+      }
     ]
   },
   "functions": [
     {
       "source": "functions",
       "codebase": "sharing",
-      "ignore": ["node_modules", "src", "tsconfig.json", "rolldown.config.ts", ".gitignore"]
+      "ignore": [
+        "node_modules",
+        "src",
+        "tsconfig.json",
+        "rolldown.config.ts",
+        ".gitignore"
+      ]
     }
   ],
   "firestore": {

@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "vite",
     "dev:with-viewer": "node scripts/dev-with-viewer3d.ts",
-    "build": "npm run bridge:check && tsc -b && vite build",
+    "build": "npm run sharing:check && npm run bridge:check && tsc -b && vite build",
     "viewer3d:fetch": "node scripts/fetch-viewer3d.ts",
     "build:site": "npm run build && npm run viewer3d:fetch",
-    "deploy": "npm run build:site && firebase deploy --only hosting",
+    "deploy": "node scripts/deploy-from-laptop.ts",
     "lint": "oxlint",
     "test": "vitest run",
     "e2e": "npm run build && playwright test",
@@ -26,8 +26,10 @@
     "preview": "vite preview",
     "sharing:export": "node scripts/write-sharing-policy.ts",
     "functions:build": "tsc -p functions/tsconfig.json && rolldown -c functions/rolldown.config.ts",
-    "functions:deploy:staging": "npm run functions:build && firebase deploy --config firebase.staging.json --project staging --only functions,firestore",
-    "functions:test": "firebase emulators:exec --config firebase.staging.json --only firestore --project demo-axe-shaper 'vitest run --config functions/vitest.config.ts'"
+    "functions:deploy:staging": "npm run functions:build && node scripts/deploy-sharing.ts staging --backend-only",
+    "functions:test": "firebase emulators:exec --config firebase.staging.json --only firestore --project demo-axe-shaper 'vitest run --config functions/vitest.config.ts'",
+    "sharing:check": "node scripts/check-sharing-release.ts",
+    "sharing:smoke": "node scripts/smoke-sharing.ts"
   },
   "dependencies": {
     "firebase": "^13.0.0",

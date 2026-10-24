@@ -117,11 +117,16 @@ function StaticPage({ kind }: { kind: 'privacy' | 'support' }): React.JSX.Elemen
             <p>If you choose to scan a paper template or instrument body, the camera is used only to create the guide image you select. The app does not collect your camera feed or photo library.</p>
             <h2>Browser editor</h2>
             <p>The browser editor keeps your working project in the browser unless you choose to download or share it. Guide images are decoded locally for use on the canvas, and saved projects are exported to your device as <code>.axe.svg</code> files.</p>
+            <h2>Shared design links</h2>
+            <p>Where Create link is available, it uploads the complete design you confirm, including its title and any author metadata, to Axe Shaper’s Firebase service. Reference-image pixels stay on your device. Anyone with the link can view, download, edit a copy, and forward it. Links are unlisted and are not automatically published in a gallery.</p>
+            <p>Shared designs have no scheduled expiry. The separate management key lets you remove a link. Removal makes the design unavailable and deletes its project content from the active record; cached pages may remain visible for up to five minutes. Downloaded copies cannot be recalled. Hosting and database providers may retain service logs or backups under their own retention settings.</p>
+            <p>This browser stores management keys and interrupted upload requests locally so you can recover a link after a connection failure. Recovery retries are limited to 24 hours. Save the recovery key before clearing browser storage. Do not send management keys to anyone you do not want to be able to remove your link.</p>
+            <p>When you create or recover a link, Firebase App Check and Google reCAPTCHA Enterprise verify the request to help prevent abuse. The sharing service uses a keyed hash of the network address for short-lived rate limits; it does not attach that address to the public design. Google and Firebase process network and service information needed to operate these features. <a href="https://policies.google.com/privacy">Google’s privacy policy</a> describes their processing.</p>
             <h2>Website services and links</h2>
             <p>The website is hosted with Firebase Hosting and loads web fonts from Google Fonts. Following the GitHub, App Store, or email links leaves this site and is governed by the destination service’s privacy terms. Purchases and downloads of Axe Shaper for iPad are handled entirely by Apple; the App Store reports only aggregate sales figures, and Axe Shaper never receives your Apple Account details.</p>
             <h2>Contact</h2>
             <p>For privacy questions, email <a href="mailto:steelfinger@steelfinger.fi?subject=Axe%20Shaper%20privacy">steelfinger@steelfinger.fi</a>.</p>
-            <p className="page-updated">Updated 24 August 2026</p>
+            <p className="page-updated">Updated 24 October 2026</p>
           </div>
         ) : (
           <div className="prose">

@@ -20,22 +20,37 @@
 
 name: Deploy to Firebase Hosting staging on merge
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: [Verify]
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
 concurrency:
   group: hosting-staging
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   build_and_deploy_staging:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_repository.full_name == github.repository }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - name: Refuse an out-of-order staging deployment
+        env:
+          VERIFIED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          latest=$(git ls-remote origin refs/heads/main | cut -f1)
+          test "$latest" = "$VERIFIED_SHA" || { echo 'A newer main commit exists; its Verify run owns staging.'; exit 1; }
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm ci --prefix functions
+      - run: npm install --global firebase-tools@15.26.0
+      - run: npm run functions:build
 
       # Builds this site and composes the pinned viewer3d bundle into
       # dist/viewer3d. firebase.json has no predeploy hook, so this is the
@@ -60,17 +75,16 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ vars.VITE_FIREBASE_APP_ID }}
           VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
           VITE_RECAPTCHA_SITE_KEY: ${{ vars.VITE_RECAPTCHA_SITE_KEY }}
-      # Staging Hosting rewrites /api/** to the sharingApi Function, which
-      # exists only in axe-shaper-staging. firebase.json stays rewrite-free for
-      # the release lane and PR previews; the action has no --config input, so
-      # swap the file in for this deploy.
-      - run: cp firebase.staging.json firebase.json
-      - uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_AXE_SHAPER_STAGING }}
-          # The staging project's live channel never expires. This drops the
-          # old `staging` channel's 30-day dead-man's switch on purpose: a
-          # stable URL is what the sharing backend's rewrites need.
-          channelId: live
-          projectId: axe-shaper-staging
+      - name: Authenticate Firebase deployment
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_AXE_SHAPER_SHARING_STAGING }}
+        run: |
+          node -e "require('fs').writeFileSync(process.env.RUNNER_TEMP + '/firebase-deploy.json', process.env.FIREBASE_SERVICE_ACCOUNT, {mode: 0o600})"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-deploy.json" >> "$GITHUB_ENV"
+      - name: Deploy backend and pinned Hosting together
+        run: node scripts/deploy-sharing.ts staging
+      - name: Verify deployed policy and routes
+        run: npm run sharing:smoke -- https://axe-shaper-staging.web.app
+      - name: Remove deployment credential
+        if: always()
+        run: rm -f "$RUNNER_TEMP/firebase-deploy.json"

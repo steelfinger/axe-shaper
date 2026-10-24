@@ -70,6 +70,7 @@ import { ShareLinkModal } from './components/ShareLinkModal';
 import { DownloadSharePage } from './components/DownloadSharePage';
 import { ManageSharePage } from './components/ManageSharePage';
 import { loadSharedProject, shareIdFromPath } from './sharing/shareLinkClient';
+import { PendingShareNotice, RecoverSharesPage } from './components/RecoverSharesPage';
 import { WelcomeModal } from './components/WelcomeModal';
 import { AboutModal } from './components/AboutModal';
 import { MarketingSite } from './components/MarketingSite';
@@ -133,6 +134,7 @@ function hintFromProject(project: GuitarProject): NewDesignHint {
 }
 
 interface EditorAppProps {
+  sourceShareId?: string;
   /** The chosen document. The shell has already decided; the editor never
    *  renders without one, which is why nothing below checks for null. */
   initialProject: GuitarProject;
@@ -146,7 +148,8 @@ interface EditorAppProps {
   onDirtyChange: (dirty: boolean) => void;
 }
 
-function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProps): React.JSX.Element {
+function EditorApp({ initialProject, onNewDesign, onDirtyChange, sourceShareId }: EditorAppProps): React.JSX.Element {
+  const [sourceId, setSourceId] = useState(sourceShareId);
   const [project, setProject] = useState<GuitarProject>(initialProject);
   // Whether anything has changed since the document was opened or last
   // saved. Not the same as `canUndo`: undoing back to the start still leaves
@@ -771,6 +774,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
         historyRef.current.reset();
         updateHistoryState();
         setProject(result.project);
+        setSourceId(undefined);
         setIsDirty(false);
         setSelectedAnchorIds(new Set());
         setSelectedSegmentIndex(null);
@@ -817,6 +821,9 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange }: EditorAppProp
 
   return (
     <div className={`app-container${mobilePanel ? ` mobile-panel-${mobilePanel}` : ''}`}>
+      {sourceId && <aside className="sharing-provenance" aria-label="Design source">
+        Editing a copy. Your changes stay here. <a href={`/share/${sourceId}`} target="_blank" rel="noopener noreferrer">View shared original</a>
+      </aside>}
       <Header
         project={project}
         onUpdateProject={handleUpdateProject}
@@ -1000,7 +1007,7 @@ type EditorRouteState =
   | { kind: 'loading' }
   | { kind: 'share-error'; message: string }
   | { kind: 'choosing'; from?: NewDesignHint }
-  | { kind: 'editing'; project: GuitarProject; session: number };
+  | { kind: 'editing'; project: GuitarProject; session: number; sourceShareId?: string };
 
 /** The real browser, for the history and confirm rules in utils/editorNavigation.ts. */
 const browserEnv = (): NavigationEnv => ({
@@ -1030,14 +1037,14 @@ function EditorRoute(): React.JSX.Element {
     dirtyRef.current = dirty;
   }, []);
 
-  const openProject = (project: GuitarProject) => {
+  const openProject = (project: GuitarProject, sourceShareId?: string) => {
     sessionRef.current += 1;
     // One history entry for the editor, pushed only when coming from the
     // chooser - not for a `?plan=` open (still `loading` here), whose own
     // effect normalises the URL, and not if somehow already on the editor
     // entry. Back from the editor then lands on the chooser.
     noteEditorOpened(stateRef.current.kind, browserEnv());
-    setState({ kind: 'editing', project, session: sessionRef.current });
+    setState({ kind: 'editing', project, session: sessionRef.current, sourceShareId });
   };
 
   /**
@@ -1121,7 +1128,7 @@ function EditorRoute(): React.JSX.Element {
     void (async () => {
       const result = await loadSharedProject(id, (input, init) => fetch(input, init));
       if (cancelled) return;
-      if (result.ok) openProject(result.project);
+      if (result.ok) openProject(result.project, id);
       else setState({ kind: 'share-error', message: result.message });
       window.history.replaceState(null, '', '/app');
     })();
@@ -1170,20 +1177,26 @@ function EditorRoute(): React.JSX.Element {
     <EditorApp
       key={state.session}
       initialProject={state.project}
+      sourceShareId={state.sourceShareId}
       onNewDesign={returnToChooser}
       onDirtyChange={handleDirtyChange}
     />
   );
 }
 
-export function App(): React.JSX.Element {
+function AppRoute(): React.JSX.Element {
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
+  if (SHARING_ENABLED && path === '/recover-sharing') return <RecoverSharesPage />;
   if (path === '/app' || (SHARING_ENABLED && shareIdFromPath(path))) return <EditorRoute />;
   const downloadId = SHARING_ENABLED ? shareIdFromPath(path, 'download') : null;
   if (downloadId) return <DownloadSharePage id={downloadId} />;
   const manageId = SHARING_ENABLED ? shareIdFromPath(path, 'manage') : null;
   if (manageId) return <ManageSharePage id={manageId} />;
   return <MarketingSite path={path} />;
+}
+
+export function App(): React.JSX.Element {
+  return <>{SHARING_ENABLED && <PendingShareNotice />}<AppRoute /></>;
 }
 
 export default App;

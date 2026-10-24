@@ -1,4 +1,5 @@
 import type { SharedProjectEnvelope, SharingErrorCode } from './sharingContract';
+import { minimumIpadVersion } from './deployment';
 
 /**
  * Server-rendered `/share/:id` page: real HTML that works without JavaScript,
@@ -104,6 +105,7 @@ export function renderShareLandingPage(envelope: SharedProjectEnvelope, origin: 
   const author = bounded(envelope.project.metadata?.author ?? '', 80);
   const { instrumentType, stringCount } = envelope.project;
   const created = envelope.createdAt.slice(0, 10);
+  const minimumIpad = minimumIpadVersion(envelope.requirements.projectSchema);
   const meta = [
     `${instrumentType === 'bass' ? 'Bass' : 'Guitar'} · ${stringCount}-string`,
     author ? `by ${author}` : null,
@@ -116,6 +118,7 @@ export function renderShareLandingPage(envelope: SharedProjectEnvelope, origin: 
 <a href="/app/share/${id}">Open editable copy<span>Edit your own copy in the editor. The original does not change.</span></a>
 <a href="/download/share/${id}">Download project<span>Save the .axe.svg file - a true-scale, printable plan that reopens in Axe Shaper.</span></a>
 </nav>
+<p class="note">${minimumIpad ? `To edit the downloaded project on iPad, use Axe Shaper ${escapeHtml(minimumIpad)} or later.` : 'iPad editing support for this design has not been confirmed.'}</p>
 <p class="note">Anyone with this link can see this design. The editor and 3D viewer need JavaScript.</p>`;
   // Five minutes: a revoked share can stay visible in caches this long (plan, "Social page and caching").
   return page(origin, 200, 'public, max-age=300, s-maxage=300', title, describe(envelope), `/share/${id}`, body);

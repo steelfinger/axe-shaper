@@ -15,7 +15,7 @@ import { isShareId, SharingContractError } from '../../src/sharing/sharingContra
 import type { ProjectDigest } from '../../src/sharing/sharingContract';
 import { createSnapshotService } from '../../src/sharing/snapshotService';
 import type { SnapshotStore } from '../../src/sharing/snapshotService';
-import { buildViewer3DPath } from '../../src/utils/viewer3dLink';
+import { assertSharingDeployment } from '../../src/sharing/deployment';
 import { createFirestoreSnapshotStore } from './firestoreSnapshotStore';
 
 /**
@@ -80,6 +80,7 @@ function loggedStore(store: SnapshotStore): SnapshotStore {
 let runtime: { service: ReturnType<typeof createSnapshotService>; handler: ReturnType<typeof createSharingHttpHandler> } | undefined;
 function sharingRuntime() {
   if (runtime) return runtime;
+  assertSharingDeployment(RELEASE_TAG.value(), MAX_SCHEMA.value());
   const service = createSnapshotService({
     releaseTag: RELEASE_TAG.value(),
     admission: { revision: UPLOAD_POLICY_REVISION, maxAcceptedProjectSchema: MAX_SCHEMA.value() },
@@ -113,7 +114,7 @@ function htmlResponse(page: LandingPage): Response {
 
 /**
  * `/share/:id` (the landing page) and `/share/:id/3d` (a redirect into the
- * pinned viewer's existing `#d=` link, so View in 3D needs no viewer release).
+ * pinned viewer's complete-snapshot `?share=` route).
  * Null for anything else, which goes to the JSON API adapter.
  */
 async function sharePage(req: FunctionsRequest, clientKey: string): Promise<Response | null> {
@@ -127,7 +128,7 @@ async function sharePage(req: FunctionsRequest, clientKey: string): Promise<Resp
     const envelope = await sharingRuntime().service.read(match[1]);
     if (!match[2]) return htmlResponse(renderShareLandingPage(envelope, origin));
     return new Response(null, { status: 302, headers: {
-      Location: await buildViewer3DPath(envelope.project), 'Cache-Control': 'public, max-age=300, s-maxage=300',
+      Location: `/viewer3d/?share=${envelope.id}`, 'Cache-Control': 'public, max-age=300, s-maxage=300',
       'Referrer-Policy': 'same-origin',
     } });
   } catch (error) {

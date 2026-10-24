@@ -10,7 +10,7 @@ get wrong.
 npm run dev        # vite dev server on :5173
 npm run build      # tsc -b && vite build
 npm run build:site # build + viewer3d:fetch - what CI deploys
-npm run deploy     # build:site && firebase deploy (rarely needed - see below)
+npm run deploy     # checked laptop fallback from the reviewed release tag
 npm run lint       # oxlint
 npm test           # vitest: unit tests for pure logic in src/**/__tests__
 npm run e2e        # build, then Playwright smoke flows in e2e/ (Chromium)
@@ -116,12 +116,12 @@ Three lanes, and only one of them publishes:
 | Lane | Trigger | Target | Workflow |
 |---|---|---|---|
 | Preview | a pull request | ephemeral channel on `axe-shaper-staging` | `firebase-hosting-pull-request.yml` |
-| Staging | push to `main` | `live` on `axe-shaper-staging` | `firebase-hosting-merge.yml` |
+| Staging | successful Verify of latest `main` push | `live` on `axe-shaper-staging` | `firebase-hosting-merge.yml` |
 | **Live** | push of a `v*` tag | `live` on `axe-shaper-web` | `firebase-hosting-release.yml` |
 
 Preview and staging deploy to a **separate Firebase project**,
 `axe-shaper-staging` (https://axe-shaper-staging.web.app, alias `staging` in
-`.firebaserc`, deployed with `FIREBASE_SERVICE_ACCOUNT_AXE_SHAPER_STAGING`).
+`.firebaserc`, Hosting previews use `FIREBASE_SERVICE_ACCOUNT_AXE_SHAPER_STAGING`; verified-main backend deployments use the separate `FIREBASE_SERVICE_ACCOUNT_AXE_SHAPER_SHARING_STAGING`).
 Only the release workflow touches `axe-shaper-web`. The reason is the sharing
 backend: a preview channel's Hosting rewrites go to its own project's
 Functions, so previews on the production project would serve production
@@ -130,20 +130,21 @@ service rewrites exist. The staging URL is that project's live channel and
 does **not** expire - the old `staging` channel's 30-day dead-man's switch was
 dropped deliberately when it moved.
 
-The staging project also runs the **sharing backend**: the `sharingApi`
-Function (`functions/`, deployed by hand with `npm run functions:deploy:staging`
-- CI deploys Hosting only) and Firestore in `europe-north1`. Its `/api/**`
-rewrite lives in `firebase.staging.json`, which the staging workflow copies over
-`firebase.json` before deploying. Keep `firebase.json` rewrite-free: the release
-lane and PR previews use it, and `axe-shaper-web` has no such Function. The editor's **Create link** dialog and
-the `/share/:id` route are behind `SHARING_ENABLED` (`VITE_SHARING=1`), which
-only the staging workflow sets; it must stay off in the release lane until the
-backend exists on production. Creating a link
-needs App Check: the staging build reads the public Firebase web config and
-reCAPTCHA site key from repository Actions variables (`VITE_FIREBASE_*`,
-`VITE_RECAPTCHA_SITE_KEY`), and local dev from the gitignored `.env.local`.
-Without them the dialog offers only the project file. See
-`docs/SHARING_PHASE_0_NOTES.md`.
+The staging project also runs the **sharing backend**, `sharingApi`, and
+Firestore in `europe-north1`. After Verify succeeds on the current main commit,
+CI builds Functions and the composed site once, then deploys Firestore/Functions
+and Hosting with `firebase.staging.json`. Its `pinTag` rewrites pair the Hosting
+release with the HTTP Function revision. The staging deploy identity is separate
+from the Hosting-only PR identity; see `docs/sharing-release-a-status.md`.
+
+Keep `firebase.json` rewrite-free for PR previews and static production releases.
+`firebase.sharing-production.json` is the explicit production sharing config.
+The reviewed `config/sharing-release.json` currently keeps production sharing off.
+Enabling it also requires the production GitHub environment's App Check variables
+and separate sharing deployment secret. The release guard rejects staging
+configuration before a production sharing build. Staging uses repository
+`VITE_FIREBASE_*` / `VITE_RECAPTCHA_SITE_KEY` variables; local dev uses ignored
+`.env.local`. These public Firebase settings are compiled into the frontend.
 
 ```bash
 git tag v1.3.0 && git push origin v1.3.0   # this is the deploy
@@ -171,11 +172,15 @@ separately from the deployment tag.
 Hotfix suffixes have SemVer prerelease precedence below the base release.
 Select rollback targets by recorded successful deployment time/sequence and
 explicit predecessor, never by tag sorting or GitHub “latest.” The sharing
-compatibility policy checks in `src/sharing/releasePolicy.ts` are groundwork;
-complete release manifests and deployment enforcement are still pending.
+release manifest and immutable support records live in `config/`; `sharing:check`
+validates them, the viewer pin and Function parameters. Hotfix compatibility is
+checked against an independent `sharing-base-policies.json` record, never a copy
+of the candidate. Published support records must not be rewritten.
 
-Rollback is `firebase hosting:rollback`, or re-running the release workflow on
-an earlier tag.
+Hosting rollback restores pinned HTTP revisions only. It does not revert rules,
+indexes, data or runtime controls. Choose a recorded compatible predecessor that
+can read every stored schema; never roll sharing back to an older reader simply
+because its tag sorts earlier. See `docs/sharing-operations.md`.
 
 The release workflow re-runs the contract checks itself rather than trusting
 the merge that produced the commit. `needs:` cannot reach across workflows, a
@@ -202,10 +207,13 @@ schema-visible parts of the editor, or a long-lived `release` branch to deploy
 live from - the branch is the standard answer but cuts against committing
 straight to `main`, so reach for the flag first.
 
-`npm run deploy` still publishes straight from a laptop and exists for the case
-where CI is unavailable. It bypasses every gate above, including the smoke
-check, and ships whatever is in the working tree - which is how `main` and the
-live site drift apart. Prefer the tag.
+`npm run deploy` is the laptop fallback when CI is unavailable. It requires a
+clean checkout at the reviewed release tag, checks live iPad compatibility,
+runs lint/tests/browser/contract checks, and runs `build:site` before deploying.
+Static releases work while production sharing is disabled. Sharing releases
+also require explicit production App Check configuration, backend checks and
+the content-aware smoke check; GitHub-specific environment variables are not
+required on a laptop.
 
 The `viewer3d:fetch` half matters: it downloads the release tarball pinned in
 `viewer3d.version` into `dist/viewer3d`. A plain `npm run build` does *not*

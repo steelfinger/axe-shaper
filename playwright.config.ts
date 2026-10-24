@@ -26,8 +26,13 @@ export default defineConfig({
   },
   projects: [
     {
+      name: 'sharing',
+      testMatch: /sharing\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1600, height: 900 }, baseURL: 'http://127.0.0.1:4175' },
+    },
+    {
       name: 'chromium',
-      testIgnore: /schema9\.spec\.ts/,
+      testIgnore: /(schema9|sharing)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1600, height: 900 } },
     },
     // Schema 8/9 authoring is off in the default build but on in the staging
@@ -45,6 +50,13 @@ export default defineConfig({
     },
   ],
   webServer: [
+    {
+      command: 'npx vite build --outDir dist-sharing --emptyOutDir && npx vite preview --outDir dist-sharing --host 127.0.0.1 --port 4175 --strictPort',
+      env: { VITE_SHARING: '1', VITE_SCHEMA_9_AUTHORING: '1' },
+      url: 'http://127.0.0.1:4175/app',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
     {
       command: `npx vite preview --host 127.0.0.1 --port ${PORT} --strictPort`,
       url: `http://127.0.0.1:${PORT}/app`,
