@@ -1,8 +1,8 @@
 # Sharing Release A: review and verification
 
-Updated 2026-10-24. Candidate: web/backend `v1.3.2-web.1`, based on the
+Updated 2026-10-25. Candidate: web/backend `v1.3.2-web.1`, based on the
 coordinated `v1.3.2`, schema 9, upload policy `project-upload-v3`, viewer
-`v0.1.26`. Production sharing remains disabled in the release manifest.
+`v0.1.27` (`v0.1.26` plus one-tap Share). Production sharing remains disabled in the release manifest.
 
 ## Review fixes
 
@@ -117,3 +117,18 @@ Web PR #12's Verify check passed in GitHub. Its Hosting preview failed because
 the read-only viewer token cannot fetch the draft v0.1.26 release; publishing
 that reviewed dependency is required before merging the web pin. This preview
 failure is separate from the successful manual staging deployment.
+
+## Viewer v0.1.27: one-tap Share
+
+[axe-shaper-3D-viewer#5](https://github.com/steelfinger/axe-shaper-3D-viewer/pull/5)
+adds **Share** to the viewer: the current 3D view as a branded PNG plus the
+design's link (the canonical `/share/<id>` page for a stored share), handed to
+the platform share sheet. Without one, it copies the link and downloads the
+image. Review found two stale-image cases (a capture finishing after a design
+change, and a prepared image surviving scene or camera changes); both were
+fixed before merging and checked in the browser.
+
+The PR was admin-merged as `972735d` because the viewer's Actions are blocked
+by the billing limit. `v0.1.27` was built locally from that commit with
+`npm run check` passing (502 tests). A real phone share sheet, and what each
+target app keeps from an image-plus-text share, are not yet checked.

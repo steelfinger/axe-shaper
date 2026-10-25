@@ -23,7 +23,7 @@ Firebase web app is registered. The release lane builds with `VITE_SHARING=0`.
 the staging deploy and smoke test passed):
 
 - `config/sharing-release.json`: the reviewed release manifest, `v1.3.2-web.1`,
-  admission ceiling 9, upload policy `project-upload-v3`, viewer `v0.1.26`,
+  admission ceiling 9, upload policy `project-upload-v3`, viewer `v0.1.27`,
   iPad 1.3.2 confirmed live, and `productionSharingEnabled: false`.
   `config/sharing-base-policies.json` and `config/sharing-support.json` hold the
   hotfix baseline and the immutable support records.
@@ -43,7 +43,8 @@ the staging deploy and smoke test passed):
 ## 0. Land the existing work - done
 
 - [x] Release A reviewed, fixed, merged to `main`, staging deploy and smoke test
-  passed (2026-10-24). Viewer `v0.1.26` published.
+  passed (2026-10-24). Viewer `v0.1.26` published; `v0.1.27` (one-tap Share)
+  followed on 2026-10-25.
 
 ## 1. Decisions
 
