@@ -1,13 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Check, Copy, Download, ExternalLink, FileUp, Link2, Rotate3D, X } from 'lucide-react';
 import type { GuitarProject } from '../types/guitar';
-import {
-  beginShare, fetchSharingStatus, preflightShare, rememberShareKey, sendShare, shareUrl,
-} from '../sharing/shareLinkClient';
+import { beginShare, shareUrl } from '../sharing/shareLinkClient';
 import { downloadRecoveryKey } from '../sharing/downloadRecoveryKey';
 import { shareFailureMessage } from '../sharing/shareErrors';
-import { getAppCheckToken } from '../sharing/appCheck';
-import { finishFailedShare, forgetPendingShare, savePendingShare, sharingStorage } from '../sharing/pendingShares';
+import { BLOCKED_MESSAGES, SHARE_TERMS, checkShareable, sendAndRecordShare } from '../sharing/createShare';
+import { savePendingShare, sharingStorage } from '../sharing/pendingShares';
 import type { PendingShare, ShareBlockReason, SharePreflight, ShareSendResult } from '../sharing/shareLinkClient';
 
 interface ShareLinkModalProps {
@@ -31,14 +29,6 @@ type ShareLinkState =
   | { kind: 'failed'; pending: PendingShare; result: Extract<ShareSendResult, { ok: false }> }
   | { kind: 'created'; id: string; url: string; managementSecret: string };
 
-const BLOCKED_MESSAGES: Record<ShareBlockReason, string> = {
-  unavailable: 'Link sharing is not available right now. You can still share the project file.',
-  paused: 'Creating new links is paused for the moment. You can still share the project file.',
-  'newer-fields': 'This design contains fields from a newer app. Share the project file instead.',
-  'unsupported-schema': 'This design uses features that link sharing does not support yet. Share the project file instead.',
-  invalid: 'This design could not be prepared for a link. Share the project file instead.',
-  'too-large': 'This design is too large to share as a link. Share the project file instead.',
-};
 
 
 /**
@@ -58,8 +48,7 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
     setCopied(false);
     let cancelled = false;
     void (async () => {
-      const status = await fetchSharingStatus((input, init) => fetch(input, init));
-      const preflight = await preflightShare(project, status);
+      const preflight = await checkShareable(project);
       if (cancelled) return;
       setState(preflight.ok ? { kind: 'ready', preflight } : { kind: 'blocked', reason: preflight.reason });
     })();
@@ -85,14 +74,7 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
 
   const send = async (pending: PendingShare) => {
     setState({ kind: 'creating', pending });
-    const result = await sendShare(pending, (input, init) => fetch(input, init), getAppCheckToken);
-    if (result.ok && project) {
-      // So Manage this link works on this device without the recovery file.
-      const storage = sharingStorage();
-      if (rememberShareKey(storage, result.id, { managementSecret: pending.managementSecret, title: project.settings.name,
-        createdAt: result.createdAt })) forgetPendingShare(storage, pending);
-    }
-    if (!result.ok && !result.retryable) finishFailedShare(sharingStorage(), pending, result.code);
+    const result = await sendAndRecordShare(pending, project.settings.name);
     setState(result.ok
       ? { kind: 'created', id: result.id, url: shareUrl(window.location.origin, result.id), managementSecret: pending.managementSecret }
       : { kind: 'failed', pending, result });
@@ -184,9 +166,7 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
                 <dt>Author</dt><dd>{author || <span className="share-link-muted">Not set</span>}</dd>
               </dl>
               <ul className="share-link-terms">
-                <li>Anyone with the link can view this design in 3D, download it, edit their own copy, and pass the link on.</li>
-                <li>Their edits never change your design. Later edits you make are not shared - create a new link for those.</li>
-                <li>The design is stored on Axe Shaper&rsquo;s servers. A guide image you traced from stays on this device.</li>
+                {SHARE_TERMS.map(term => <li key={term}>{term}</li>)}
               </ul>
               <p className="share-link-muted"><a href="/recover-sharing" target="_blank" rel="noopener noreferrer">Review interrupted uploads</a></p>
             </>

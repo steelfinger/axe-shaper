@@ -13,7 +13,7 @@ import {
   neckPresetFieldsForNewTemplate,
   withEmbeddedPresets,
 } from './utils/presets';
-import { buildViewer3DPath } from './utils/viewer3dLink';
+import { buildViewer3DPath, projectForViewerLink } from './utils/viewer3dLink';
 import type {
   GuitarProject,
   GuideImageState,
@@ -69,7 +69,10 @@ import { SaveInfoModal } from './components/SaveInfoModal';
 import { ShareLinkModal } from './components/ShareLinkModal';
 import { DownloadSharePage } from './components/DownloadSharePage';
 import { ManageSharePage } from './components/ManageSharePage';
-import { loadSharedProject, shareIdFromPath } from './sharing/shareLinkClient';
+import { beginShare, loadSharedProject, shareIdFromPath } from './sharing/shareLinkClient';
+import { checkShareable, sendAndRecordShare } from './sharing/createShare';
+import { savePendingShare, sharingStorage } from './sharing/pendingShares';
+import { createViewerShareBridge } from './sharing/viewerBridge';
 import { PendingShareNotice, RecoverSharesPage } from './components/RecoverSharesPage';
 import { WelcomeModal } from './components/WelcomeModal';
 import { AboutModal } from './components/AboutModal';
@@ -151,6 +154,26 @@ interface EditorAppProps {
 function EditorApp({ initialProject, onNewDesign, onDirtyChange, sourceShareId }: EditorAppProps): React.JSX.Element {
   const [sourceId, setSourceId] = useState(sourceShareId);
   const [project, setProject] = useState<GuitarProject>(initialProject);
+  const projectRef = useRef(project);
+  useEffect(() => { projectRef.current = project; }, [project]);
+  // Create link for the 3D views this editor opens (sharing/viewerBridge.ts):
+  // the viewer only holds a projection, so the link is made here, from this
+  // project, with the Share dialog's checks.
+  const [viewerShareBridge] = useState(() => createViewerShareBridge({
+    origin: window.location.origin,
+    currentProject: () => projectRef.current,
+    viewerProjection: (current) => JSON.stringify(projectForViewerLink(withEmbeddedPresets(current))),
+    check: checkShareable,
+    begin: (preflight) => beginShare(preflight, Date.now()),
+    save: (pending, title) => savePendingShare(sharingStorage(), pending, title),
+    send: sendAndRecordShare,
+  }));
+  useEffect(() => {
+    if (!SHARING_ENABLED) return undefined;
+    const listener = (event: MessageEvent) => { void viewerShareBridge.handle(event); };
+    window.addEventListener('message', listener);
+    return () => window.removeEventListener('message', listener);
+  }, [viewerShareBridge]);
   // Whether anything has changed since the document was opened or last
   // saved. Not the same as `canUndo`: undoing back to the start still leaves
   // a redo stack, and saving does not clear history. Only used to decide
@@ -718,8 +741,10 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange, sourceShareId }
     // is our own first-party viewer, not third-party content.
     const newTab = window.open('', '_blank');
     try {
-      const path = await buildViewer3DPath(withEmbeddedPresets(project));
+      const handoff = withEmbeddedPresets(project);
+      const path = await buildViewer3DPath(handoff);
       if (newTab) {
+        if (SHARING_ENABLED) viewerShareBridge.register(newTab, JSON.stringify(projectForViewerLink(handoff)));
         newTab.location.href = path;
       } else {
         window.location.href = path;
