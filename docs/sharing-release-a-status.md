@@ -2,7 +2,7 @@
 
 Updated 2026-10-25. Candidate: web/backend `v1.3.2-web.1`, based on the
 coordinated `v1.3.2`, schema 9, upload policy `project-upload-v3`, viewer
-`v0.1.28` (`v0.1.26` plus one-tap Share and its short-link fix). Production sharing remains disabled in the release manifest.
+`v0.1.29` (`v0.1.26` plus one-tap Share, its short-link fix, and editor-created links). Production sharing remains disabled in the release manifest.
 
 ## Review fixes
 
@@ -141,3 +141,15 @@ the `/share/<id>` page for a stored share and otherwise links to the site.
 The button also reads "Sharing…" while the sheet is open. The editor's
 Create link result gained **View in 3D** (`/share/<id>/3d`), so that path
 always has the short link.
+
+`v0.1.29` ([axe-shaper-3D-viewer#7](https://github.com/steelfinger/axe-shaper-3D-viewer/pull/7),
+admin-merged as `039c7ad`, built locally with 509 tests passing) has Share
+create a short link for a design that isn't stored yet. The viewer holds only
+`projectForViewerLink`'s projection, so it asks the editor tab that opened it
+(`postMessage`, same origin) to create the link with the exact project and the
+Share dialog's own checks, consent text and key handling
+(`src/sharing/viewerBridge.ts`, `64fe1d4`). Verified locally with Playwright:
+the confirmation, a real App Check refusal relayed with Try again, and, with
+the token exchange and create response faked, the stored-share switch and a
+short-link share. A real creation awaits a browser that passes App Check on
+staging.
