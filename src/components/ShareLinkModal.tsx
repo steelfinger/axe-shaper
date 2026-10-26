@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Check, Copy, Download, ExternalLink, FileUp, Link2, X } from 'lucide-react';
+import { Check, Copy, Download, ExternalLink, FileUp, Link2, Rotate3D, X } from 'lucide-react';
 import type { GuitarProject } from '../types/guitar';
 import {
   beginShare, fetchSharingStatus, preflightShare, rememberShareKey, sendShare, shareUrl,
@@ -246,6 +246,10 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({ project, onClose
               </button>
               <a className="btn btn-sm" href={`/share/${state.id}`} target="_blank" rel="noopener noreferrer">
                 <ExternalLink size={15} /> Open shared design
+              </a>
+              {/* Through the share, so the viewer's Share posts this short link, not the whole design. */}
+              <a className="btn btn-sm" href={`/share/${state.id}/3d`} target="_blank" rel="noopener noreferrer">
+                <Rotate3D size={15} /> View in 3D
               </a>
               <a className="btn btn-sm" href={`/manage/share/${state.id}`} target="_blank" rel="noopener noreferrer">
                 Manage this link
