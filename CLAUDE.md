@@ -107,8 +107,9 @@ must never send a field the pinned viewer cannot read - a viewer refuses a
 newer schema outright. The viewer reads schema 8 and draws jacks from
 `v0.1.23`, and reads 9 and draws body materials and finishes from `v0.1.25`.
 `v0.1.26` is the first with the `?share=` route that `/share/:id/3d` redirects
-to; do not go below it while sharing is on. The pin is `v0.1.27`, which adds
-the one-tap Share (3D image plus link to the share sheet). `PINNED_VIEWER_READ_SCHEMA` in
+to; do not go below it while sharing is on. The pin is `v0.1.28`: one-tap Share
+(3D image plus link to the share sheet), posting a stored share's short
+`/share/<id>` link and otherwise linking to the site, never the fragment link. `PINNED_VIEWER_READ_SCHEMA` in
 `src/utils/viewer3dLink.ts` must name what the pin reads - below 9 it holds
 `body` out of the handoff - so move it only in the commit that moves
 `viewer3d.version`.

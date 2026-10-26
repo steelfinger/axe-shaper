@@ -2,7 +2,7 @@
 
 Updated 2026-10-25. Candidate: web/backend `v1.3.2-web.1`, based on the
 coordinated `v1.3.2`, schema 9, upload policy `project-upload-v3`, viewer
-`v0.1.27` (`v0.1.26` plus one-tap Share). Production sharing remains disabled in the release manifest.
+`v0.1.28` (`v0.1.26` plus one-tap Share and its short-link fix). Production sharing remains disabled in the release manifest.
 
 ## Review fixes
 
@@ -132,3 +132,12 @@ The PR was admin-merged as `972735d` because the viewer's Actions are blocked
 by the billing limit. `v0.1.27` was built locally from that commit with
 `npm run check` passing (502 tests). A real phone share sheet, and what each
 target app keeps from an image-plus-text share, are not yet checked.
+
+`v0.1.28` ([axe-shaper-3D-viewer#6](https://github.com/steelfinger/axe-shaper-3D-viewer/pull/6),
+admin-merged as `06f901f`, built locally with 503 tests passing) fixes what a
+Mac test of v0.1.27 found. A design that isn't a stored share sent its
+fragment link, the whole project in the URL, into Messages; Share now posts
+the `/share/<id>` page for a stored share and otherwise links to the site.
+The button also reads "Sharing…" while the sheet is open. The editor's
+Create link result gained **View in 3D** (`/share/<id>/3d`), so that path
+always has the short link.
