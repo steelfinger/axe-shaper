@@ -35,12 +35,24 @@ skipped" line before treating a pass as cross-platform. `--skip=ios` drops the
 slow one (iOS is about 6 of the 6.5 minutes); `--verbose` streams output
 instead of printing the tail of whatever failed.
 
-It exists because a red check on the two private repos proves nothing. Their
-Actions minutes are billed, and when that lapses the jobs die in seconds with
-"the job was not started", which looks exactly like a real failure - while
-neither repo has branch protection (a paid feature there), so nothing is
-gated on them either. A stale cross-platform mesh corpus once rode that
-ambiguity for two commits. The local run is the evidence.
+It exists because a red check on the two private repos used to prove
+nothing. Their hosted Actions minutes are billed, and when that lapsed the
+jobs died in seconds with "the job was not started", which looks exactly like
+a real failure - while neither repo has branch protection (a paid feature
+there), so nothing is gated on them either. A stale cross-platform mesh
+corpus once rode that ambiguity for two commits.
+
+Since 29 October 2026 both run on **self-hosted runners on the maintainer's
+Mac** instead (labels `axe-viewer` and `axe-ios`, launchd services under
+`~/actions-runners/`), so their checks are real again - but only while that
+Mac is awake; a push made while it sleeps queues until it wakes. This repo is
+public and stays on free GitHub-hosted runners: a self-hosted runner on a
+public repo would run strangers' pull requests on that machine. Two things
+learned setting them up: setup-node's `cache: npm` there uploads the whole
+`~/.npm` and hangs the job, so the viewer's workflows leave it off; and the
+viewer and iOS jobs share the CPU, so a viewer test near its 5s timeout can
+fail when both repos are pushed at once. `check:all` is still the one run
+that tests all three together before a push.
 
 `npm test` is Vitest in a Node environment (no DOM), for pure logic under
 `src/utils` and `src/constants`. It complements the contract checks below
