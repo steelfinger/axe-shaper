@@ -119,7 +119,7 @@ must never send a field the pinned viewer cannot read - a viewer refuses a
 newer schema outright. The viewer reads schema 8 and draws jacks from
 `v0.1.23`, and reads 9 and draws body materials and finishes from `v0.1.25`.
 `v0.1.26` is the first with the `?share=` route that `/share/:id/3d` redirects
-to; do not go below it while sharing is on. The pin is `v0.1.29`: one-tap Share
+to; do not go below it while sharing is on. The pin is `v0.1.30` (adds the Koli lake scene): one-tap Share
 (3D image plus link to the share sheet) posting a stored share's short
 `/share/<id>` link, never the fragment link. For an unstored design opened by
 View in 3D, the viewer asks this editor to create the link
