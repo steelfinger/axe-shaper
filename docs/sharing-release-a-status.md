@@ -153,3 +153,25 @@ the confirmation, a real App Check refusal relayed with Try again, and, with
 the token exchange and create response faked, the stored-share switch and a
 short-link share. A real creation awaits a browser that passes App Check on
 staging.
+
+## Production launch - 2026-10-31
+
+Sharing is live on `axeshaper.com` as `v1.3.2-web.1` (release run
+41234450190, viewer `v0.1.29`, admission ceiling 9). `axe-shaper-web` is on
+Blaze with Firestore Standard in `europe-north1` (delete protection on), the
+`sharingApi` Function (Node 22, 2nd gen, `europe-north1`), App Check with its
+own reCAPTCHA Enterprise key, a production-only `SHARING_CLIENT_KEY_SECRET`,
+a one-day image cleanup policy, and the GitHub `production` environment
+(`v*` tags only). The first tagged run needed three re-runs; the causes are in
+the launch checklist's "What the first production deploy needed".
+
+Verified on production with creation paused: status reports the release and
+ceiling; app shell, `/app` and `/viewer3d/` unchanged; an unknown share is a
+real 404; release records are served immutable; creation without or with a
+forged App Check token is 401; the direct Function URL is 503. Reusing a real
+token was not tested.
+
+With creation enabled: create 201 from the editor, the share page, View in 3D
+(viewer loads the share with its output jack), download, manage and revoke all
+worked; the API answers 410 `revoked` afterwards. A link created on staging
+opened, downloaded and edited on a physical iPad running App Store 1.3.2.

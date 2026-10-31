@@ -1,14 +1,14 @@
 # Sharing: production launch checklist
 
-**Prepared:** 2026-10-24. **Updated:** 2026-10-24, after Release A landed.
+**Prepared:** 2026-10-24. **Updated:** 2026-10-31, after the production launch.
 
-**Status:** Not started on production. Sharing (Create link, `/share/:id`,
-download, management, interrupted-upload recovery, App Check) is complete and
-verified on `axe-shaper-staging`; see [Release A status](sharing-release-a-status.md),
-[Phase 0 notes](SHARING_PHASE_0_NOTES.md) and [operations](sharing-operations.md).
+**Status:** Live on production since 2026-10-31 (`v1.3.2-web.1`, release run
+41234450190), creation enabled. Only the after-launch checks in section 6 remain;
+see [Release A status](sharing-release-a-status.md) for the outcome and
+[operations](sharing-operations.md).
 
-This is a working checklist. Once production sharing is live, record the
-outcome in the release status document and delete this file.
+This is a working checklist. Delete it once section 6 is done; the outcome is
+recorded in the release status document.
 
 **Owners:** **Owner** = console, billing or a decision only the project owner
 can make. **Agent** = code, CLI deploys and verification.
@@ -49,43 +49,43 @@ the staging deploy and smoke test passed):
 
 ## 1. Decisions
 
-- [ ] **Owner:** move `axe-shaper-web` to **Blaze**. This changes billing for
+- [x] **Owner:** move `axe-shaper-web` to **Blaze**. This changes billing for
   the existing live site too, not only sharing.
-- [ ] **Owner:** set a monthly budget for the project. Suggested: $25 with
+- [x] **Owner:** set a monthly budget for the project. Suggested: $25 with
   alerts at 20%, 40% and 100%, matching staging. Alerts notify; they do not
   stop spending.
-- [ ] **Owner:** confirm Firestore in **`europe-north1`**, the same as
+- [x] **Owner:** confirm Firestore in **`europe-north1`**, the same as
   staging. The location is permanent.
-- [ ] **Owner:** confirm the launch tag. Today it is **`v1.3.2-web.1`**, a
+- [x] **Owner:** confirm the launch tag. Today it is **`v1.3.2-web.1`**, a
   web/backend hotfix of the `v1.3.2` coordinated release with admission
   ceiling 9. Every tag must equal `releaseTag` in the manifest, so if another
   web release ships first, the launch tag moves with it (see CLAUDE.md,
   "Commit the release record before you tag").
-- [ ] **Owner:** decide who may change the runtime switches. Initially: the
+- [x] **Owner:** decide who may change the runtime switches. Initially: the
   owner, through the Firebase console.
 
 ## 2. Console steps on `axe-shaper-web`
 
-- [ ] **Owner:** link billing at
+- [x] **Owner:** link billing at
   https://console.cloud.google.com/billing/linkedaccount?project=axe-shaper-web,
   then create the budget scoped to this project only.
-- [ ] **Owner:** enable the Firestore API:
+- [x] **Owner:** enable the Firestore API:
   https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=axe-shaper-web
-- [ ] **Owner:** create a reCAPTCHA Enterprise key (type Web, checkbox
+- [x] **Owner:** create a reCAPTCHA Enterprise key (type Web, checkbox
   challenge off) for `axeshaper.com`, `www.axeshaper.com`,
   `axe-shaper-web.web.app` and `axe-shaper-web.firebaseapp.com`. **No
   `localhost`.**
-- [ ] **Owner, after the web app is registered (step 3):** App Check → that
+- [x] **Owner, after the web app is registered (step 3):** App Check → that
   app → reCAPTCHA Enterprise → paste the key → Save. Do not click Enforce for
   Firebase services; the Function verifies tokens itself.
-- [ ] **Owner, after the first Function deploy:** grant **Firebase App Check
+- [x] **Owner, after the first Function deploy:** grant **Firebase App Check
   Token Verifier** to the Function's runtime service account
   (`<project-number>-compute@developer.gserviceaccount.com`; the agent supplies
   the exact address). On staging this role first went to the similarly named
   `firebase-adminsdk-…` account by mistake; check the address exactly. Without
   it every real token fails with `app-check/permission-denied` and creation
   answers 503.
-- [ ] **Owner:** create a separate sharing deploy service account (staging's is
+- [x] **Owner:** create a separate sharing deploy service account (staging's is
   `github-sharing-deploy@axe-shaper-staging`) and store its key as the
   repository secret `FIREBASE_SERVICE_ACCOUNT_AXE_SHAPER_SHARING_PRODUCTION`.
   Leave the Hosting-only `github-action-…` account behind
@@ -95,22 +95,22 @@ the staging deploy and smoke test passed):
   viewer at project scope, and Service Account User on the compute runtime and
   App Engine default identities only. The agent supplies the exact list; expect
   one round of adjustment.
-- [ ] **Owner:** create the Firestore document `sharingControl/service` with
+- [x] **Owner:** create the Firestore document `sharingControl/service` with
   `creationEnabled: false` and `projectReadsEnabled: true` (booleans).
   Production starts with creation paused; deploys never create or change this
   document.
 
 ## 3. Provisioning
 
-- [ ] **Agent:** create Firestore `(default)` in `europe-north1` with delete
+- [x] **Agent:** create Firestore `(default)` in `europe-north1` with delete
   protection; deploy the deny-all rules and the TTL field overrides.
-- [ ] **Agent:** register the production Firebase web app. Create the GitHub
+- [x] **Agent:** register the production Firebase web app. Create the GitHub
   **`production` environment** (the release job already names it) and store
   the public config and reCAPTCHA site key there as `VITE_FIREBASE_*` /
   `VITE_RECAPTCHA_SITE_KEY` variables, so they shadow the staging repository
   variables. The release guard refuses a sharing build whose project is not
   `axe-shaper-web`.
-- [ ] **Agent:** create a new random `SHARING_CLIENT_KEY_SECRET` in production
+- [x] **Agent:** create a new random `SHARING_CLIENT_KEY_SECRET` in production
   (never reuse staging's) and set the one-day Artifact Registry cleanup policy
   for `europe-north1`.
 
@@ -118,25 +118,25 @@ the staging deploy and smoke test passed):
 
 The workflow side is done (see Starting point). What remains:
 
-- [ ] **Agent:** in one reviewed commit, set `productionSharingEnabled: true`
+- [x] **Agent:** in one reviewed commit, set `productionSharingEnabled: true`
   in `config/sharing-release.json`, and update CLAUDE.md, which says the
   manifest keeps production sharing off.
-- [ ] **Agent:** rehearse the complete sharing release against staging
+- [x] **Agent:** rehearse the complete sharing release against staging
   (`node scripts/deploy-sharing.ts staging` from the release commit, then the
   smoke test) before tagging.
-- [ ] **Agent:** physical-device check: a link created on the web opens,
+- [x] **Agent:** physical-device check: a link created on the web opens,
   downloads and edits on a real iPad running the live App Store build.
 
 ## 5. Launch
 
-- [ ] **Owner:** push the launch tag.
-- [ ] **Agent:** confirm the workflow, the smoke test and the post-deploy
+- [x] **Owner:** push the launch tag.
+- [x] **Agent:** confirm the workflow, the smoke test and the post-deploy
   `<title>` comparison.
-- [ ] **Agent:** with creation still paused, check on axeshaper.com that the
+- [x] **Agent:** with creation still paused, check on axeshaper.com that the
   status and share routes respond, App Check refuses a missing, forged or
   reused token, and the cache headers match the plan.
-- [ ] **Owner:** set `creationEnabled: true`.
-- [ ] **Agent:** on axeshaper.com, run create → open → View in 3D → download →
+- [x] **Owner:** set `creationEnabled: true`.
+- [x] **Agent:** on axeshaper.com, run create → open → View in 3D → download →
   manage → revoke, then revoke the test link.
 
 ## 6. After launch
@@ -168,3 +168,29 @@ data".
   instances).
 - The Functions framework buffers a request body before the 512 KiB adapter
   limit applies; Cloud Run's own request cap bounds it.
+
+## What the first production deploy needed that staging hid
+
+Staging was provisioned by hand and by a first deploy run as the owner, so
+four things it already had were missing from the role list above. Any new
+environment needs them before its first tagged release:
+
+- **Service Account User on both runtime identities**, the compute default
+  *and* `<project>@appspot.gserviceaccount.com`. The Functions deploy checks
+  `iam.serviceAccounts.ActAs` on the App Engine account even for a 2nd-gen
+  Function. Enable the Compute API first so the compute account exists.
+- **Secret Manager Secret Accessor on `SHARING_CLIENT_KEY_SECRET`** for the
+  compute runtime account. Otherwise the deploy tries to grant it itself, and
+  the deploy identity (Secret Manager *viewer*) gets a 403 on `setIamPolicy`.
+- **A backend-only first deploy.** A `pinTag` rewrite needs its Function to
+  exist, so the combined deploy fails with `No function matches the filter:
+  default:sharingApi` until one has. Run
+  `node scripts/deploy-sharing.ts production --local-verified --backend-only`
+  once from the clean tagged checkout, then re-run the release job.
+- **The Artifact Registry cleanup policy before a non-interactive deploy.**
+  Without one the deploy succeeds and then exits 1. Set it with
+  `firebase functions:artifacts:setpolicy --location europe-north1 --days 1 --force`.
+
+The deploy identity also cannot enable APIs. Enable Cloud Functions, Cloud
+Run, Cloud Build, Artifact Registry, Compute, Eventarc and Pub/Sub as the owner
+beforehand.
