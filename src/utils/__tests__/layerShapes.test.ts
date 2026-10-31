@@ -60,6 +60,48 @@ describe.each([
   });
 });
 
+describe.each([
+  ['frontRoute', addingFrontRoute],
+  ['backRoute', addingBackRoute],
+] as const)('a new %s', (_kind, add) => {
+  it('starts as a pillow: symmetric 10mm handles at 45 degrees, edges bowing outward', () => {
+    const { project, layer } = add(base);
+    const anchors = getActiveContour(project, layer)!.anchors;
+    const cx = anchors.reduce((s, a) => s + a.position.x, 0) / 4;
+    const cy = anchors.reduce((s, a) => s + a.position.y, 0) / 4;
+    for (const a of anchors) {
+      expect(a.handleMode).toBe('symmetric');
+      const out = a.handleOut!;
+      expect(Math.hypot(out.x, out.y)).toBeCloseTo(10, 9);
+      expect(Math.abs(out.x)).toBeCloseTo(Math.abs(out.y), 9);
+      expect(a.handleIn!.x).toBeCloseTo(-out.x, 9);
+      expect(a.handleIn!.y).toBeCloseTo(-out.y, 9);
+      // Perpendicular to the line from the centre: tangent, not pointing in or out.
+      const rx = a.position.x - cx;
+      const ry = a.position.y - cy;
+      expect(Math.sign(rx) * out.x + Math.sign(ry) * out.y).toBeCloseTo(0, 9);
+    }
+    // Each edge's control points sit outside the straight chord between its anchors.
+    for (let i = 0; i < 4; i++) {
+      const a = anchors[i];
+      const b = anchors[(i + 1) % 4];
+      const mid = { x: (a.position.x + b.position.x) / 2 - cx, y: (a.position.y + b.position.y) / 2 - cy };
+      const c1 = { x: a.position.x + a.handleOut!.x - cx, y: a.position.y + a.handleOut!.y - cy };
+      expect(c1.x * mid.x + c1.y * mid.y).toBeGreaterThan(mid.x * mid.x + mid.y * mid.y);
+    }
+  });
+});
+
+describe('a new pickguard', () => {
+  it('stays a plain corner rectangle', () => {
+    const { project, layer } = addingPickguard(base);
+    for (const a of getActiveContour(project, layer)!.anchors) {
+      expect(a.handleMode).toBe('corner');
+      expect(a.handleOut).toBeUndefined();
+    }
+  });
+});
+
 describe('layerShapeExists', () => {
   it('is always true for the body and false for an unknown id', () => {
     expect(layerShapeExists(base, { kind: 'body' })).toBe(true);

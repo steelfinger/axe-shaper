@@ -76,6 +76,32 @@ function defaultRectContour(centerX: number, centerY: number, halfWidth = 40, ha
   };
 }
 
+/**
+ * A freshly-added route: four anchors, each with symmetric 10mm handles at
+ * 45 degrees, so every edge bows outward. A router cannot cut a sharp inside
+ * corner, so a cavity never starts as a rectangle.
+ */
+function defaultRouteContour(centerX: number, centerY: number, halfWidth = 40, halfHeight = 30): BodyContour {
+  const handle = 10 / Math.SQRT2;
+  const corners = [
+    { sx: -1, sy: -1 },
+    { sx: 1, sy: -1 },
+    { sx: 1, sy: 1 },
+    { sx: -1, sy: 1 },
+  ];
+  return {
+    closed: true,
+    anchors: corners.map(({ sx, sy }) => ({
+      id: generateAnchorId(),
+      position: { x: centerX + sx * halfWidth, y: centerY + sy * halfHeight },
+      // Tangent to the diagonal, running clockwise around the shape.
+      handleOut: { x: -sy * handle, y: sx * handle },
+      handleIn: { x: sy * handle, y: -sx * handle },
+      handleMode: 'symmetric' as const,
+    })),
+  };
+}
+
 /** Centroid of the body's own anchors, so a newly-added shape lands somewhere sensible instead of at the origin. */
 function bodyCentroid(project: GuitarProject): { x: number; y: number } {
   const anchors = project.contour.anchors;
@@ -107,7 +133,7 @@ export function addingFrontRoute(project: GuitarProject): { project: GuitarProje
     ...project,
     frontRoutes: [
       ...(project.frontRoutes ?? []),
-      { id, contour: defaultRectContour(center.x, center.y), visible: true, locked: false },
+      { id, contour: defaultRouteContour(center.x, center.y), visible: true, locked: false },
     ],
   };
   return { project: project2, layer: { kind: 'frontRoute', id } };
@@ -120,7 +146,7 @@ export function addingBackRoute(project: GuitarProject): { project: GuitarProjec
     ...project,
     backRoutes: [
       ...(project.backRoutes ?? []),
-      { id, contour: defaultRectContour(center.x, center.y), visible: true, locked: false },
+      { id, contour: defaultRouteContour(center.x, center.y), visible: true, locked: false },
     ],
   };
   return { project: project2, layer: { kind: 'backRoute', id } };
