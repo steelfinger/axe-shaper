@@ -17,5 +17,5 @@
     "schemaSource": "axe-shaper-ios v1.3.2: Migration.currentPayloadVersion = 9"
   },
   "predecessorProductionTag": "v1.3.2",
-  "productionSharingEnabled": false
+  "productionSharingEnabled": true
 }

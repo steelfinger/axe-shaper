@@ -159,9 +159,12 @@ from the Hosting-only PR identity; see `docs/sharing-release-a-status.md`.
 
 Keep `firebase.json` rewrite-free for PR previews and static production releases.
 `firebase.sharing-production.json` is the explicit production sharing config.
-The reviewed `config/sharing-release.json` currently keeps production sharing off.
-Enabling it also requires the production GitHub environment's App Check variables
-and separate sharing deployment secret. The release guard rejects staging
+The reviewed `config/sharing-release.json` turns production sharing on from
+`v1.3.2-web.1`. That build reads the production GitHub environment's App Check
+variables (the environment only admits `v*` tags) and deploys the backend with
+the separate `FIREBASE_SERVICE_ACCOUNT_AXE_SHAPER_SHARING_PRODUCTION` secret.
+Creation starts paused: `sharingControl/service` on `axe-shaper-web` is set by
+hand, and no deploy writes it. The release guard rejects staging
 configuration before a production sharing build. Staging uses repository
 `VITE_FIREBASE_*` / `VITE_RECAPTCHA_SITE_KEY` variables; local dev uses ignored
 `.env.local`. These public Firebase settings are compiled into the frontend.
