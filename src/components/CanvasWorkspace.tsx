@@ -1662,6 +1662,18 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   stroke="#ffffff"
                   strokeWidth={2}
                   draggable={!isPanMode && !anchor.locked}
+                  // Snap the knot itself, not just the model. Konva moves the
+                  // dragged node directly, and react-konva only resets it when
+                  // the x/y props change - which a snapped position mostly
+                  // does not, so the knot was left under the pointer.
+                  dragBoundFunc={(position) => {
+                    if (!settings.snapToGridEnabled) return position;
+                    const model = toModel(position);
+                    return toScreen({
+                      x: snapToGridMm(model.x, settings.gridSizeMm, settings.unitDisplay),
+                      y: snapToGridMm(model.y, settings.gridSizeMm, settings.unitDisplay),
+                    });
+                  }}
                   onClick={(e) => {
                     if (isPanMode) return;
                     // Locked pins (neck-pocket anchors) can't join a
