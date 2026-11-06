@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import {
   ArrowRight,
+  Box,
   Download,
   Code2,
   Link2,
@@ -8,6 +9,7 @@ import {
   PenLine,
   Printer,
   Ruler,
+  Share2,
   ShieldCheck,
 } from 'lucide-react';
 /**
@@ -40,6 +42,19 @@ const IPAD_SCREENSHOT_ALT =
   + 'pickguard, three pickup routes and neck pocket drawn on the canvas, a node panel reading '
   + 'X 136.1 mm and Y 64.4 mm, and an inspector listing the body layers beside a Guitar - 6 '
   + 'String instrument, its neck, bridge and 647.7 mm scale length.';
+
+/**
+ * A real capture of the pinned 3D viewer, not a mockup: the P-Style Bass
+ * blueprint handed off by View in 3D, in the Koli scene. The viewer chrome
+ * (Save image, Share, the spec tag) is left in on purpose - the section is
+ * about what you can do with the render, not only how it looks. See
+ * public/photos/README.md for how it was made.
+ */
+const VIEWER_SCREENSHOT_URL = '/photos/viewer3d-p-bass-koli.webp';
+const VIEWER_SCREENSHOT_ALT =
+  'The Axe Shaper 3D viewer showing a cream P-style bass with a white pickguard over a Finnish '
+  + 'lake and forest, with Save image, Copy 3D link and Share buttons, and a tag listing Bass - '
+  + '4 strings, 34 in scale, 45 mm body, contoured edge, one pickup, one pickguard and two controls.';
 
 const GITHUB_URL = 'https://github.com/steelfinger/axe-shaper';
 /**
@@ -269,6 +284,7 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
         <Brand />
         <nav aria-label="Main navigation">
           <a href="#linked-geometry">Linked geometry</a>
+          <a href="#see-it-in-3d">3D</a>
           <a href="#how-it-works">How it works</a>
           <a href="#ipad">iPad</a>
           <a href={GITHUB_URL} {...external}>Open source</a>
@@ -317,7 +333,7 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
         </section>
 
         <section className="proof-strip" aria-label="What the export guarantees">
-          <div><span className="proof-value">1:1</span><span>prints true to scale, with a calibration square to prove it</span></div>
+          <div><span className="proof-value">1:1</span><span>prints true to scale on ordinary A4 or Letter, with a calibration square to prove it</span></div>
           <div><span className="proof-value">mm</span><span>every anchor stored in physical millimetres, never inches</span></div>
           <div><span className="proof-value">20</span><span>built-in body blueprints, guitar and bass</span></div>
           <div><span className="proof-value">MIT</span><span>open source, free, and yours to fork</span></div>
@@ -337,12 +353,27 @@ export function MarketingSite({ path }: { path: string }): React.JSX.Element {
           </ol>
         </section>
 
+        <section className="viewer3d-section" id="see-it-in-3d">
+          <figure className="viewer3d-shot">
+            <img src={VIEWER_SCREENSHOT_URL} alt={VIEWER_SCREENSHOT_ALT} width={1600} height={1143} loading="lazy" />
+          </figure>
+          <div className="viewer3d-copy">
+            <h2>See it in 3D before you cut.</h2>
+            <p>One click turns the plan into a guitar or bass you can turn in your hands: the body, neck, pickups, bridge and finish, drawn from the same measurements you will print.</p>
+            <ul className="viewer3d-points">
+              <li><Box size={17} /><span>Orbit it, check the side profile, or drop it into a studio, canyon, alpine or Finnish lake scene.</span></li>
+              <li><Share2 size={17} /><span>Save an image or copy a 3D link to show a friend, a forum, or the builder you hope will make it.</span></li>
+            </ul>
+            <a className="marketing-button secondary" href={`/app?plan=${encodeURIComponent(PLAN_PRINT_URL)}`}>Open a design and view it in 3D <ArrowRight size={17} /></a>
+          </div>
+        </section>
+
         <section className="workflow-section" id="how-it-works">
           <h2 className="section-heading">Plan, print, cut.</h2>
           <div className="workflow-grid">
             <div className="workflow-rail" aria-hidden="true"><span /><span /><span /></div>
             <article><Ruler size={24} /><h3>Start from measured geometry</h3><p>Choose from 20 guitar and bass blueprints, or trace a calibrated photo of your own. Every anchor you drag stays in physical millimetres.</p></article>
-            <article><Printer size={24} /><h3>Export the thing you build from</h3><p>The project and the printable drawing live in one standard SVG, with a calibration square that catches printer scaling before you cut.</p></article>
+            <article><Printer size={24} /><h3>Print it on the paper you have</h3><p>No plotter needed: the full-size plan tiles across ordinary A4 or Letter sheets, each labelled with its place in the grid, and a calibration square catches printer scaling before you cut.</p></article>
             <article><Link2 size={24} /><h3>Carry the work forward</h3><p>Reopen the same <code>.axe.svg</code> months later with every curve, preset and pickup still editable — the project data rides inside the drawing.</p></article>
           </div>
         </section>

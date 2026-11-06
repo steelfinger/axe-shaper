@@ -2428,6 +2428,72 @@ html.marketing-document {
   color: var(--text-secondary);
 }
 
+/* The 3D viewer section: a real viewer capture beside the copy. The shot is
+   1600x1143, and its own chrome (header, scene picker, spec tag) is the
+   point, so it is shown whole - no crop, no cover. */
+.viewer3d-section {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  align-items: center;
+  gap: clamp(40px, 5vw, 72px);
+  width: min(1120px, calc(100% - 56px));
+  margin: 0 auto;
+  padding: 0 0 var(--section-pad);
+}
+
+.viewer3d-shot {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  background: #000;
+  box-shadow: 0 35px 65px -25px rgba(0, 0, 0, 0.85);
+}
+
+.viewer3d-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.viewer3d-copy h2 {
+  max-width: 14ch;
+  font-size: clamp(2rem, 3.4vw, 3.2rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.viewer3d-copy > p {
+  max-width: 62ch;
+  margin-top: 22px;
+  color: var(--text-secondary);
+  font-size: 0.96rem;
+  line-height: 1.7;
+}
+
+.viewer3d-points {
+  display: grid;
+  gap: 14px;
+  margin: 24px 0 28px;
+  padding: 0;
+  list-style: none;
+}
+
+.viewer3d-points li {
+  display: flex;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.viewer3d-points svg {
+  flex: none;
+  margin-top: 3px;
+  color: var(--text-primary);
+}
+
 .workflow-section {
   width: min(1120px, calc(100% - 56px));
   margin: 0 auto;
@@ -3047,6 +3113,7 @@ html.marketing-document {
   }
 
   .linked-section,
+  .viewer3d-section,
   .workbench-section,
   .ipad-section,
   .ipad-hero {
@@ -3101,10 +3168,15 @@ html.marketing-document {
   .marketing-hero,
   .proof-strip,
   .linked-section,
+  .viewer3d-section,
   .workflow-section,
   .workbench-section,
   .marketing-footer {
     width: min(100% - 32px, 620px);
+  }
+
+  .viewer3d-copy .marketing-button {
+    width: 100%;
   }
 
   .ipad-hero {

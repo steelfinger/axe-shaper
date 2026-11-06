@@ -30,3 +30,13 @@ Visible attribution links are also included beside the photographs on the market
   declares the 1844 / 1314 ratio, and its offsets assume the body is on the
   left of the frame and the headstock is top right. A differently framed
   render needs those offsets measured again.
+
+- `viewer3d-p-bass-koli.webp` — our own capture of the pinned 3D viewer
+  (v0.1.30), no attribution needed. The P-Style Bass blueprint, unedited,
+  opened with View in 3D on the dev server and switched to the Koli scene.
+  Captured headless with Playwright at 1400x1000 and device scale 2 (the
+  scene picker blurred first, so no focus ring), then resized to 1600x1143
+  and encoded `cwebp -q 85 -sharp_yuv -m 6`. The viewer's own chrome stays in
+  the shot on purpose; `.viewer3d-shot` shows it whole, so a replacement can
+  be any ratio as long as the `width`/`height` attributes in
+  `MarketingSite.tsx` are updated to match.
