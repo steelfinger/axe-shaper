@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { PAPER_SIZES, parseMm, tilingFor } from '../tiledPrint';
+import {
+  PAPER_SIZES,
+  flapGuideOffsetsMm,
+  parseMm,
+  registrationMarkOffsetsMm,
+  seamEdgesFor,
+  seamOverlaySVG,
+  tilingFor,
+} from '../tiledPrint';
 
 describe('parseMm', () => {
   it('reads a millimetre length', () => {
@@ -53,5 +61,55 @@ describe('tilingFor', () => {
   it('never returns fewer than one tile', () => {
     const plan = tilingFor(0, 0, a4);
     expect([plan.columns, plan.rows]).toEqual([1, 1]);
+  });
+});
+
+describe('seam guides and registration marks', () => {
+  const a4 = PAPER_SIZES.a4;
+  const plan = tilingFor(380, 520, a4);
+  const near = (a: { x: number; y: number }, b: { x: number; y: number }) =>
+    Math.abs(a.x - b.x) < 1e-9 && Math.abs(a.y - b.y) < 1e-9;
+  const drawingMarks = (column: number, row: number) =>
+    registrationMarkOffsetsMm(plan, seamEdgesFor(column, row, plan)).map((m) => ({
+      x: column * plan.stepXMm + m.x,
+      y: row * plan.stepYMm + m.y,
+    }));
+
+  it('precondition: the drawing tiles both ways', () => {
+    expect(plan.columns).toBeGreaterThan(1);
+    expect(plan.rows).toBeGreaterThan(1);
+  });
+
+  it('puts every crosshair where a neighbouring sheet prints one too', () => {
+    for (let row = 0; row < plan.rows; row++) {
+      for (let column = 0; column < plan.columns; column++) {
+        const here = drawingMarks(column, row);
+        expect(here.length).toBeGreaterThan(0);
+        for (const mark of here) {
+          let shared = false;
+          for (let r = 0; r < plan.rows; r++) {
+            for (let c = 0; c < plan.columns; c++) {
+              if ((c !== column || r !== row) && drawingMarks(c, r).some((m) => near(m, mark))) shared = true;
+            }
+          }
+          expect(shared, `mark ${JSON.stringify(mark)} on sheet ${column},${row}`).toBe(true);
+        }
+      }
+    }
+  });
+
+  it("places each dashed guide on the neighbour's printable-area edge", () => {
+    const right = flapGuideOffsetsMm(plan, { left: false, right: true, top: false, bottom: false }).vertical[0];
+    const left = flapGuideOffsetsMm(plan, { left: true, right: false, top: false, bottom: false }).vertical[0];
+    // Tile 0 starts at 0, tile 1 at stepXMm.
+    expect(right).toBeCloseTo(plan.stepXMm, 9);
+    expect(plan.stepXMm + left).toBeCloseTo(plan.usableWidthMm, 9);
+  });
+
+  it('draws nothing on a single sheet', () => {
+    const single = tilingFor(100, 150, a4);
+    const edges = seamEdgesFor(0, 0, single);
+    expect(registrationMarkOffsetsMm(single, edges)).toEqual([]);
+    expect(seamOverlaySVG(single, edges)).toBe('');
   });
 });

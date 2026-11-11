@@ -27,7 +27,10 @@ export const PLAN_DRAWING_STYLE = {
     bodyStrokeMm: 0.4,
     detailStrokeMm: 0.3,
     guideStrokeMm: 0.2,
-    neckPocketFill: '#e5e7eb',
+    // No fill: the pocket is drawn after the body and sits on its edge at
+    // Y = 0, so any opaque fill covers the body outline exactly where a
+    // printed template has to be traced.
+    neckPocketFill: 'none',
     neckPocketStroke: '#374151',
     neckPocketStrokeMm: 0.4,
     pickguardFillOpacity: 0.35,
