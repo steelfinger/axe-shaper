@@ -449,3 +449,77 @@ export function insertAnchorOnSegment(
 
   return newAnchors;
 }
+
+export interface ContourBounds {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+  widthMm: number;
+  heightMm: number;
+}
+
+/** Parameters in (0, 1) where one axis of a cubic stops moving - its extrema. */
+function cubicAxisExtrema(p0: number, p1: number, p2: number, p3: number): number[] {
+  // Derivative / 3: a t^2 + b t + c
+  const a = -p0 + 3 * p1 - 3 * p2 + p3;
+  const b = 2 * (p0 - 2 * p1 + p2);
+  const c = p1 - p0;
+  const roots: number[] = [];
+  const scale = Math.max(Math.abs(a), Math.abs(b), Math.abs(c));
+  if (scale === 0) return roots;
+
+  if (Math.abs(a) <= scale * 1e-12) {
+    if (b !== 0) roots.push(-c / b);
+  } else {
+    const disc = b * b - 4 * a * c;
+    if (disc >= 0) {
+      const sq = Math.sqrt(disc);
+      // Numerically stable form: avoids subtracting two near-equal numbers.
+      const q = -0.5 * (b + (b < 0 ? -sq : sq));
+      roots.push(q / a);
+      if (q !== 0) roots.push(c / q);
+    }
+  }
+  return roots.filter((t) => t > 0 && t < 1);
+}
+
+/**
+ * The exact bounding box of the drawn curve, in model mm.
+ *
+ * Anchor positions alone are not enough: a segment bulges past its end
+ * anchors wherever its handles pull it outward, so a waist-to-waist bout with
+ * no anchor at its widest point is wider than any anchor says. This solves
+ * each segment's derivative for its extrema instead of sampling, so the answer
+ * is the real extent - the number a blank has to be cut to.
+ */
+export function contourBounds(anchors: PathAnchor[], closed: boolean = true): ContourBounds | null {
+  if (anchors.length === 0) return null;
+
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  const include = (p: Vector2D) => {
+    if (p.x < minX) minX = p.x;
+    if (p.x > maxX) maxX = p.x;
+    if (p.y < minY) minY = p.y;
+    if (p.y > maxY) maxY = p.y;
+  };
+
+  for (const anchor of anchors) include(anchor.position);
+
+  const count = segmentCount(anchors, closed);
+  for (let i = 0; i < count; i++) {
+    const points = getSegmentControlPoints(anchors, i, closed);
+    if (!points) continue;
+    const [p0, p1, p2, p3] = points;
+    const ts = [
+      ...cubicAxisExtrema(p0.x, p1.x, p2.x, p3.x),
+      ...cubicAxisExtrema(p0.y, p1.y, p2.y, p3.y),
+    ];
+    for (const t of ts) include(evaluateCubicBezier(p0, p1, p2, p3, t));
+  }
+
+  return { minX, maxX, minY, maxY, widthMm: maxX - minX, heightMm: maxY - minY };
+}

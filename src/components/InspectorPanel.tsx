@@ -10,7 +10,7 @@ import {
   BEVEL_INTENSITY_STEP,
 } from '../constants/edgeProfiles';
 import { variableInsetWidthMm } from '../utils/bevelIntensity';
-import { distanceVector, isSegmentStraight, updateAnchorHandle } from '../utils/bezier';
+import { contourBounds, distanceVector, isSegmentStraight, updateAnchorHandle } from '../utils/bezier';
 import { type ActiveLayer, getActiveContour, withActiveContour } from '../utils/layerShapes';
 import {
   settingPickupAngle,
@@ -115,15 +115,13 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
 
   const mmFromInput = (val: number) => (isMm ? val : val * 25.4);
 
-  // Compute live body measurements
-  const xPositions = contour.anchors.map((a) => Math.abs(a.position.x));
-  const maxHalfWidth = Math.max(...xPositions, 0);
-  const maxBodyWidth = maxHalfWidth * 2;
-
-  const yPositions = contour.anchors.map((a) => a.position.y);
-  const minY = Math.min(...yPositions, 0);
-  const maxY = Math.max(...yPositions, 0);
-  const totalBodyLength = maxY - minY;
+  // Live body measurements, taken from the drawn curve rather than the anchors:
+  // a segment bulges past its end anchors, and these are the numbers a blank
+  // is bought and cut to. Width is the true extent, not twice the wider half,
+  // so an offset body is not over-reported.
+  const bodyBounds = contourBounds(contour.anchors, contour.closed);
+  const maxBodyWidth = bodyBounds?.widthMm ?? 0;
+  const totalBodyLength = bodyBounds?.heightMm ?? 0;
 
   const handlePositionChange = (axis: 'x' | 'y', val: number) => {
     if (!selectedAnchorId) return;
