@@ -1,5 +1,9 @@
 import type { GuitarProject } from '../types/guitar';
+import { contourBounds } from './bezier';
+import { jackExtentRadiusMm } from './jackEditing';
+import { neckJointFabricationDisclosure } from './neckJointDisclosure';
 import { exportProjectToSVG } from './svgExporter';
+import { CONTROL_DRAWING_GEOMETRY } from '../constants/planDrawingStyle';
 
 export type PrintPaper = 'a4' | 'letter';
 
@@ -130,6 +134,74 @@ export function seamOverlaySVG(plan: TilingPlan, edges: SeamEdges): string {
   return `<svg class="seams" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}mm" height="${h}mm">${guides}${crosses}</svg>`;
 }
 
+export interface PrintBoundsMm {
+  minX: number;
+  minY: number;
+  widthMm: number;
+  heightMm: number;
+}
+
+/**
+ * What the tiles have to cover, in model mm: the drawn extent of every
+ * construction contour plus the placed controls. This is `drawingBounds` in
+ * the iPad app's `PDFExporter` and must stay the same rectangle, because it
+ * is what decides the sheet count.
+ *
+ * It is deliberately not the saved SVG's page. That page adds padding, an
+ * 80mm label margin and a 181mm title band, and tiling it turned a body the
+ * iPad prints on 4 sheets into 9, most of them nearly blank.
+ */
+export function printBoundsMm(project: GuitarProject): PrintBoundsMm | null {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  const add = (x0: number, y0: number, x1: number, y1: number) => {
+    minX = Math.min(minX, x0);
+    minY = Math.min(minY, y0);
+    maxX = Math.max(maxX, x1);
+    maxY = Math.max(maxY, y1);
+  };
+  const shapes = [...(project.pickguards ?? []), ...(project.frontRoutes ?? []), ...(project.backRoutes ?? [])];
+  for (const contour of [project.contour, ...shapes.map((shape) => shape.contour)]) {
+    const bounds = contourBounds(contour.anchors, contour.closed);
+    if (bounds) add(bounds.minX, bounds.minY, bounds.maxX, bounds.maxY);
+  }
+  const addCircle = (x: number, y: number, radius: number) => add(x - radius, y - radius, x + radius, y + radius);
+  for (const potentiometer of project.potentiometers ?? []) {
+    const radius = Math.max(
+      potentiometer.bodyDiameterMm,
+      CONTROL_DRAWING_GEOMETRY.potentiometerKnobDiameterMm,
+      CONTROL_DRAWING_GEOMETRY.potentiometerShaftHoleDiameterMm
+    ) / 2;
+    addCircle(potentiometer.position.x, potentiometer.position.y, radius);
+  }
+  for (const selector of project.switches ?? []) addCircle(selector.position.x, selector.position.y, 18);
+  for (const jack of project.jacks ?? []) addCircle(jack.position.x, jack.position.y, jackExtentRadiusMm(jack));
+  if (!Number.isFinite(minX)) return null;
+  return { minX, minY, widthMm: maxX - minX, heightMm: maxY - minY };
+}
+
+const CALIBRATION_BOX_MM = 100;
+
+/**
+ * The 100mm check square for sheet 1, in printable-area mm. The saved SVG
+ * carries its own in the title band, which the tiles no longer reach, so the
+ * print job draws one over the first sheet as the iPad app does.
+ */
+export function calibrationOverlaySVG(plan: TilingPlan, disclosure: string | null): string {
+  if (plan.usableWidthMm < CALIBRATION_BOX_MM || plan.usableHeightMm < CALIBRATION_BOX_MM) return '';
+  const w = plan.usableWidthMm;
+  const h = plan.usableHeightMm;
+  const note = disclosure
+    ? `<text x="0" y="${CALIBRATION_BOX_MM + 18}" class="note">${escapeHtml(disclosure)}</text>`
+    : '';
+  return `<svg class="seams" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}mm" height="${h}mm"><rect x="0" y="0" width="${CALIBRATION_BOX_MM}" height="${CALIBRATION_BOX_MM}" class="calibration" /><text x="0" y="${CALIBRATION_BOX_MM + 4}" class="note">This dashed square must measure exactly 100 mm.</text>${note}</svg>`;
+}
+
+/** How far past the print bounds the drawing stays visible: room for a stroke, short of the page's labels. */
+const BLEED_MM = 3;
+
 export function parseMm(value: string | null): number | null {
   const match = value?.trim().match(/^([0-9]+(?:\.[0-9]+)?)mm$/i);
   return match ? Number(match[1]) : null;
@@ -148,7 +220,7 @@ function escapeHtml(value: string): string {
  * Opens the browser's native print dialog. Selecting "Save as PDF" creates a
  * tiled PDF; selecting a printer routes through the platform's print service
  * (including AirPrint on supporting devices). The SVG remains at 1:1 mm
- * scale, and the existing 100 mm calibration box travels with the same job.
+ * scale, and a 100 mm calibration box rides on the first sheet of the job.
  */
 export function printTiledProject(project: GuitarProject, paperKind: PrintPaper): void {
   const printWindow = window.open('', '_blank');
@@ -157,27 +229,43 @@ export function printTiledProject(project: GuitarProject, paperKind: PrintPaper)
     return;
   }
 
-  const svg = exportProjectToSVG(project);
+  // Always the model orientation, like the iPad app: the canvas orientation
+  // is a view setting, and a body laid on its side needs more sheets.
+  const upright: GuitarProject = { ...project, settings: { ...project.settings, canvasOrientation: 'vertical' } };
+  const svg = exportProjectToSVG(upright);
   const parsed = new DOMParser().parseFromString(svg, 'image/svg+xml').documentElement;
   const widthMm = parseMm(parsed.getAttribute('width'));
   const heightMm = parseMm(parsed.getAttribute('height'));
-  if (!widthMm || !heightMm) {
+  const viewBox = (parsed.getAttribute('viewBox') ?? '').trim().split(/\s+/).map(Number);
+  const bounds = printBoundsMm(upright);
+  if (!widthMm || !heightMm || viewBox.length !== 4 || viewBox.some((n) => !Number.isFinite(n)) || !bounds) {
     printWindow.close();
     window.alert('The print plan could not determine the drawing size. Save the SVG instead and try again.');
     return;
   }
 
+  // Where the print bounds sit inside the SVG page, which is 1:1 in mm.
+  const originXMm = bounds.minX - viewBox[0];
+  const originYMm = bounds.minY - viewBox[1];
+  const clip = [
+    originYMm - BLEED_MM,
+    widthMm - originXMm - bounds.widthMm - BLEED_MM,
+    heightMm - originYMm - bounds.heightMm - BLEED_MM,
+    originXMm - BLEED_MM,
+  ].map((mm) => `${Math.max(mm, 0)}mm`).join(' ');
+
   const paper = PAPER_SIZES[paperKind];
-  const plan = tilingFor(widthMm, heightMm, paper);
+  const plan = tilingFor(bounds.widthMm, bounds.heightMm, paper);
+  const disclosure = neckJointFabricationDisclosure(upright);
   const imageUrl = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
   const tiles = Array.from({ length: plan.rows }, (_, row) =>
     Array.from({ length: plan.columns }, (_, column) => {
-      const x = column * plan.stepXMm;
-      const y = row * plan.stepYMm;
+      const x = originXMm + column * plan.stepXMm;
+      const y = originYMm + row * plan.stepYMm;
       return `<section class="tile">
         <div class="tile-label">${escapeHtml(project.settings.name)} · ${paper.label} · ${column + 1}/${plan.columns}, ${row + 1}/${plan.rows}${plan.columns * plan.rows > 1 ? ` · ${OVERLAP_MM} mm overlap: lay crosshair on crosshair` : ''}</div>
         <div class="trim top"></div><div class="trim right"></div><div class="trim bottom"></div><div class="trim left"></div>
-        <div class="window"><img src="${imageUrl}" alt="" style="left:-${x}mm;top:-${y}mm;width:${widthMm}mm;height:${heightMm}mm" />${seamOverlaySVG(plan, seamEdgesFor(column, row, plan))}</div>
+        <div class="window"><img src="${imageUrl}" alt="" style="left:${-x}mm;top:${-y}mm;width:${widthMm}mm;height:${heightMm}mm;clip-path:inset(${clip})" />${seamOverlaySVG(plan, seamEdgesFor(column, row, plan))}${column === 0 && row === 0 ? calibrationOverlaySVG(plan, disclosure) : ''}</div>
       </section>`;
     }).join('')
   ).join('');
@@ -195,6 +283,8 @@ export function printTiledProject(project: GuitarProject, paperKind: PrintPaper)
   .seams { position: absolute; left: 0; top: 0; overflow: visible; }
   .seams .flap { stroke: #4b5563; stroke-width: .2; stroke-dasharray: 2 1.2; fill: none; }
   .seams .mark { stroke: #000; stroke-width: .2; fill: none; }
+  .seams .calibration { stroke: rgba(0, 0, 0, .35); stroke-width: .2; stroke-dasharray: 1.4 1; fill: none; }
+  .seams .note { font: 2.8px Arial, sans-serif; fill: #000; }
   .tile-label { position: absolute; left: ${MARGIN_MM}mm; top: 3mm; font: 3mm/1.2 Arial, sans-serif; color: #0f1117; }
   .trim { position: absolute; background: #0f1117; }
   .trim.top, .trim.bottom { left: ${MARGIN_MM}mm; width: ${plan.usableWidthMm}mm; height: .2mm; }

@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest';
+import { contourBounds } from '../bezier';
+import { createProject } from '../projectFactory';
+import { exportProjectToSVG } from '../svgExporter';
 import {
   PAPER_SIZES,
+  calibrationOverlaySVG,
   flapGuideOffsetsMm,
   parseMm,
+  printBoundsMm,
   registrationMarkOffsetsMm,
   seamEdgesFor,
   seamOverlaySVG,
@@ -111,5 +116,57 @@ describe('seam guides and registration marks', () => {
     const edges = seamEdgesFor(0, 0, single);
     expect(registrationMarkOffsetsMm(single, edges)).toEqual([]);
     expect(seamOverlaySVG(single, edges)).toBe('');
+  });
+});
+
+describe('printBoundsMm', () => {
+  const project = createProject();
+
+  it('is the drawn extent of the design, not the saved SVG page', () => {
+    const bounds = printBoundsMm(project)!;
+    const body = contourBounds(project.contour.anchors, project.contour.closed)!;
+    expect(bounds.minX).toBeLessThanOrEqual(body.minX);
+    expect(bounds.minY).toBeLessThanOrEqual(body.minY);
+    expect(bounds.widthMm).toBeGreaterThanOrEqual(body.widthMm);
+    expect(bounds.heightMm).toBeGreaterThanOrEqual(body.heightMm);
+
+    // The page adds padding, a label margin and the title band; tiling it is
+    // what printed 9 sheets where the iPad app prints 4.
+    const page = exportProjectToSVG(project);
+    const pageWidthMm = parseMm(page.match(/\swidth="([^"]+)"/)![1])!;
+    const pageHeightMm = parseMm(page.match(/\sheight="([^"]+)"/)![1])!;
+    expect(pageWidthMm - bounds.widthMm).toBeGreaterThan(90);
+    expect(pageHeightMm - bounds.heightMm).toBeGreaterThan(200);
+  });
+
+  it('prints the default design on four A4 sheets', () => {
+    const bounds = printBoundsMm(project)!;
+    const plan = tilingFor(bounds.widthMm, bounds.heightMm, PAPER_SIZES.a4);
+    expect([plan.columns, plan.rows]).toEqual([2, 2]);
+  });
+
+  it('grows to take in a control placed outside the body', () => {
+    const base = printBoundsMm(project)!;
+    const far = base.minX + base.widthMm + 100;
+    const withSwitch = printBoundsMm({
+      ...project,
+      switches: [{ id: 's', type: 'gibson_toggle', position: { x: far, y: 0 }, angleDegrees: 0 }],
+    })!;
+    expect(withSwitch.minX + withSwitch.widthMm).toBeCloseTo(far + 18, 9);
+  });
+});
+
+describe('calibrationOverlaySVG', () => {
+  const plan = tilingFor(380, 520, PAPER_SIZES.a4);
+
+  it('draws a 100mm square at 1:1 in printable-area mm', () => {
+    const svg = calibrationOverlaySVG(plan, null);
+    expect(svg).toContain(`viewBox="0 0 ${plan.usableWidthMm} ${plan.usableHeightMm}"`);
+    expect(svg).toContain(`width="${plan.usableWidthMm}mm"`);
+    expect(svg).toContain('<rect x="0" y="0" width="100" height="100"');
+  });
+
+  it('carries the neck joint disclosure, escaped', () => {
+    expect(calibrationOverlaySVG(plan, 'Custom <joint>')).toContain('Custom &lt;joint&gt;');
   });
 });
