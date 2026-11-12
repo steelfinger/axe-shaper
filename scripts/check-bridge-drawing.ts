@@ -103,7 +103,7 @@ try {
 
   const layerSVG = exporter.exportProjectToSVG(fixture);
   assert.match(layerSVG, /\.body-line \{[^}]*stroke-width: 0\.4;/);
-  assert.match(layerSVG, /\.neck-pocket \{ fill: #e5e7eb; stroke: #374151; stroke-width: 0\.4; \}/);
+  assert.match(layerSVG, /\.neck-pocket \{ fill: none; stroke: #374151; stroke-width: 0\.4; \}/);
   assert.match(layerSVG, /\.front-route \{ fill: #ccfbf1; stroke: #0f766e; stroke-width: 0\.3;/);
   assert.match(layerSVG, /\.back-route \{ fill: #f3e8ff; stroke: #7e22ce; stroke-width: 0\.3; stroke-dasharray: 3,2;/);
   assert.equal((layerSVG.match(/class="pickguard"/g) ?? []).length, fixture.pickguards.length);
