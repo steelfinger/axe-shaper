@@ -76,14 +76,23 @@ function iPadSimulator(): { destination: string; label: string } | undefined {
     const devices = JSON.parse(listed.stdout).devices as Record<string, Array<{ name: string; udid: string; isAvailable?: boolean }>>;
     const runtimeOrder = (key: string) => (key.split('iOS-')[1] ?? '')
       .split('-').map(Number).reduce((value, part) => value * 1000 + (Number.isFinite(part) ? part : 0), 0);
-    const newestFirst = Object.keys(devices)
+    const versionOf = (key: string) => (key.split('iOS-')[1] ?? '').replace(/-/g, '.');
+    // The runtime this Xcode builds for goes first, then newest first. Newest
+    // alone is not enough: simctl lists a runtime as available even when it
+    // can no longer boot, and a leftover one did exactly that.
+    const sdk = spawnSync('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-version'], { encoding: 'utf8' });
+    const sdkVersion = sdk.status === 0 ? sdk.stdout.trim() : '';
+    const ordered = Object.keys(devices)
       .filter(key => key.includes('iOS'))
-      .sort((a, b) => runtimeOrder(b) - runtimeOrder(a));
-    for (const runtime of newestFirst) {
-      const iPad = devices[runtime].find(device => device.name.startsWith('iPad') && device.isAvailable !== false);
+      .sort((a, b) =>
+        Number(versionOf(b) === sdkVersion) - Number(versionOf(a) === sdkVersion)
+        || runtimeOrder(b) - runtimeOrder(a));
+    for (const runtime of ordered) {
+      const iPads = devices[runtime].filter(device => device.name.startsWith('iPad') && device.isAvailable !== false);
+      // The 13-inch Pro is what the iPad repo's own CI runs on.
+      const iPad = iPads.find(device => device.name.startsWith('iPad Pro 13-inch')) ?? iPads[0];
       if (iPad) {
-        const version = (runtime.split('iOS-')[1] ?? '').replace(/-/g, '.');
-        return { destination: `platform=iOS Simulator,id=${iPad.udid}`, label: `${iPad.name}, iOS ${version}` };
+        return { destination: `platform=iOS Simulator,id=${iPad.udid}`, label: `${iPad.name}, iOS ${versionOf(runtime)}` };
       }
     }
   } catch { /* fall through to "no simulator" */ }
