@@ -108,6 +108,20 @@ project (`*.schema9.spec.ts`), which `playwright.config.ts` builds itself. That
 build also sets `VITE_SHARING=1`, as staging does, and the `sharing` project
 (`*.sharing.spec.ts`) runs against it too - one extra build, not one per flag.
 
+## Schema 10 authoring is off everywhere
+
+Schema 10 adds knob types and finishes and a pickguard finish
+(`docs/AXE_SVG_FORMAT.md`, "Version 10"). This build reads, draws and re-saves
+them. Choosing one is behind `SCHEMA_10_AUTHORING_ENABLED`
+(`VITE_SCHEMA_10_AUTHORING=1`), and no lane sets it yet, staging included. The
+reader goes first this time: `config/sharing-release.json` holds the reader-only
+hotfix `v1.3.2-web.4`, to tag before the iPad build that reads 10 is submitted.
+`project-upload-v4` is defined and fingerprinted as `NEXT_UPLOAD_POLICY_REVISION`
+but is not the admitting revision, because the pinned viewer v0.1.30 refuses
+envelopes from a revision it cannot read. The handoff holds the three fields out
+while `PINNED_VIEWER_READ_SCHEMA` is below 10. The flag-on Playwright build sets
+the flag, and `*.schema10.spec.ts` runs in the `schema9-authoring` project.
+
 The ten bundled blueprints' jacks (and the Jaguar's pot swap, the V's round
 guard) live in `src/constants/blueprints/blueprint-jacks.json`, not in the
 blueprint files, so the blueprints stay schema 7 while the flag is off; with

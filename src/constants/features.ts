@@ -17,6 +17,19 @@
 export const SCHEMA_9_AUTHORING_ENABLED = import.meta.env.VITE_SCHEMA_9_AUTHORING === '1';
 
 /**
+ * `SCHEMA_10_AUTHORING_ENABLED` gates *introducing* schema 10: choosing a knob
+ * type or finish, or a pickguard finish. A save that uses either stamps 10,
+ * which no released iPad build edits yet. Reading, drawing and re-saving a
+ * file that already carries them is never gated, and the controls show for a
+ * document that already uses them.
+ *
+ * Off in every lane, staging and release included, until an iPad release that
+ * reads 10 is live. The Playwright flag-on build turns it on. Enable it locally
+ * with `VITE_SCHEMA_10_AUTHORING=1`.
+ */
+export const SCHEMA_10_AUTHORING_ENABLED = import.meta.env.VITE_SCHEMA_10_AUTHORING === '1';
+
+/**
  * `SHARING_ENABLED` turns the Share action into the Create link / Share project
  * file dialog. It needs the `/api/**` sharing backend, which only the staging
  * project has (firebase.staging.json), so only the staging lane builds with it.

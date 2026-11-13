@@ -362,16 +362,22 @@ export interface PickupPlacement {
 
 /** Appearance-only knob vocabulary. The placed potentiometer remains the
  * physical source of truth; an unknown style is preserved and rendered with
- * the generic fallback by readers that do not recognise it. */
-export type KnobStyleId = 'generic' | (string & {});
+ * the blueprint family's knob by readers that do not recognise it. `generic`
+ * means the family's knob; schema 10 adds four named types. */
+export type KnobStyleId = 'generic' | 'skirted' | 'top_hat' | 'speed' | 'dome' | (string & {});
+
+/** Schema 10 knob and pickguard finish. Open, like `KnobStyleId`. */
+export type HardwareFinishId = 'white' | 'cream' | 'black' | 'gold' | 'chrome' | (string & {});
 
 export interface PotentiometerPlacement {
   id: string;
   position: Vector2D;
   /** Diameter of the hidden potentiometer body below the visible knob. */
   bodyDiameterMm: LengthMm;
-  /** Blueprint-owned appearance. The editor deliberately has no style picker. */
+  /** The knob's shape: `generic` (the blueprint family's) or, from schema 10, a named type. */
   knobStyleId: KnobStyleId;
+  /** Schema 10. Absent means the blueprint family's finish. */
+  knobFinish?: HardwareFinishId;
 }
 
 export type SwitchType = 'gibson_toggle' | 'fender_blade';
@@ -414,6 +420,11 @@ export interface PickguardPlacement {
   name?: string;
   contour: BodyContour;
   colorHex?: string;
+  /**
+   * Schema 10. A named finish, written together with its `colorHex`; a known
+   * one wins over the hex in 3D. Absent means "use `colorHex`".
+   */
+  finish?: HardwareFinishId;
   visible?: boolean;
   locked?: boolean;
 }

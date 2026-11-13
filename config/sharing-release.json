@@ -1,11 +1,11 @@
 {
-  "releaseTag": "v1.3.2-web.3",
+  "releaseTag": "v1.3.2-web.4",
   "baseCoordinatedTag": "v1.3.2",
   "confirmedIpadVersion": "1.3.2",
   "confirmedIpadEditableSchema": 9,
   "maxAcceptedProjectSchema": 9,
-  "serverReadSchema": 9,
-  "webReadSchema": 9,
+  "serverReadSchema": 10,
+  "webReadSchema": 10,
   "viewerReadSchema": 9,
   "schema9Authoring": true,
   "viewerRelease": "v0.1.30",
@@ -16,6 +16,6 @@
     "releasedAt": "2026-10-21T01:04:34Z",
     "schemaSource": "axe-shaper-ios v1.3.2: Migration.currentPayloadVersion = 9"
   },
-  "predecessorProductionTag": "v1.3.2-web.2",
+  "predecessorProductionTag": "v1.3.2-web.3",
   "productionSharingEnabled": true
 }

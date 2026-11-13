@@ -640,6 +640,27 @@ async function main() {
           }
         });
       }
+
+      const finishFixtures = v5Files.filter((file) => {
+        const project = scan(readFileSync(join(V5_FIXTURE_DIR, file), 'utf8')).project;
+        return (project.potentiometers ?? []).some(schema.usesKnobStyleVocabulary)
+          || (project.pickguards ?? []).some(schema.usesPickguardFinish);
+      });
+      if (finishFixtures.length === 0) {
+        console.log('  pending  no iOS-written schema-v10 knob or pickguard finish fixture yet');
+      } else {
+        check('the native writer stamps knob and pickguard finishes at 10 and the web preserves them', () => {
+          for (const file of finishFixtures) {
+            const project = scan(readFileSync(join(V5_FIXTURE_DIR, file), 'utf8')).project;
+            deepStrictEqual(project.schemaVersion, 10, file);
+            deepStrictEqual(project.schemaVersion, schema.requiredSchemaVersion(project), file);
+            const resaved = scan(exporter.exportProjectToSVG(presets.migrateProject(project))).project;
+            deepStrictEqual(resaved.schemaVersion, 10, file);
+            deepStrictEqual(resaved.potentiometers, project.potentiometers, `${file}: knobs changed across a web load/save`);
+            deepStrictEqual(resaved.pickguards, project.pickguards, `${file}: pickguards changed across a web load/save`);
+          }
+        });
+      }
     }
   } finally {
     await server.close();

@@ -48,6 +48,22 @@ describe('requiredSchemaVersion', () => {
     }
   });
 
+  it('stamps 10 for a knob type or any knob finish, or any pickguard finish', () => {
+    for (const knobStyleId of ['skirted', 'top_hat', 'speed', 'dome']) {
+      expect(stamp({ potentiometers: any([{ knobStyleId }]) })).toBe(10);
+    }
+    expect(stamp({ potentiometers: any([{ knobStyleId: 'generic', knobFinish: 'gold' }]) })).toBe(10);
+    // Unknown values are still the vocabulary, as on iPad.
+    expect(stamp({ potentiometers: any([{ knobStyleId: 'generic', knobFinish: 'pearl' }]) })).toBe(10);
+    expect(stamp({ pickguards: any([{ finish: 'tortoise' }]) })).toBe(10);
+    expect(stamp({ pickguards: any([{ finish: 'chrome' }]), instrumentAppearance: any({ body: {} }) })).toBe(10);
+  });
+
+  it('does not raise the stamp for generic or unknown knob ids, or a guard with only a colour', () => {
+    expect(stamp({ potentiometers: any([{ knobStyleId: 'generic' }, { knobStyleId: 'chicken_head' }]) })).toBe(4);
+    expect(stamp({ pickguards: any([{ colorHex: '#d4af37' }]) })).toBe(BASE_SCHEMA_VERSION);
+  });
+
   it('takes the highest version any field needs', () => {
     expect(stamp({ potentiometers: any([{}]), bodyTop: any({}) })).toBe(5);
     expect(stamp({ bodyTop: any({}), instrumentAppearance: any({}) })).toBe(6);

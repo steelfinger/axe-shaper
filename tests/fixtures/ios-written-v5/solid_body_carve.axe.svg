@@ -10,7 +10,7 @@
 <style>
 .outline{fill:none;stroke:#111;stroke-width:0.40;stroke-linecap:round;stroke-linejoin:round}
 .edge-inset{fill:none;stroke:#555;stroke-width:0.30;stroke-dasharray:3 2}
-.neck-pocket{fill:#e5e7eb;stroke:#374151;stroke-width:0.40}
+.neck-pocket{fill:none;stroke:#374151;stroke-width:0.40}
 .pickup-rout{fill:#ccfbf1;stroke:#0f766e;stroke-width:0.30}
 .pickup-cover{fill:none;stroke:#111;stroke-width:0.30}
 .control-outline{fill:none;stroke:#475569;stroke-width:0.30}

@@ -1,5 +1,5 @@
 import type { GuitarProject } from '../types/guitar';
-import { requiredSchemaVersion } from '../constants/schema';
+import { requiredSchemaVersion, SCHEMA_10_KNOB_TYPE_IDS } from '../constants/schema';
 
 // Fragment contract shared with the standalone 3D viewer
 // (steelfinger/axe-shape-3D-viewer, deployed at /viewer3d). Never sent over
@@ -97,6 +97,15 @@ export function projectForViewerLink(project: GuitarProject): ViewerLinkProject 
   if (PINNED_VIEWER_READ_SCHEMA < 9 && handoff.instrumentAppearance?.body) {
     const { body: _body, ...appearance } = handoff.instrumentAppearance;
     handoff.instrumentAppearance = appearance;
+  }
+  // Schema 10's knob types and finishes and pickguard finish. Until the pin
+  // reads them, knobs go as the family's (`generic`) and a guard as its
+  // `colorHex`, which a finish always writes alongside itself.
+  if (PINNED_VIEWER_READ_SCHEMA < 10) {
+    handoff.potentiometers = handoff.potentiometers?.map(({ knobFinish: _finish, ...pot }) =>
+      SCHEMA_10_KNOB_TYPE_IDS.has(pot.knobStyleId) ? { ...pot, knobStyleId: 'generic' } : pot
+    );
+    handoff.pickguards = handoff.pickguards?.map(({ finish: _finish, ...guard }) => guard);
   }
   // Describe the payload as what it holds: the lowest version that represents
   // *these* fields. Viewers from v0.1.23 read schema 8 and draw jacks, and

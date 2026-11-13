@@ -1,5 +1,5 @@
 import React from 'react';
-import { MousePointer, Trash2, PlusCircle, Ruler, Spline, Slash, Zap, Crosshair, CircleDot, ToggleLeft, Plug } from 'lucide-react';
+import { MousePointer, Trash2, PlusCircle, Ruler, Spline, Slash, Zap, Crosshair, CircleDot, ToggleLeft, Plug, Layers } from 'lucide-react';
 import { MIN_ANCHOR_COUNT } from '../App';
 import { PICKUP_SPECIFICATIONS } from '../constants/hardware';
 import type { GuitarProject, HandleMode, PathAnchor, PickupType, SelectedHardwarePlacement, SwitchType, Vector2D } from '../types/guitar';
@@ -26,8 +26,11 @@ import { DecimalInput } from './DecimalInput';
 import { EdgeProfilePreview } from './EdgeProfilePreview';
 import { resolvedBodyThickness } from '../utils/bodyThickness';
 import {
+  displayedPickguardFinish,
   movingPotentiometer,
   movingSwitch,
+  settingKnobStyle,
+  settingPickguardFinish,
   settingPotentiometerBodyDiameter,
   settingSwitchAngle,
   settingSwitchType,
@@ -43,6 +46,17 @@ import {
   type KnownJackStyle,
 } from '../utils/jackEditing';
 import { CONTROL_DRAWING_GEOMETRY } from '../constants/planDrawingStyle';
+import {
+  HARDWARE_FINISH_LABELS,
+  HARDWARE_FINISHES,
+  isHardwareFinish,
+  isKnobType,
+  KNOB_TYPE_LABELS,
+  KNOB_TYPES,
+  resolvedKnobStyle,
+} from '../constants/knobStyles';
+import { SCHEMA_10_AUTHORING_ENABLED } from '../constants/features';
+import { usesKnobStyleVocabulary } from '../constants/schema';
 
 interface InspectorPanelProps {
   project: GuitarProject;
@@ -114,6 +128,17 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
     : null;
 
   const mmFromInput = (val: number) => (isMm ? val : val * 25.4);
+
+  // Schema 10. Choosing is behind the flag; a document that already uses the
+  // vocabulary keeps its controls, as body appearance does for schema 9.
+  const knobStyleAuthoring = SCHEMA_10_AUTHORING_ENABLED || (project.potentiometers ?? []).some(usesKnobStyleVocabulary);
+  // What the 3D preview draws, family default included.
+  const knobStyle = resolvedKnobStyle(selectedPotentiometer ?? undefined, project.activeTemplateId);
+  const activePickguard = activeLayer.kind === 'pickguard'
+    ? (project.pickguards ?? []).find((guard) => guard.id === activeLayer.id) ?? null
+    : null;
+  const pickguardFinishAuthoring = SCHEMA_10_AUTHORING_ENABLED || activePickguard?.finish != null;
+  const pickguardFinish = activePickguard ? displayedPickguardFinish(activePickguard) : null;
 
   // Live body measurements, taken from the drawn curve rather than the anchors:
   // a segment bulges past its end anchors, and these are the numbers a blank
@@ -673,6 +698,49 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
               shaft hole.
             </p>
 
+            {knobStyleAuthoring && (
+              <>
+                <div className="coordinate-input-grid">
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="knob-type">Knob</label>
+                    <select
+                      id="knob-type"
+                      className="form-select"
+                      value={knobStyle.type}
+                      onChange={(event) => {
+                        const type = event.target.value;
+                        if (isKnobType(type)) onUpdateProject((prev) => settingKnobStyle(prev, { ...knobStyle, type }));
+                      }}
+                    >
+                      {KNOB_TYPES.map((type) => (
+                        <option key={type} value={type}>{KNOB_TYPE_LABELS[type]}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="knob-finish">Finish</label>
+                    <select
+                      id="knob-finish"
+                      className="form-select"
+                      value={knobStyle.finish}
+                      onChange={(event) => {
+                        const finish = event.target.value;
+                        if (isHardwareFinish(finish)) onUpdateProject((prev) => settingKnobStyle(prev, { ...knobStyle, finish }));
+                      }}
+                    >
+                      {HARDWARE_FINISHES.map((finish) => (
+                        <option key={finish} value={finish}>{HARDWARE_FINISH_LABELS[finish]}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <p className="inspector-help">
+                  {(project.potentiometers ?? []).length > 1 ? 'Knob and finish apply to all knobs. ' : ''}
+                  They show in the 3D preview.
+                </p>
+              </>
+            )}
+
             <button
               className="btn btn-sm destructive-outline-button"
               onClick={onDeleteSelectedHardware}
@@ -884,6 +952,34 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
           </p>
         )}
       </div>
+
+      {activePickguard && pickguardFinishAuthoring && (
+        <div className="panel-section">
+          <div className="section-title">
+            <Layers size={16} /> Pickguard
+          </div>
+          <div className="form-group">
+            <label className="form-label" htmlFor="pickguard-finish">Finish</label>
+            <select
+              id="pickguard-finish"
+              className="form-select"
+              value={pickguardFinish ?? ''}
+              onChange={(event) => {
+                const finish = event.target.value;
+                if (isHardwareFinish(finish)) {
+                  onUpdateProject((prev) => settingPickguardFinish(prev, activePickguard.id, finish));
+                }
+              }}
+            >
+              {pickguardFinish === null && <option value="" disabled>Custom</option>}
+              {HARDWARE_FINISHES.map((finish) => (
+                <option key={finish} value={finish}>{HARDWARE_FINISH_LABELS[finish]}</option>
+              ))}
+            </select>
+          </div>
+          <p className="inspector-help">Sets this pickguard's colour. Gold and chrome show as metal in the 3D preview.</p>
+        </div>
+      )}
 
       {/* LIVE MEASUREMENTS SECTION */}
       <div className="panel-section">

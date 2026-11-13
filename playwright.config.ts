@@ -27,7 +27,7 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      testIgnore: /(schema9|sharing)\.spec\.ts/,
+      testIgnore: /(schema9|schema10|sharing)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1600, height: 900 } },
     },
     // Schema 8/9 authoring is off in the default build but on in the staging
@@ -36,9 +36,11 @@ export default defineConfig({
     // It builds itself, so CI needs no extra step. That build also turns on
     // sharing, as staging does, so the sharing flows reuse it rather than
     // paying for a third build on every run.
+    // Schema 10 (knob and pickguard finishes) is off in every lane until an
+    // iPad release reads it; its flows share the flag-on build.
     {
       name: 'schema9-authoring',
-      testMatch: /schema9\.spec\.ts/,
+      testMatch: /schema(9|10)\.spec\.ts/,
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1600, height: 900 },
@@ -64,7 +66,7 @@ export default defineConfig({
     },
     {
       command: `npx vite build --outDir dist-schema9 --emptyOutDir && npx vite preview --outDir dist-schema9 --host 127.0.0.1 --port ${SCHEMA9_PORT} --strictPort`,
-      env: { VITE_SCHEMA_9_AUTHORING: '1', VITE_SHARING: '1' },
+      env: { VITE_SCHEMA_9_AUTHORING: '1', VITE_SCHEMA_10_AUTHORING: '1', VITE_SHARING: '1' },
       url: `http://127.0.0.1:${SCHEMA9_PORT}/app`,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,

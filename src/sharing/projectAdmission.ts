@@ -15,6 +15,15 @@ import type { CanonicalJsonText } from './canonicalJson';
 
 /** Change the revision when changing accepted vocabulary or resource bounds. */
 export const UPLOAD_POLICY_REVISION = 'project-upload-v3';
+/**
+ * Schema 10's knob types and finishes and pickguard finish. Defined and
+ * fingerprinted ahead of use, and read already, but not yet what the server
+ * admits under: an envelope names its revision, and the viewer pinned in
+ * `viewer3d.version` refuses one it has no reader for. It becomes
+ * `UPLOAD_POLICY_REVISION` in the release that pins a viewer reading it and
+ * raises admission to 10 (docs/AXE_SVG_FORMAT.md, "Version 10").
+ */
+export const NEXT_UPLOAD_POLICY_REVISION = 'project-upload-v4';
 export const PROJECT_UPLOAD_LIMITS = {
   maxProjectBytes: 384 * 1024,
   maxAnchors: 2048,
@@ -179,8 +188,23 @@ const routes = objectFor<RoutedCavity>({ id, name: optional(name), contour, dept
  * Plain choice() is reserved for intentionally open string types (jack/knob IDs,
  * edge/binding bags); every closed model union uses completeChoice().
  */
-const makeProjectRule = (bodyAppearance: boolean) => object({
-  schemaVersion: number(3, bodyAppearance ? PROJECT_SCHEMA_VERSION : 8, true), appVersion: text(80, true),
+type PolicyLevel = 'v2' | 'v3' | 'v4';
+// Each revision's vocabulary is frozen with it: v3 stays at schema 9 whatever
+// this build reads.
+const POLICY_SCHEMA_CEILING: Record<PolicyLevel, number> = { v2: 8, v3: 9, v4: 10 };
+const hardwareFinish = choice('white', 'cream', 'black', 'gold', 'chrome');
+const knobRule = (level: PolicyLevel): Rule => level === 'v4'
+  ? objectFor<PotentiometerPlacement>({ id, position: vector, bodyDiameterMm: dimension,
+    knobStyleId: choice('generic', 'skirted', 'top_hat', 'speed', 'dome'), knobFinish: optional(hardwareFinish) })
+  : objectFor<Omit<PotentiometerPlacement, 'knobFinish'>>({ id, position: vector, bodyDiameterMm: dimension, knobStyleId: choice('generic') });
+const pickguardRule = (level: PolicyLevel): Rule => level === 'v4'
+  ? objectFor<PickguardPlacement>({ id, name: optional(name), contour, colorHex: optional(color), finish: optional(hardwareFinish),
+    visible: optional(boolean), locked: optional(boolean) })
+  : objectFor<Omit<PickguardPlacement, 'finish'>>({ id, name: optional(name), contour, colorHex: optional(color),
+    visible: optional(boolean), locked: optional(boolean) });
+
+const makeProjectRule = (level: PolicyLevel) => object({
+  schemaVersion: number(3, POLICY_SCHEMA_CEILING[level], true), appVersion: text(80, true),
   instrumentType: completeChoice<InstrumentType>({ guitar: null, bass: null }), stringCount: number(1, 32, true),
   jacks: optional(list(objectFor<OutputJackPlacement>({ id, position: vector, mountingStyle: choice('strat_plate', 'direct'), angleDegrees: angle }),
     0, PROJECT_UPLOAD_LIMITS.maxPlacements, 'placements')),
@@ -198,7 +222,7 @@ const makeProjectRule = (bodyAppearance: boolean) => object({
     showFrontRoutes: optional(boolean), showBackRoutes: optional(boolean), showControls: optional(boolean),
   }),
   instrumentAppearance: optional(objectFor<Omit<InstrumentAppearance, 'body'>>({
-    ...(bodyAppearance ? { body: optional(objectFor<BodyAppearance>({
+    ...(level !== 'v2' ? { body: optional(objectFor<BodyAppearance>({
       material: completeChoice<BodyAppearance['material']>({ mahogany: null, flame_maple: null, swamp_ash: null }),
       finish: completeChoice<BodyAppearance['finish']>({ natural: null, solid: null, sunburst_2: null, sunburst_3: null }),
       color, middleColor: color, edgeColor: color, opacity: number(0, 1),
@@ -243,30 +267,38 @@ const makeProjectRule = (bodyAppearance: boolean) => object({
     defaultAngleDegrees: optional(angle),
     type: pickupType, offsetYMm: coordinate, offsetXMm: coordinate, angleDegrees: angle,
     widthMm: dimension, heightMm: dimension, anchors }), 0, PROJECT_UPLOAD_LIMITS.maxPlacements, 'placements'),
-  potentiometers: placements(objectFor<PotentiometerPlacement>({ id, position: vector, bodyDiameterMm: dimension, knobStyleId: choice('generic') })),
+  potentiometers: placements(knobRule(level)),
   switches: placements(objectFor<SwitchPlacement>({ id, type: completeChoice<SwitchPlacement['type']>({ gibson_toggle: null, fender_blade: null }), position: vector, angleDegrees: angle })),
-  pickguards: placements(objectFor<PickguardPlacement>({ id, name: optional(name), contour, colorHex: optional(color),
-    visible: optional(boolean), locked: optional(boolean) })),
+  pickguards: placements(pickguardRule(level)),
   frontRoutes: placements(routes), backRoutes: placements(routes),
 } satisfies Record<keyof GuitarProject, Field>);
 
-const projectRule = makeProjectRule(true);
-const legacyProjectRule = makeProjectRule(false);
+const PROJECT_RULES: Readonly<Record<string, Rule>> = Object.freeze({
+  'project-upload-v2': makeProjectRule('v2'),
+  [UPLOAD_POLICY_REVISION]: makeProjectRule('v3'),
+  [NEXT_UPLOAD_POLICY_REVISION]: makeProjectRule('v4'),
+});
 
-/** Data-only definition used by the revision fingerprint; custom semantics still need review. */
-export const PROJECT_UPLOAD_POLICY_DEFINITION = JSON.parse(canonicalizeJson({
+const policyDefinition = (rule: Rule): unknown => JSON.parse(canonicalizeJson({
   limits: PROJECT_UPLOAD_LIMITS,
   jsonSafetyLimits: SHARING_JSON_LIMITS,
-  rule: definitionOf(projectRule),
+  rule: definitionOf(rule),
   supportedStringCounts: SUPPORTED_STRING_COUNTS,
   pickupInstruments: PICKUP_TYPE_INSTRUMENT,
   semantics: { schemaStamp: 'exact-required', jointPair: 'when-present-or-schema-7', embeddedPresets: 'required' },
-})) as unknown;
+}));
+
+/** Data-only definition used by the revision fingerprint; custom semantics still need review. */
+export const PROJECT_UPLOAD_POLICY_DEFINITION = policyDefinition(PROJECT_RULES[UPLOAD_POLICY_REVISION]);
+/** The same for `NEXT_UPLOAD_POLICY_REVISION`, exported and fingerprinted before it is active. */
+export const NEXT_PROJECT_UPLOAD_POLICY_DEFINITION = policyDefinition(PROJECT_RULES[NEXT_UPLOAD_POLICY_REVISION]);
 
 /** Retain old validator implementations here when introducing a deployed revision. */
 export type ProjectRevisionValidator = (input: unknown, maxReadableProjectSchema: number) => ProjectAdmissionResult;
 export type ProjectRevisionReaders = Readonly<Record<string, ProjectRevisionValidator>>;
 export const PROJECT_REVISION_READERS: ProjectRevisionReaders = Object.freeze({
+  'project-upload-v4': (input: unknown, ceiling: number) => validateProjectUpload(input,
+    { revision: 'project-upload-v4', maxAcceptedProjectSchema: ceiling }),
   'project-upload-v3': (input: unknown, ceiling: number) => validateProjectUpload(input,
     { revision: 'project-upload-v3', maxAcceptedProjectSchema: ceiling }),
   'project-upload-v2': (input: unknown, ceiling: number) => validateProjectUpload(input,
@@ -279,7 +311,7 @@ export const PROJECT_REVISION_READERS: ProjectRevisionReaders = Object.freeze({
  * Parse raw requests with parseSharingJson first to detect duplicate names.
  */
 export function validateProjectUpload(input: unknown, policy: ProjectAdmissionPolicy): ProjectAdmissionResult {
-  if (!['project-upload-v2', UPLOAD_POLICY_REVISION].includes(policy.revision) || !Number.isInteger(policy.maxAcceptedProjectSchema) ||
+  if (!Object.hasOwn(PROJECT_RULES, policy.revision) || !Number.isInteger(policy.maxAcceptedProjectSchema) ||
     policy.maxAcceptedProjectSchema < 3 || policy.maxAcceptedProjectSchema > PROJECT_SCHEMA_VERSION) {
     return { ok: false, code: 'unsupported-policy', path: 'policy' };
   }
@@ -290,7 +322,7 @@ export function validateProjectUpload(input: unknown, policy: ProjectAdmissionPo
     const project = input as GuitarProject;
     if (!Number.isInteger(project.schemaVersion) || project.schemaVersion < 3 ||
       project.schemaVersion > policy.maxAcceptedProjectSchema) reject('unsupported-schema', 'project.schemaVersion');
-    (policy.revision === 'project-upload-v2' ? legacyProjectRule : projectRule)(project, 'project', { anchors: 0, placements: 0 });
+    PROJECT_RULES[policy.revision](project, 'project', { anchors: 0, placements: 0 });
     if (!isSupportedInstrument(project.instrumentType, project.stringCount)) reject('invalid-project', 'project.stringCount');
     for (const [index, pickup] of project.pickups.entries()) {
       if (PICKUP_TYPE_INSTRUMENT[pickup.type] !== project.instrumentType) reject('invalid-project', `project.pickups[${index}].type`);

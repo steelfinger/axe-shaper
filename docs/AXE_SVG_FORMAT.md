@@ -45,6 +45,7 @@ project name could contain one.
 | 7 | Paired `neckJointGeometry` and `neckPlacement`: authored joint-plan parameters and the body-owned scale datum. |
 | 8 | Optional `jacks`: independently placed front-face output jacks. |
 | 9 | Optional `instrumentAppearance.body`: independent material, finish colors and opacity. |
+| 10 | Knob types and finishes (`knobStyleId` vocabulary, optional `knobFinish`) and an optional pickguard `finish`. |
 
 ## Instrument appearance (version 6)
 
@@ -120,6 +121,7 @@ acts on. Above that floor, each version so far is purely additive:
 
 | If the document has | It is written at |
 | --- | --- |
+| a potentiometer with a `knobFinish` or a version 10 `knobStyleId`, or a pickguard with a `finish` | 10 |
 | an `instrumentAppearance.body` | 9 |
 | a non-empty `jacks` list | 8 |
 | a `neckJointGeometry` / `neckPlacement` pair | 7 |
@@ -339,6 +341,64 @@ placed controls.
   inferred from overlap with a pickguard and is not stored in this version.
 - Unknown knob style ids are preserved and may render with the generic knob
   fallback. Placement geometry remains authoritative.
+
+## Version 10: knob types and finishes, pickguard finish
+
+Version 10 gives knobs a named shape and finish, and pickguards a named
+finish. All three are plain strings.
+
+### Potentiometer
+
+| Field | Values | Notes |
+| --- | --- | --- |
+| `knobStyleId` (since v4) | `skirted`, `top_hat`, `speed`, `dome` | Any other value, including `generic`, means the blueprint family's knob. |
+| `knobFinish` (new, optional) | `white`, `cream`, `black`, `gold`, `chrome` | Absent means the blueprint family's finish. |
+
+Type and finish resolve independently: a knob that names only a finish keeps
+its family's shape. The family table (what `generic` means per
+`activeTemplateId`, and a black speed knob for a design with no known family)
+is shared by every implementation: `src/constants/knobStyles.ts` here,
+`familyKnobStyles` in the viewer's `src/core/controlHardwareMesh.ts` and in
+axe-shaper-ios `ControlHardwareMesh.swift`. A top hat always has a chrome
+insert; the insert is not a document field. The editors set every knob's type
+and finish together.
+
+### Pickguard
+
+| Field | Values | Notes |
+| --- | --- | --- |
+| `finish` (new, optional) | `white`, `cream`, `black`, `gold`, `chrome` | Absent means "use `colorHex`", the behaviour before v10. |
+| `colorHex` (exists) | any hex | Kept. A writer that sets `finish` also writes the matching hex below. |
+
+| Finish | `colorHex` written with it | 3D material |
+| --- | --- | --- |
+| white | `#ffffff` | plastic |
+| cream | `#f0e6c8` | plastic |
+| black | `#111111` | plastic |
+| gold | `#d4af37` | metal, roughness 0.34 |
+| chrome | `#c9ccd1` | metal, roughness 0.26 |
+
+Writing the hex with the finish keeps the 2D canvas, the exported SVG, the PDF
+and any reader that predates `finish` working unchanged: they fill the guard
+from `colorHex`, a flat colour close to the finish. A second pickguard is
+usually a different part, such as a control plate, so a finish is set on one
+guard at a time.
+
+### Rules
+
+- An unknown value of any of the three is kept verbatim on save and never
+  fails a load. An unknown `finish` falls back to `colorHex`; an unknown knob
+  type or finish falls back to the blueprint family.
+- A known `finish` wins over `colorHex` in 3D.
+- A save is stamped 10 only when the document uses the vocabulary: some
+  potentiometer has a `knobFinish` (any value) or a `knobStyleId` of
+  `skirted`, `top_hat`, `speed` or `dome`, or some pickguard has a `finish`
+  (any value). Every other document keeps the version it needed before.
+
+Reading 10 is safe to deploy before iOS ships; *choosing* a knob or pickguard
+finish is not, so the web controls stay behind `VITE_SCHEMA_10_AUTHORING`
+until an iPad release that reads 10 is live. The 3D handoff holds the three
+fields out until `viewer3d.version` pins a viewer that reads 10.
 
 ## Version 8: output jacks
 

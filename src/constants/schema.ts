@@ -1,4 +1,4 @@
-import type { StoredProject } from '../types/guitar';
+import type { PickguardPlacement, PotentiometerPlacement, StoredProject } from '../types/guitar';
 
 /**
  * Version of the project payload embedded in a .axe.svg file.
@@ -62,13 +62,19 @@ import type { StoredProject } from '../types/guitar';
  *
  *   9 - Adds independent body material, coating colors and opacity under
  *       `instrumentAppearance.body`. Older editors must not discard them.
+ *  10 - Adds knob types and finishes: `knobStyleId` gains `skirted`,
+ *       `top_hat`, `speed` and `dome`, and potentiometers an optional
+ *       `knobFinish` (`white`, `cream`, `black`, `gold`, `chrome`). Pickguards
+ *       gain an optional `finish` from the same five, written with its
+ *       matching `colorHex`. All are open strings: an unknown value is kept
+ *       and falls back (docs/AXE_SVG_FORMAT.md, "Version 10").
  *
  * This constant is the newest version this build *understands*, and it is the
  * upper bound of the read gate. It is deliberately not what a save stamps -
  * see `requiredSchemaVersion` below, which writes the lowest version that can
  * represent the document in hand.
  */
-export const PROJECT_SCHEMA_VERSION = 9;
+export const PROJECT_SCHEMA_VERSION = 10;
 
 /**
  * The oldest payload this build can read. Nothing has been dropped yet, so
@@ -151,7 +157,7 @@ export function requiredSchemaVersion(
   project: Pick<
     StoredProject,
     'schemaVersion' | 'bodyTop' | 'potentiometers' | 'switches' | 'instrumentAppearance' | 'neckJointGeometry' | 'neckPlacement' | 'jacks'
-  >
+  > & { pickguards?: StoredProject['pickguards'] }
 ): number {
   // Only a version *above* this build's - a claim it cannot assess. A
   // nonsense stamp (0, a fraction) is not a claim worth preserving and falls
@@ -161,6 +167,7 @@ export function requiredSchemaVersion(
   }
   // Highest first: every new design carries the v7 pair, so checking jacks
   // after it would stamp 7 on a document that has one.
+  if (project.potentiometers?.some(usesKnobStyleVocabulary) || project.pickguards?.some(usesPickguardFinish)) return 10;
   if (project.instrumentAppearance?.body) return 9;
   if (project.jacks?.length) return 8;
   // The v7 objects are an atomic contract. `migrateProject()` rejects a
@@ -171,4 +178,24 @@ export function requiredSchemaVersion(
   if (project.bodyTop) return 5;
   if (project.potentiometers?.length || project.switches?.length) return 4;
   return BASE_SCHEMA_VERSION;
+}
+
+/**
+ * The `knobStyleId` values schema 10 added. `generic` and any other identifier
+ * are what version 4 already allowed, and do not raise the stamp.
+ */
+export const SCHEMA_10_KNOB_TYPE_IDS: ReadonlySet<string> = new Set(['skirted', 'top_hat', 'speed', 'dome']);
+
+/**
+ * Whether a potentiometer uses schema 10's knob vocabulary: any `knobFinish`,
+ * known or not, or one of the four knob types. iOS:
+ * `PotentiometerPlacement.usesKnobStyleVocabulary`.
+ */
+export function usesKnobStyleVocabulary(potentiometer: Pick<PotentiometerPlacement, 'knobStyleId' | 'knobFinish'>): boolean {
+  return potentiometer.knobFinish != null || SCHEMA_10_KNOB_TYPE_IDS.has(potentiometer.knobStyleId);
+}
+
+/** Whether a pickguard carries schema 10's `finish`, known or not. */
+export function usesPickguardFinish(pickguard: Pick<PickguardPlacement, 'finish'>): boolean {
+  return pickguard.finish != null;
 }

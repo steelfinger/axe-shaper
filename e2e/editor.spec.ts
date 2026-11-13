@@ -279,3 +279,69 @@ test.describe('share links behind the staging-only flag', () => {
     expect(apiCalls).toEqual([]);
   });
 });
+
+test.describe('schema 10 authoring behind the release gate', () => {
+  // SCHEMA_10_AUTHORING_ENABLED is off in this build and in every lane until
+  // an iPad release reads 10. Choosing a knob or pickguard finish is hidden,
+  // but a file that already carries them opens, shows them and re-saves them.
+  const source = readFileSync('tests/fixtures/ios-written-v5/controls.axe.svg', 'utf8');
+  const base = JSON.parse(Buffer.from(/<project:data>(.*?)<\/project:data>/s.exec(source)![1], 'base64').toString());
+  const withPayload = (data: unknown) => source.replace(/<project:data>.*?<\/project:data>/s,
+    `<project:data>${Buffer.from(JSON.stringify(data)).toString('base64')}</project:data>`);
+  const design = (styled: boolean) => {
+    const data = structuredClone(base);
+    data.settings = { ...data.settings, canvasOrientation: 'vertical', showControls: true };
+    data.pickguards = [{ id: 'pg', name: 'Gate guard', colorHex: styled ? '#c9ccd1' : '#ffffff',
+      ...(styled ? { finish: 'chrome' } : {}),
+      contour: { closed: true, anchors: [[220, 20], [320, 20], [320, 120], [220, 120]]
+        .map(([x, y], i) => ({ id: `pg${i}`, position: { x, y }, handleMode: 'corner' })) } }];
+    data.potentiometers = [{ id: 'pot', position: { x: 80, y: 240 }, bodyDiameterMm: 24,
+      knobStyleId: styled ? 'dome' : 'generic', ...(styled ? { knobFinish: 'gold' } : {}) }];
+    data.switches = [];
+    data.jacks = [];
+    if (styled) data.schemaVersion = 10;
+    return withPayload(data);
+  };
+  const open = async (page: import('@playwright/test').Page, svg: string) => {
+    await page.goto('/app');
+    await expect(chooserHeading(page)).toBeVisible();
+    await page.locator('input[type="file"]').setInputFiles({ name: 'gate.axe.svg', mimeType: 'image/svg+xml', buffer: Buffer.from(svg) });
+    await expect(projectNameField(page)).toBeVisible();
+  };
+  const selectKnob = async (page: import('@playwright/test').Page) => {
+    const box = (await page.locator('.konvajs-content').boundingBox())!;
+    await page.mouse.click(box.x + box.width / 2 + 80 * 1.2, box.y + 120 + 240 * 1.2);
+    await expect(page.getByText('Potentiometer', { exact: true })).toBeVisible();
+  };
+
+  test('the default build offers no knob or pickguard finish on a plain design', async ({ page }) => {
+    await open(page, design(false));
+    await page.getByRole('tab', { name: 'Layers', exact: true }).click();
+    await page.getByText('Gate guard', { exact: true }).click();
+    await expect(page.locator('#pickguard-finish')).toHaveCount(0);
+    await selectKnob(page);
+    await expect(page.locator('#knob-type')).toHaveCount(0);
+    await expect(page.locator('#knob-finish')).toHaveCount(0);
+  });
+
+  test('a design that already has them shows them and re-saves them at 10', async ({ page }) => {
+    const errors = trackPageErrors(page);
+    await open(page, design(true));
+    await page.getByRole('tab', { name: 'Layers', exact: true }).click();
+    await page.getByText('Gate guard', { exact: true }).click();
+    await expect(page.locator('#pickguard-finish')).toHaveValue('chrome');
+    await selectKnob(page);
+    await expect(page.locator('#knob-type')).toHaveValue('dome');
+    await expect(page.locator('#knob-finish')).toHaveValue('gold');
+    await makeAnEdit(page);
+    await page.getByRole('button', { name: /^Save/ }).click();
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: /Continue|Save/i }).last().click();
+    const saved = readFileSync((await (await downloadPromise).path())!, 'utf8');
+    const project = JSON.parse(Buffer.from(/<project:data>([^<]*)<\/project:data>/.exec(saved)![1], 'base64').toString('utf8'));
+    expect(project.schemaVersion).toBe(10);
+    expect(project.potentiometers[0]).toMatchObject({ knobStyleId: 'dome', knobFinish: 'gold' });
+    expect(project.pickguards[0]).toMatchObject({ finish: 'chrome', colorHex: '#c9ccd1' });
+    expect(errors).toEqual([]);
+  });
+});

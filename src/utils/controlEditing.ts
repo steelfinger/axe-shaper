@@ -1,5 +1,6 @@
 import type {
   GuitarProject,
+  PickguardPlacement,
   PotentiometerPlacement,
   SelectedHardwarePlacement,
   SwitchPlacement,
@@ -7,6 +8,13 @@ import type {
   Vector2D,
 } from '../types/guitar';
 import { CONTROL_DRAWING_GEOMETRY } from '../constants/planDrawingStyle';
+import {
+  HARDWARE_FINISHES,
+  isHardwareFinish,
+  PICKGUARD_FINISH_COLOR_HEX,
+  type HardwareFinish,
+  type KnobStyle,
+} from '../constants/knobStyles';
 
 export const DEFAULT_POTENTIOMETER_BODY_DIAMETER_MM =
   CONTROL_DRAWING_GEOMETRY.potentiometerBodyDiameterMm;
@@ -185,4 +193,46 @@ export function hardwarePlacementExists(
     case 'jack':
       return (project.jacks ?? []).some((item) => item.id === selection.id);
   }
+}
+
+/**
+ * Gives every knob the same type and finish, written out explicitly so the
+ * choice no longer depends on the blueprint family. All knobs change together:
+ * a matched set is what an instrument has. iOS: `ControlEditing.settingKnobStyle`.
+ */
+export function settingKnobStyle(project: GuitarProject, style: KnobStyle): GuitarProject {
+  return {
+    ...project,
+    potentiometers: (project.potentiometers ?? []).map((item) => ({
+      ...item,
+      knobStyleId: style.type,
+      knobFinish: style.finish,
+    })),
+  };
+}
+
+/**
+ * Sets one pickguard's finish and the matching `colorHex` together. Only the
+ * named guard changes: a second guard is usually a different part, such as a
+ * control plate.
+ */
+export function settingPickguardFinish(project: GuitarProject, id: string, finish: HardwareFinish): GuitarProject {
+  return {
+    ...project,
+    pickguards: (project.pickguards ?? []).map((guard) =>
+      guard.id === id ? { ...guard, finish, colorHex: PICKGUARD_FINISH_COLOR_HEX[finish] } : guard
+    ),
+  };
+}
+
+/**
+ * The finish the inspector shows for a guard: its own `finish` when known,
+ * else the finish whose hex its `colorHex` is (a new guard's `#ffffff` is
+ * white), else null for a colour no finish has or an unknown finish.
+ */
+export function displayedPickguardFinish(guard: Pick<PickguardPlacement, 'finish' | 'colorHex'>): HardwareFinish | null {
+  if (isHardwareFinish(guard.finish)) return guard.finish;
+  if (guard.finish != null || !guard.colorHex) return null;
+  const hex = guard.colorHex.toLowerCase();
+  return HARDWARE_FINISHES.find((finish) => PICKGUARD_FINISH_COLOR_HEX[finish] === hex) ?? null;
 }

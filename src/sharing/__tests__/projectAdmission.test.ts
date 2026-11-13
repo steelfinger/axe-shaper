@@ -5,7 +5,8 @@ import returnedV8Svg from '../../../tests/fixtures/ios-written-v5/web_roundtrip_
 import nativeV8Svg from '../../../tests/fixtures/ios-written-v5/output_jacks.axe.svg?raw';
 import schema8 from '../../../tests/fixtures/sharing/schema8-known-jacks.json';
 import { PROJECT_UPLOAD_LIMITS, UPLOAD_POLICY_REVISION, validateProjectUpload, PROJECT_UPLOAD_POLICY_DEFINITION,
-  PROJECT_REVISION_READERS } from '../projectAdmission';
+  PROJECT_REVISION_READERS, NEXT_UPLOAD_POLICY_REVISION, NEXT_PROJECT_UPLOAD_POLICY_DEFINITION } from '../projectAdmission';
+import { PROJECT_SCHEMA_VERSION, requiredSchemaVersion } from '../../constants/schema';
 import policyFingerprints from '../../../tests/fixtures/sharing/policy-fingerprints.json';
 import { parseSharingJson, projectDigest } from '../canonicalJson';
 import { createProject } from '../../utils/projectFactory';
@@ -43,6 +44,9 @@ describe('strict project upload admission', () => {
     const fingerprints: Record<string, string> = policyFingerprints;
     expect(definitionFor(UPLOAD_POLICY_REVISION), 'Keep the independently consumed definition equal to the compiled rules')
       .toEqual(PROJECT_UPLOAD_POLICY_DEFINITION);
+    expect(definitionFor(NEXT_UPLOAD_POLICY_REVISION), 'Export the next revision before it is active')
+      .toEqual(NEXT_PROJECT_UPLOAD_POLICY_DEFINITION);
+    expect(await projectDigest(NEXT_PROJECT_UPLOAD_POLICY_DEFINITION)).toBe(fingerprints[NEXT_UPLOAD_POLICY_REVISION]);
     expect(Object.keys(PROJECT_REVISION_READERS).sort(), 'Keep a reader for every fingerprinted revision')
       .toEqual(Object.keys(fingerprints).sort());
     expect(Object.hasOwn(fingerprints, UPLOAD_POLICY_REVISION), 'New policies need a fingerprint and retained historical readers').toBe(true);
@@ -124,9 +128,38 @@ describe('strict project upload admission', () => {
   });
   it('fails closed on unknown policy revisions and invalid release ceilings', () => {
     expect(validateProjectUpload(baseline, { ...policy7, revision: 'future-policy' })).toMatchObject({ ok: false, code: 'unsupported-policy' });
-    for (const ceiling of [2, 10, 7.5, NaN]) {
+    for (const ceiling of [2, PROJECT_SCHEMA_VERSION + 1, 7.5, NaN]) {
       expect(validateProjectUpload(baseline, { ...policy7, maxAcceptedProjectSchema: ceiling })).toMatchObject({ ok: false, code: 'unsupported-policy' });
     }
+  });
+  it('admits schema 10 knob and pickguard finishes under v4 only, and only at ceiling 10', () => {
+    const project = fresh();
+    project.potentiometers = (project.potentiometers ?? []).map((pot) => ({ ...pot, knobStyleId: 'top_hat', knobFinish: 'cream' }));
+    expect(project.potentiometers.length).toBeGreaterThan(0);
+    project.pickguards = [{ id: 'guard', contour: project.contour, colorHex: '#d4af37', finish: 'gold' }];
+    project.schemaVersion = requiredSchemaVersion(project);
+    expect(project.schemaVersion).toBe(10);
+    const v4 = { revision: NEXT_UPLOAD_POLICY_REVISION, maxAcceptedProjectSchema: 10 };
+    expect(validateProjectUpload(project, v4)).toMatchObject({ ok: true });
+    expect(PROJECT_REVISION_READERS[NEXT_UPLOAD_POLICY_REVISION](project, 10).ok).toBe(true);
+    expect(validateProjectUpload(project, { ...v4, maxAcceptedProjectSchema: 9 })).toMatchObject({ ok: false, code: 'unsupported-schema' });
+    // v3 is frozen at 9 and knows neither field, whatever the ceiling.
+    expect(validateProjectUpload(project, { revision: UPLOAD_POLICY_REVISION, maxAcceptedProjectSchema: 10 }).ok).toBe(false);
+    const at9 = structuredClone(project);
+    at9.schemaVersion = 9;
+    expect(validateProjectUpload(at9, { revision: UPLOAD_POLICY_REVISION, maxAcceptedProjectSchema: 9 }))
+      .toMatchObject({ ok: false, code: 'unknown-vocabulary' });
+    // Sharing is a closed vocabulary even where the format is open.
+    const unknown = structuredClone(project);
+    unknown.pickguards![0].finish = 'tortoise';
+    expect(validateProjectUpload(unknown, v4)).toMatchObject({ ok: false, code: 'unknown-vocabulary', path: 'project.pickguards[0].finish' });
+    const unknownKnob = structuredClone(project);
+    unknownKnob.potentiometers![0].knobStyleId = 'chicken_head';
+    expect(validateProjectUpload(unknownKnob, v4)).toMatchObject({ ok: false, code: 'unknown-vocabulary' });
+    // A stamp of 10 must match what the document holds.
+    const plain = fresh();
+    plain.schemaVersion = 10;
+    expect(validateProjectUpload(plain, v4)).toMatchObject({ ok: false, code: 'schema-mismatch' });
   });
   it('rejects unknown names in every recursive object without reflecting the names', () => {
     const objectPaths: Array<Array<string | number>> = [];

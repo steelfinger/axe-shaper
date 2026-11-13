@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildViewer3DPath, projectForViewerLink } from '../viewer3dLink';
+import { buildViewer3DPath, PINNED_VIEWER_READ_SCHEMA, projectForViewerLink } from '../viewer3dLink';
+import { requiredSchemaVersion } from '../../constants/schema';
 import { createProject } from '../projectFactory';
 
 async function decodePath(path: string): Promise<unknown> {
@@ -53,6 +54,42 @@ describe('projectForViewerLink and jacks', () => {
     const decoded = await decodePath(await buildViewer3DPath(withJack)) as { jacks: unknown[]; schemaVersion: number };
     expect(decoded.jacks).toEqual([jack]);
     expect(decoded.schemaVersion).toBe(8);
+  });
+});
+
+describe('projectForViewerLink and schema 10', () => {
+  const styled = () => {
+    const project = createProject({ templateId: 's_style' });
+    project.potentiometers = [
+      { id: 'v', position: { x: 40, y: 200 }, bodyDiameterMm: 24, knobStyleId: 'dome', knobFinish: 'gold' },
+      { id: 't', position: { x: 40, y: 230 }, bodyDiameterMm: 24, knobStyleId: 'chicken_head' },
+    ];
+    project.pickguards = [{ id: 'g', contour: project.contour, colorHex: '#c9ccd1', finish: 'chrome' }];
+    project.schemaVersion = requiredSchemaVersion(project);
+    return project;
+  };
+
+  it('holds knob and pickguard finishes out while the pinned viewer reads below 10', () => {
+    if (PINNED_VIEWER_READ_SCHEMA >= 10) return;
+    const project = styled();
+    expect(project.schemaVersion).toBe(10);
+    const handoff = projectForViewerLink(project);
+    expect(handoff.potentiometers).toEqual([
+      { id: 'v', position: { x: 40, y: 200 }, bodyDiameterMm: 24, knobStyleId: 'generic' },
+      // Not schema 10's: an unknown id is what version 4 already allowed.
+      { id: 't', position: { x: 40, y: 230 }, bodyDiameterMm: 24, knobStyleId: 'chicken_head' },
+    ]);
+    // The hex a finish writes alongside itself still reaches the viewer.
+    expect(handoff.pickguards?.[0]).toMatchObject({ colorHex: '#c9ccd1' });
+    expect(handoff.pickguards?.[0]).not.toHaveProperty('finish');
+    expect(handoff.schemaVersion).toBeLessThanOrEqual(PINNED_VIEWER_READ_SCHEMA);
+    // The document itself is untouched.
+    expect(project.potentiometers?.[0].knobFinish).toBe('gold');
+    expect(project.pickguards?.[0].finish).toBe('chrome');
+  });
+
+  it('never stamps the handoff above what the pinned viewer reads', () => {
+    expect(projectForViewerLink(styled()).schemaVersion).toBeLessThanOrEqual(PINNED_VIEWER_READ_SCHEMA);
   });
 });
 

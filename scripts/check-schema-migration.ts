@@ -511,6 +511,24 @@ async function main() {
       } }), 6);
     });
 
+    check('knob types and finishes and a pickguard finish lift the stamp to 10, and clearing them drops back', () => {
+      const withPot = controls.addingPotentiometer(plain).project;
+      const styled = controls.settingKnobStyle(withPot, { type: 'dome', finish: 'chrome' });
+      deepStrictEqual(savedVersion(styled), 10);
+      deepStrictEqual(decodePayload(exporter.exportProjectToSVG(styled)).potentiometers, styled.potentiometers);
+      // generic and an id this build does not know are what version 4 allowed.
+      deepStrictEqual(savedVersion({ ...withPot, potentiometers: [{ ...withPot.potentiometers[0], knobStyleId: 'chicken_head' }] }), 4);
+      const guarded = { ...plain, pickguards: [{ id: 'g', contour: plain.contour, colorHex: '#ffffff' }] };
+      deepStrictEqual(savedVersion(guarded), 3);
+      const gold = controls.settingPickguardFinish(guarded, 'g', 'gold');
+      deepStrictEqual(gold.pickguards[0].colorHex, '#d4af37');
+      deepStrictEqual(savedVersion(gold), 10);
+      // An unknown finish is kept verbatim and still stamps 10, as on iPad.
+      const unknown = { ...plain, pickguards: [{ id: 'g', contour: plain.contour, colorHex: '#123456', finish: 'tortoise' }] };
+      deepStrictEqual(decodePayload(exporter.exportProjectToSVG(unknown)).pickguards, unknown.pickguards);
+      deepStrictEqual(savedVersion(unknown), 10);
+    });
+
     console.log('version 7: paired neck-joint geometry and placement');
 
     const documentedSStyleJoint = {
