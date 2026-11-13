@@ -47,6 +47,7 @@ import {
   colorWithAlpha,
 } from '../constants/planDrawingStyle';
 import { snapHandleAngle } from '../utils/handleAngleSnap';
+import { nudgeAnchors, nudgeDeltaForKey } from '../utils/anchorNudge';
 import {
   movingPotentiometer,
   movingSwitch,
@@ -97,6 +98,8 @@ const jackRotateKey = (id: string) => `jack:rotate:${id}`;
 // rather than one derived from the selected id set - is enough to coalesce
 // a whole multi-anchor drag into one undo step.
 const MULTI_ANCHOR_DRAG_KEY = 'anchor-multi-drag';
+// Holding an arrow key repeats; the whole run is one undo step, closed on keyup.
+const ANCHOR_NUDGE_KEY = 'anchor-nudge';
 
 interface CanvasWorkspaceProps {
   project: GuitarProject;
@@ -274,6 +277,49 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
       window.removeEventListener('blur', releaseAll);
     };
   }, []);
+
+  // Arrow keys move the selected nodes 1mm, 10mm with Shift. Deliberately not
+  // grid-snapped: the step is the precision the user asked for.
+  useEffect(() => {
+    if (selectedAnchorIds.size === 0) return;
+
+    const isTypingTarget = (target: EventTarget | null) =>
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLSelectElement ||
+      target instanceof HTMLTextAreaElement ||
+      (target instanceof HTMLElement && target.isContentEditable);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || isTypingTarget(e.target)) return;
+      const delta = nudgeDeltaForKey(e.key, e.shiftKey, rotation);
+      if (!delta) return;
+      e.preventDefault();
+      onUpdateProject((prev) => {
+        const prevContour = getActiveContour(prev, activeLayer);
+        if (!prevContour) return prev;
+        const anchors = nudgeAnchors(
+          prevContour.anchors,
+          selectedAnchorIds,
+          delta,
+          isBodyActive ? prev.settings.symmetry : undefined
+        );
+        return anchors === prevContour.anchors
+          ? prev
+          : withActiveContour(prev, activeLayer, { ...prevContour, anchors });
+      }, ANCHOR_NUDGE_KEY);
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key.startsWith('Arrow')) onEndEdit();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [selectedAnchorIds, rotation, activeLayer, isBodyActive, onUpdateProject, onEndEdit]);
 
   // A ResizeObserver rather than a window resize listener: the container can be
   // 0x0 at mount (hidden tab, late layout) and a 0-sized Konva stage throws when
