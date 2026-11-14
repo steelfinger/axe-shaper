@@ -3,6 +3,7 @@ import { BRIDGE_PRESETS, NECK_PRESETS } from '../../constants/hardware';
 import {
   getBridgePlateTopYMm,
   getFretDistanceFromNutMm,
+  getLastFretYMm,
   getSaddleYMm,
   getTheoreticalSaddleYMm,
 } from '../scaleMath';
@@ -37,5 +38,20 @@ describe('scaleMath', () => {
   it('puts the 12th fret at half the scale length and the nut at zero', () => {
     expect(getFretDistanceFromNutMm(0, 647.7)).toBe(0);
     expect(getFretDistanceFromNutMm(12, 647.7)).toBeCloseTo(647.7 / 2, 10);
+  });
+
+  it('places the last fret from scale and fret count, relative to the joint line', () => {
+    expect(getLastFretYMm(neck)).toBeCloseTo(
+      getFretDistanceFromNutMm(21, neck.scaleLengthMm) - neck.nutToBodyEdgeMm!,
+      10
+    );
+    // Two more frets reach about 19.8mm further over the body at 25.5".
+    const twentyTwo = getLastFretYMm({ ...neck, frets: 22 })!;
+    const twentyFour = getLastFretYMm({ ...neck, frets: 24 })!;
+    expect(twentyFour - twentyTwo).toBeCloseTo(19.83, 2);
+  });
+
+  it('has no last fret for a neck without a fret count', () => {
+    expect(getLastFretYMm({ ...neck, frets: undefined as never })).toBeUndefined();
   });
 });

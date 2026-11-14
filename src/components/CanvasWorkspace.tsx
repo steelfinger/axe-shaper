@@ -23,6 +23,7 @@ import { resolveBridgePreset, resolveNeckPreset, resolvePickupSpec } from '../ut
 import { generateNeckJointOutline, neckJointOutlineToSVGPath } from '../utils/neckJointGeometry';
 import {
   getMountingPointOriginYMm,
+  getLastFretYMm,
   getTheoreticalSaddleYMm,
 } from '../utils/scaleMath';
 import {
@@ -370,6 +371,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
 
   // Theoretical saddle & bridge Y mm (measured from body pocket entrance edge Y=0)
   const theoreticalSaddleY = getTheoreticalSaddleYMm(neck);
+  const lastFretY = getLastFretYMm(neck);
   const bridgeDrawing = getBridgeDrawingGeometry(neck, bridge);
   const [bridgeReferenceMinX, bridgeReferenceMaxX] = bridgeReferenceLineXRange(bridgeDrawing);
   const mountingOriginY = getMountingPointOriginYMm(neck, bridge);
@@ -1113,6 +1115,31 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                   stroke="#ef4444"
                   strokeWidth={2.0 / zoom}
                 />
+                {/* Last fret: the fingerboard ends just past it, so a neck
+                    pickup has to sit clear of this line. Drawn here, over the
+                    body and pickguard fills, rather than with the grid-layer
+                    reference lines they would cover. */}
+                {lastFretY !== undefined && (
+                  <>
+                    <Line
+                      points={[-40, lastFretY, 40, lastFretY]}
+                      stroke="#d946ef"
+                      strokeWidth={2 / zoom}
+                      dash={[6 / zoom, 4 / zoom]}
+                      listening={false}
+                    />
+                    <Text
+                      x={44}
+                      y={lastFretY}
+                      offsetY={5 / zoom}
+                      rotation={-rotation}
+                      text={`Last Fret (${neck.frets})`}
+                      fill="#d946ef"
+                      fontSize={11 / zoom}
+                      listening={false}
+                    />
+                  </>
+                )}
                 {/* `?? []` - an embedded bridge copy need not carry these, and
                     an iOS-written file never does. Unguarded, this threw
                     inside render, which is a blank canvas rather than a

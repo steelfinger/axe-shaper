@@ -549,6 +549,11 @@ have 19–21, so N=22 would be the wrong rate — swapping a 34″ bass neck for
 N=20 is the common four-string count and drops that below a millimetre for the
 swaps that make sense.
 
+A neck's own `frets` is a separate, editable fact. The web editor has a fret
+count control that rewrites `frets`, `nutToJointMm` (the fingerboard end) and
+the count in `name` on the embedded `neckPreset`, leaving `neckPresetId` as it
+was. N does not follow it: a 24-fret guitar neck is still placed with N=22.
+
 This replaces an earlier decision to use 22 for both instruments. It was
 changed while the bass catalogue existed but no bass blueprint did, so no
 stored overhang constant had to be recomputed; after bass bodies ship, changing

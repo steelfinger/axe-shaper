@@ -23,6 +23,7 @@ import type {
   StoredProject,
 } from '../types/guitar';
 import {
+  FINGERBOARD_PAST_LAST_FRET_MM,
   LEGACY_INSTRUMENT_TYPE,
   bridgePresetInstrument,
   defaultStringCount,
@@ -273,6 +274,50 @@ export function neckPresetFieldsForTemplate(
       pocketCornerRadiusMm: pocket.jointCornerRadiusMm,
     },
   };
+}
+
+/**
+ * A neck with a different number of frets. Scale length, the body joint and
+ * the pocket are untouched: fret count moves only where the fingerboard ends
+ * (`nutToJointMm`, which the 3D viewer draws to) and how many frets a reader
+ * draws. The saddle line does not read either field.
+ *
+ * Choosing the count the catalogue lists for this neck's id restores the
+ * catalogue's own `nutToJointMm`, so going 22 -> 24 -> 22 is exact. Any other
+ * count ends the fingerboard `FINGERBOARD_PAST_LAST_FRET_MM` past its last
+ * fret. The name follows the count, because the copy is embedded in the save
+ * and "22 Frets" on a 24-fret neck is a second, stale answer.
+ */
+export function neckWithFretCount(neck: NeckPreset, frets: number): NeckPreset {
+  const catalogue = NECK_PRESETS[neck.id] ?? CURATED_NECK_PRESETS[neck.id];
+  const isCatalogueCount =
+    catalogue?.frets === frets && catalogue.scaleLengthMm === neck.scaleLengthMm;
+  return {
+    ...neck,
+    frets,
+    name: neck.name.replace(/\b\d+ Frets\b/, `${frets} Frets`),
+    nutToJointMm: isCatalogueCount
+      ? catalogue.nutToJointMm
+      : getFretDistanceFromNutMm(frets, neck.scaleLengthMm) + FINGERBOARD_PAST_LAST_FRET_MM,
+  };
+}
+
+/**
+ * Set the project's fret count on its embedded neck copy - the copy, because
+ * that is what every reader resolves first. A v7 project goes back through
+ * `withEmbeddedPresets` so the fingerboard-end mirror is recomputed.
+ */
+export function applyNeckFretCount(project: GuitarProject, frets: number): GuitarProject {
+  const neck = resolveNeckPreset(project);
+  // An iPad-written neck may omit `frets`; there is then no count to carry.
+  if (!Number.isInteger(frets) || neck.frets === frets) return project;
+  const next = { ...project, neckPreset: neckWithFretCount(neck, frets) };
+  return project.neckJointGeometry ? withEmbeddedPresets(next) : next;
+}
+
+/** A neck's catalogue name without its fret count, for a picker that sits beside a fret-count control. */
+export function neckNameWithoutFretCount(name: string): string {
+  return name.replace(/, \d+ Frets\b/, '');
 }
 
 /**

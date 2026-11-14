@@ -84,6 +84,28 @@ export const FINGERBOARD_REFERENCE_FRET: Record<InstrumentType, number> = {
   bass: 20,
 };
 
+/**
+ * The fret counts the editor offers for a neck, per instrument. A choice, not
+ * a gate: a file carrying any other count opens, draws and re-saves, and the
+ * control shows that count as an extra row.
+ *
+ * Unrelated to `FINGERBOARD_REFERENCE_FRET` above. That is a placement rate
+ * and stays fixed per instrument; this is how many frets the neck has, and no
+ * body, bridge or pocket geometry reads it.
+ */
+export const OFFERED_FRET_COUNTS: Record<InstrumentType, readonly number[]> = {
+  guitar: [21, 22, 24],
+  bass: [19, 20, 21, 24],
+};
+
+/**
+ * Fingerboard past the last fret, for a fret count the catalogue has no
+ * entry for. A round working figure for both instruments, not a sourced
+ * spec: it only sets how far the 3D viewer draws the board past the last
+ * fret, and no body, bridge or pocket geometry reads it.
+ */
+export const FINGERBOARD_PAST_LAST_FRET_MM = 6;
+
 export function fingerboardReferenceFret(type: InstrumentType): number {
   return FINGERBOARD_REFERENCE_FRET[type] ?? FINGERBOARD_REFERENCE_FRET.guitar;
 }

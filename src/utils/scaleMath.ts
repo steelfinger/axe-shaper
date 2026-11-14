@@ -110,3 +110,21 @@ export function getMountingPointOriginYMm(neck: NeckPreset, bridge: BridgePreset
 export function getFretDistanceFromNutMm(fret: number, scaleLengthMm: LengthMm): LengthMm {
   return scaleLengthMm * (1 - Math.pow(2, -fret / 12));
 }
+
+/**
+ * Where the neck's last fret sits, measured from the joint line Y=0 - positive
+ * is over the body. The fingerboard ends a few millimetres past it, so this is
+ * the line a neck pickup has to clear.
+ *
+ * Deliberately the fret, not `nutToJointMm`: that field is display data of
+ * mixed provenance (several catalogue entries end short of their own last
+ * fret), while this follows from scale length and fret count alone. Undefined
+ * for a neck that carries no fret count, as an iPad-written copy may.
+ */
+export function getLastFretYMm(neck: NeckPreset): LengthMm | undefined {
+  if (!Number.isInteger(neck.frets) || neck.frets < 1) return undefined;
+  return (
+    getFretDistanceFromNutMm(neck.frets, neck.scaleLengthMm) -
+    (neck.nutToBodyEdgeMm ?? FALLBACK_NUT_TO_BODY_EDGE_MM)
+  );
+}

@@ -32,6 +32,8 @@ import {
   convertLegacyNeckJointToCustom,
   blueprintNeckJointBaseline,
   documentedBlueprintNeckPlacement,
+  applyNeckFretCount,
+  neckNameWithoutFretCount,
   neckPresetFields,
   neckPresetFieldsForTemplate,
   isBlueprintNeckJointBaseline,
@@ -43,6 +45,7 @@ import {
   resolvedNeckJointMechanism,
   withEmbeddedPresets,
 } from '../utils/presets';
+import { OFFERED_FRET_COUNTS } from '../utils/instrument';
 import {
   NeckJointContractError,
   boltOnMouthWidthForTaper,
@@ -1067,13 +1070,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <select
                   value={neckPresetId}
                   onChange={(e) =>
-                    onUpdateProject((prev) => applyNeckJointChange(prev, e.target.value, currentMechanism))
+                    // Scale and fret count are separate choices: a new scale
+                    // keeps the fret count already chosen.
+                    onUpdateProject((prev) =>
+                      applyNeckFretCount(
+                        applyNeckJointChange(prev, e.target.value, currentMechanism),
+                        resolveNeckPreset(prev).frets
+                      )
+                    )
                   }
                   className="form-select"
                 >
                   {offeredNeckPresets(project.instrumentType).map((n) => (
                     <option key={n.id} value={n.id}>
-                      {n.name}
+                      {neckNameWithoutFretCount(n.name)}
                     </option>
                   ))}
                   {/* A file can still carry one of the 9 original per-body ids
@@ -1087,9 +1097,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {NECK_PRESETS[neckPresetId] &&
                     !offeredNeckPresets(project.instrumentType).some((n) => n.id === neckPresetId) && (
                       <option key={neckPresetId} value={neckPresetId}>
-                        {NECK_PRESETS[neckPresetId].name}
+                        {neckNameWithoutFretCount(NECK_PRESETS[neckPresetId].name)}
                       </option>
                     )}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="neck-fret-count">Frets</label>
+                <select
+                  id="neck-fret-count"
+                  value={currentNeck.frets}
+                  onChange={(e) =>
+                    onUpdateProject((prev) => applyNeckFretCount(prev, Number(e.target.value)))
+                  }
+                  className="form-select"
+                >
+                  {/* A count this build does not offer still shows, as the
+                      neck picker does for a legacy id. */}
+                  {[...new Set([...OFFERED_FRET_COUNTS[project.instrumentType], currentNeck.frets])]
+                    .filter((count) => Number.isFinite(count))
+                    .sort((a, b) => a - b)
+                    .map((count) => (
+                      <option key={count} value={count}>
+                        {count}
+                      </option>
+                    ))}
                 </select>
               </div>
 
@@ -1097,7 +1130,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div>• Scale Length: <strong>{currentNeck.scaleLengthMm} mm</strong> ({(currentNeck.scaleLengthMm / 25.4).toFixed(2)}")</div>
                 <div>• Joint Pocket Width: <strong>{currentNeck.jointWidthMm} mm</strong></div>
                 <div>• Joint Pocket Depth: <strong>{currentNeck.jointDepthMm} mm</strong></div>
-                <div>• Nut-to-Joint: <strong>{currentNeck.nutToJointMm} mm</strong></div>
+                <div>• Nut to Fingerboard End: <strong>{currentNeck.nutToJointMm?.toFixed(1) ?? '-'} mm</strong></div>
               </div>
             </div>
 
