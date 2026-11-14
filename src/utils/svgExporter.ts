@@ -290,6 +290,9 @@ function getContentBoundsMm(project: GuitarProject): BoundsMm {
   add(0, 0);
   add(-neck.jointWidthMm / 2, 0);
   add(neck.jointWidthMm / 2, neck.jointDepthMm);
+  if (project.neckJointGeometry) {
+    for (const point of generateNeckJointOutline(project.neckJointGeometry).points) add(point.x, point.y);
+  }
 
   // Bridge silhouettes, theoretical scale-length line, mounting holes
   const bridgeDrawing = getBridgeDrawingGeometry(neck, bridge);

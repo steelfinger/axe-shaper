@@ -154,6 +154,14 @@ describe('printBoundsMm', () => {
     })!;
     expect(withSwitch.minX + withSwitch.widthMm).toBeCloseTo(far + 18, 9);
   });
+
+  it('includes a pickup moved outside the body', () => {
+    const pickup = project.pickups[0];
+    expect(pickup).toBeDefined();
+    const x = printBoundsMm(project)!.minX + 1000;
+    const bounds = printBoundsMm({ ...project, pickups: [{ ...pickup, offsetXMm: x }] })!;
+    expect(bounds.minX + bounds.widthMm).toBeGreaterThan(x + pickup.widthMm / 2);
+  });
 });
 
 describe('calibrationOverlaySVG', () => {

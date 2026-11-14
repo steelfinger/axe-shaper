@@ -4,6 +4,10 @@ import { jackExtentRadiusMm } from './jackEditing';
 import { neckJointFabricationDisclosure } from './neckJointDisclosure';
 import { exportProjectToSVG } from './svgExporter';
 import { CONTROL_DRAWING_GEOMETRY } from '../constants/planDrawingStyle';
+import { resolveBridgePreset, resolveNeckPreset, resolvePickupSpec } from './presets';
+import { bridgeDrawingBoundsPoints, bridgeMountingPointsAreVisible, getBridgeDrawingGeometry } from './bridgeDrawing';
+import { getMountingPointOriginYMm, getTheoreticalSaddleYMm } from './scaleMath';
+import { generateNeckJointOutline } from './neckJointGeometry';
 
 export type PrintPaper = 'a4' | 'letter';
 
@@ -143,9 +147,10 @@ export interface PrintBoundsMm {
 
 /**
  * What the tiles have to cover, in model mm: the drawn extent of every
- * construction contour plus the placed controls. This is `drawingBounds` in
- * the iPad app's `PDFExporter` and must stay the same rectangle, because it
- * is what decides the sheet count.
+ * construction contour, the pocket, the drawn bridge, the saddle line, pickups
+ * and controls, including any that sit outside the body. This is
+ * `drawingBounds` in the iPad app's `PDFExporter` and must stay the same
+ * rectangle, because it is what decides the sheet count.
  *
  * It is deliberately not the saved SVG's page. That page adds padding, an
  * 80mm label margin and a 181mm title band, and tiling it turned a body the
@@ -168,6 +173,24 @@ export function printBoundsMm(project: GuitarProject): PrintBoundsMm | null {
     if (bounds) add(bounds.minX, bounds.minY, bounds.maxX, bounds.maxY);
   }
   const addCircle = (x: number, y: number, radius: number) => add(x - radius, y - radius, x + radius, y + radius);
+  const neck = resolveNeckPreset(project);
+  const bridge = resolveBridgePreset(project);
+  if (project.neckJointGeometry) {
+    for (const point of generateNeckJointOutline(project.neckJointGeometry).points) add(point.x, point.y, point.x, point.y);
+  } else {
+    add(-neck.jointWidthMm / 2, 0, neck.jointWidthMm / 2, neck.jointDepthMm);
+  }
+  const bridgeGeometry = getBridgeDrawingGeometry(neck, bridge);
+  for (const point of bridgeDrawingBoundsPoints(bridgeGeometry)) add(point.x, point.y, point.x, point.y);
+  if (bridgeMountingPointsAreVisible(bridgeGeometry)) {
+    const mountingY = getMountingPointOriginYMm(neck, bridge);
+    for (const point of bridge.mountingPoints ?? []) addCircle(point.x, mountingY + point.y, 2);
+  }
+  add(0, getTheoreticalSaddleYMm(neck), 0, getTheoreticalSaddleYMm(neck));
+  for (const pickup of project.pickups ?? []) {
+    const spec = resolvePickupSpec(pickup);
+    addCircle(pickup.offsetXMm, pickup.offsetYMm, Math.hypot(spec.widthMm, spec.heightMm) / 2);
+  }
   for (const potentiometer of project.potentiometers ?? []) {
     const radius = Math.max(
       potentiometer.bodyDiameterMm,
