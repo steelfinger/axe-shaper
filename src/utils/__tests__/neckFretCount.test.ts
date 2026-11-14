@@ -7,6 +7,7 @@ import {
   neckWithFretCount,
   resolveBridgePreset,
   resolveNeckPreset,
+  withEmbeddedPresets,
 } from '../presets';
 import { getFretDistanceFromNutMm, getSaddleYMm } from '../scaleMath';
 
@@ -49,6 +50,13 @@ describe('applyNeckFretCount', () => {
     const edited = applyNeckFretCount(project, 24);
     expect(edited.schemaVersion).toBe(project.schemaVersion);
     expect(edited.neckPresetId).toBe(project.neckPresetId);
+  });
+
+  it('keeps a 21-fret board short of fret 22 through a save', () => {
+    const edited = applyNeckFretCount(createProject({ templateId: 't_style' }), 21);
+    const saved = withEmbeddedPresets(edited).neckPreset!;
+    expect(saved.nutToJointMm).toBeCloseTo(getFretDistanceFromNutMm(21, saved.scaleLengthMm) + 6, 10);
+    expect(saved.nutToJointMm).toBeLessThan(getFretDistanceFromNutMm(22, saved.scaleLengthMm));
   });
 
   it('ignores a missing count rather than writing one', () => {

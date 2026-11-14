@@ -822,12 +822,21 @@ export function withEmbeddedPresets(project: StoredProject): GuitarProject {
           ? v7Joint.parameters.endRoundnessMm
           : v7Joint.parameters.endCornerRadiusMm,
         nutToBodyEdgeMm: nutToBodyEdgeFromPlacement(v7Placement, resolvedNeck.scaleLengthMm),
-        // The legacy mirror is also consumed by older 3D readers as the
-        // fingerboard-end station. Keep it at least as far as v7's datum
-        // fret while retaining a longer authored 24-fret end.
+        // The legacy mirror is also consumed by 3D readers as the
+        // fingerboard-end station. Keep it at least as far as the neck's own
+        // last fret, so no wire sits past the board, while retaining a longer
+        // authored end such as a 24-fret overhang. The floor is the neck's
+        // `frets`, not `referenceFret`: that is a placement rate, not a fret
+        // count, and flooring at it padded a 21-fret board (19 on bass) out
+        // to fret 22 (20). The reference fret is only the fallback for a neck
+        // with no count. axe-shaper-ios's `fingerboardEndAtLeastLastFret`
+        // and the viewer's `resolvedNeckPreset` apply the same rule.
         nutToJointMm: Math.max(
           resolvedNeck.nutToJointMm,
-          getFretDistanceFromNutMm(v7Placement.referenceFret, resolvedNeck.scaleLengthMm),
+          getFretDistanceFromNutMm(
+            Number.isInteger(resolvedNeck.frets) && resolvedNeck.frets > 0 ? resolvedNeck.frets : v7Placement.referenceFret,
+            resolvedNeck.scaleLengthMm,
+          ),
         ),
       }
     : resolvedNeck;
