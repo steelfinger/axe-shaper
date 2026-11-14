@@ -30,7 +30,7 @@ function bridge(overrides: Partial<ViewerBridgeDeps> = {}) {
     ...overrides,
   };
   const instance = createViewerShareBridge(deps);
-  return { instance, calls, edit: (name: string) => { project = { ...project, settings: { ...project.settings, name } }; },
+  return { instance, calls, project: () => project, edit: (name: string) => { project = { ...project, settings: { ...project.settings, name } }; },
     handoff: () => JSON.stringify(project.settings) };
 }
 
@@ -46,23 +46,34 @@ describe('viewer share bridge', () => {
     expect(readViewerRequest('hello')).toBeNull();
   });
 
-  it('answers hello with the dialog consent text and notices edits since View in 3D', async () => {
-    const { instance, edit, handoff } = bridge();
+  it('answers hello with consent text and asks for a new view after an edit', async () => {
+    const { instance, edit, handoff, project } = bridge();
     const viewer = tab();
-    instance.register(viewer.window, handoff());
+    instance.register(viewer.window, handoff(), project());
     await instance.handle({ data: message('hello'), origin, source: viewer.window });
     expect(viewer.sent[0]).toEqual({ ...message('hello'), available: true, title: 'Flame Maple', author: 'Tero',
       terms: [...SHARE_TERMS], changedSinceView: false });
     edit('Flame Maple v2');
     await instance.handle({ data: message('hello', 'request-0002'), origin, source: viewer.window });
-    expect(viewer.sent[1]).toMatchObject({ available: true, title: 'Flame Maple v2', changedSinceView: true });
+    expect(viewer.sent[1]).toMatchObject({ available: false, message: expect.stringContaining('Reopen View in 3D') });
+  });
+
+  it('does not upload a changed design after the confirmation was displayed', async () => {
+    const { instance, edit, handoff, calls, project } = bridge();
+    const viewer = tab();
+    instance.register(viewer.window, handoff(), project());
+    await instance.handle({ data: message('hello'), origin, source: viewer.window });
+    edit('A different design');
+    await instance.handle({ data: message('create', 'request-0002'), origin, source: viewer.window });
+    expect(viewer.sent[1]).toMatchObject({ ok: false, message: expect.stringContaining('Reopen View in 3D') });
+    expect(calls.sent).toBe(0);
   });
 
   it('ignores other origins, unregistered windows and malformed messages', async () => {
-    const { instance, handoff } = bridge();
+    const { instance, handoff, project } = bridge();
     const viewer = tab();
     const stranger = tab();
-    instance.register(viewer.window, handoff());
+    instance.register(viewer.window, handoff(), project());
     await instance.handle({ data: message('hello'), origin: 'https://evil.example', source: viewer.window });
     await instance.handle({ data: message('hello'), origin, source: stranger.window });
     await instance.handle({ data: { type: 'hello' }, origin, source: viewer.window });
@@ -71,9 +82,9 @@ describe('viewer share bridge', () => {
   });
 
   it('reports why a design cannot be shared', async () => {
-    const { instance, handoff, calls } = bridge({ check: async () => ({ ok: false, reason: 'paused' }) });
+    const { instance, handoff, calls, project } = bridge({ check: async () => ({ ok: false, reason: 'paused' }) });
     const viewer = tab();
-    instance.register(viewer.window, handoff());
+    instance.register(viewer.window, handoff(), project());
     await instance.handle({ data: message('hello'), origin, source: viewer.window });
     await instance.handle({ data: message('create', 'request-0002'), origin, source: viewer.window });
     expect(viewer.sent[0]).toMatchObject({ available: false, message: expect.stringContaining('paused') });
@@ -82,9 +93,9 @@ describe('viewer share bridge', () => {
   });
 
   it('creates the link from the editor project and returns only the short link', async () => {
-    const { instance, handoff, calls } = bridge();
+    const { instance, handoff, calls, project } = bridge();
     const viewer = tab();
-    instance.register(viewer.window, handoff());
+    instance.register(viewer.window, handoff(), project());
     await instance.handle({ data: message('create'), origin, source: viewer.window });
     expect(viewer.sent[0]).toEqual({ ...message('create'), ok: true, id: 'AbCdEfGhIjKlMnOpQrSt', url: `${origin}/share/AbCdEfGhIjKlMnOpQrSt` });
     expect(JSON.stringify(viewer.sent[0])).not.toContain(pending.managementSecret);
@@ -92,9 +103,9 @@ describe('viewer share bridge', () => {
   });
 
   it('never uploads when the recovery record cannot be saved', async () => {
-    const { instance, handoff, calls } = bridge({ save: () => false });
+    const { instance, handoff, calls, project } = bridge({ save: () => false });
     const viewer = tab();
-    instance.register(viewer.window, handoff());
+    instance.register(viewer.window, handoff(), project());
     await instance.handle({ data: message('create'), origin, source: viewer.window });
     expect(viewer.sent[0]).toMatchObject({ ok: false, retryable: false });
     expect(calls.sent).toBe(0);
@@ -103,9 +114,9 @@ describe('viewer share bridge', () => {
   it('retries the same confirmed request after a retryable failure', async () => {
     const results: ShareSendResult[] = [{ ok: false, code: 'network', retryable: true },
       { ok: true, id: 'AbCdEfGhIjKlMnOpQrSt', createdAt: '2026-10-26T00:00:00Z' }];
-    const { instance, handoff, calls } = bridge({ send: async () => { calls.sent++; return results.shift()!; } });
+    const { instance, handoff, calls, project } = bridge({ send: async () => { calls.sent++; return results.shift()!; } });
     const viewer = tab();
-    instance.register(viewer.window, handoff());
+    instance.register(viewer.window, handoff(), project());
     await instance.handle({ data: message('create'), origin, source: viewer.window });
     await instance.handle({ data: message('create', 'request-0002'), origin, source: viewer.window });
     expect(viewer.sent[0]).toMatchObject({ ok: false, retryable: true });
@@ -116,9 +127,9 @@ describe('viewer share bridge', () => {
 
   it('refuses a second create while one is in flight', async () => {
     let finish: (result: ShareSendResult) => void = () => undefined;
-    const { instance, handoff, calls } = bridge({ send: () => { calls.sent++; return new Promise(resolve => { finish = resolve; }); } });
+    const { instance, handoff, calls, project } = bridge({ send: () => { calls.sent++; return new Promise(resolve => { finish = resolve; }); } });
     const viewer = tab();
-    instance.register(viewer.window, handoff());
+    instance.register(viewer.window, handoff(), project());
     const first = instance.handle({ data: message('create'), origin, source: viewer.window });
     await new Promise(resolve => setTimeout(resolve, 0));
     await instance.handle({ data: message('create', 'request-0002'), origin, source: viewer.window });

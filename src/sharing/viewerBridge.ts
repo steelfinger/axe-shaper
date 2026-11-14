@@ -55,6 +55,7 @@ export interface ViewerBridgeDeps {
 
 interface ViewerTab {
   handoff: string;
+  openedProject: string;
   busy: boolean;
   /** A confirmed request whose send failed retryably; a retry resends it rather than creating another. */
   retry?: { pending: PendingShare; title: string };
@@ -69,6 +70,10 @@ export function createViewerShareBridge(deps: ViewerBridgeDeps) {
 
   const hello = async (viewer: ViewerTab, requestId: string): Promise<BridgeReply> => {
     const project = deps.currentProject();
+    if (JSON.stringify(project) !== viewer.openedProject) return reply(requestId, {
+      type: 'hello', available: false,
+      message: 'The design has changed since this 3D view was opened. Reopen View in 3D to share the current design.',
+    });
     const preflight = await deps.check(project);
     if (!preflight.ok) return reply(requestId, { type: 'hello', available: false, message: BLOCKED_MESSAGES[preflight.reason] });
     return reply(requestId, {
@@ -85,8 +90,14 @@ export function createViewerShareBridge(deps: ViewerBridgeDeps) {
       let attempt = viewer.retry;
       if (!attempt) {
         const project = deps.currentProject();
+        if (JSON.stringify(project) !== viewer.openedProject) {
+          return failed('The design has changed since this 3D view was opened. Reopen View in 3D to share the current design.', false);
+        }
         const preflight = await deps.check(project);
         if (!preflight.ok) return failed(BLOCKED_MESSAGES[preflight.reason], false);
+        if (JSON.stringify(deps.currentProject()) !== viewer.openedProject) {
+          return failed('The design has changed since this 3D view was opened. Reopen View in 3D to share the current design.', false);
+        }
         attempt = { pending: deps.begin(preflight), title: project.settings.name };
         if (!deps.save(attempt.pending, attempt.title)) {
           return failed('This browser could not save the recovery details, so nothing was uploaded. Allow browser storage or share the project file.', false);
@@ -104,9 +115,9 @@ export function createViewerShareBridge(deps: ViewerBridgeDeps) {
 
   return {
     /** Called by View in 3D with the tab it opened and the projection it handed over. */
-    register(tab: Window, handoff: string): void {
+    register(tab: Window, handoff: string, openedProject: GuitarProject): void {
       for (const known of viewers.keys()) if (known.closed) viewers.delete(known);
-      viewers.set(tab, { handoff, busy: false });
+      viewers.set(tab, { handoff, openedProject: JSON.stringify(openedProject), busy: false });
     },
     async handle(event: BridgeEvent): Promise<void> {
       if (event.origin !== deps.origin || !event.source) return;

@@ -744,7 +744,7 @@ function EditorApp({ initialProject, onNewDesign, onDirtyChange, sourceShareId }
       const handoff = withEmbeddedPresets(project);
       const path = await buildViewer3DPath(handoff);
       if (newTab) {
-        if (SHARING_ENABLED) viewerShareBridge.register(newTab, JSON.stringify(projectForViewerLink(handoff)));
+        if (SHARING_ENABLED) viewerShareBridge.register(newTab, JSON.stringify(projectForViewerLink(handoff)), project);
         newTab.location.href = path;
       } else {
         window.location.href = path;
