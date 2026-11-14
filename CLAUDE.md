@@ -117,9 +117,11 @@ them. Choosing one is behind `SCHEMA_10_AUTHORING_ENABLED`
 reader goes first this time: `config/sharing-release.json` holds the reader-only
 hotfix `v1.3.2-web.4`, to tag before the iPad build that reads 10 is submitted.
 `project-upload-v4` is defined and fingerprinted as `NEXT_UPLOAD_POLICY_REVISION`
-but is not the admitting revision, because the pinned viewer v0.1.30 refuses
-envelopes from a revision it cannot read. The handoff holds the three fields out
-while `PINNED_VIEWER_READ_SCHEMA` is below 10. The flag-on Playwright build sets
+but is not the admitting revision yet. The pinned viewer v0.1.31 reads it and
+schema 10, so what still holds it back is the iPad: admitting 10 needs a live
+iPad build that edits 10 (iPad 1.5.0), which is a coordinated `v1.5.0`
+release, not a hotfix. The handoff would hold the three fields out if
+`PINNED_VIEWER_READ_SCHEMA` were below 10. The flag-on Playwright build sets
 the flag, and `*.schema10.spec.ts` runs in the `schema9-authoring` project.
 
 The ten bundled blueprints' jacks (and the Jaguar's pot swap, the V's round
@@ -133,7 +135,7 @@ must never send a field the pinned viewer cannot read - a viewer refuses a
 newer schema outright. The viewer reads schema 8 and draws jacks from
 `v0.1.23`, and reads 9 and draws body materials and finishes from `v0.1.25`.
 `v0.1.26` is the first with the `?share=` route that `/share/:id/3d` redirects
-to; do not go below it while sharing is on. The pin is `v0.1.30` (adds the Koli lake scene): one-tap Share
+to; do not go below it while sharing is on. The pin is `v0.1.31` (reads schema 10: knob types and finishes, pickguard finish): one-tap Share
 (3D image plus link to the share sheet) posting a stored share's short
 `/share/<id>` link, never the fragment link. For an unstored design opened by
 View in 3D, the viewer asks this editor to create the link

@@ -6,9 +6,9 @@
   "maxAcceptedProjectSchema": 9,
   "serverReadSchema": 10,
   "webReadSchema": 10,
-  "viewerReadSchema": 9,
+  "viewerReadSchema": 10,
   "schema9Authoring": true,
-  "viewerRelease": "v0.1.30",
+  "viewerRelease": "v0.1.31",
   "uploadPolicyRevision": "project-upload-v3",
   "nativeEvidence": {
     "verifiedOn": "2026-10-24",

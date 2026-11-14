@@ -61,9 +61,9 @@ export type ViewerLinkProject = Pick<
  * The newest schema the viewer pinned in `viewer3d.version` reads. Raise it in
  * the same commit that bumps the pin to a viewer that reads more: until then,
  * a field that needs a newer schema is held out of the handoff, or the viewer
- * would refuse the whole link. v0.1.25 reads 9.
+ * would refuse the whole link. v0.1.25 reads 9; v0.1.31 reads 10.
  */
-export const PINNED_VIEWER_READ_SCHEMA: number = 9;
+export const PINNED_VIEWER_READ_SCHEMA: number = 10;
 
 export function projectForViewerLink(project: GuitarProject): ViewerLinkProject {
   const { name, finishStyle, bodyColor, pickguardColor, showPickguard, showControls } = project.settings;
