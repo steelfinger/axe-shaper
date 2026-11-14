@@ -23,8 +23,8 @@ export const SCHEMA_9_AUTHORING_ENABLED = import.meta.env.VITE_SCHEMA_9_AUTHORIN
  * file that already carries them is never gated, and the controls show for a
  * document that already uses them.
  *
- * Off in every lane, staging and release included, until an iPad release that
- * reads 10 is live. The Playwright flag-on build turns it on. Enable it locally
+ * On in staging only. The release lane leaves it off until an iPad release
+ * that reads 10 is live. The Playwright flag-on build turns it on. Enable it locally
  * with `VITE_SCHEMA_10_AUTHORING=1`.
  */
 export const SCHEMA_10_AUTHORING_ENABLED = import.meta.env.VITE_SCHEMA_10_AUTHORING === '1';

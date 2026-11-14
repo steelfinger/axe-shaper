@@ -76,10 +76,17 @@ jobs:
       # material/finish (schema 9) authoring, as firebase-hosting-release.yml
       # does from v1.3.2, so staging shows what a tag of main would publish.
       # See CLAUDE.md, "Schema 8 and 9 authoring".
+      #
+      # VITE_SCHEMA_10_AUTHORING turns on knob types and finishes and the
+      # pickguard finish (schema 10) here only, ahead of the release lane,
+      # which waits for an iPad build that reads 10 to be live. Staging
+      # sharing still admits 9, so Create link refuses a design that uses
+      # them. See CLAUDE.md, "Schema 10 authoring".
       - run: npm run build:site
         env:
           GH_TOKEN: ${{ secrets.VIEWER3D_RELEASE_TOKEN }}
           VITE_SCHEMA_9_AUTHORING: '1'
+          VITE_SCHEMA_10_AUTHORING: '1'
           # The Create link dialog needs the /api/** sharing backend, which
           # only this project has. Never set in the release or PR workflows.
           VITE_SHARING: '1'

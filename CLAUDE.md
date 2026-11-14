@@ -108,14 +108,19 @@ project (`*.schema9.spec.ts`), which `playwright.config.ts` builds itself. That
 build also sets `VITE_SHARING=1`, as staging does, and the `sharing` project
 (`*.sharing.spec.ts`) runs against it too - one extra build, not one per flag.
 
-## Schema 10 authoring is off everywhere
+## Schema 10 authoring is on in staging only
 
 Schema 10 adds knob types and finishes and a pickguard finish
 (`docs/AXE_SVG_FORMAT.md`, "Version 10"). This build reads, draws and re-saves
 them. Choosing one is behind `SCHEMA_10_AUTHORING_ENABLED`
-(`VITE_SCHEMA_10_AUTHORING=1`), and no lane sets it yet, staging included. The
-reader goes first this time: `config/sharing-release.json` holds the reader-only
-hotfix `v1.3.2-web.4`, to tag before the iPad build that reads 10 is submitted.
+(`VITE_SCHEMA_10_AUTHORING=1`). The **staging** lane sets it (from 14 November
+2026); the release lane does not, and must not until iPad 1.5.1, the first App
+Store build that reads 10, is live - that is the coordinated web `v1.5.1`
+release. iPad 1.5.0 was tagged but is not being released. Staging sharing still
+admits 9, so Create link there refuses a design that uses a schema 10 choice.
+The reader went first this time: the reader-only hotfix `v1.3.2-web.4` (viewer
+v0.1.31) went live on 14 November 2026, before any iPad build reading 10 was
+submitted.
 `project-upload-v4` is defined and fingerprinted as `NEXT_UPLOAD_POLICY_REVISION`
 but is not the admitting revision yet. The pinned viewer v0.1.31 reads it and
 schema 10, so what still holds it back is the iPad: admitting 10 needs a live
